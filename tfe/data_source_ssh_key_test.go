@@ -20,10 +20,10 @@ func TestAccTFESSHKeyDataSource_basic(t *testing.T) {
 				Config: testAccTFESSHKeyDataSourceConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"data.tfe_ssh_key.foobar", "name", fmt.Sprintf("ssh-key-test-%d", rInt)),
+						"data.scalr_ssh_key.foobar", "name", fmt.Sprintf("ssh-key-test-%d", rInt)),
 					resource.TestCheckResourceAttr(
-						"data.tfe_ssh_key.foobar", "organization", fmt.Sprintf("tst-terraform-%d", rInt)),
-					resource.TestCheckResourceAttrSet("data.tfe_ssh_key.foobar", "id"),
+						"data.scalr_ssh_key.foobar", "organization", fmt.Sprintf("tst-terraform-%d", rInt)),
+					resource.TestCheckResourceAttrSet("data.scalr_ssh_key.foobar", "id"),
 				),
 			},
 		},
@@ -32,19 +32,19 @@ func TestAccTFESSHKeyDataSource_basic(t *testing.T) {
 
 func testAccTFESSHKeyDataSourceConfig(rInt int) string {
 	return fmt.Sprintf(`
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform-%d"
   email = "admin@company.com"
 }
 
-resource "tfe_ssh_key" "foobar" {
+resource "scalr_ssh_key" "foobar" {
   name         = "ssh-key-test-%d"
-  organization = "${tfe_organization.foobar.id}"
+  organization = "${scalr_organization.foobar.id}"
   key          = "SSH-KEY-CONTENT"
 }
 
-data "tfe_ssh_key" "foobar" {
-  name         = "${tfe_ssh_key.foobar.name}"
-  organization = "${tfe_ssh_key.foobar.organization}"
+data "scalr_ssh_key" "foobar" {
+  name         = "${scalr_ssh_key.foobar.name}"
+  organization = "${scalr_ssh_key.foobar.organization}"
 }`, rInt, rInt)
 }

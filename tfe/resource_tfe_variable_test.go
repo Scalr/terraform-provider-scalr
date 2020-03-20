@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	tfe "github.com/scalr/go-tfe"
 )
 
 func TestAccTFEVariable_basic(t *testing.T) {
@@ -21,18 +21,18 @@ func TestAccTFEVariable_basic(t *testing.T) {
 				Config: testAccTFEVariable_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFEVariableExists(
-						"tfe_variable.foobar", variable),
+						"scalr_variable.foobar", variable),
 					testAccCheckTFEVariableAttributes(variable),
 					resource.TestCheckResourceAttr(
-						"tfe_variable.foobar", "key", "key_test"),
+						"scalr_variable.foobar", "key", "key_test"),
 					resource.TestCheckResourceAttr(
-						"tfe_variable.foobar", "value", "value_test"),
+						"scalr_variable.foobar", "value", "value_test"),
 					resource.TestCheckResourceAttr(
-						"tfe_variable.foobar", "category", "env"),
+						"scalr_variable.foobar", "category", "env"),
 					resource.TestCheckResourceAttr(
-						"tfe_variable.foobar", "hcl", "false"),
+						"scalr_variable.foobar", "hcl", "false"),
 					resource.TestCheckResourceAttr(
-						"tfe_variable.foobar", "sensitive", "false"),
+						"scalr_variable.foobar", "sensitive", "false"),
 				),
 			},
 		},
@@ -51,18 +51,18 @@ func TestAccTFEVariable_update(t *testing.T) {
 				Config: testAccTFEVariable_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFEVariableExists(
-						"tfe_variable.foobar", variable),
+						"scalr_variable.foobar", variable),
 					testAccCheckTFEVariableAttributes(variable),
 					resource.TestCheckResourceAttr(
-						"tfe_variable.foobar", "key", "key_test"),
+						"scalr_variable.foobar", "key", "key_test"),
 					resource.TestCheckResourceAttr(
-						"tfe_variable.foobar", "value", "value_test"),
+						"scalr_variable.foobar", "value", "value_test"),
 					resource.TestCheckResourceAttr(
-						"tfe_variable.foobar", "category", "env"),
+						"scalr_variable.foobar", "category", "env"),
 					resource.TestCheckResourceAttr(
-						"tfe_variable.foobar", "hcl", "false"),
+						"scalr_variable.foobar", "hcl", "false"),
 					resource.TestCheckResourceAttr(
-						"tfe_variable.foobar", "sensitive", "false"),
+						"scalr_variable.foobar", "sensitive", "false"),
 				),
 			},
 
@@ -70,18 +70,18 @@ func TestAccTFEVariable_update(t *testing.T) {
 				Config: testAccTFEVariable_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFEVariableExists(
-						"tfe_variable.foobar", variable),
+						"scalr_variable.foobar", variable),
 					testAccCheckTFEVariableAttributesUpdate(variable),
 					resource.TestCheckResourceAttr(
-						"tfe_variable.foobar", "key", "key_updated"),
+						"scalr_variable.foobar", "key", "key_updated"),
 					resource.TestCheckResourceAttr(
-						"tfe_variable.foobar", "value", "value_updated"),
+						"scalr_variable.foobar", "value", "value_updated"),
 					resource.TestCheckResourceAttr(
-						"tfe_variable.foobar", "category", "terraform"),
+						"scalr_variable.foobar", "category", "terraform"),
 					resource.TestCheckResourceAttr(
-						"tfe_variable.foobar", "hcl", "true"),
+						"scalr_variable.foobar", "hcl", "true"),
 					resource.TestCheckResourceAttr(
-						"tfe_variable.foobar", "sensitive", "true"),
+						"scalr_variable.foobar", "sensitive", "true"),
 				),
 			},
 		},
@@ -99,9 +99,9 @@ func TestAccTFEVariable_import(t *testing.T) {
 			},
 
 			{
-				ResourceName:        "tfe_variable.foobar",
+				ResourceName:        "scalr_variable.foobar",
 				ImportState:         true,
-				ImportStateIdPrefix: "tst-terraform/workspace-test/",
+				ImportStateIdPrefix: "existing-org/existing-ws/",
 				ImportStateVerify:   true,
 			},
 		},
@@ -167,7 +167,7 @@ func testAccCheckTFEVariableAttributesUpdate(
 			return fmt.Errorf("Bad key: %s", variable.Key)
 		}
 
-		if variable.Value != "" {
+		if variable.Value != "value_updated" {
 			return fmt.Errorf("Bad value: %s", variable.Value)
 		}
 
@@ -191,7 +191,7 @@ func testAccCheckTFEVariableDestroy(s *terraform.State) error {
 	tfeClient := testAccProvider.Meta().(*tfe.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "tfe_variable" {
+		if rs.Type != "scalr_variable" {
 			continue
 		}
 
@@ -209,39 +209,19 @@ func testAccCheckTFEVariableDestroy(s *terraform.State) error {
 }
 
 const testAccTFEVariable_basic = `
-resource "tfe_organization" "foobar" {
-  name  = "tst-terraform"
-  email = "admin@company.com"
-}
-
-resource "tfe_workspace" "foobar" {
-  name         = "workspace-test"
-  organization = "${tfe_organization.foobar.id}"
-}
-
-resource "tfe_variable" "foobar" {
+resource "scalr_variable" "foobar" {
   key          = "key_test"
   value        = "value_test"
   category     = "env"
-  workspace_id = "${tfe_workspace.foobar.id}"
+  workspace_id = "existing-org/existing-ws"
 }`
 
 const testAccTFEVariable_update = `
-resource "tfe_organization" "foobar" {
-  name  = "tst-terraform"
-  email = "admin@company.com"
-}
-
-resource "tfe_workspace" "foobar" {
-  name         = "workspace-test"
-  organization = "${tfe_organization.foobar.id}"
-}
-
-resource "tfe_variable" "foobar" {
+resource "scalr_variable" "foobar" {
   key          = "key_updated"
   value        = "value_updated"
   category     = "terraform"
   hcl          = true
   sensitive    = true
-  workspace_id = "${tfe_workspace.foobar.id}"
+  workspace_id = "existing-org/existing-ws"
 }`

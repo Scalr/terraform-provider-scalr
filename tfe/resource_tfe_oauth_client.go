@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 
-	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
+	tfe "github.com/scalr/go-tfe"
 )
 
 func resourceTFEOAuthClient() *schema.Resource {

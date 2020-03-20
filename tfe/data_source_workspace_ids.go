@@ -3,8 +3,8 @@ package tfe
 import (
 	"fmt"
 
-	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/terraform/helper/schema"
+	tfe "github.com/scalr/go-tfe"
 )
 
 func dataSourceTFEWorkspaceIDs() *schema.Resource {

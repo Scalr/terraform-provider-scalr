@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	tfe "github.com/scalr/go-tfe"
 )
 
 func TestAccTFEOrganization_basic(t *testing.T) {
@@ -21,14 +21,14 @@ func TestAccTFEOrganization_basic(t *testing.T) {
 				Config: testAccTFEOrganization_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFEOrganizationExists(
-						"tfe_organization.foobar", org),
+						"scalr_organization.foobar", org),
 					testAccCheckTFEOrganizationAttributes(org),
 					resource.TestCheckResourceAttr(
-						"tfe_organization.foobar", "name", "tst-terraform"),
+						"scalr_organization.foobar", "name", "tst-terraform"),
 					resource.TestCheckResourceAttr(
-						"tfe_organization.foobar", "email", "admin@company.com"),
+						"scalr_organization.foobar", "email", "admin@company.com"),
 					resource.TestCheckResourceAttr(
-						"tfe_organization.foobar", "collaborator_auth_policy", "password"),
+						"scalr_organization.foobar", "collaborator_auth_policy", "password"),
 				),
 			},
 		},
@@ -47,14 +47,14 @@ func TestAccTFEOrganization_update(t *testing.T) {
 				Config: testAccTFEOrganization_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFEOrganizationExists(
-						"tfe_organization.foobar", org),
+						"scalr_organization.foobar", org),
 					testAccCheckTFEOrganizationAttributes(org),
 					resource.TestCheckResourceAttr(
-						"tfe_organization.foobar", "name", "tst-terraform"),
+						"scalr_organization.foobar", "name", "tst-terraform"),
 					resource.TestCheckResourceAttr(
-						"tfe_organization.foobar", "email", "admin@company.com"),
+						"scalr_organization.foobar", "email", "admin@company.com"),
 					resource.TestCheckResourceAttr(
-						"tfe_organization.foobar", "collaborator_auth_policy", "password"),
+						"scalr_organization.foobar", "collaborator_auth_policy", "password"),
 				),
 			},
 
@@ -62,20 +62,20 @@ func TestAccTFEOrganization_update(t *testing.T) {
 				Config: testAccTFEOrganization_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFEOrganizationExists(
-						"tfe_organization.foobar", org),
+						"scalr_organization.foobar", org),
 					testAccCheckTFEOrganizationAttributesUpdated(org),
 					resource.TestCheckResourceAttr(
-						"tfe_organization.foobar", "name", "terraform-updated"),
+						"scalr_organization.foobar", "name", "terraform-updated"),
 					resource.TestCheckResourceAttr(
-						"tfe_organization.foobar", "email", "admin-updated@company.com"),
+						"scalr_organization.foobar", "email", "admin-updated@company.com"),
 					resource.TestCheckResourceAttr(
-						"tfe_organization.foobar", "session_timeout_minutes", "3600"),
+						"scalr_organization.foobar", "session_timeout_minutes", "3600"),
 					resource.TestCheckResourceAttr(
-						"tfe_organization.foobar", "session_remember_minutes", "3600"),
+						"scalr_organization.foobar", "session_remember_minutes", "3600"),
 					resource.TestCheckResourceAttr(
-						"tfe_organization.foobar", "collaborator_auth_policy", "password"),
+						"scalr_organization.foobar", "collaborator_auth_policy", "password"),
 					resource.TestCheckResourceAttr(
-						"tfe_organization.foobar", "owners_team_saml_role_id", "owners"),
+						"scalr_organization.foobar", "owners_team_saml_role_id", "owners"),
 				),
 			},
 		},
@@ -93,7 +93,7 @@ func TestAccTFEOrganization_import(t *testing.T) {
 			},
 
 			{
-				ResourceName:      "tfe_organization.foobar",
+				ResourceName:      "scalr_organization.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -184,7 +184,7 @@ func testAccCheckTFEOrganizationDestroy(s *terraform.State) error {
 	tfeClient := testAccProvider.Meta().(*tfe.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "tfe_organization" {
+		if rs.Type != "scalr_organization" {
 			continue
 		}
 
@@ -202,13 +202,13 @@ func testAccCheckTFEOrganizationDestroy(s *terraform.State) error {
 }
 
 const testAccTFEOrganization_basic = `
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform"
   email = "admin@company.com"
 }`
 
 const testAccTFEOrganization_update = `
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name                     = "terraform-updated"
   email                    = "admin-updated@company.com"
   session_timeout_minutes  = 3600

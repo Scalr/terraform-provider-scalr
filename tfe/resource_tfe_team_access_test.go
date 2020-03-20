@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	tfe "github.com/scalr/go-tfe"
 )
 
 func TestAccTFETeamAccess_basic(t *testing.T) {
@@ -21,10 +21,10 @@ func TestAccTFETeamAccess_basic(t *testing.T) {
 				Config: testAccTFETeamAccess_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFETeamAccessExists(
-						"tfe_team_access.foobar", tmAccess),
+						"scalr_team_access.foobar", tmAccess),
 					testAccCheckTFETeamAccessAttributes(tmAccess),
 					resource.TestCheckResourceAttr(
-						"tfe_team_access.foobar", "access", "write"),
+						"scalr_team_access.foobar", "access", "write"),
 				),
 			},
 		},
@@ -42,7 +42,7 @@ func TestAccTFETeamAccess_import(t *testing.T) {
 			},
 
 			{
-				ResourceName:        "tfe_team_access.foobar",
+				ResourceName:        "scalr_team_access.foobar",
 				ImportState:         true,
 				ImportStateIdPrefix: "tst-terraform/workspace-test/",
 				ImportStateVerify:   true,
@@ -94,7 +94,7 @@ func testAccCheckTFETeamAccessDestroy(s *terraform.State) error {
 	tfeClient := testAccProvider.Meta().(*tfe.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "tfe_team_access" {
+		if rs.Type != "scalr_team_access" {
 			continue
 		}
 
@@ -112,23 +112,23 @@ func testAccCheckTFETeamAccessDestroy(s *terraform.State) error {
 }
 
 const testAccTFETeamAccess_basic = `
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform"
   email = "admin@company.com"
 }
 
-resource "tfe_team" "foobar" {
+resource "scalr_team" "foobar" {
   name         = "team-test"
-  organization = "${tfe_organization.foobar.id}"
+  organization = "${scalr_organization.foobar.id}"
 }
 
-resource "tfe_workspace" "foobar" {
+resource "scalr_workspace" "foobar" {
   name         = "workspace-test"
-  organization = "${tfe_organization.foobar.id}"
+  organization = "${scalr_organization.foobar.id}"
 }
 
-resource "tfe_team_access" "foobar" {
+resource "scalr_team_access" "foobar" {
   access       = "write"
-  team_id      = "${tfe_team.foobar.id}"
-  workspace_id = "${tfe_workspace.foobar.id}"
+  team_id      = "${scalr_team.foobar.id}"
+  workspace_id = "${scalr_workspace.foobar.id}"
 }`

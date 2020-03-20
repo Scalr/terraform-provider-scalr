@@ -5,9 +5,9 @@ import (
 	"regexp"
 	"testing"
 
-	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	tfe "github.com/scalr/go-tfe"
 )
 
 func TestAccTFEOrganizationToken_basic(t *testing.T) {
@@ -22,9 +22,9 @@ func TestAccTFEOrganizationToken_basic(t *testing.T) {
 				Config: testAccTFEOrganizationToken_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFEOrganizationTokenExists(
-						"tfe_organization_token.foobar", token),
+						"scalr_organization_token.foobar", token),
 					resource.TestCheckResourceAttr(
-						"tfe_organization_token.foobar", "organization", "tst-terraform"),
+						"scalr_organization_token.foobar", "organization", "tst-terraform"),
 				),
 			},
 		},
@@ -43,9 +43,9 @@ func TestAccTFEOrganizationToken_existsWithoutForce(t *testing.T) {
 				Config: testAccTFEOrganizationToken_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFEOrganizationTokenExists(
-						"tfe_organization_token.foobar", token),
+						"scalr_organization_token.foobar", token),
 					resource.TestCheckResourceAttr(
-						"tfe_organization_token.foobar", "organization", "tst-terraform"),
+						"scalr_organization_token.foobar", "organization", "tst-terraform"),
 				),
 			},
 
@@ -69,9 +69,9 @@ func TestAccTFEOrganizationToken_existsWithForce(t *testing.T) {
 				Config: testAccTFEOrganizationToken_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFEOrganizationTokenExists(
-						"tfe_organization_token.foobar", token),
+						"scalr_organization_token.foobar", token),
 					resource.TestCheckResourceAttr(
-						"tfe_organization_token.foobar", "organization", "tst-terraform"),
+						"scalr_organization_token.foobar", "organization", "tst-terraform"),
 				),
 			},
 
@@ -79,9 +79,9 @@ func TestAccTFEOrganizationToken_existsWithForce(t *testing.T) {
 				Config: testAccTFEOrganizationToken_existsWithForce,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFEOrganizationTokenExists(
-						"tfe_organization_token.regenerated", token),
+						"scalr_organization_token.regenerated", token),
 					resource.TestCheckResourceAttr(
-						"tfe_organization_token.regenerated", "organization", "tst-terraform"),
+						"scalr_organization_token.regenerated", "organization", "tst-terraform"),
 				),
 			},
 		},
@@ -99,7 +99,7 @@ func TestAccTFEOrganizationToken_import(t *testing.T) {
 			},
 
 			{
-				ResourceName:            "tfe_organization_token.foobar",
+				ResourceName:            "scalr_organization_token.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"token"},
@@ -141,7 +141,7 @@ func testAccCheckTFEOrganizationTokenDestroy(s *terraform.State) error {
 	tfeClient := testAccProvider.Meta().(*tfe.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "tfe_organization_token" {
+		if rs.Type != "scalr_organization_token" {
 			continue
 		}
 
@@ -159,40 +159,40 @@ func testAccCheckTFEOrganizationTokenDestroy(s *terraform.State) error {
 }
 
 const testAccTFEOrganizationToken_basic = `
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform"
   email = "admin@company.com"
 }
 
-resource "tfe_organization_token" "foobar" {
-  organization = "${tfe_organization.foobar.id}"
+resource "scalr_organization_token" "foobar" {
+  organization = "${scalr_organization.foobar.id}"
 }`
 
 const testAccTFEOrganizationToken_existsWithoutForce = `
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform"
   email = "admin@company.com"
 }
 
-resource "tfe_organization_token" "foobar" {
-  organization = "${tfe_organization.foobar.id}"
+resource "scalr_organization_token" "foobar" {
+  organization = "${scalr_organization.foobar.id}"
 }
 
-resource "tfe_organization_token" "error" {
-  organization = "${tfe_organization.foobar.id}"
+resource "scalr_organization_token" "error" {
+  organization = "${scalr_organization.foobar.id}"
 }`
 
 const testAccTFEOrganizationToken_existsWithForce = `
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform"
   email = "admin@company.com"
 }
 
-resource "tfe_organization_token" "foobar" {
-  organization = "${tfe_organization.foobar.id}"
+resource "scalr_organization_token" "foobar" {
+  organization = "${scalr_organization.foobar.id}"
 }
 
-resource "tfe_organization_token" "regenerated" {
-  organization     = "${tfe_organization.foobar.id}"
+resource "scalr_organization_token" "regenerated" {
+  organization     = "${scalr_organization.foobar.id}"
   force_regenerate = true
 }`

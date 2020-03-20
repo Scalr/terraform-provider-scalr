@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	tfe "github.com/scalr/go-tfe"
 )
 
 func TestPackTeamMemberID(t *testing.T) {
@@ -88,10 +88,10 @@ func TestAccTFETeamMember_basic(t *testing.T) {
 				Config: testAccTFETeamMember_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFETeamMemberExists(
-						"tfe_team_member.foobar", user),
+						"scalr_team_member.foobar", user),
 					testAccCheckTFETeamMemberAttributes(user),
 					resource.TestCheckResourceAttr(
-						"tfe_team_member.foobar", "username", "admin"),
+						"scalr_team_member.foobar", "username", "admin"),
 				),
 			},
 		},
@@ -109,7 +109,7 @@ func TestAccTFETeamMember_import(t *testing.T) {
 			},
 
 			{
-				ResourceName:      "tfe_team_member.foobar",
+				ResourceName:      "scalr_team_member.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -173,7 +173,7 @@ func testAccCheckTFETeamMemberDestroy(s *terraform.State) error {
 	tfeClient := testAccProvider.Meta().(*tfe.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "tfe_team_member" {
+		if rs.Type != "scalr_team_member" {
 			continue
 		}
 
@@ -209,17 +209,17 @@ func testAccCheckTFETeamMemberDestroy(s *terraform.State) error {
 }
 
 const testAccTFETeamMember_basic = `
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform"
   email = "admin@company.com"
 }
 
-resource "tfe_team" "foobar" {
+resource "scalr_team" "foobar" {
   name         = "team-test"
-  organization = "${tfe_organization.foobar.id}"
+  organization = "${scalr_organization.foobar.id}"
 }
 
-resource "tfe_team_member" "foobar" {
-  team_id  = "${tfe_team.foobar.id}"
+resource "scalr_team_member" "foobar" {
+  team_id  = "${scalr_team.foobar.id}"
   username = "admin"
 }`

@@ -6,9 +6,9 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"github.com/scalr/go-tfe"
 )
 
 func TestAccTFENotificationConfiguration_basic(t *testing.T) {
@@ -23,18 +23,18 @@ func TestAccTFENotificationConfiguration_basic(t *testing.T) {
 				Config: testAccTFENotificationConfiguration_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFENotificationConfigurationExists(
-						"tfe_notification_configuration.foobar", notificationConfiguration),
+						"scalr_notification_configuration.foobar", notificationConfiguration),
 					testAccCheckTFENotificationConfigurationAttributes(notificationConfiguration),
 					resource.TestCheckResourceAttr(
-						"tfe_notification_configuration.foobar", "destination_type", "generic"),
+						"scalr_notification_configuration.foobar", "destination_type", "generic"),
 					resource.TestCheckResourceAttr(
-						"tfe_notification_configuration.foobar", "name", "notification_basic"),
+						"scalr_notification_configuration.foobar", "name", "notification_basic"),
 					// Just test the number of items in triggers
 					// Values in triggers attribute are tested by testCheckTFENotificationConfigurationAttributes
 					resource.TestCheckResourceAttr(
-						"tfe_notification_configuration.foobar", "triggers.#", "0"),
+						"scalr_notification_configuration.foobar", "triggers.#", "0"),
 					resource.TestCheckResourceAttr(
-						"tfe_notification_configuration.foobar", "url", "http://example.com"),
+						"scalr_notification_configuration.foobar", "url", "http://example.com"),
 				),
 			},
 		},
@@ -53,40 +53,40 @@ func TestAccTFENotificationConfiguration_update(t *testing.T) {
 				Config: testAccTFENotificationConfiguration_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFENotificationConfigurationExists(
-						"tfe_notification_configuration.foobar", notificationConfiguration),
+						"scalr_notification_configuration.foobar", notificationConfiguration),
 					testAccCheckTFENotificationConfigurationAttributes(notificationConfiguration),
 					resource.TestCheckResourceAttr(
-						"tfe_notification_configuration.foobar", "destination_type", "generic"),
+						"scalr_notification_configuration.foobar", "destination_type", "generic"),
 					resource.TestCheckResourceAttr(
-						"tfe_notification_configuration.foobar", "name", "notification_basic"),
+						"scalr_notification_configuration.foobar", "name", "notification_basic"),
 					// Just test the number of items in triggers
 					// Values in triggers attribute are tested by testCheckTFENotificationConfigurationAttributes
 					resource.TestCheckResourceAttr(
-						"tfe_notification_configuration.foobar", "triggers.#", "0"),
+						"scalr_notification_configuration.foobar", "triggers.#", "0"),
 					resource.TestCheckResourceAttr(
-						"tfe_notification_configuration.foobar", "url", "http://example.com"),
+						"scalr_notification_configuration.foobar", "url", "http://example.com"),
 				),
 			},
 			{
 				Config: testAccTFENotificationConfiguration_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFENotificationConfigurationExists(
-						"tfe_notification_configuration.foobar", notificationConfiguration),
+						"scalr_notification_configuration.foobar", notificationConfiguration),
 					testAccCheckTFENotificationConfigurationAttributesUpdate(notificationConfiguration),
 					resource.TestCheckResourceAttr(
-						"tfe_notification_configuration.foobar", "destination_type", "generic"),
+						"scalr_notification_configuration.foobar", "destination_type", "generic"),
 					resource.TestCheckResourceAttr(
-						"tfe_notification_configuration.foobar", "enabled", "true"),
+						"scalr_notification_configuration.foobar", "enabled", "true"),
 					resource.TestCheckResourceAttr(
-						"tfe_notification_configuration.foobar", "name", "notification_update"),
+						"scalr_notification_configuration.foobar", "name", "notification_update"),
 					resource.TestCheckResourceAttr(
-						"tfe_notification_configuration.foobar", "token", "1234567890_update"),
+						"scalr_notification_configuration.foobar", "token", "1234567890_update"),
 					// Just test the number of items in triggers
 					// Values in triggers attribute are tested by testCheckTFENotificationConfigurationAttributesUpdate
 					resource.TestCheckResourceAttr(
-						"tfe_notification_configuration.foobar", "triggers.#", "2"),
+						"scalr_notification_configuration.foobar", "triggers.#", "2"),
 					resource.TestCheckResourceAttr(
-						"tfe_notification_configuration.foobar", "url", "http://example.com/?update=true"),
+						"scalr_notification_configuration.foobar", "url", "http://example.com/?update=true"),
 				),
 			},
 		},
@@ -119,18 +119,18 @@ func TestAccTFENotificationConfiguration_duplicateTriggers(t *testing.T) {
 				Config: testAccTFENotificationConfiguration_duplicateTriggers,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFENotificationConfigurationExists(
-						"tfe_notification_configuration.foobar", notificationConfiguration),
+						"scalr_notification_configuration.foobar", notificationConfiguration),
 					testAccCheckTFENotificationConfigurationAttributesDuplicateTriggers(notificationConfiguration),
 					resource.TestCheckResourceAttr(
-						"tfe_notification_configuration.foobar", "destination_type", "generic"),
+						"scalr_notification_configuration.foobar", "destination_type", "generic"),
 					resource.TestCheckResourceAttr(
-						"tfe_notification_configuration.foobar", "name", "notification_duplicate_triggers"),
+						"scalr_notification_configuration.foobar", "name", "notification_duplicate_triggers"),
 					// Just test the number of items in triggers
 					// Values in triggers attribute are tested by testCheckTFENotificationConfigurationAttributes
 					resource.TestCheckResourceAttr(
-						"tfe_notification_configuration.foobar", "triggers.#", "1"),
+						"scalr_notification_configuration.foobar", "triggers.#", "1"),
 					resource.TestCheckResourceAttr(
-						"tfe_notification_configuration.foobar", "url", "http://example.com"),
+						"scalr_notification_configuration.foobar", "url", "http://example.com"),
 				),
 			},
 		},
@@ -148,7 +148,7 @@ func TestAccTFENotificationConfigurationImport(t *testing.T) {
 			},
 
 			{
-				ResourceName:            "tfe_notification_configuration.foobar",
+				ResourceName:            "scalr_notification_configuration.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"token", "workspace_external_id"},
@@ -269,7 +269,7 @@ func testAccCheckTFENotificationConfigurationDestroy(s *terraform.State) error {
 	tfeClient := testAccProvider.Meta().(*tfe.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "tfe_notification_configuration" {
+		if rs.Type != "scalr_notification_configuration" {
 			continue
 		}
 
@@ -287,78 +287,78 @@ func testAccCheckTFENotificationConfigurationDestroy(s *terraform.State) error {
 }
 
 const testAccTFENotificationConfiguration_basic = `
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform"
   email = "admin@company.com"
 }
 
-resource "tfe_workspace" "foobar" {
+resource "scalr_workspace" "foobar" {
   name         = "workspace-test"
-  organization = "${tfe_organization.foobar.id}"
+  organization = "${scalr_organization.foobar.id}"
 }
 
-resource "tfe_notification_configuration" "foobar" {
+resource "scalr_notification_configuration" "foobar" {
   name                  = "notification_basic"
   destination_type      = "generic"
   url                   = "http://example.com"
-  workspace_external_id = "${tfe_workspace.foobar.external_id}"
+  workspace_external_id = "${scalr_workspace.foobar.external_id}"
 }`
 
 const testAccTFENotificationConfiguration_update = `
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform"
   email = "admin@company.com"
 }
 
-resource "tfe_workspace" "foobar" {
+resource "scalr_workspace" "foobar" {
   name         = "workspace-test"
-  organization = "${tfe_organization.foobar.id}"
+  organization = "${scalr_organization.foobar.id}"
 }
 
-resource "tfe_notification_configuration" "foobar" {
+resource "scalr_notification_configuration" "foobar" {
   name                  = "notification_update"
   destination_type      = "generic"
   enabled               = true
   token                 = "1234567890_update"
   triggers              = ["run:created", "run:needs_attention"]
   url                   = "http://example.com/?update=true"
-  workspace_external_id = "${tfe_workspace.foobar.external_id}"
+  workspace_external_id = "${scalr_workspace.foobar.external_id}"
 }`
 
 const testAccTFENotificationConfiguration_slackWithToken = `
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform"
   email = "admin@company.com"
 }
 
-resource "tfe_workspace" "foobar" {
+resource "scalr_workspace" "foobar" {
   name         = "workspace-test"
-  organization = "${tfe_organization.foobar.id}"
+  organization = "${scalr_organization.foobar.id}"
 }
 
-resource "tfe_notification_configuration" "foobar" {
+resource "scalr_notification_configuration" "foobar" {
   name                  = "notification_slack_with_token"
   destination_type      = "slack"
   token                 = "1234567890"
   url                   = "http://example.com"
-  workspace_external_id = "${tfe_workspace.foobar.external_id}"
+  workspace_external_id = "${scalr_workspace.foobar.external_id}"
 }`
 
 const testAccTFENotificationConfiguration_duplicateTriggers = `
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform"
   email = "admin@company.com"
 }
 
-resource "tfe_workspace" "foobar" {
+resource "scalr_workspace" "foobar" {
   name         = "workspace-test"
-  organization = "${tfe_organization.foobar.id}"
+  organization = "${scalr_organization.foobar.id}"
 }
 
-resource "tfe_notification_configuration" "foobar" {
+resource "scalr_notification_configuration" "foobar" {
   name                  = "notification_duplicate_triggers"
   destination_type      = "generic"
   triggers              = ["run:created", "run:created", "run:created"]
   url                   = "http://example.com"
-  workspace_external_id = "${tfe_workspace.foobar.external_id}"
+  workspace_external_id = "${scalr_workspace.foobar.external_id}"
 }`

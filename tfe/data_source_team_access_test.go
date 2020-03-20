@@ -20,10 +20,10 @@ func TestAccTFETeamAccessDataSource_basic(t *testing.T) {
 				Config: testAccTFETeamAccessDataSourceConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"data.tfe_team_access.foobar", "access", "write"),
-					resource.TestCheckResourceAttrSet("data.tfe_team_access.foobar", "id"),
-					resource.TestCheckResourceAttrSet("data.tfe_team_access.foobar", "team_id"),
-					resource.TestCheckResourceAttrSet("data.tfe_team_access.foobar", "workspace_id"),
+						"data.scalr_team_access.foobar", "access", "write"),
+					resource.TestCheckResourceAttrSet("data.scalr_team_access.foobar", "id"),
+					resource.TestCheckResourceAttrSet("data.scalr_team_access.foobar", "team_id"),
+					resource.TestCheckResourceAttrSet("data.scalr_team_access.foobar", "workspace_id"),
 				),
 			},
 		},
@@ -32,29 +32,29 @@ func TestAccTFETeamAccessDataSource_basic(t *testing.T) {
 
 func testAccTFETeamAccessDataSourceConfig(rInt int) string {
 	return fmt.Sprintf(`
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform-%d"
   email = "admin@company.com"
 }
 
-resource "tfe_team" "foobar" {
+resource "scalr_team" "foobar" {
   name         = "team-test-%d"
-  organization = "${tfe_organization.foobar.id}"
+  organization = "${scalr_organization.foobar.id}"
 }
 
-resource "tfe_workspace" "foobar" {
+resource "scalr_workspace" "foobar" {
   name         = "workspace-test-%d"
-  organization = "${tfe_organization.foobar.id}"
+  organization = "${scalr_organization.foobar.id}"
 }
 
-resource "tfe_team_access" "foobar" {
+resource "scalr_team_access" "foobar" {
   access       = "write"
-  team_id      = "${tfe_team.foobar.id}"
-  workspace_id = "${tfe_workspace.foobar.id}"
+  team_id      = "${scalr_team.foobar.id}"
+  workspace_id = "${scalr_workspace.foobar.id}"
 }
 
-data "tfe_team_access" "foobar" {
-  team_id      = "${tfe_team.foobar.id}"
-  workspace_id = "${tfe_team_access.foobar.workspace_id}"
+data "scalr_team_access" "foobar" {
+  team_id      = "${scalr_team.foobar.id}"
+  workspace_id = "${scalr_team_access.foobar.workspace_id}"
 }`, rInt, rInt, rInt)
 }

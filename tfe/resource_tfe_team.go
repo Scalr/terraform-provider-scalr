@@ -5,8 +5,8 @@ import (
 	"log"
 	"strings"
 
-	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/terraform/helper/schema"
+	tfe "github.com/scalr/go-tfe"
 )
 
 func resourceTFETeam() *schema.Resource {

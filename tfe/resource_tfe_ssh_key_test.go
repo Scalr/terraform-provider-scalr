@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	tfe "github.com/scalr/go-tfe"
 )
 
 func TestAccTFESSHKey_basic(t *testing.T) {
@@ -21,12 +21,12 @@ func TestAccTFESSHKey_basic(t *testing.T) {
 				Config: testAccTFESSHKey_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFESSHKeyExists(
-						"tfe_ssh_key.foobar", sshKey),
+						"scalr_ssh_key.foobar", sshKey),
 					testAccCheckTFESSHKeyAttributes(sshKey),
 					resource.TestCheckResourceAttr(
-						"tfe_ssh_key.foobar", "name", "ssh-key-test"),
+						"scalr_ssh_key.foobar", "name", "ssh-key-test"),
 					resource.TestCheckResourceAttr(
-						"tfe_ssh_key.foobar", "key", "SSH-KEY-CONTENT"),
+						"scalr_ssh_key.foobar", "key", "SSH-KEY-CONTENT"),
 				),
 			},
 		},
@@ -45,12 +45,12 @@ func TestAccTFESSHKey_update(t *testing.T) {
 				Config: testAccTFESSHKey_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFESSHKeyExists(
-						"tfe_ssh_key.foobar", sshKey),
+						"scalr_ssh_key.foobar", sshKey),
 					testAccCheckTFESSHKeyAttributes(sshKey),
 					resource.TestCheckResourceAttr(
-						"tfe_ssh_key.foobar", "name", "ssh-key-test"),
+						"scalr_ssh_key.foobar", "name", "ssh-key-test"),
 					resource.TestCheckResourceAttr(
-						"tfe_ssh_key.foobar", "key", "SSH-KEY-CONTENT"),
+						"scalr_ssh_key.foobar", "key", "SSH-KEY-CONTENT"),
 				),
 			},
 
@@ -58,12 +58,12 @@ func TestAccTFESSHKey_update(t *testing.T) {
 				Config: testAccTFESSHKey_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFESSHKeyExists(
-						"tfe_ssh_key.foobar", sshKey),
+						"scalr_ssh_key.foobar", sshKey),
 					testAccCheckTFESSHKeyAttributesUpdated(sshKey),
 					resource.TestCheckResourceAttr(
-						"tfe_ssh_key.foobar", "name", "ssh-key-updated"),
+						"scalr_ssh_key.foobar", "name", "ssh-key-updated"),
 					resource.TestCheckResourceAttr(
-						"tfe_ssh_key.foobar", "key", "UPDATED-SSH-KEY-CONTENT"),
+						"scalr_ssh_key.foobar", "key", "UPDATED-SSH-KEY-CONTENT"),
 				),
 			},
 		},
@@ -123,7 +123,7 @@ func testAccCheckTFESSHKeyDestroy(s *terraform.State) error {
 	tfeClient := testAccProvider.Meta().(*tfe.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "tfe_ssh_key" {
+		if rs.Type != "scalr_ssh_key" {
 			continue
 		}
 
@@ -141,25 +141,25 @@ func testAccCheckTFESSHKeyDestroy(s *terraform.State) error {
 }
 
 const testAccTFESSHKey_basic = `
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform"
   email = "admin@company.com"
 }
 
-resource "tfe_ssh_key" "foobar" {
+resource "scalr_ssh_key" "foobar" {
   name         = "ssh-key-test"
-  organization = "${tfe_organization.foobar.id}"
+  organization = "${scalr_organization.foobar.id}"
   key          = "SSH-KEY-CONTENT"
 }`
 
 const testAccTFESSHKey_update = `
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform"
   email = "admin@company.com"
 }
 
-resource "tfe_ssh_key" "foobar" {
+resource "scalr_ssh_key" "foobar" {
   name         = "ssh-key-updated"
-  organization = "${tfe_organization.foobar.id}"
+  organization = "${scalr_organization.foobar.id}"
   key          = "UPDATED-SSH-KEY-CONTENT"
 }`

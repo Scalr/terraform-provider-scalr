@@ -10,7 +10,6 @@ import (
 	"sort"
 	"strings"
 
-	tfe "github.com/hashicorp/go-tfe"
 	version "github.com/hashicorp/go-version"
 	"github.com/hashicorp/hcl"
 	svchost "github.com/hashicorp/terraform-svchost"
@@ -19,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform/helper/logging"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
+	tfe "github.com/scalr/go-tfe"
 	providerVersion "github.com/terraform-providers/terraform-provider-tfe/version"
 )
 
@@ -62,28 +62,28 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"tfe_ssh_key":       dataSourceTFESSHKey(),
-			"tfe_team":          dataSourceTFETeam(),
-			"tfe_team_access":   dataSourceTFETeamAccess(),
-			"tfe_workspace":     dataSourceTFEWorkspace(),
-			"tfe_workspace_ids": dataSourceTFEWorkspaceIDs(),
+			"scalr_ssh_key":       dataSourceTFESSHKey(),
+			"scalr_team":          dataSourceTFETeam(),
+			"scalr_team_access":   dataSourceTFETeamAccess(),
+			"scalr_workspace":     dataSourceTFEWorkspace(),
+			"scalr_workspace_ids": dataSourceTFEWorkspaceIDs(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"tfe_notification_configuration": resourceTFENotificationConfiguration(),
-			"tfe_oauth_client":               resourceTFEOAuthClient(),
-			"tfe_organization":               resourceTFEOrganization(),
-			"tfe_organization_token":         resourceTFEOrganizationToken(),
-			"tfe_policy_set":                 resourceTFEPolicySet(),
-			"tfe_sentinel_policy":            resourceTFESentinelPolicy(),
-			"tfe_ssh_key":                    resourceTFESSHKey(),
-			"tfe_team":                       resourceTFETeam(),
-			"tfe_team_access":                resourceTFETeamAccess(),
-			"tfe_team_member":                resourceTFETeamMember(),
-			"tfe_team_members":               resourceTFETeamMembers(),
-			"tfe_team_token":                 resourceTFETeamToken(),
-			"tfe_workspace":                  resourceTFEWorkspace(),
-			"tfe_variable":                   resourceTFEVariable(),
+			"scalr_notification_configuration": resourceTFENotificationConfiguration(),
+			"scalr_oauth_client":               resourceTFEOAuthClient(),
+			"scalr_organization":               resourceTFEOrganization(),
+			"scalr_organization_token":         resourceTFEOrganizationToken(),
+			"scalr_policy_set":                 resourceTFEPolicySet(),
+			"scalr_sentinel_policy":            resourceTFESentinelPolicy(),
+			"scalr_ssh_key":                    resourceTFESSHKey(),
+			"scalr_team":                       resourceTFETeam(),
+			"scalr_team_access":                resourceTFETeamAccess(),
+			"scalr_team_member":                resourceTFETeamMember(),
+			"scalr_team_members":               resourceTFETeamMembers(),
+			"scalr_team_token":                 resourceTFETeamToken(),
+			"scalr_workspace":                  resourceTFEWorkspace(),
+			"scalr_variable":                   resourceTFEVariable(),
 		},
 
 		ConfigureFunc: providerConfigure,
@@ -97,7 +97,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		return nil, err
 	}
 
-	providerUaString := fmt.Sprintf("terraform-provider-tfe/%s", providerVersion.ProviderVersion)
+	providerUaString := fmt.Sprintf("terraform-provider-scalr/%s", providerVersion.ProviderVersion)
 
 	// Get the Terraform CLI configuration.
 	config := cliConfig()

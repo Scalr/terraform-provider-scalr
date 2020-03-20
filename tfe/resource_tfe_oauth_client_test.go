@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	tfe "github.com/scalr/go-tfe"
 )
 
 func TestAccTFEOAuthClient_basic(t *testing.T) {
@@ -25,14 +25,14 @@ func TestAccTFEOAuthClient_basic(t *testing.T) {
 			{
 				Config: testAccTFEOAuthClient_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckTFEOAuthClientExists("tfe_oauth_client.foobar", oc),
+					testAccCheckTFEOAuthClientExists("scalr_oauth_client.foobar", oc),
 					testAccCheckTFEOAuthClientAttributes(oc),
 					resource.TestCheckResourceAttr(
-						"tfe_oauth_client.foobar", "api_url", "https://api.github.com"),
+						"scalr_oauth_client.foobar", "api_url", "https://api.github.com"),
 					resource.TestCheckResourceAttr(
-						"tfe_oauth_client.foobar", "http_url", "https://github.com"),
+						"scalr_oauth_client.foobar", "http_url", "https://github.com"),
 					resource.TestCheckResourceAttr(
-						"tfe_oauth_client.foobar", "service_provider", "github"),
+						"scalr_oauth_client.foobar", "service_provider", "github"),
 				),
 			},
 		},
@@ -91,7 +91,7 @@ func testAccCheckTFEOAuthClientDestroy(s *terraform.State) error {
 	tfeClient := testAccProvider.Meta().(*tfe.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "tfe_oauth_client" {
+		if rs.Type != "scalr_oauth_client" {
 			continue
 		}
 
@@ -109,13 +109,13 @@ func testAccCheckTFEOAuthClientDestroy(s *terraform.State) error {
 }
 
 var testAccTFEOAuthClient_basic = fmt.Sprintf(`
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform"
   email = "admin@company.com"
 }
 
-resource "tfe_oauth_client" "foobar" {
-  organization     = "${tfe_organization.foobar.id}"
+resource "scalr_oauth_client" "foobar" {
+  organization     = "${scalr_organization.foobar.id}"
   api_url          = "https://api.github.com"
   http_url         = "https://github.com"
   oauth_token      = "%s"

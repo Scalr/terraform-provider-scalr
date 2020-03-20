@@ -5,9 +5,9 @@ import (
 	"log"
 	"strings"
 
-	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
+	tfe "github.com/scalr/go-tfe"
 )
 
 func resourceTFETeamAccess() *schema.Resource {

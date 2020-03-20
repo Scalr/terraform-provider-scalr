@@ -20,10 +20,10 @@ func TestAccTFETeamDataSource_basic(t *testing.T) {
 				Config: testAccTFETeamDataSourceConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"data.tfe_team.foobar", "name", fmt.Sprintf("team-test-%d", rInt)),
+						"data.scalr_team.foobar", "name", fmt.Sprintf("team-test-%d", rInt)),
 					resource.TestCheckResourceAttr(
-						"data.tfe_team.foobar", "organization", fmt.Sprintf("tst-terraform-%d", rInt)),
-					resource.TestCheckResourceAttrSet("data.tfe_team.foobar", "id"),
+						"data.scalr_team.foobar", "organization", fmt.Sprintf("tst-terraform-%d", rInt)),
+					resource.TestCheckResourceAttrSet("data.scalr_team.foobar", "id"),
 				),
 			},
 		},
@@ -32,18 +32,18 @@ func TestAccTFETeamDataSource_basic(t *testing.T) {
 
 func testAccTFETeamDataSourceConfig(rInt int) string {
 	return fmt.Sprintf(`
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform-%d"
   email = "admin@company.com"
 }
 
-resource "tfe_team" "foobar" {
+resource "scalr_team" "foobar" {
   name         = "team-test-%d"
-  organization = "${tfe_organization.foobar.id}"
+  organization = "${scalr_organization.foobar.id}"
 }
 
-data "tfe_team" "foobar" {
-  name         = "${tfe_team.foobar.name}"
-  organization = "${tfe_team.foobar.organization}"
+data "scalr_team" "foobar" {
+  name         = "${scalr_team.foobar.name}"
+  organization = "${scalr_team.foobar.organization}"
 }`, rInt, rInt)
 }

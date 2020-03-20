@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	tfe "github.com/scalr/go-tfe"
 )
 
 func TestAccTFESentinelPolicy_basic(t *testing.T) {
@@ -21,16 +21,16 @@ func TestAccTFESentinelPolicy_basic(t *testing.T) {
 				Config: testAccTFESentinelPolicy_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFESentinelPolicyExists(
-						"tfe_sentinel_policy.foobar", policy),
+						"scalr_sentinel_policy.foobar", policy),
 					testAccCheckTFESentinelPolicyAttributes(policy),
 					resource.TestCheckResourceAttr(
-						"tfe_sentinel_policy.foobar", "name", "policy-test"),
+						"scalr_sentinel_policy.foobar", "name", "policy-test"),
 					resource.TestCheckResourceAttr(
-						"tfe_sentinel_policy.foobar", "description", "A test policy"),
+						"scalr_sentinel_policy.foobar", "description", "A test policy"),
 					resource.TestCheckResourceAttr(
-						"tfe_sentinel_policy.foobar", "policy", "main = rule { true }"),
+						"scalr_sentinel_policy.foobar", "policy", "main = rule { true }"),
 					resource.TestCheckResourceAttr(
-						"tfe_sentinel_policy.foobar", "enforce_mode", "hard-mandatory"),
+						"scalr_sentinel_policy.foobar", "enforce_mode", "hard-mandatory"),
 				),
 			},
 		},
@@ -49,16 +49,16 @@ func TestAccTFESentinelPolicy_update(t *testing.T) {
 				Config: testAccTFESentinelPolicy_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFESentinelPolicyExists(
-						"tfe_sentinel_policy.foobar", policy),
+						"scalr_sentinel_policy.foobar", policy),
 					testAccCheckTFESentinelPolicyAttributes(policy),
 					resource.TestCheckResourceAttr(
-						"tfe_sentinel_policy.foobar", "name", "policy-test"),
+						"scalr_sentinel_policy.foobar", "name", "policy-test"),
 					resource.TestCheckResourceAttr(
-						"tfe_sentinel_policy.foobar", "description", "A test policy"),
+						"scalr_sentinel_policy.foobar", "description", "A test policy"),
 					resource.TestCheckResourceAttr(
-						"tfe_sentinel_policy.foobar", "policy", "main = rule { true }"),
+						"scalr_sentinel_policy.foobar", "policy", "main = rule { true }"),
 					resource.TestCheckResourceAttr(
-						"tfe_sentinel_policy.foobar", "enforce_mode", "hard-mandatory"),
+						"scalr_sentinel_policy.foobar", "enforce_mode", "hard-mandatory"),
 				),
 			},
 
@@ -66,16 +66,16 @@ func TestAccTFESentinelPolicy_update(t *testing.T) {
 				Config: testAccTFESentinelPolicy_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFESentinelPolicyExists(
-						"tfe_sentinel_policy.foobar", policy),
+						"scalr_sentinel_policy.foobar", policy),
 					testAccCheckTFESentinelPolicyAttributesUpdated(policy),
 					resource.TestCheckResourceAttr(
-						"tfe_sentinel_policy.foobar", "name", "policy-test"),
+						"scalr_sentinel_policy.foobar", "name", "policy-test"),
 					resource.TestCheckResourceAttr(
-						"tfe_sentinel_policy.foobar", "description", "An updated test policy"),
+						"scalr_sentinel_policy.foobar", "description", "An updated test policy"),
 					resource.TestCheckResourceAttr(
-						"tfe_sentinel_policy.foobar", "policy", "main = rule { false }"),
+						"scalr_sentinel_policy.foobar", "policy", "main = rule { false }"),
 					resource.TestCheckResourceAttr(
-						"tfe_sentinel_policy.foobar", "enforce_mode", "soft-mandatory"),
+						"scalr_sentinel_policy.foobar", "enforce_mode", "soft-mandatory"),
 				),
 			},
 		},
@@ -93,7 +93,7 @@ func TestAccTFESentinelPolicy_import(t *testing.T) {
 			},
 
 			{
-				ResourceName:        "tfe_sentinel_policy.foobar",
+				ResourceName:        "scalr_sentinel_policy.foobar",
 				ImportState:         true,
 				ImportStateIdPrefix: "tst-terraform/",
 				ImportStateVerify:   true,
@@ -165,7 +165,7 @@ func testAccCheckTFESentinelPolicyDestroy(s *terraform.State) error {
 	tfeClient := testAccProvider.Meta().(*tfe.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "tfe_sentinel_policy" {
+		if rs.Type != "scalr_sentinel_policy" {
 			continue
 		}
 
@@ -183,29 +183,29 @@ func testAccCheckTFESentinelPolicyDestroy(s *terraform.State) error {
 }
 
 const testAccTFESentinelPolicy_basic = `
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform"
   email = "admin@company.com"
 }
 
-resource "tfe_sentinel_policy" "foobar" {
+resource "scalr_sentinel_policy" "foobar" {
   name         = "policy-test"
   description  = "A test policy"
-  organization = "${tfe_organization.foobar.id}"
+  organization = "${scalr_organization.foobar.id}"
   policy       = "main = rule { true }"
   enforce_mode = "hard-mandatory"
 }`
 
 const testAccTFESentinelPolicy_update = `
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform"
   email = "admin@company.com"
 }
 
-resource "tfe_sentinel_policy" "foobar" {
+resource "scalr_sentinel_policy" "foobar" {
   name         = "policy-test"
   description  = "An updated test policy"
-  organization = "${tfe_organization.foobar.id}"
+  organization = "${scalr_organization.foobar.id}"
   policy       = "main = rule { false }"
   enforce_mode = "soft-mandatory"
 }`

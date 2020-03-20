@@ -5,10 +5,10 @@ import (
 	"reflect"
 	"testing"
 
-	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
+	tfe "github.com/scalr/go-tfe"
 )
 
 func TestAccTFETeamMembers_basic(t *testing.T) {
@@ -29,14 +29,14 @@ func TestAccTFETeamMembers_basic(t *testing.T) {
 				Config: testAccTFETeamMembers_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFETeamMembersExists(
-						"tfe_team_members.foobar", &users),
+						"scalr_team_members.foobar", &users),
 					testAccCheckTFETeamMembersAttributes(&users, []string{"admin", TFE_USER1}),
 					resource.TestCheckResourceAttr(
-						"tfe_team_members.foobar", "usernames.#", "2"),
+						"scalr_team_members.foobar", "usernames.#", "2"),
 					resource.TestCheckResourceAttr(
-						"tfe_team_members.foobar", "usernames.3672628397", "admin"),
+						"scalr_team_members.foobar", "usernames.3672628397", "admin"),
 					resource.TestCheckResourceAttr(
-						"tfe_team_members.foobar", fmt.Sprintf("usernames.%d", TFE_USER1_HASH), TFE_USER1),
+						"scalr_team_members.foobar", fmt.Sprintf("usernames.%d", TFE_USER1_HASH), TFE_USER1),
 				),
 			},
 		},
@@ -65,14 +65,14 @@ func TestAccTFETeamMembers_update(t *testing.T) {
 				Config: testAccTFETeamMembers_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFETeamMembersExists(
-						"tfe_team_members.foobar", &users),
+						"scalr_team_members.foobar", &users),
 					testAccCheckTFETeamMembersAttributes(&users, []string{"admin", TFE_USER1}),
 					resource.TestCheckResourceAttr(
-						"tfe_team_members.foobar", "usernames.#", "2"),
+						"scalr_team_members.foobar", "usernames.#", "2"),
 					resource.TestCheckResourceAttr(
-						"tfe_team_members.foobar", "usernames.3672628397", "admin"),
+						"scalr_team_members.foobar", "usernames.3672628397", "admin"),
 					resource.TestCheckResourceAttr(
-						"tfe_team_members.foobar", fmt.Sprintf("usernames.%d", TFE_USER1_HASH), TFE_USER1),
+						"scalr_team_members.foobar", fmt.Sprintf("usernames.%d", TFE_USER1_HASH), TFE_USER1),
 				),
 			},
 
@@ -80,14 +80,14 @@ func TestAccTFETeamMembers_update(t *testing.T) {
 				Config: testAccTFETeamMembers_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFETeamMembersExists(
-						"tfe_team_members.foobar", &users),
+						"scalr_team_members.foobar", &users),
 					testAccCheckTFETeamMembersAttributes(&users, []string{"admin", TFE_USER2}),
 					resource.TestCheckResourceAttr(
-						"tfe_team_members.foobar", "usernames.#", "2"),
+						"scalr_team_members.foobar", "usernames.#", "2"),
 					resource.TestCheckResourceAttr(
-						"tfe_team_members.foobar", fmt.Sprintf("usernames.%d", TFE_USER2_HASH), TFE_USER2),
+						"scalr_team_members.foobar", fmt.Sprintf("usernames.%d", TFE_USER2_HASH), TFE_USER2),
 					resource.TestCheckResourceAttr(
-						"tfe_team_members.foobar", "usernames.3672628397", "admin"),
+						"scalr_team_members.foobar", "usernames.3672628397", "admin"),
 				),
 			},
 		},
@@ -110,7 +110,7 @@ func TestAccTFETeamMembers_import(t *testing.T) {
 			},
 
 			{
-				ResourceName:      "tfe_team_members.foobar",
+				ResourceName:      "scalr_team_members.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -177,7 +177,7 @@ func testAccCheckTFETeamMembersDestroy(s *terraform.State) error {
 	tfeClient := testAccProvider.Meta().(*tfe.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "tfe_team_members" {
+		if rs.Type != "scalr_team_members" {
 			continue
 		}
 
@@ -199,33 +199,33 @@ func testAccCheckTFETeamMembersDestroy(s *terraform.State) error {
 }
 
 var testAccTFETeamMembers_basic = fmt.Sprintf(`
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform"
   email = "admin@company.com"
 }
 
-resource "tfe_team" "foobar" {
+resource "scalr_team" "foobar" {
   name         = "team-test"
-  organization = "${tfe_organization.foobar.id}"
+  organization = "${scalr_organization.foobar.id}"
 }
 
-resource "tfe_team_members" "foobar" {
-  team_id   = "${tfe_team.foobar.id}"
+resource "scalr_team_members" "foobar" {
+  team_id   = "${scalr_team.foobar.id}"
   usernames = ["%s"]
 }`, TFE_USER1)
 
 var testAccTFETeamMembers_update = fmt.Sprintf(`
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform"
   email = "admin@company.com"
 }
 
-resource "tfe_team" "foobar" {
+resource "scalr_team" "foobar" {
   name         = "team-test"
-  organization = "${tfe_organization.foobar.id}"
+  organization = "${scalr_organization.foobar.id}"
 }
 
-resource "tfe_team_members" "foobar" {
-  team_id   = "${tfe_team.foobar.id}"
+resource "scalr_team_members" "foobar" {
+  team_id   = "${scalr_team.foobar.id}"
   usernames = ["%s", "%s"]
 }`, TFE_USER1, TFE_USER2)

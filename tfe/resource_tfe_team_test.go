@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	tfe "github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	tfe "github.com/scalr/go-tfe"
 )
 
 func TestAccTFETeam_basic(t *testing.T) {
@@ -21,10 +21,10 @@ func TestAccTFETeam_basic(t *testing.T) {
 				Config: testAccTFETeam_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckTFETeamExists(
-						"tfe_team.foobar", team),
+						"scalr_team.foobar", team),
 					testAccCheckTFETeamAttributes(team),
 					resource.TestCheckResourceAttr(
-						"tfe_team.foobar", "name", "team-test"),
+						"scalr_team.foobar", "name", "team-test"),
 				),
 			},
 		},
@@ -42,7 +42,7 @@ func TestAccTFETeam_import(t *testing.T) {
 			},
 
 			{
-				ResourceName:        "tfe_team.foobar",
+				ResourceName:        "scalr_team.foobar",
 				ImportState:         true,
 				ImportStateIdPrefix: "tst-terraform/",
 				ImportStateVerify:   true,
@@ -94,7 +94,7 @@ func testAccCheckTFETeamDestroy(s *terraform.State) error {
 	tfeClient := testAccProvider.Meta().(*tfe.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "tfe_team" {
+		if rs.Type != "scalr_team" {
 			continue
 		}
 
@@ -112,12 +112,12 @@ func testAccCheckTFETeamDestroy(s *terraform.State) error {
 }
 
 const testAccTFETeam_basic = `
-resource "tfe_organization" "foobar" {
+resource "scalr_organization" "foobar" {
   name  = "tst-terraform"
   email = "admin@company.com"
 }
 
-resource "tfe_team" "foobar" {
+resource "scalr_team" "foobar" {
   name         = "team-test"
-  organization = "${tfe_organization.foobar.id}"
+  organization = "${scalr_organization.foobar.id}"
 }`

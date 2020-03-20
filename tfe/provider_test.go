@@ -17,7 +17,7 @@ var testAccProvider *schema.Provider
 func init() {
 	testAccProvider = Provider().(*schema.Provider)
 	testAccProviders = map[string]terraform.ResourceProvider{
-		"tfe": testAccProvider,
+		"scalr": testAccProvider,
 	}
 }
 
