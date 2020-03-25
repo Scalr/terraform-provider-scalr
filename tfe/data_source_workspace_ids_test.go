@@ -53,7 +53,7 @@ func TestAccTFEWorkspaceIDsDataSource_basic(t *testing.T) {
 }
 
 func TestAccTFEWorkspaceIDsDataSource_wildcard(t *testing.T) {
-    t.Skip("Wildcard test is not passing for unknown reasons. Using the wildcard symbol produces no workspaces")
+	t.Skip("Wildcard test is not passing for unknown reasons. Using the wildcard symbol produces no workspaces")
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{

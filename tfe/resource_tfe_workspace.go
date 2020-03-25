@@ -115,10 +115,10 @@ func resourceTFEWorkspaceCreate(d *schema.ResourceData, meta interface{}) error 
 
 	// Create a new options struct.
 	options := tfe.WorkspaceCreateOptions{
-		Name:                tfe.String(name),
-		AutoApply:           tfe.Bool(d.Get("auto_apply").(bool)),
-		Operations:          tfe.Bool(d.Get("operations").(bool)),
-		QueueAllRuns:        tfe.Bool(d.Get("queue_all_runs").(bool)),
+		Name:         tfe.String(name),
+		AutoApply:    tfe.Bool(d.Get("auto_apply").(bool)),
+		Operations:   tfe.Bool(d.Get("operations").(bool)),
+		QueueAllRuns: tfe.Bool(d.Get("queue_all_runs").(bool)),
 	}
 
 	// Process all configured options.
@@ -294,10 +294,10 @@ func resourceTFEWorkspaceUpdate(d *schema.ResourceData, meta interface{}) error 
 		d.HasChange("operations") {
 		// Create a new options struct.
 		options := tfe.WorkspaceUpdateOptions{
-			Name:                tfe.String(d.Get("name").(string)),
-			AutoApply:           tfe.Bool(d.Get("auto_apply").(bool)),
-			Operations:          tfe.Bool(d.Get("operations").(bool)),
-			QueueAllRuns:        tfe.Bool(d.Get("queue_all_runs").(bool)),
+			Name:         tfe.String(d.Get("name").(string)),
+			AutoApply:    tfe.Bool(d.Get("auto_apply").(bool)),
+			Operations:   tfe.Bool(d.Get("operations").(bool)),
+			QueueAllRuns: tfe.Bool(d.Get("queue_all_runs").(bool)),
 		}
 
 		// Process all configured options.
