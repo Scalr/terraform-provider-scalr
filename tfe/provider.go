@@ -22,7 +22,7 @@ import (
 	providerVersion "github.com/terraform-providers/terraform-provider-tfe/version"
 )
 
-const defaultHostname = "app.terraform.io"
+const defaultHostname = "my.scalr.com"
 
 var tfeServiceIDs = []string{"tfe.v2.1", "tfe.v2"}
 

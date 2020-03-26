@@ -1,19 +1,19 @@
 ---
-layout: "tfe"
-page_title: "Terraform Enterprise: tfe_workspace"
-sidebar_current: "docs-datasource-tfe-workspace-x"
+layout: "scalr"
+page_title: "Scalr: scalr_workspace"
+sidebar_current: "docs-datasource-scalr-workspace-x"
 description: |-
   Get information on a workspace.
 ---
 
-# Data Source: tfe_workspace
+# Data Source: scalr_workspace
 
 Use this data source to get information about a workspace.
 
 ## Example Usage
 
 ```hcl
-data "tfe_workspace" "test" {
+data "scalr_workspace" "test" {
   name         = "my-workspace-name"
   organization = "my-org-name"
 }
@@ -36,12 +36,9 @@ In addition to all arguments above, the following attributes are exported:
   `ws-<RANDOM STRING>`.
 * `auto_apply` - Indicates whether to automatically apply changes when a
   Terraform plan is successful.
-* `file_triggers_enabled` - Indicates whether runs are triggered based on the changed files in a VCS push (if `true`) or always triggered on every push (if `false`).
 * `operations` - Indicates whether the workspace is using remote execution mode.
 * `queue_all_runs` - Indicates whether all runs should be queued.
-* `ssh_key_id` - The ID of an SSH key assigned to the workspace.
 * `terraform_version` - The version of Terraform used for this workspace.
-* `trigger_prefixes` - List of repository-root-relative paths which describe all locations to be tracked for changes.
 * `vcs_repo` - Settings for the workspace's VCS repository.
 * `working_directory` - A relative path that Terraform will execute within.
 

@@ -1,24 +1,24 @@
 ---
-layout: "tfe"
-page_title: "Terraform Enterprise: tfe_workspace_ids"
-sidebar_current: "docs-datasource-tfe-workspace-ids"
+layout: "scalr"
+page_title: "Scalr: scalr_workspace_ids"
+sidebar_current: "docs-datasource-scalr-workspace-ids"
 description: |-
   Get information on (external) workspace IDs.
 ---
 
-# Data Source: tfe_workspace_ids
+# Data Source: scalr_workspace_ids
 
 Use this data source to get a map of (external) workspace IDs.
 
 ## Example Usage
 
 ```hcl
-data "tfe_workspace_ids" "app-frontend" {
+data "scalr_workspace_ids" "app-frontend" {
   names        = ["app-frontend-prod", "app-frontend-dev1", "app-frontend-staging"]
   organization = "my-org-name"
 }
 
-data "tfe_workspace_ids" "all" {
+data "scalr_workspace_ids" "all" {
   names        = ["*"]
   organization = "my-org-name"
 }
