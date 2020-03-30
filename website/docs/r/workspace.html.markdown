@@ -1,12 +1,12 @@
 ---
-layout: "tfe"
-page_title: "Terraform Enterprise: tfe_workspace"
-sidebar_current: "docs-resource-tfe-workspace"
+layout: "scalr"
+page_title: "Scalr: scalr_workspace"
+sidebar_current: "docs-resource-scalr-workspace"
 description: |-
   Manages workspaces.
 ---
 
-# tfe_workspace
+# scalr_workspace
 
 Provides a workspace resource.
 
@@ -15,7 +15,7 @@ Provides a workspace resource.
 Basic usage:
 
 ```hcl
-resource "tfe_workspace" "test" {
+resource "scalr_workspace" "test" {
   name         = "my-workspace-name"
   organization = "my-org-name"
 }
@@ -29,16 +29,13 @@ The following arguments are supported:
 * `organization` - (Required) Name of the organization.
 * `auto_apply` - (Optional) Whether to automatically apply changes when a
   Terraform plan is successful. Defaults to `false`.
-* `file_triggers_enabled` - (Optional) Whether to filter runs based on the changed files in a VCS push. If enabled, the working directory and trigger prefixes describe a set of paths which must contain changes for a VCS push to trigger a run. If disabled, any push will trigger a run. Defaults to `true`.
 * `operations` - (Optional) Whether to use remote execution mode. When set
   to `false`, the workspace will be used for state storage only.
   Defaults to `true`.
 * `queue_all_runs` - (Optional) Whether all runs should be queued. When set
   to `false`, runs triggered by a VCS change will not be queued until at least
   one run is manually queued. Defaults to `true`.
-* `ssh_key_id` - (Optional) The ID of an SSH key to assign to the workspace.
 * `terraform_version` - (Optional) The version of Terraform to use for this workspace. Defaults to the latest available version.
-* `trigger_prefixes` - (Optional) List of repository-root-relative paths which describe all locations to be tracked for changes.
 * `working_directory` - (Optional) A relative path that Terraform will execute
   within.  Defaults to the root of your repository.
 * `vcs_repo` - (Optional) Settings for the workspace's VCS repository.
@@ -70,5 +67,5 @@ Workspaces can be imported; use `<ORGANIZATION NAME>/<WORKSPACE NAME>` as the
 import ID. For example:
 
 ```shell
-terraform import tfe_workspace.test my-org-name/my-workspace-name
+terraform import scalr_workspace.test my-org-name/my-workspace-name
 ```

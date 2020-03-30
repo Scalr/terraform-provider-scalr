@@ -1,12 +1,12 @@
 ---
-layout: "tfe"
-page_title: "Terraform Enterprise: tfe_variable"
-sidebar_current: "docs-resource-tfe-variable"
+layout: "scalr"
+page_title: "Scalr: scalr_variable"
+sidebar_current: "docs-resource-scalr-variable"
 description: |-
   Manages variables.
 ---
 
-# tfe_variable
+# scalr_variable
 
 Creates, updates and destroys variables.
 
@@ -15,21 +15,16 @@ Creates, updates and destroys variables.
 Basic usage:
 
 ```hcl
-resource "tfe_organization" "test" {
-  name  = "my-org-name"
-  email = "admin@company.com"
-}
-
-resource "tfe_workspace" "test" {
+resource "scalr_workspace" "test" {
   name         = "my-workspace-name"
-  organization = "${tfe_organization.test.id}"
+  organization = "my-org"
 }
 
-resource "tfe_variable" "test" {
+resource "scalr_variable" "test" {
   key          = "my_key_name"
   value        = "my_value_name"
   category     = "terraform"
-  workspace_id = "${tfe_workspace.test.id}"
+  workspace_id = "${scalr_workspace.test.id}"
 }
 ```
 
@@ -59,5 +54,5 @@ Variables can be imported; use
 example:
 
 ```shell
-terraform import tfe_variable.test my-org-name/my-workspace-name/var-5rTwnSaRPogw6apb
+terraform import scalr_variable.test my-org-name/my-workspace-name/var-5rTwnSaRPogw6apb
 ```
