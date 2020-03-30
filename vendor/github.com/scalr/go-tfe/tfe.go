@@ -163,7 +163,10 @@ func NewClient(cfg *Config) (*Client, error) {
 		return nil, fmt.Errorf("invalid address: %v", err)
 	}
 
-	baseURL.Path = config.BasePath
+	// Only set default path if not already specified
+	if baseURL.Path == "" {
+		baseURL.Path = config.BasePath
+	}
 	if !strings.HasSuffix(baseURL.Path, "/") {
 		baseURL.Path += "/"
 	}
