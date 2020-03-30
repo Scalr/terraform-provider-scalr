@@ -1,4 +1,4 @@
-package tfe
+package scalr
 
 import (
 	"context"
