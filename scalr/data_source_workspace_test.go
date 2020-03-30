@@ -33,7 +33,7 @@ func TestAccTFEWorkspaceDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.foobar", "queue_all_runs", "false"),
 					resource.TestCheckResourceAttr(
-						"data.scalr_workspace.foobar", "terraform_version", "0.11.1"),
+						"data.scalr_workspace.foobar", "terraform_version", "0.12.19"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.foobar", "working_directory", "terraform/test"),
 
@@ -51,7 +51,7 @@ resource "scalr_workspace" "foobar" {
   organization          = "existing-org"
   auto_apply            = true
   queue_all_runs        = false
-  terraform_version     = "0.11.1"
+  terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
 }
 

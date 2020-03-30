@@ -239,7 +239,7 @@ func TestAccTFEWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.foobar", "queue_all_runs", "false"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "terraform_version", "0.11.1"),
+						"scalr_workspace.foobar", "terraform_version", "0.12.19"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.foobar", "working_directory", "terraform/test"),
 				),
@@ -386,7 +386,7 @@ func testAccCheckTFEWorkspaceAttributesUpdated(
 			return fmt.Errorf("Bad queue all runs: %t", workspace.QueueAllRuns)
 		}
 
-		if workspace.TerraformVersion != "0.11.1" {
+		if workspace.TerraformVersion != "0.12.19" {
 			return fmt.Errorf("Bad Terraform version: %s", workspace.TerraformVersion)
 		}
 
@@ -453,6 +453,6 @@ resource "scalr_workspace" "foobar" {
   auto_apply            = false
   operations            = false
   queue_all_runs        = false
-  terraform_version     = "0.11.1"
+  terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
 }`
