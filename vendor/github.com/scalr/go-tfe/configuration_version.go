@@ -31,6 +31,9 @@ type ConfigurationVersions interface {
 	// Read a configuration version by its ID.
 	Read(ctx context.Context, cvID string) (*ConfigurationVersion, error)
 
+	// Read ingress attributes by configuration version ID.
+	ReadIngressAttributes(ctx context.Context, cvID string) (*IngressAttributes, error)
+
 	// Upload packages and uploads Terraform configuration files. It requires
 	// the upload URL from a configuration version and the full path to the
 	// configuration files on disk.
@@ -70,19 +73,29 @@ type ConfigurationVersionList struct {
 	Items []*ConfigurationVersion
 }
 
+// IngressAttributes represents the VCS metadata
+type IngressAttributes struct {
+	ID             string `jsonapi:"primary,ingress-attributes"`
+	Branch         string `jsonapi:"attr,branch"`
+	CommitSha      string `jsonapi:"attr,commit-sha"`
+	CommitMessage  string `jsonapi:"attr,commit-message"`
+	SenderUsername string `jsonapi:"attr,sender-username"`
+}
+
 // ConfigurationVersion is a representation of an uploaded or ingressed
 // Terraform configuration in TFE. A workspace must have at least one
 // configuration version before any runs may be queued on it.
 type ConfigurationVersion struct {
-	ID               string              `jsonapi:"primary,configuration-versions"`
-	AutoQueueRuns    bool                `jsonapi:"attr,auto-queue-runs"`
-	Error            string              `jsonapi:"attr,error"`
-	ErrorMessage     string              `jsonapi:"attr,error-message"`
-	Source           ConfigurationSource `jsonapi:"attr,source"`
-	Speculative      bool                `jsonapi:"attr,speculative "`
-	Status           ConfigurationStatus `jsonapi:"attr,status"`
-	StatusTimestamps *CVStatusTimestamps `jsonapi:"attr,status-timestamps"`
-	UploadURL        string              `jsonapi:"attr,upload-url"`
+	ID                string              `jsonapi:"primary,configuration-versions"`
+	AutoQueueRuns     bool                `jsonapi:"attr,auto-queue-runs"`
+	Error             string              `jsonapi:"attr,error"`
+	ErrorMessage      string              `jsonapi:"attr,error-message"`
+	Source            ConfigurationSource `jsonapi:"attr,source"`
+	Speculative       bool                `jsonapi:"attr,speculative "`
+	Status            ConfigurationStatus `jsonapi:"attr,status"`
+	StatusTimestamps  *CVStatusTimestamps `jsonapi:"attr,status-timestamps"`
+	UploadURL         string              `jsonapi:"attr,upload-url"`
+	IngressAttributes *IngressAttributes  `jsonapi:"relation,ingress-attributes"`
 }
 
 // CVStatusTimestamps holds the timestamps for individual configuration version
@@ -172,6 +185,27 @@ func (s *configurationVersions) Read(ctx context.Context, cvID string) (*Configu
 	}
 
 	cv := &ConfigurationVersion{}
+	err = s.client.do(ctx, req, cv)
+	if err != nil {
+		return nil, err
+	}
+
+	return cv, nil
+}
+
+// Read ingress attributes by configuration version ID.
+func (s *configurationVersions) ReadIngressAttributes(ctx context.Context, cvID string) (*IngressAttributes, error) {
+	if !validStringID(&cvID) {
+		return nil, errors.New("invalid value for configuration version ID")
+	}
+
+	u := fmt.Sprintf("configuration-versions/%s/ingress-attributes", url.QueryEscape(cvID))
+	req, err := s.client.newRequest("GET", u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	cv := &IngressAttributes{}
 	err = s.client.do(ctx, req, cv)
 	if err != nil {
 		return nil, err

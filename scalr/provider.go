@@ -67,6 +67,7 @@ func Provider() terraform.ResourceProvider {
 			"scalr_team_access":   dataSourceTFETeamAccess(),
 			"scalr_workspace":     dataSourceTFEWorkspace(),
 			"scalr_workspace_ids": dataSourceTFEWorkspaceIDs(),
+			"scalr_current_run":   dataSourceTFECurrentRun(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
