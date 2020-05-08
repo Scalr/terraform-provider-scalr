@@ -19,6 +19,27 @@ func dataSourceTFECurrentRun() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"workspace": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"auto_apply": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"working_directory": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						// TODO: add description, tags
+					},
+				},
+			},
 			"vcs": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -82,7 +103,7 @@ func dataSourceTFECurrentRun() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
-			// TODO: add workspace, cost_estimate, credentials(?), created_by
+			// TODO: add cost_estimate, credentials(?), created_by
 		},
 	}
 }
@@ -118,6 +139,14 @@ func dataSourceTFECurrentRunRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("message", run.Message)
 	d.Set("is_destroy", run.IsDestroy)
 	d.Set("is_dry", run.Apply == nil)
+
+	var wsConfigs []map[string]interface{}
+	ws := map[string]interface{}{
+		"name":              workspace.Name,
+		"auto_apply":        workspace.AutoApply,
+		"working_directory": workspace.WorkingDirectory,
+	}
+	d.Set("workspace", append(wsConfigs, ws))
 
 	if workspace.VCSRepo != nil {
 		log.Printf("[DEBUG] Read ingress attributes of run: %s", runID)
