@@ -215,7 +215,7 @@ github.com/posener/complete
 github.com/posener/complete/cmd
 github.com/posener/complete/cmd/install
 github.com/posener/complete/match
-# github.com/scalr/go-tfe v0.3.31-0.20200207091958-8dba4e8a4cd9
+# github.com/scalr/go-tfe v0.3.31-0.20200508174800-8c75b5daa29b
 github.com/scalr/go-tfe
 # github.com/spf13/afero v1.2.1
 github.com/spf13/afero
