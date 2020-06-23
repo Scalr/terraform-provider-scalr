@@ -76,6 +76,27 @@ func dataSourceTFEWorkspace() *schema.Resource {
 				},
 			},
 
+			"created_by": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"username": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"email": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"full_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+
 			"external_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -108,9 +129,15 @@ func dataSourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("working_directory", workspace.WorkingDirectory)
 	d.Set("external_id", workspace.ID)
 
-	if workspace.SSHKey != nil {
-		d.Set("ssh_key_id", workspace.SSHKey.ID)
+	var createdBy []interface{}
+	if workspace.CreatedBy != nil {
+		createdBy = append(createdBy, map[string]interface{}{
+			"username":  workspace.CreatedBy.Username,
+			"email":     workspace.CreatedBy.Email,
+			"full_name": workspace.CreatedBy.FullName,
+		})
 	}
+	d.Set("created_by", createdBy)
 
 	var vcsRepo []interface{}
 	if workspace.VCSRepo != nil {

@@ -115,6 +115,10 @@ func TestAccTFEWorkspace_basic(t *testing.T) {
 						"scalr_workspace.foobar", "queue_all_runs", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.foobar", "working_directory", ""),
+					resource.TestCheckResourceAttrSet("scalr_workspace.foobar", "external_id"),
+					resource.TestCheckResourceAttrSet("scalr_workspace.foobar", "created_by.0.full_name"),
+					resource.TestCheckResourceAttrSet("scalr_workspace.foobar", "created_by.0.email"),
+					resource.TestCheckResourceAttrSet("scalr_workspace.foobar", "created_by.0.username"),
 				),
 			},
 		},
