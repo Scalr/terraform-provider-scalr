@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - **New data source:** `scalr_current_run` ([#2](https://github.com/Scalr/terraform-provider-scalr/pull/2))
+- **New attributes:** `scalr_workspace.created_by` ([#5](https://github.com/Scalr/terraform-provider-scalr/pull/5))
 
 ## [0.0.0-rc2] - 2020-03-30
 ### Added
