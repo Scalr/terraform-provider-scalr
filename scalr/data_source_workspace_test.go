@@ -36,8 +36,10 @@ func TestAccTFEWorkspaceDataSource_basic(t *testing.T) {
 						"data.scalr_workspace.foobar", "terraform_version", "0.12.19"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.foobar", "working_directory", "terraform/test"),
-
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "external_id"),
+					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "created_by.0.full_name"),
+					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "created_by.0.email"),
+					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "created_by.0.username"),
 				),
 			},
 		},

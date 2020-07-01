@@ -19,7 +19,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	tfe "github.com/scalr/go-tfe"
-	providerVersion "github.com/terraform-providers/terraform-provider-tfe/version"
+	providerVersion "github.com/scalr/terraform-provider-scalr/version"
 )
 
 const defaultHostname = "my.scalr.com"
