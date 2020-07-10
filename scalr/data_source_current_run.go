@@ -9,7 +9,7 @@ import (
 	tfe "github.com/scalr/go-tfe"
 )
 
-// Note: The structure is inherited from OPA policy:
+// Note: The structure is similar to one from policy-check phase:
 // https://iacp.docs.scalr.com/en/latest/working-with-iacp/opa.html#policy-checking-process
 func dataSourceTFECurrentRun() *schema.Resource {
 	return &schema.Resource{
@@ -19,26 +19,13 @@ func dataSourceTFECurrentRun() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"workspace": {
-				Type:     schema.TypeList,
+			"environment_id": {
+				Type:     schema.TypeString,
 				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"auto_apply": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-						"working_directory": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						// TODO: add description, tags
-					},
-				},
+			},
+			"workspace_name": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"vcs": {
 				Type:     schema.TypeList,
@@ -140,13 +127,8 @@ func dataSourceTFECurrentRunRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("is_destroy", run.IsDestroy)
 	d.Set("is_dry", run.Apply == nil)
 
-	var wsConfigs []map[string]interface{}
-	ws := map[string]interface{}{
-		"name":              workspace.Name,
-		"auto_apply":        workspace.AutoApply,
-		"working_directory": workspace.WorkingDirectory,
-	}
-	d.Set("workspace", append(wsConfigs, ws))
+	d.Set("workspace_name", workspace.Name)
+	d.Set("environment_id", workspace.Organization.Name)
 
 	if workspace.VCSRepo != nil {
 		log.Printf("[DEBUG] Read ingress attributes of run: %s", runID)
