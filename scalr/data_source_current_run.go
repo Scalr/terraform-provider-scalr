@@ -23,7 +23,7 @@ func dataSourceTFECurrentRun() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"workspace": {
+			"workspace_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -127,7 +127,7 @@ func dataSourceTFECurrentRunRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("is_destroy", run.IsDestroy)
 	d.Set("is_dry", run.Apply == nil)
 
-	d.Set("workspace", workspace.Name)
+	d.Set("workspace_name", workspace.Name)
 	d.Set("environment_id", workspace.Organization.Name)
 
 	if workspace.VCSRepo != nil {

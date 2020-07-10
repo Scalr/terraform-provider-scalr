@@ -7,9 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0-rc2] - Unreleased
 ### Added
 - `data.scalr_current_run`: new attribute `environment_id` ([#6](https://github.com/Scalr/terraform-provider-scalr/pull/6))
+- `data.scalr_current_run`: new attribute `workspace_name` ([#6](https://github.com/Scalr/terraform-provider-scalr/pull/6))
 
-### Changed
-- **Backward incompatible** change in `data.scalr_current_run.workspace` attribute. Its a workspace's name now ([#6](https://github.com/Scalr/terraform-provider-scalr/pull/6))
+### Removed
+* `data.scalr_current_run`: drop attribute `workspace` ([#6](https://github.com/Scalr/terraform-provider-scalr/pull/6))
 
 ## [1.0.0-rc1] - 2020-07-01
 Requires Scalr 8.0.1-beta.20200625 at least
