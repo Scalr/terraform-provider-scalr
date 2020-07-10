@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func resourceTFETeam() *schema.Resource {
@@ -35,19 +35,19 @@ func resourceTFETeam() *schema.Resource {
 }
 
 func resourceTFETeamCreate(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	// Get the name and organization.
 	name := d.Get("name").(string)
 	organization := d.Get("organization").(string)
 
 	// Create a new options struct.
-	options := tfe.TeamCreateOptions{
-		Name: tfe.String(name),
+	options := scalr.TeamCreateOptions{
+		Name: scalr.String(name),
 	}
 
 	log.Printf("[DEBUG] Create team %s for organization: %s", name, organization)
-	team, err := tfeClient.Teams.Create(ctx, organization, options)
+	team, err := scalrClient.Teams.Create(ctx, organization, options)
 	if err != nil {
 		return fmt.Errorf(
 			"Error creating team %s for organization %s: %v", name, organization, err)
@@ -59,12 +59,12 @@ func resourceTFETeamCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTFETeamRead(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Read configuration of team: %s", d.Id())
-	team, err := tfeClient.Teams.Read(ctx, d.Id())
+	team, err := scalrClient.Teams.Read(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			log.Printf("[DEBUG] Team %s does no longer exist", d.Id())
 			d.SetId("")
 			return nil
@@ -79,12 +79,12 @@ func resourceTFETeamRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTFETeamDelete(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Delete team: %s", d.Id())
-	err := tfeClient.Teams.Delete(ctx, d.Id())
+	err := scalrClient.Teams.Delete(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			return nil
 		}
 		return fmt.Errorf("Error deleting team %s: %v", d.Id(), err)

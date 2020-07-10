@@ -8,11 +8,11 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func TestAccTFETeamMembers_basic(t *testing.T) {
-	users := []*tfe.User{}
+	users := []*scalr.User{}
 	TFE_USER1_HASH := hashSchemaString(TFE_USER1)
 
 	resource.Test(t, resource.TestCase{
@@ -44,7 +44,7 @@ func TestAccTFETeamMembers_basic(t *testing.T) {
 }
 
 func TestAccTFETeamMembers_update(t *testing.T) {
-	users := []*tfe.User{}
+	users := []*scalr.User{}
 	TFE_USER1_HASH := hashSchemaString(TFE_USER1)
 	TFE_USER2_HASH := hashSchemaString(TFE_USER2)
 
@@ -124,9 +124,9 @@ func hashSchemaString(username string) int {
 }
 
 func testAccCheckTFETeamMembersExists(
-	n string, users *[]*tfe.User) resource.TestCheckFunc {
+	n string, users *[]*scalr.User) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		tfeClient := testAccProvider.Meta().(*tfe.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -137,8 +137,8 @@ func testAccCheckTFETeamMembersExists(
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		us, err := tfeClient.TeamMembers.List(ctx, rs.Primary.ID)
-		if err != nil && err != tfe.ErrResourceNotFound {
+		us, err := scalrClient.TeamMembers.List(ctx, rs.Primary.ID)
+		if err != nil && err != scalr.ErrResourceNotFound {
 			return err
 		}
 
@@ -153,7 +153,7 @@ func testAccCheckTFETeamMembersExists(
 }
 
 func testAccCheckTFETeamMembersAttributes(
-	users *[]*tfe.User, expectedUsernames []string) resource.TestCheckFunc {
+	users *[]*scalr.User, expectedUsernames []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		usernames := usernamesFromTFEUsers(*users)
 		if !reflect.DeepEqual(usernames, expectedUsernames) {
@@ -165,7 +165,7 @@ func testAccCheckTFETeamMembersAttributes(
 	}
 }
 
-func usernamesFromTFEUsers(users []*tfe.User) []string {
+func usernamesFromTFEUsers(users []*scalr.User) []string {
 	usernames := make([]string, len(users), len(users))
 	for i, user := range users {
 		usernames[i] = user.Username
@@ -174,7 +174,7 @@ func usernamesFromTFEUsers(users []*tfe.User) []string {
 }
 
 func testAccCheckTFETeamMembersDestroy(s *terraform.State) error {
-	tfeClient := testAccProvider.Meta().(*tfe.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_team_members" {
@@ -185,8 +185,8 @@ func testAccCheckTFETeamMembersDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		users, err := tfeClient.TeamMembers.List(ctx, rs.Primary.ID)
-		if err != nil && err != tfe.ErrResourceNotFound {
+		users, err := scalrClient.TeamMembers.List(ctx, rs.Primary.ID)
+		if err != nil && err != scalr.ErrResourceNotFound {
 			return err
 		}
 

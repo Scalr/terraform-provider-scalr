@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func resourceTFENotificationConfiguration() *schema.Resource {
@@ -31,8 +31,8 @@ func resourceTFENotificationConfiguration() *schema.Resource {
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice(
 					[]string{
-						string(tfe.NotificationDestinationTypeGeneric),
-						string(tfe.NotificationDestinationTypeSlack),
+						string(scalr.NotificationDestinationTypeGeneric),
+						string(scalr.NotificationDestinationTypeSlack),
 					},
 					false,
 				),
@@ -57,12 +57,12 @@ func resourceTFENotificationConfiguration() *schema.Resource {
 					Type: schema.TypeString,
 					ValidateFunc: validation.StringInSlice(
 						[]string{
-							string(tfe.NotificationTriggerCreated),
-							string(tfe.NotificationTriggerPlanning),
-							string(tfe.NotificationTriggerNeedsAttention),
-							string(tfe.NotificationTriggerApplying),
-							string(tfe.NotificationTriggerCompleted),
-							string(tfe.NotificationTriggerErrored),
+							string(scalr.NotificationTriggerCreated),
+							string(scalr.NotificationTriggerPlanning),
+							string(scalr.NotificationTriggerNeedsAttention),
+							string(scalr.NotificationTriggerApplying),
+							string(scalr.NotificationTriggerCompleted),
+							string(scalr.NotificationTriggerErrored),
 						},
 						false,
 					),
@@ -84,30 +84,30 @@ func resourceTFENotificationConfiguration() *schema.Resource {
 }
 
 func resourceTFENotificationConfigurationCreate(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	// Get workspace
 	workspaceID := d.Get("workspace_external_id").(string)
 
 	// Get attributes
-	destinationType := tfe.NotificationDestinationType(d.Get("destination_type").(string))
+	destinationType := scalr.NotificationDestinationType(d.Get("destination_type").(string))
 	enabled := d.Get("enabled").(bool)
 	name := d.Get("name").(string)
 	token := d.Get("token").(string)
 	url := d.Get("url").(string)
 
 	// Throw error if token is set with destinationType of slack
-	if token != "" && destinationType == tfe.NotificationDestinationTypeSlack {
+	if token != "" && destinationType == scalr.NotificationDestinationTypeSlack {
 		return fmt.Errorf("Token cannot be set with destination_type of %s", destinationType)
 	}
 
 	// Create a new options struct
-	options := tfe.NotificationConfigurationCreateOptions{
-		DestinationType: tfe.NotificationDestination(destinationType),
-		Enabled:         tfe.Bool(enabled),
-		Name:            tfe.String(name),
-		Token:           tfe.String(token),
-		URL:             tfe.String(url),
+	options := scalr.NotificationConfigurationCreateOptions{
+		DestinationType: scalr.NotificationDestination(destinationType),
+		Enabled:         scalr.Bool(enabled),
+		Name:            scalr.String(name),
+		Token:           scalr.String(token),
+		URL:             scalr.String(url),
 	}
 
 	// Add triggers set to the options struct
@@ -116,7 +116,7 @@ func resourceTFENotificationConfigurationCreate(d *schema.ResourceData, meta int
 	}
 
 	log.Printf("[DEBUG] Create notification configuration: %s", name)
-	notificationConfiguration, err := tfeClient.NotificationConfigurations.Create(ctx, workspaceID, options)
+	notificationConfiguration, err := scalrClient.NotificationConfigurations.Create(ctx, workspaceID, options)
 	if err != nil {
 		return fmt.Errorf("Error creating notification configuration %s: %v", name, err)
 	}
@@ -127,12 +127,12 @@ func resourceTFENotificationConfigurationCreate(d *schema.ResourceData, meta int
 }
 
 func resourceTFENotificationConfigurationRead(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Read notification configuration: %s", d.Id())
-	notificationConfiguration, err := tfeClient.NotificationConfigurations.Read(ctx, d.Id())
+	notificationConfiguration, err := scalrClient.NotificationConfigurations.Read(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			log.Printf("[DEBUG] Notification configuration %s no longer exists", d.Id())
 			d.SetId("")
 			return nil
@@ -153,26 +153,26 @@ func resourceTFENotificationConfigurationRead(d *schema.ResourceData, meta inter
 }
 
 func resourceTFENotificationConfigurationUpdate(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	// Get attributes
-	destinationType := tfe.NotificationDestinationType(d.Get("destination_type").(string))
+	destinationType := scalr.NotificationDestinationType(d.Get("destination_type").(string))
 	enabled := d.Get("enabled").(bool)
 	name := d.Get("name").(string)
 	token := d.Get("token").(string)
 	url := d.Get("url").(string)
 
 	// Throw error if token is set with destinationType of slack
-	if token != "" && destinationType == tfe.NotificationDestinationTypeSlack {
+	if token != "" && destinationType == scalr.NotificationDestinationTypeSlack {
 		return fmt.Errorf("Token cannot be set with destination_type of %s", destinationType)
 	}
 
 	// Create a new options struct
-	options := tfe.NotificationConfigurationUpdateOptions{
-		Enabled: tfe.Bool(enabled),
-		Name:    tfe.String(name),
-		Token:   tfe.String(token),
-		URL:     tfe.String(url),
+	options := scalr.NotificationConfigurationUpdateOptions{
+		Enabled: scalr.Bool(enabled),
+		Name:    scalr.String(name),
+		Token:   scalr.String(token),
+		URL:     scalr.String(url),
 	}
 
 	// Add triggers set to the options struct
@@ -181,7 +181,7 @@ func resourceTFENotificationConfigurationUpdate(d *schema.ResourceData, meta int
 	}
 
 	log.Printf("[DEBUG] Update notification configuration: %s", d.Id())
-	_, err := tfeClient.NotificationConfigurations.Update(ctx, d.Id(), options)
+	_, err := scalrClient.NotificationConfigurations.Update(ctx, d.Id(), options)
 	if err != nil {
 		return fmt.Errorf("Error updating notification configuration %s: %v", d.Id(), err)
 	}
@@ -190,12 +190,12 @@ func resourceTFENotificationConfigurationUpdate(d *schema.ResourceData, meta int
 }
 
 func resourceTFENotificationConfigurationDelete(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Delete notification configuration: %s", d.Id())
-	err := tfeClient.NotificationConfigurations.Delete(ctx, d.Id())
+	err := scalrClient.NotificationConfigurations.Delete(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			return nil
 		}
 		return fmt.Errorf("Error deleting notification configuration %s: %v", d.Id(), err)

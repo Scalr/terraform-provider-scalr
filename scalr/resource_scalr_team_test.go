@@ -6,11 +6,11 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func TestAccTFETeam_basic(t *testing.T) {
-	team := &tfe.Team{}
+	team := &scalr.Team{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -52,9 +52,9 @@ func TestAccTFETeam_import(t *testing.T) {
 }
 
 func testAccCheckTFETeamExists(
-	n string, team *tfe.Team) resource.TestCheckFunc {
+	n string, team *scalr.Team) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		tfeClient := testAccProvider.Meta().(*tfe.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -65,7 +65,7 @@ func testAccCheckTFETeamExists(
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		t, err := tfeClient.Teams.Read(ctx, rs.Primary.ID)
+		t, err := scalrClient.Teams.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -81,7 +81,7 @@ func testAccCheckTFETeamExists(
 }
 
 func testAccCheckTFETeamAttributes(
-	team *tfe.Team) resource.TestCheckFunc {
+	team *scalr.Team) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if team.Name != "team-test" {
 			return fmt.Errorf("Bad name: %s", team.Name)
@@ -91,7 +91,7 @@ func testAccCheckTFETeamAttributes(
 }
 
 func testAccCheckTFETeamDestroy(s *terraform.State) error {
-	tfeClient := testAccProvider.Meta().(*tfe.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_team" {
@@ -102,7 +102,7 @@ func testAccCheckTFETeamDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := tfeClient.Teams.Read(ctx, rs.Primary.ID)
+		_, err := scalrClient.Teams.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Team %s still exists", rs.Primary.ID)
 		}

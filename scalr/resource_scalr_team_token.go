@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func resourceTFETeamToken() *schema.Resource {
@@ -40,14 +40,14 @@ func resourceTFETeamToken() *schema.Resource {
 }
 
 func resourceTFETeamTokenCreate(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	// Get the team ID.
 	teamID := d.Get("team_id").(string)
 
 	log.Printf("[DEBUG] Check if a token already exists for team: %s", teamID)
-	_, err := tfeClient.TeamTokens.Read(ctx, teamID)
-	if err != nil && err != tfe.ErrResourceNotFound {
+	_, err := scalrClient.TeamTokens.Read(ctx, teamID)
+	if err != nil && err != scalr.ErrResourceNotFound {
 		return fmt.Errorf("Error checking if a token exists for team %s: %v", teamID, err)
 	}
 
@@ -60,7 +60,7 @@ func resourceTFETeamTokenCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	log.Printf("[DEBUG] Create new token for team: %s", teamID)
-	token, err := tfeClient.TeamTokens.Generate(ctx, teamID)
+	token, err := scalrClient.TeamTokens.Generate(ctx, teamID)
 	if err != nil {
 		return fmt.Errorf(
 			"Error creating new token for team %s: %v", teamID, err)
@@ -76,12 +76,12 @@ func resourceTFETeamTokenCreate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceTFETeamTokenRead(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Read the token from team: %s", d.Id())
-	_, err := tfeClient.TeamTokens.Read(ctx, d.Id())
+	_, err := scalrClient.TeamTokens.Read(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			log.Printf("[DEBUG] Token for team %s does no longer exist", d.Id())
 			d.SetId("")
 			return nil
@@ -93,12 +93,12 @@ func resourceTFETeamTokenRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTFETeamTokenDelete(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Delete token from team: %s", d.Id())
-	err := tfeClient.TeamTokens.Delete(ctx, d.Id())
+	err := scalrClient.TeamTokens.Delete(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			return nil
 		}
 		return fmt.Errorf("Error deleting token from team %s: %v", d.Id(), err)

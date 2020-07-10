@@ -6,11 +6,11 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func TestAccTFESentinelPolicy_basic(t *testing.T) {
-	policy := &tfe.Policy{}
+	policy := &scalr.Policy{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -38,7 +38,7 @@ func TestAccTFESentinelPolicy_basic(t *testing.T) {
 }
 
 func TestAccTFESentinelPolicy_update(t *testing.T) {
-	policy := &tfe.Policy{}
+	policy := &scalr.Policy{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -103,9 +103,9 @@ func TestAccTFESentinelPolicy_import(t *testing.T) {
 }
 
 func testAccCheckTFESentinelPolicyExists(
-	n string, policy *tfe.Policy) resource.TestCheckFunc {
+	n string, policy *scalr.Policy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		tfeClient := testAccProvider.Meta().(*tfe.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -116,7 +116,7 @@ func testAccCheckTFESentinelPolicyExists(
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		p, err := tfeClient.Policies.Read(ctx, rs.Primary.ID)
+		p, err := scalrClient.Policies.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -132,7 +132,7 @@ func testAccCheckTFESentinelPolicyExists(
 }
 
 func testAccCheckTFESentinelPolicyAttributes(
-	policy *tfe.Policy) resource.TestCheckFunc {
+	policy *scalr.Policy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if policy.Name != "policy-test" {
 			return fmt.Errorf("Bad name: %s", policy.Name)
@@ -147,7 +147,7 @@ func testAccCheckTFESentinelPolicyAttributes(
 }
 
 func testAccCheckTFESentinelPolicyAttributesUpdated(
-	policy *tfe.Policy) resource.TestCheckFunc {
+	policy *scalr.Policy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if policy.Name != "policy-test" {
 			return fmt.Errorf("Bad name: %s", policy.Name)
@@ -162,7 +162,7 @@ func testAccCheckTFESentinelPolicyAttributesUpdated(
 }
 
 func testAccCheckTFESentinelPolicyDestroy(s *terraform.State) error {
-	tfeClient := testAccProvider.Meta().(*tfe.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_sentinel_policy" {
@@ -173,7 +173,7 @@ func testAccCheckTFESentinelPolicyDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := tfeClient.Policies.Read(ctx, rs.Primary.ID)
+		_, err := scalrClient.Policies.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Sentinel policy %s still exists", rs.Primary.ID)
 		}

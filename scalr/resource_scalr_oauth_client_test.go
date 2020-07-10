@@ -6,11 +6,11 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func TestAccTFEOAuthClient_basic(t *testing.T) {
-	oc := &tfe.OAuthClient{}
+	oc := &scalr.OAuthClient{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -40,9 +40,9 @@ func TestAccTFEOAuthClient_basic(t *testing.T) {
 }
 
 func testAccCheckTFEOAuthClientExists(
-	n string, oc *tfe.OAuthClient) resource.TestCheckFunc {
+	n string, oc *scalr.OAuthClient) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		tfeClient := testAccProvider.Meta().(*tfe.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -53,7 +53,7 @@ func testAccCheckTFEOAuthClientExists(
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		client, err := tfeClient.OAuthClients.Read(ctx, rs.Primary.ID)
+		client, err := scalrClient.OAuthClients.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -69,7 +69,7 @@ func testAccCheckTFEOAuthClientExists(
 }
 
 func testAccCheckTFEOAuthClientAttributes(
-	oc *tfe.OAuthClient) resource.TestCheckFunc {
+	oc *scalr.OAuthClient) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if oc.APIURL != "https://api.github.com" {
 			return fmt.Errorf("Bad API URL: %s", oc.APIURL)
@@ -79,7 +79,7 @@ func testAccCheckTFEOAuthClientAttributes(
 			return fmt.Errorf("Bad HTTP URL: %s", oc.HTTPURL)
 		}
 
-		if oc.ServiceProvider != tfe.ServiceProviderGithub {
+		if oc.ServiceProvider != scalr.ServiceProviderGithub {
 			return fmt.Errorf("Bad service provider: %s", oc.ServiceProvider)
 		}
 
@@ -88,7 +88,7 @@ func testAccCheckTFEOAuthClientAttributes(
 }
 
 func testAccCheckTFEOAuthClientDestroy(s *terraform.State) error {
-	tfeClient := testAccProvider.Meta().(*tfe.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_oauth_client" {
@@ -99,7 +99,7 @@ func testAccCheckTFEOAuthClientDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := tfeClient.OAuthClients.Read(ctx, rs.Primary.ID)
+		_, err := scalrClient.OAuthClients.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("OAuth client %s still exists", rs.Primary.ID)
 		}

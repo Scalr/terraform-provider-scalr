@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func resourceTFEPolicySet() *schema.Resource {
@@ -101,52 +101,52 @@ func resourceTFEPolicySet() *schema.Resource {
 }
 
 func resourceTFEPolicySetCreate(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	name := d.Get("name").(string)
 	organization := d.Get("organization").(string)
 
 	// Create a new options struct.
-	options := tfe.PolicySetCreateOptions{
-		Name:   tfe.String(name),
-		Global: tfe.Bool(d.Get("global").(bool)),
+	options := scalr.PolicySetCreateOptions{
+		Name:   scalr.String(name),
+		Global: scalr.Bool(d.Get("global").(bool)),
 	}
 
 	// Process all configured options.
 	if desc, ok := d.GetOk("description"); ok {
-		options.Description = tfe.String(desc.(string))
+		options.Description = scalr.String(desc.(string))
 	}
 
 	if policiesPath, ok := d.GetOk("policies_path"); ok {
-		options.PoliciesPath = tfe.String(policiesPath.(string))
+		options.PoliciesPath = scalr.String(policiesPath.(string))
 	}
 
 	for _, policyID := range d.Get("policy_ids").(*schema.Set).List() {
-		options.Policies = append(options.Policies, &tfe.Policy{ID: policyID.(string)})
+		options.Policies = append(options.Policies, &scalr.Policy{ID: policyID.(string)})
 	}
 
 	// Get and assert the VCS repo configuration block.
 	if v, ok := d.GetOk("vcs_repo"); ok {
 		vcsRepo := v.([]interface{})[0].(map[string]interface{})
 
-		options.VCSRepo = &tfe.VCSRepoOptions{
-			Identifier:        tfe.String(vcsRepo["identifier"].(string)),
-			IngressSubmodules: tfe.Bool(vcsRepo["ingress_submodules"].(bool)),
-			OAuthTokenID:      tfe.String(vcsRepo["oauth_token_id"].(string)),
+		options.VCSRepo = &scalr.VCSRepoOptions{
+			Identifier:        scalr.String(vcsRepo["identifier"].(string)),
+			IngressSubmodules: scalr.Bool(vcsRepo["ingress_submodules"].(bool)),
+			OAuthTokenID:      scalr.String(vcsRepo["oauth_token_id"].(string)),
 		}
 
 		// Only set the branch if one is configured.
 		if branch, ok := vcsRepo["branch"].(string); ok && branch != "" {
-			options.VCSRepo.Branch = tfe.String(branch)
+			options.VCSRepo.Branch = scalr.String(branch)
 		}
 	}
 
 	for _, workspaceID := range d.Get("workspace_external_ids").(*schema.Set).List() {
-		options.Workspaces = append(options.Workspaces, &tfe.Workspace{ID: workspaceID.(string)})
+		options.Workspaces = append(options.Workspaces, &scalr.Workspace{ID: workspaceID.(string)})
 	}
 
 	log.Printf("[DEBUG] Create policy set %s for organization: %s", name, organization)
-	policySet, err := tfeClient.PolicySets.Create(ctx, organization, options)
+	policySet, err := scalrClient.PolicySets.Create(ctx, organization, options)
 	if err != nil {
 		return fmt.Errorf(
 			"Error creating policy set %s for organization %s: %v", name, organization, err)
@@ -158,12 +158,12 @@ func resourceTFEPolicySetCreate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceTFEPolicySetRead(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Read policy set: %s", d.Id())
-	policySet, err := tfeClient.PolicySets.Read(ctx, d.Id())
+	policySet, err := scalrClient.PolicySets.Read(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			log.Printf("[DEBUG] Policy set %s does no longer exist", d.Id())
 			d.SetId("")
 			return nil
@@ -225,7 +225,7 @@ func resourceTFEPolicySetRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTFEPolicySetUpdate(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	name := d.Get("name").(string)
 	global := d.Get("global").(bool)
@@ -238,14 +238,14 @@ func resourceTFEPolicySetUpdate(d *schema.ResourceData, meta interface{}) error 
 		oldWorkspaceIDs, _ := d.GetChange("workspace_external_ids")
 
 		if oldWorkspaceIDs.(*schema.Set).Len() > 0 {
-			options := tfe.PolicySetRemoveWorkspacesOptions{}
+			options := scalr.PolicySetRemoveWorkspacesOptions{}
 
 			for _, workspaceID := range oldWorkspaceIDs.(*schema.Set).List() {
-				options.Workspaces = append(options.Workspaces, &tfe.Workspace{ID: workspaceID.(string)})
+				options.Workspaces = append(options.Workspaces, &scalr.Workspace{ID: workspaceID.(string)})
 			}
 
 			log.Printf("[DEBUG] Removing previous workspaces from now-global policy set: %s", d.Id())
-			err := tfeClient.PolicySets.RemoveWorkspaces(ctx, d.Id(), options)
+			err := scalrClient.PolicySets.RemoveWorkspaces(ctx, d.Id(), options)
 			if err != nil {
 				return fmt.Errorf("Error detaching policy set %s from workspaces: %v", d.Id(), err)
 			}
@@ -255,17 +255,17 @@ func resourceTFEPolicySetUpdate(d *schema.ResourceData, meta interface{}) error 
 	// Don't bother updating the policy set's attributes if they haven't changed
 	if d.HasChange("name") || d.HasChange("description") || d.HasChange("global") {
 		// Create a new options struct.
-		options := tfe.PolicySetUpdateOptions{
-			Name:   tfe.String(name),
-			Global: tfe.Bool(global),
+		options := scalr.PolicySetUpdateOptions{
+			Name:   scalr.String(name),
+			Global: scalr.Bool(global),
 		}
 
 		if desc, ok := d.GetOk("description"); ok {
-			options.Description = tfe.String(desc.(string))
+			options.Description = scalr.String(desc.(string))
 		}
 
 		log.Printf("[DEBUG] Update configuration for policy set: %s", d.Id())
-		_, err := tfeClient.PolicySets.Update(ctx, d.Id(), options)
+		_, err := scalrClient.PolicySets.Update(ctx, d.Id(), options)
 		if err != nil {
 			return fmt.Errorf(
 				"Error updating configuration for policy set %s: %v", d.Id(), err)
@@ -279,14 +279,14 @@ func resourceTFEPolicySetUpdate(d *schema.ResourceData, meta interface{}) error 
 
 		// First add the new policies.
 		if newPolicyIDs.Len() > 0 {
-			options := tfe.PolicySetAddPoliciesOptions{}
+			options := scalr.PolicySetAddPoliciesOptions{}
 
 			for _, policyID := range newPolicyIDs.List() {
-				options.Policies = append(options.Policies, &tfe.Policy{ID: policyID.(string)})
+				options.Policies = append(options.Policies, &scalr.Policy{ID: policyID.(string)})
 			}
 
 			log.Printf("[DEBUG] Add policies to policy set: %s", d.Id())
-			err := tfeClient.PolicySets.AddPolicies(ctx, d.Id(), options)
+			err := scalrClient.PolicySets.AddPolicies(ctx, d.Id(), options)
 			if err != nil {
 				return fmt.Errorf("Error adding policies to policy set %s: %v", d.Id(), err)
 			}
@@ -294,14 +294,14 @@ func resourceTFEPolicySetUpdate(d *schema.ResourceData, meta interface{}) error 
 
 		// Then remove all the old policies.
 		if oldPolicyIDs.Len() > 0 {
-			options := tfe.PolicySetRemovePoliciesOptions{}
+			options := scalr.PolicySetRemovePoliciesOptions{}
 
 			for _, policyID := range oldPolicyIDs.List() {
-				options.Policies = append(options.Policies, &tfe.Policy{ID: policyID.(string)})
+				options.Policies = append(options.Policies, &scalr.Policy{ID: policyID.(string)})
 			}
 
 			log.Printf("[DEBUG] Remove policies from policy set: %s", d.Id())
-			err := tfeClient.PolicySets.RemovePolicies(ctx, d.Id(), options)
+			err := scalrClient.PolicySets.RemovePolicies(ctx, d.Id(), options)
 			if err != nil {
 				return fmt.Errorf("Error removing policies from policy set %s: %v", d.Id(), err)
 			}
@@ -315,14 +315,14 @@ func resourceTFEPolicySetUpdate(d *schema.ResourceData, meta interface{}) error 
 
 		// First add the new workspaces.
 		if newWorkspaceIDs.Len() > 0 {
-			options := tfe.PolicySetAddWorkspacesOptions{}
+			options := scalr.PolicySetAddWorkspacesOptions{}
 
 			for _, workspaceID := range newWorkspaceIDs.List() {
-				options.Workspaces = append(options.Workspaces, &tfe.Workspace{ID: workspaceID.(string)})
+				options.Workspaces = append(options.Workspaces, &scalr.Workspace{ID: workspaceID.(string)})
 			}
 
 			log.Printf("[DEBUG] Attach policy set to workspaces: %s", d.Id())
-			err := tfeClient.PolicySets.AddWorkspaces(ctx, d.Id(), options)
+			err := scalrClient.PolicySets.AddWorkspaces(ctx, d.Id(), options)
 			if err != nil {
 				return fmt.Errorf("Error attaching policy set %s to workspaces: %v", d.Id(), err)
 			}
@@ -330,14 +330,14 @@ func resourceTFEPolicySetUpdate(d *schema.ResourceData, meta interface{}) error 
 
 		// Then remove all the old workspaces.
 		if oldWorkspaceIDs.Len() > 0 {
-			options := tfe.PolicySetRemoveWorkspacesOptions{}
+			options := scalr.PolicySetRemoveWorkspacesOptions{}
 
 			for _, workspaceID := range oldWorkspaceIDs.List() {
-				options.Workspaces = append(options.Workspaces, &tfe.Workspace{ID: workspaceID.(string)})
+				options.Workspaces = append(options.Workspaces, &scalr.Workspace{ID: workspaceID.(string)})
 			}
 
 			log.Printf("[DEBUG] Detach policy set from workspaces: %s", d.Id())
-			err := tfeClient.PolicySets.RemoveWorkspaces(ctx, d.Id(), options)
+			err := scalrClient.PolicySets.RemoveWorkspaces(ctx, d.Id(), options)
 			if err != nil {
 				return fmt.Errorf("Error detaching policy set %s from workspaces: %v", d.Id(), err)
 			}
@@ -348,12 +348,12 @@ func resourceTFEPolicySetUpdate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceTFEPolicySetDelete(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Delete policy set: %s", d.Id())
-	err := tfeClient.PolicySets.Delete(ctx, d.Id())
+	err := scalrClient.PolicySets.Delete(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			return nil
 		}
 		return fmt.Errorf("Error deleting policy set %s: %v", d.Id(), err)

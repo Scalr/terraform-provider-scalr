@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func dataSourceTFETeam() *schema.Resource {
@@ -26,17 +26,17 @@ func dataSourceTFETeam() *schema.Resource {
 }
 
 func dataSourceTFETeamRead(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	// Get the name and organization.
 	name := d.Get("name").(string)
 	organization := d.Get("organization").(string)
 
 	// Create an options struct.
-	options := tfe.TeamListOptions{}
+	options := scalr.TeamListOptions{}
 
 	for {
-		l, err := tfeClient.Teams.List(ctx, organization, options)
+		l, err := scalrClient.Teams.List(ctx, organization, options)
 		if err != nil {
 			return fmt.Errorf("Error retrieving teams: %v", err)
 		}

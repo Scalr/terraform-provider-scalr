@@ -6,11 +6,11 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func TestAccTFETeamAccess_basic(t *testing.T) {
-	tmAccess := &tfe.TeamAccess{}
+	tmAccess := &scalr.TeamAccess{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -52,9 +52,9 @@ func TestAccTFETeamAccess_import(t *testing.T) {
 }
 
 func testAccCheckTFETeamAccessExists(
-	n string, tmAccess *tfe.TeamAccess) resource.TestCheckFunc {
+	n string, tmAccess *scalr.TeamAccess) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		tfeClient := testAccProvider.Meta().(*tfe.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -65,7 +65,7 @@ func testAccCheckTFETeamAccessExists(
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		ta, err := tfeClient.TeamAccess.Read(ctx, rs.Primary.ID)
+		ta, err := scalrClient.TeamAccess.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -81,9 +81,9 @@ func testAccCheckTFETeamAccessExists(
 }
 
 func testAccCheckTFETeamAccessAttributes(
-	tmAccess *tfe.TeamAccess) resource.TestCheckFunc {
+	tmAccess *scalr.TeamAccess) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if tmAccess.Access != tfe.AccessWrite {
+		if tmAccess.Access != scalr.AccessWrite {
 			return fmt.Errorf("Bad access: %s", tmAccess.Access)
 		}
 		return nil
@@ -91,7 +91,7 @@ func testAccCheckTFETeamAccessAttributes(
 }
 
 func testAccCheckTFETeamAccessDestroy(s *terraform.State) error {
-	tfeClient := testAccProvider.Meta().(*tfe.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_team_access" {
@@ -102,7 +102,7 @@ func testAccCheckTFETeamAccessDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := tfeClient.TeamAccess.Read(ctx, rs.Primary.ID)
+		_, err := scalrClient.TeamAccess.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Team access %s still exists", rs.Primary.ID)
 		}

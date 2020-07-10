@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func resourceTFESSHKey() *schema.Resource {
@@ -37,20 +37,20 @@ func resourceTFESSHKey() *schema.Resource {
 }
 
 func resourceTFESSHKeyCreate(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	// Get the name and organization.
 	name := d.Get("name").(string)
 	organization := d.Get("organization").(string)
 
 	// Create a new options struct.
-	options := tfe.SSHKeyCreateOptions{
-		Name:  tfe.String(name),
-		Value: tfe.String(d.Get("key").(string)),
+	options := scalr.SSHKeyCreateOptions{
+		Name:  scalr.String(name),
+		Value: scalr.String(d.Get("key").(string)),
 	}
 
 	log.Printf("[DEBUG] Create new SSH key for organization: %s", organization)
-	sshKey, err := tfeClient.SSHKeys.Create(ctx, organization, options)
+	sshKey, err := scalrClient.SSHKeys.Create(ctx, organization, options)
 	if err != nil {
 		return fmt.Errorf(
 			"Error creating SSH key %s for organization %s: %v", name, organization, err)
@@ -62,12 +62,12 @@ func resourceTFESSHKeyCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTFESSHKeyRead(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Read configuration of SSH key: %s", d.Id())
-	sshKey, err := tfeClient.SSHKeys.Read(ctx, d.Id())
+	sshKey, err := scalrClient.SSHKeys.Read(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			log.Printf("[DEBUG] SSH key %s does no longer exist", d.Id())
 			d.SetId("")
 			return nil
@@ -82,16 +82,16 @@ func resourceTFESSHKeyRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTFESSHKeyUpdate(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	// Create a new options struct.
-	options := tfe.SSHKeyUpdateOptions{
-		Name:  tfe.String(d.Get("name").(string)),
-		Value: tfe.String(d.Get("key").(string)),
+	options := scalr.SSHKeyUpdateOptions{
+		Name:  scalr.String(d.Get("name").(string)),
+		Value: scalr.String(d.Get("key").(string)),
 	}
 
 	log.Printf("[DEBUG] Update SSH key: %s", d.Id())
-	_, err := tfeClient.SSHKeys.Update(ctx, d.Id(), options)
+	_, err := scalrClient.SSHKeys.Update(ctx, d.Id(), options)
 	if err != nil {
 		return fmt.Errorf("Error updating SSH key %s: %v", d.Id(), err)
 	}
@@ -100,12 +100,12 @@ func resourceTFESSHKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTFESSHKeyDelete(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Delete SSH key: %s", d.Id())
-	err := tfeClient.SSHKeys.Delete(ctx, d.Id())
+	err := scalrClient.SSHKeys.Delete(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			return nil
 		}
 		return fmt.Errorf("Error deleting SSH key %s: %v", d.Id(), err)

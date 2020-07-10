@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func dataSourceTFEWorkspace() *schema.Resource {
@@ -106,16 +106,16 @@ func dataSourceTFEWorkspace() *schema.Resource {
 }
 
 func dataSourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	// Get the name and organization.
 	name := d.Get("name").(string)
 	organization := d.Get("organization").(string)
 
 	log.Printf("[DEBUG] Read configuration of workspace: %s", name)
-	workspace, err := tfeClient.Workspaces.Read(ctx, organization, name)
+	workspace, err := scalrClient.Workspaces.Read(ctx, organization, name)
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			return fmt.Errorf("Could not find workspace %s/%s", organization, name)
 		}
 		return fmt.Errorf("Error retrieving workspace: %v", err)

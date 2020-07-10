@@ -7,11 +7,11 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func TestAccTFEOrganizationToken_basic(t *testing.T) {
-	token := &tfe.OrganizationToken{}
+	token := &scalr.OrganizationToken{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -32,7 +32,7 @@ func TestAccTFEOrganizationToken_basic(t *testing.T) {
 }
 
 func TestAccTFEOrganizationToken_existsWithoutForce(t *testing.T) {
-	token := &tfe.OrganizationToken{}
+	token := &scalr.OrganizationToken{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -58,7 +58,7 @@ func TestAccTFEOrganizationToken_existsWithoutForce(t *testing.T) {
 }
 
 func TestAccTFEOrganizationToken_existsWithForce(t *testing.T) {
-	token := &tfe.OrganizationToken{}
+	token := &scalr.OrganizationToken{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -109,9 +109,9 @@ func TestAccTFEOrganizationToken_import(t *testing.T) {
 }
 
 func testAccCheckTFEOrganizationTokenExists(
-	n string, token *tfe.OrganizationToken) resource.TestCheckFunc {
+	n string, token *scalr.OrganizationToken) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		tfeClient := testAccProvider.Meta().(*tfe.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -122,7 +122,7 @@ func testAccCheckTFEOrganizationTokenExists(
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		ot, err := tfeClient.OrganizationTokens.Read(ctx, rs.Primary.ID)
+		ot, err := scalrClient.OrganizationTokens.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -138,7 +138,7 @@ func testAccCheckTFEOrganizationTokenExists(
 }
 
 func testAccCheckTFEOrganizationTokenDestroy(s *terraform.State) error {
-	tfeClient := testAccProvider.Meta().(*tfe.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_organization_token" {
@@ -149,7 +149,7 @@ func testAccCheckTFEOrganizationTokenDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := tfeClient.OrganizationTokens.Read(ctx, rs.Primary.ID)
+		_, err := scalrClient.OrganizationTokens.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("OrganizationToken %s still exists", rs.Primary.ID)
 		}

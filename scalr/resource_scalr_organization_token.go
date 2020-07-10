@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func resourceTFEOrganizationToken() *schema.Resource {
@@ -40,14 +40,14 @@ func resourceTFEOrganizationToken() *schema.Resource {
 }
 
 func resourceTFEOrganizationTokenCreate(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	// Get the organization name.
 	organization := d.Get("organization").(string)
 
 	log.Printf("[DEBUG] Check if a token already exists for organization: %s", organization)
-	_, err := tfeClient.OrganizationTokens.Read(ctx, organization)
-	if err != nil && err != tfe.ErrResourceNotFound {
+	_, err := scalrClient.OrganizationTokens.Read(ctx, organization)
+	if err != nil && err != scalr.ErrResourceNotFound {
 		return fmt.Errorf("Error checking if a token exists for organization %s: %v", organization, err)
 	}
 
@@ -59,7 +59,7 @@ func resourceTFEOrganizationTokenCreate(d *schema.ResourceData, meta interface{}
 		log.Printf("[DEBUG] Regenerating existing token for organization: %s", organization)
 	}
 
-	token, err := tfeClient.OrganizationTokens.Generate(ctx, organization)
+	token, err := scalrClient.OrganizationTokens.Generate(ctx, organization)
 	if err != nil {
 		return fmt.Errorf(
 			"Error creating new token for organization %s: %v", organization, err)
@@ -75,12 +75,12 @@ func resourceTFEOrganizationTokenCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceTFEOrganizationTokenRead(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Read the token from organization: %s", d.Id())
-	_, err := tfeClient.OrganizationTokens.Read(ctx, d.Id())
+	_, err := scalrClient.OrganizationTokens.Read(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			log.Printf("[DEBUG] Token for organization %s does no longer exist", d.Id())
 			d.SetId("")
 			return nil
@@ -92,15 +92,15 @@ func resourceTFEOrganizationTokenRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceTFEOrganizationTokenDelete(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	// Get the organization name.
 	organization := d.Get("organization").(string)
 
 	log.Printf("[DEBUG] Delete token from organization: %s", organization)
-	err := tfeClient.OrganizationTokens.Delete(ctx, organization)
+	err := scalrClient.OrganizationTokens.Delete(ctx, organization)
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			return nil
 		}
 		return fmt.Errorf("Error deleting token from organization %s: %v", d.Id(), err)

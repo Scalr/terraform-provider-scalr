@@ -7,11 +7,11 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func TestAccTFETeamToken_basic(t *testing.T) {
-	token := &tfe.TeamToken{}
+	token := &scalr.TeamToken{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -30,7 +30,7 @@ func TestAccTFETeamToken_basic(t *testing.T) {
 }
 
 func TestAccTFETeamToken_existsWithoutForce(t *testing.T) {
-	token := &tfe.TeamToken{}
+	token := &scalr.TeamToken{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -54,7 +54,7 @@ func TestAccTFETeamToken_existsWithoutForce(t *testing.T) {
 }
 
 func TestAccTFETeamToken_existsWithForce(t *testing.T) {
-	token := &tfe.TeamToken{}
+	token := &scalr.TeamToken{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -101,9 +101,9 @@ func TestAccTFETeamToken_import(t *testing.T) {
 }
 
 func testAccCheckTFETeamTokenExists(
-	n string, token *tfe.TeamToken) resource.TestCheckFunc {
+	n string, token *scalr.TeamToken) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		tfeClient := testAccProvider.Meta().(*tfe.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -114,7 +114,7 @@ func testAccCheckTFETeamTokenExists(
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		tt, err := tfeClient.TeamTokens.Read(ctx, rs.Primary.ID)
+		tt, err := scalrClient.TeamTokens.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -130,7 +130,7 @@ func testAccCheckTFETeamTokenExists(
 }
 
 func testAccCheckTFETeamTokenDestroy(s *terraform.State) error {
-	tfeClient := testAccProvider.Meta().(*tfe.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_team_token" {
@@ -141,7 +141,7 @@ func testAccCheckTFETeamTokenDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := tfeClient.TeamTokens.Read(ctx, rs.Primary.ID)
+		_, err := scalrClient.TeamTokens.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Team token %s still exists", rs.Primary.ID)
 		}

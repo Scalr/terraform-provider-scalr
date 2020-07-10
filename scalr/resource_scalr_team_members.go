@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func resourceTFETeamMembers() *schema.Resource {
@@ -35,13 +35,13 @@ func resourceTFETeamMembers() *schema.Resource {
 }
 
 func resourceTFETeamMembersCreate(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	// Get the team ID.
 	teamID := d.Get("team_id").(string)
 
 	// Create a new options struct.
-	options := tfe.TeamMemberAddOptions{}
+	options := scalr.TeamMemberAddOptions{}
 
 	// Add all the users that need to be added.
 	for _, username := range d.Get("usernames").(*schema.Set).List() {
@@ -49,7 +49,7 @@ func resourceTFETeamMembersCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Add users to team: %s", teamID)
-	err := tfeClient.TeamMembers.Add(ctx, teamID, options)
+	err := scalrClient.TeamMembers.Add(ctx, teamID, options)
 	if err != nil {
 		return fmt.Errorf("Error adding users to team %s: %v", teamID, err)
 	}
@@ -60,12 +60,12 @@ func resourceTFETeamMembersCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceTFETeamMembersRead(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Read users from team: %s", d.Id())
-	users, err := tfeClient.TeamMembers.List(ctx, d.Id())
+	users, err := scalrClient.TeamMembers.List(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			log.Printf("[DEBUG] Users do no longer exist")
 			d.SetId("")
 			return nil
@@ -89,7 +89,7 @@ func resourceTFETeamMembersRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceTFETeamMembersUpdate(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	if d.HasChange("usernames") {
 		old, new := d.GetChange("usernames")
@@ -99,7 +99,7 @@ func resourceTFETeamMembersUpdate(d *schema.ResourceData, meta interface{}) erro
 		// First add the new users.
 		if newUsers.Len() > 0 {
 			// Create a new options struct.
-			options := tfe.TeamMemberAddOptions{}
+			options := scalr.TeamMemberAddOptions{}
 
 			// Add all the users that need to be added.
 			for _, username := range newUsers.List() {
@@ -107,7 +107,7 @@ func resourceTFETeamMembersUpdate(d *schema.ResourceData, meta interface{}) erro
 			}
 
 			log.Printf("[DEBUG] Add users to team: %s", d.Id())
-			err := tfeClient.TeamMembers.Add(ctx, d.Id(), options)
+			err := scalrClient.TeamMembers.Add(ctx, d.Id(), options)
 			if err != nil {
 				return fmt.Errorf("Error adding users to team %s: %v", d.Id(), err)
 			}
@@ -116,7 +116,7 @@ func resourceTFETeamMembersUpdate(d *schema.ResourceData, meta interface{}) erro
 		// Then delete all the old users.
 		if oldUsers.Len() > 0 {
 			// Create a new options struct.
-			options := tfe.TeamMemberRemoveOptions{}
+			options := scalr.TeamMemberRemoveOptions{}
 
 			// Add all the users that need to be added.
 			for _, username := range oldUsers.List() {
@@ -124,7 +124,7 @@ func resourceTFETeamMembersUpdate(d *schema.ResourceData, meta interface{}) erro
 			}
 
 			log.Printf("[DEBUG] Remove users from team: %s", d.Id())
-			err := tfeClient.TeamMembers.Remove(ctx, d.Id(), options)
+			err := scalrClient.TeamMembers.Remove(ctx, d.Id(), options)
 			if err != nil {
 				return fmt.Errorf("Error removing users to team %s: %v", d.Id(), err)
 			}
@@ -135,19 +135,19 @@ func resourceTFETeamMembersUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceTFETeamMembersDelete(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Retrieve users to remove from team: %s", d.Id())
-	users, err := tfeClient.TeamMembers.List(ctx, d.Id())
+	users, err := scalrClient.TeamMembers.List(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			return nil
 		}
 		return fmt.Errorf("Error retrieving users to remove from team %s: %v", d.Id(), err)
 	}
 
 	// Create a new options struct.
-	options := tfe.TeamMemberRemoveOptions{}
+	options := scalr.TeamMemberRemoveOptions{}
 
 	// Add all the users that need to be removed.
 	for _, user := range users {
@@ -155,7 +155,7 @@ func resourceTFETeamMembersDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Remove users from team: %s", d.Id())
-	err = tfeClient.TeamMembers.Remove(ctx, d.Id(), options)
+	err = scalrClient.TeamMembers.Remove(ctx, d.Id(), options)
 	if err != nil {
 		return fmt.Errorf("Error removing users to team %s: %v", d.Id(), err)
 	}

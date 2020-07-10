@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func resourceTFEOrganization() *schema.Resource {
@@ -43,11 +43,11 @@ func resourceTFEOrganization() *schema.Resource {
 			"collaborator_auth_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  string(tfe.AuthPolicyPassword),
+				Default:  string(scalr.AuthPolicyPassword),
 				ValidateFunc: validation.StringInSlice(
 					[]string{
-						string(tfe.AuthPolicyPassword),
-						string(tfe.AuthPolicyTwoFactor),
+						string(scalr.AuthPolicyPassword),
+						string(scalr.AuthPolicyTwoFactor),
 					},
 					false,
 				),
@@ -62,19 +62,19 @@ func resourceTFEOrganization() *schema.Resource {
 }
 
 func resourceTFEOrganizationCreate(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	// Get the organization name.
 	name := d.Get("name").(string)
 
 	// Create a new options struct.
-	options := tfe.OrganizationCreateOptions{
-		Name:  tfe.String(name),
-		Email: tfe.String(d.Get("email").(string)),
+	options := scalr.OrganizationCreateOptions{
+		Name:  scalr.String(name),
+		Email: scalr.String(d.Get("email").(string)),
 	}
 
 	log.Printf("[DEBUG] Create new organization: %s", name)
-	org, err := tfeClient.Organizations.Create(ctx, options)
+	org, err := scalrClient.Organizations.Create(ctx, options)
 	if err != nil {
 		return fmt.Errorf("Error creating the new organization %s: %v", name, err)
 	}
@@ -85,12 +85,12 @@ func resourceTFEOrganizationCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceTFEOrganizationRead(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Read configuration of organization: %s", d.Id())
-	org, err := tfeClient.Organizations.Read(ctx, d.Id())
+	org, err := scalrClient.Organizations.Read(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			log.Printf("[DEBUG] Organization %s does no longer exist", d.Id())
 			d.SetId("")
 			return nil
@@ -110,36 +110,36 @@ func resourceTFEOrganizationRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceTFEOrganizationUpdate(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	// Create a new options struct.
-	options := tfe.OrganizationUpdateOptions{
-		Name:  tfe.String(d.Get("name").(string)),
-		Email: tfe.String(d.Get("email").(string)),
+	options := scalr.OrganizationUpdateOptions{
+		Name:  scalr.String(d.Get("name").(string)),
+		Email: scalr.String(d.Get("email").(string)),
 	}
 
 	// If session_timeout is supplied, set it using the options struct.
 	if sessionTimeout, ok := d.GetOk("session_timeout_minutes"); ok {
-		options.SessionTimeout = tfe.Int(sessionTimeout.(int))
+		options.SessionTimeout = scalr.Int(sessionTimeout.(int))
 	}
 
 	// If session_remember is supplied, set it using the options struct.
 	if sessionRemember, ok := d.GetOk("session_remember_minutes"); ok {
-		options.SessionRemember = tfe.Int(sessionRemember.(int))
+		options.SessionRemember = scalr.Int(sessionRemember.(int))
 	}
 
 	// If collaborator_auth_policy is supplied, set it using the options struct.
 	if authPolicy, ok := d.GetOk("collaborator_auth_policy"); ok {
-		options.CollaboratorAuthPolicy = tfe.AuthPolicy(tfe.AuthPolicyType(authPolicy.(string)))
+		options.CollaboratorAuthPolicy = scalr.AuthPolicy(scalr.AuthPolicyType(authPolicy.(string)))
 	}
 
 	// If owners_team_saml_role_id is supplied, set it using the options struct.
 	if ownersTeamSAMLRoleID, ok := d.GetOk("owners_team_saml_role_id"); ok {
-		options.OwnersTeamSAMLRoleID = tfe.String(ownersTeamSAMLRoleID.(string))
+		options.OwnersTeamSAMLRoleID = scalr.String(ownersTeamSAMLRoleID.(string))
 	}
 
 	log.Printf("[DEBUG] Update configuration of organization: %s", d.Id())
-	org, err := tfeClient.Organizations.Update(ctx, d.Id(), options)
+	org, err := scalrClient.Organizations.Update(ctx, d.Id(), options)
 	if err != nil {
 		return fmt.Errorf("Error updating organization %s: %v", d.Id(), err)
 	}
@@ -150,12 +150,12 @@ func resourceTFEOrganizationUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceTFEOrganizationDelete(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Delete organization: %s", d.Id())
-	err := tfeClient.Organizations.Delete(ctx, d.Id())
+	err := scalrClient.Organizations.Delete(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			return nil
 		}
 		return fmt.Errorf("Error deleting organization %s: %v", d.Id(), err)

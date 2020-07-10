@@ -6,11 +6,11 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func TestAccTFEPolicySet_basic(t *testing.T) {
-	policySet := &tfe.PolicySet{}
+	policySet := &scalr.PolicySet{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -37,7 +37,7 @@ func TestAccTFEPolicySet_basic(t *testing.T) {
 }
 
 func TestAccTFEPolicySet_update(t *testing.T) {
-	policySet := &tfe.PolicySet{}
+	policySet := &scalr.PolicySet{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -80,7 +80,7 @@ func TestAccTFEPolicySet_update(t *testing.T) {
 }
 
 func TestAccTFEPolicySet_updateEmpty(t *testing.T) {
-	policySet := &tfe.PolicySet{}
+	policySet := &scalr.PolicySet{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -122,7 +122,7 @@ func TestAccTFEPolicySet_updateEmpty(t *testing.T) {
 }
 
 func TestAccTFEPolicySet_updatePopulated(t *testing.T) {
-	policySet := &tfe.PolicySet{}
+	policySet := &scalr.PolicySet{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -164,7 +164,7 @@ func TestAccTFEPolicySet_updatePopulated(t *testing.T) {
 }
 
 func TestAccTFEPolicySet_updateToGlobal(t *testing.T) {
-	policySet := &tfe.PolicySet{}
+	policySet := &scalr.PolicySet{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -205,7 +205,7 @@ func TestAccTFEPolicySet_updateToGlobal(t *testing.T) {
 }
 
 func TestAccTFEPolicySet_updateToWorkspace(t *testing.T) {
-	policySet := &tfe.PolicySet{}
+	policySet := &scalr.PolicySet{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -246,7 +246,7 @@ func TestAccTFEPolicySet_updateToWorkspace(t *testing.T) {
 }
 
 func TestAccTFEPolicySet_vcs(t *testing.T) {
-	policySet := &tfe.PolicySet{}
+	policySet := &scalr.PolicySet{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -311,9 +311,9 @@ func TestAccTFEPolicySetImport(t *testing.T) {
 	})
 }
 
-func testAccCheckTFEPolicySetExists(n string, policySet *tfe.PolicySet) resource.TestCheckFunc {
+func testAccCheckTFEPolicySetExists(n string, policySet *scalr.PolicySet) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		tfeClient := testAccProvider.Meta().(*tfe.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -324,7 +324,7 @@ func testAccCheckTFEPolicySetExists(n string, policySet *tfe.PolicySet) resource
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		ps, err := tfeClient.PolicySets.Read(ctx, rs.Primary.ID)
+		ps, err := scalrClient.PolicySets.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -339,7 +339,7 @@ func testAccCheckTFEPolicySetExists(n string, policySet *tfe.PolicySet) resource
 	}
 }
 
-func testAccCheckTFEPolicySetAttributes(policySet *tfe.PolicySet) resource.TestCheckFunc {
+func testAccCheckTFEPolicySetAttributes(policySet *scalr.PolicySet) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if policySet.Name != "tst-terraform" {
 			return fmt.Errorf("Bad name: %s", policySet.Name)
@@ -357,9 +357,9 @@ func testAccCheckTFEPolicySetAttributes(policySet *tfe.PolicySet) resource.TestC
 	}
 }
 
-func testAccCheckTFEPolicySetPopulated(policySet *tfe.PolicySet) resource.TestCheckFunc {
+func testAccCheckTFEPolicySetPopulated(policySet *scalr.PolicySet) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		tfeClient := testAccProvider.Meta().(*tfe.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		if policySet.Name != "terraform-populated" {
 			return fmt.Errorf("Bad name: %s", policySet.Name)
@@ -374,7 +374,7 @@ func testAccCheckTFEPolicySetPopulated(policySet *tfe.PolicySet) resource.TestCh
 		}
 
 		policyID := policySet.Policies[0].ID
-		policy, _ := tfeClient.Policies.Read(ctx, policyID)
+		policy, _ := scalrClient.Policies.Read(ctx, policyID)
 		if policy.Name != "policy-foo" {
 			return fmt.Errorf("Wrong member policy: %v", policy.Name)
 		}
@@ -384,7 +384,7 @@ func testAccCheckTFEPolicySetPopulated(policySet *tfe.PolicySet) resource.TestCh
 		}
 
 		workspaceID := policySet.Workspaces[0].ID
-		workspace, _ := tfeClient.Workspaces.Read(ctx, "tst-terraform", "workspace-foo")
+		workspace, _ := scalrClient.Workspaces.Read(ctx, "tst-terraform", "workspace-foo")
 		if workspace.ID != workspaceID {
 			return fmt.Errorf("Wrong member workspace: %v", workspace.Name)
 		}
@@ -393,9 +393,9 @@ func testAccCheckTFEPolicySetPopulated(policySet *tfe.PolicySet) resource.TestCh
 	}
 }
 
-func testAccCheckTFEPolicySetGlobal(policySet *tfe.PolicySet) resource.TestCheckFunc {
+func testAccCheckTFEPolicySetGlobal(policySet *scalr.PolicySet) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		tfeClient := testAccProvider.Meta().(*tfe.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		if policySet.Name != "terraform-global" {
 			return fmt.Errorf("Bad name: %s", policySet.Name)
@@ -410,7 +410,7 @@ func testAccCheckTFEPolicySetGlobal(policySet *tfe.PolicySet) resource.TestCheck
 		}
 
 		policyID := policySet.Policies[0].ID
-		policy, _ := tfeClient.Policies.Read(ctx, policyID)
+		policy, _ := scalrClient.Policies.Read(ctx, policyID)
 		if policy.Name != "policy-foo" {
 			return fmt.Errorf("Wrong member policy: %v", policy.Name)
 		}
@@ -423,7 +423,7 @@ func testAccCheckTFEPolicySetGlobal(policySet *tfe.PolicySet) resource.TestCheck
 		}
 
 		workspaceID := policySet.Workspaces[0].ID
-		workspace, _ := tfeClient.Workspaces.Read(ctx, "tst-terraform", "workspace-foo")
+		workspace, _ := scalrClient.Workspaces.Read(ctx, "tst-terraform", "workspace-foo")
 		if workspace.ID != workspaceID {
 			return fmt.Errorf("Wrong member workspace: %v", workspace.Name)
 		}
@@ -433,7 +433,7 @@ func testAccCheckTFEPolicySetGlobal(policySet *tfe.PolicySet) resource.TestCheck
 }
 
 func testAccCheckTFEPolicySetDestroy(s *terraform.State) error {
-	tfeClient := testAccProvider.Meta().(*tfe.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_policy_set" {
@@ -444,7 +444,7 @@ func testAccCheckTFEPolicySetDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := tfeClient.PolicySets.Read(ctx, rs.Primary.ID)
+		_, err := scalrClient.PolicySets.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Sentinel policy %s still exists", rs.Primary.ID)
 		}

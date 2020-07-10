@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func resourceTFEVariable() *schema.Resource {
@@ -39,8 +39,8 @@ func resourceTFEVariable() *schema.Resource {
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice(
 					[]string{
-						string(tfe.CategoryEnv),
-						string(tfe.CategoryTerraform),
+						string(scalr.CategoryEnv),
+						string(scalr.CategoryTerraform),
 					},
 					false,
 				),
@@ -68,7 +68,7 @@ func resourceTFEVariable() *schema.Resource {
 }
 
 func resourceTFEVariableCreate(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	// Get key and category.
 	key := d.Get("key").(string)
@@ -81,24 +81,24 @@ func resourceTFEVariableCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	// Get the workspace.
-	ws, err := tfeClient.Workspaces.Read(ctx, organization, workspace)
+	ws, err := scalrClient.Workspaces.Read(ctx, organization, workspace)
 	if err != nil {
 		return fmt.Errorf(
 			"Error retrieving workspace %s from organization %s: %v", workspace, organization, err)
 	}
 
 	// Create a new options struct.
-	options := tfe.VariableCreateOptions{
-		Key:       tfe.String(key),
-		Value:     tfe.String(d.Get("value").(string)),
-		Category:  tfe.Category(tfe.CategoryType(category)),
-		HCL:       tfe.Bool(d.Get("hcl").(bool)),
-		Sensitive: tfe.Bool(d.Get("sensitive").(bool)),
+	options := scalr.VariableCreateOptions{
+		Key:       scalr.String(key),
+		Value:     scalr.String(d.Get("value").(string)),
+		Category:  scalr.Category(scalr.CategoryType(category)),
+		HCL:       scalr.Bool(d.Get("hcl").(bool)),
+		Sensitive: scalr.Bool(d.Get("sensitive").(bool)),
 		Workspace: ws,
 	}
 
 	log.Printf("[DEBUG] Create %s variable: %s", category, key)
-	variable, err := tfeClient.Variables.Create(ctx, options)
+	variable, err := scalrClient.Variables.Create(ctx, options)
 	if err != nil {
 		return fmt.Errorf("Error creating %s variable %s: %v", category, key, err)
 	}
@@ -109,12 +109,12 @@ func resourceTFEVariableCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTFEVariableRead(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Read variable: %s", d.Id())
-	variable, err := tfeClient.Variables.Read(ctx, d.Id())
+	variable, err := scalrClient.Variables.Read(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			log.Printf("[DEBUG] Variable %s does no longer exist", d.Id())
 			d.SetId("")
 			return nil
@@ -137,18 +137,18 @@ func resourceTFEVariableRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTFEVariableUpdate(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	// Create a new options struct.
-	options := tfe.VariableUpdateOptions{
-		Key:       tfe.String(d.Get("key").(string)),
-		Value:     tfe.String(d.Get("value").(string)),
-		HCL:       tfe.Bool(d.Get("hcl").(bool)),
-		Sensitive: tfe.Bool(d.Get("sensitive").(bool)),
+	options := scalr.VariableUpdateOptions{
+		Key:       scalr.String(d.Get("key").(string)),
+		Value:     scalr.String(d.Get("value").(string)),
+		HCL:       scalr.Bool(d.Get("hcl").(bool)),
+		Sensitive: scalr.Bool(d.Get("sensitive").(bool)),
 	}
 
 	log.Printf("[DEBUG] Update variable: %s", d.Id())
-	_, err := tfeClient.Variables.Update(ctx, d.Id(), options)
+	_, err := scalrClient.Variables.Update(ctx, d.Id(), options)
 	if err != nil {
 		return fmt.Errorf("Error updating variable %s: %v", d.Id(), err)
 	}
@@ -157,12 +157,12 @@ func resourceTFEVariableUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceTFEVariableDelete(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Delete variable: %s", d.Id())
-	err := tfeClient.Variables.Delete(ctx, d.Id())
+	err := scalrClient.Variables.Delete(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			return nil
 		}
 		return fmt.Errorf("Error deleting variable%s: %v", d.Id(), err)

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func dataSourceTFETeamAccess() *schema.Resource {
@@ -31,7 +31,7 @@ func dataSourceTFETeamAccess() *schema.Resource {
 }
 
 func dataSourceTFETeamAccessRead(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	// Get the team ID.
 	teamID := d.Get("team_id").(string)
@@ -43,19 +43,19 @@ func dataSourceTFETeamAccessRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	// Get the workspace.
-	ws, err := tfeClient.Workspaces.Read(ctx, organization, workspace)
+	ws, err := scalrClient.Workspaces.Read(ctx, organization, workspace)
 	if err != nil {
 		return fmt.Errorf(
 			"Error retrieving workspace %s from organization %s: %v", workspace, organization, err)
 	}
 
 	// Create an options struct.
-	options := tfe.TeamAccessListOptions{
-		WorkspaceID: tfe.String(ws.ID),
+	options := scalr.TeamAccessListOptions{
+		WorkspaceID: scalr.String(ws.ID),
 	}
 
 	for {
-		l, err := tfeClient.TeamAccess.List(ctx, options)
+		l, err := scalrClient.TeamAccess.List(ctx, options)
 		if err != nil {
 			return fmt.Errorf("Error retrieving team access list: %v", err)
 		}

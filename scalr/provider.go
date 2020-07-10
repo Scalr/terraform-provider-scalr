@@ -18,13 +18,13 @@ import (
 	"github.com/hashicorp/terraform/helper/logging"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 	providerVersion "github.com/scalr/terraform-provider-scalr/version"
 )
 
 const defaultHostname = "my.scalr.com"
 
-var tfeServiceIDs = []string{"tfe.v2.1", "tfe.v2"}
+var scalrServiceIDs = []string{"scalr.v2.1", "scalr.v2"}
 
 // Config is the structure of the configuration for the Terraform CLI.
 type Config struct {
@@ -128,8 +128,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	// Get the full Terraform Enterprise service address.
 	var address *url.URL
 	var discoErr error
-	for _, tfeServiceID := range tfeServiceIDs {
-		service, err := host.ServiceURL(tfeServiceID)
+	for _, scalrServiceID := range scalrServiceIDs {
+		service, err := host.ServiceURL(scalrServiceID)
 		if _, ok := err.(*disco.ErrVersionNotSupported); !ok && err != nil {
 			return nil, err
 		}
@@ -148,7 +148,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	if providerVersion.ProviderVersion != "dev" {
 		// We purposefully ignore the error and return the previous error, as
 		// checking for version constraints is considered optional.
-		constraints, _ := host.VersionConstraints(tfeServiceIDs[0], "tfe-provider")
+		constraints, _ := host.VersionConstraints(scalrServiceIDs[0], "scalr-provider")
 
 		// First check any constraints we might have received.
 		if constraints != nil {
@@ -184,18 +184,18 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		return nil, fmt.Errorf("required token could not be found")
 	}
 
-	httpClient := tfe.DefaultConfig().HTTPClient
+	httpClient := scalr.DefaultConfig().HTTPClient
 	httpClient.Transport = logging.NewTransport("TFE", httpClient.Transport)
 
 	// Create a new TFE client config
-	cfg := &tfe.Config{
+	cfg := &scalr.Config{
 		Address:    address.String(),
 		Token:      token,
 		HTTPClient: httpClient,
 	}
 
 	// Create a new TFE client.
-	client, err := tfe.NewClient(cfg)
+	client, err := scalr.NewClient(cfg)
 	if err != nil {
 		return nil, err
 	}

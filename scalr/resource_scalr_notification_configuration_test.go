@@ -12,7 +12,7 @@ import (
 )
 
 func TestAccTFENotificationConfiguration_basic(t *testing.T) {
-	notificationConfiguration := &tfe.NotificationConfiguration{}
+	notificationConfiguration := &scalr.NotificationConfiguration{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -42,7 +42,7 @@ func TestAccTFENotificationConfiguration_basic(t *testing.T) {
 }
 
 func TestAccTFENotificationConfiguration_update(t *testing.T) {
-	notificationConfiguration := &tfe.NotificationConfiguration{}
+	notificationConfiguration := &scalr.NotificationConfiguration{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -108,7 +108,7 @@ func TestAccTFENotificationConfiguration_slackWithToken(t *testing.T) {
 }
 
 func TestAccTFENotificationConfiguration_duplicateTriggers(t *testing.T) {
-	notificationConfiguration := &tfe.NotificationConfiguration{}
+	notificationConfiguration := &scalr.NotificationConfiguration{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -157,9 +157,9 @@ func TestAccTFENotificationConfigurationImport(t *testing.T) {
 	})
 }
 
-func testAccCheckTFENotificationConfigurationExists(n string, notificationConfiguration *tfe.NotificationConfiguration) resource.TestCheckFunc {
+func testAccCheckTFENotificationConfigurationExists(n string, notificationConfiguration *scalr.NotificationConfiguration) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		tfeClient := testAccProvider.Meta().(*tfe.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -170,7 +170,7 @@ func testAccCheckTFENotificationConfigurationExists(n string, notificationConfig
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		nc, err := tfeClient.NotificationConfigurations.Read(ctx, rs.Primary.ID)
+		nc, err := scalrClient.NotificationConfigurations.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -181,13 +181,13 @@ func testAccCheckTFENotificationConfigurationExists(n string, notificationConfig
 	}
 }
 
-func testAccCheckTFENotificationConfigurationAttributes(notificationConfiguration *tfe.NotificationConfiguration) resource.TestCheckFunc {
+func testAccCheckTFENotificationConfigurationAttributes(notificationConfiguration *scalr.NotificationConfiguration) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if notificationConfiguration.Name != "notification_basic" {
 			return fmt.Errorf("Bad name: %s", notificationConfiguration.Name)
 		}
 
-		if notificationConfiguration.DestinationType != tfe.NotificationDestinationTypeGeneric {
+		if notificationConfiguration.DestinationType != scalr.NotificationDestinationTypeGeneric {
 			return fmt.Errorf("Bad destination type: %s", notificationConfiguration.DestinationType)
 		}
 
@@ -209,13 +209,13 @@ func testAccCheckTFENotificationConfigurationAttributes(notificationConfiguratio
 	}
 }
 
-func testAccCheckTFENotificationConfigurationAttributesUpdate(notificationConfiguration *tfe.NotificationConfiguration) resource.TestCheckFunc {
+func testAccCheckTFENotificationConfigurationAttributesUpdate(notificationConfiguration *scalr.NotificationConfiguration) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if notificationConfiguration.Name != "notification_update" {
 			return fmt.Errorf("Bad name: %s", notificationConfiguration.Name)
 		}
 
-		if notificationConfiguration.DestinationType != tfe.NotificationDestinationTypeGeneric {
+		if notificationConfiguration.DestinationType != scalr.NotificationDestinationTypeGeneric {
 			return fmt.Errorf("Bad destination type: %s", notificationConfiguration.DestinationType)
 		}
 
@@ -225,7 +225,7 @@ func testAccCheckTFENotificationConfigurationAttributesUpdate(notificationConfig
 
 		// Token is write only, can't read it
 
-		if !reflect.DeepEqual(notificationConfiguration.Triggers, []string{tfe.NotificationTriggerCreated, tfe.NotificationTriggerNeedsAttention}) {
+		if !reflect.DeepEqual(notificationConfiguration.Triggers, []string{scalr.NotificationTriggerCreated, scalr.NotificationTriggerNeedsAttention}) {
 			return fmt.Errorf("Bad triggers: %v", notificationConfiguration.Triggers)
 		}
 
@@ -237,13 +237,13 @@ func testAccCheckTFENotificationConfigurationAttributesUpdate(notificationConfig
 	}
 }
 
-func testAccCheckTFENotificationConfigurationAttributesDuplicateTriggers(notificationConfiguration *tfe.NotificationConfiguration) resource.TestCheckFunc {
+func testAccCheckTFENotificationConfigurationAttributesDuplicateTriggers(notificationConfiguration *scalr.NotificationConfiguration) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if notificationConfiguration.Name != "notification_duplicate_triggers" {
 			return fmt.Errorf("Bad name: %s", notificationConfiguration.Name)
 		}
 
-		if notificationConfiguration.DestinationType != tfe.NotificationDestinationTypeGeneric {
+		if notificationConfiguration.DestinationType != scalr.NotificationDestinationTypeGeneric {
 			return fmt.Errorf("Bad destination type: %s", notificationConfiguration.DestinationType)
 		}
 
@@ -253,7 +253,7 @@ func testAccCheckTFENotificationConfigurationAttributesDuplicateTriggers(notific
 
 		// Token is write only, can't read it
 
-		if !reflect.DeepEqual(notificationConfiguration.Triggers, []string{tfe.NotificationTriggerCreated}) {
+		if !reflect.DeepEqual(notificationConfiguration.Triggers, []string{scalr.NotificationTriggerCreated}) {
 			return fmt.Errorf("Bad triggers: %v", notificationConfiguration.Triggers)
 		}
 
@@ -266,7 +266,7 @@ func testAccCheckTFENotificationConfigurationAttributesDuplicateTriggers(notific
 }
 
 func testAccCheckTFENotificationConfigurationDestroy(s *terraform.State) error {
-	tfeClient := testAccProvider.Meta().(*tfe.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_notification_configuration" {
@@ -277,7 +277,7 @@ func testAccCheckTFENotificationConfigurationDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := tfeClient.NotificationConfigurations.Read(ctx, rs.Primary.ID)
+		_, err := scalrClient.NotificationConfigurations.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Notification configuration %s still exists", rs.Primary.ID)
 		}

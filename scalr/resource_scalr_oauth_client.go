@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func resourceTFEOAuthClient() *schema.Resource {
@@ -53,14 +53,14 @@ func resourceTFEOAuthClient() *schema.Resource {
 				ForceNew: true,
 				ValidateFunc: validation.StringInSlice(
 					[]string{
-						string(tfe.ServiceProviderAzureDevOpsServer),
-						string(tfe.ServiceProviderAzureDevOpsServices),
-						string(tfe.ServiceProviderBitbucket),
-						string(tfe.ServiceProviderGithub),
-						string(tfe.ServiceProviderGithubEE),
-						string(tfe.ServiceProviderGitlab),
-						string(tfe.ServiceProviderGitlabCE),
-						string(tfe.ServiceProviderGitlabEE),
+						string(scalr.ServiceProviderAzureDevOpsServer),
+						string(scalr.ServiceProviderAzureDevOpsServices),
+						string(scalr.ServiceProviderBitbucket),
+						string(scalr.ServiceProviderGithub),
+						string(scalr.ServiceProviderGithubEE),
+						string(scalr.ServiceProviderGitlab),
+						string(scalr.ServiceProviderGitlabCE),
+						string(scalr.ServiceProviderGitlabEE),
 					},
 					false,
 				),
@@ -75,28 +75,28 @@ func resourceTFEOAuthClient() *schema.Resource {
 }
 
 func resourceTFEOAuthClientCreate(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	// Get the organization and provider.
 	organization := d.Get("organization").(string)
 	privateKey := d.Get("private_key").(string)
-	serviceProvider := tfe.ServiceProviderType(d.Get("service_provider").(string))
+	serviceProvider := scalr.ServiceProviderType(d.Get("service_provider").(string))
 
-	if serviceProvider == tfe.ServiceProviderAzureDevOpsServer && privateKey == "" {
+	if serviceProvider == scalr.ServiceProviderAzureDevOpsServer && privateKey == "" {
 		return fmt.Errorf("private_key is required for service_provider %s", serviceProvider)
 	}
 
 	// Create a new options struct.
-	options := tfe.OAuthClientCreateOptions{
-		APIURL:          tfe.String(d.Get("api_url").(string)),
-		HTTPURL:         tfe.String(d.Get("http_url").(string)),
-		OAuthToken:      tfe.String(d.Get("oauth_token").(string)),
-		PrivateKey:      tfe.String(privateKey),
-		ServiceProvider: tfe.ServiceProvider(serviceProvider),
+	options := scalr.OAuthClientCreateOptions{
+		APIURL:          scalr.String(d.Get("api_url").(string)),
+		HTTPURL:         scalr.String(d.Get("http_url").(string)),
+		OAuthToken:      scalr.String(d.Get("oauth_token").(string)),
+		PrivateKey:      scalr.String(privateKey),
+		ServiceProvider: scalr.ServiceProvider(serviceProvider),
 	}
 
 	log.Printf("[DEBUG] Create an OAuth client for organization: %s", organization)
-	oc, err := tfeClient.OAuthClients.Create(ctx, organization, options)
+	oc, err := scalrClient.OAuthClients.Create(ctx, organization, options)
 	if err != nil {
 		return fmt.Errorf(
 			"Error creating OAuth client for organization %s: %v", organization, err)
@@ -108,12 +108,12 @@ func resourceTFEOAuthClientCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceTFEOAuthClientRead(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Read configuration of OAuth client: %s", d.Id())
-	oc, err := tfeClient.OAuthClients.Read(ctx, d.Id())
+	oc, err := scalrClient.OAuthClients.Read(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			log.Printf("[DEBUG] OAuth client %s does no longer exist", d.Id())
 			d.SetId("")
 			return nil
@@ -140,12 +140,12 @@ func resourceTFEOAuthClientRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceTFEOAuthClientDelete(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Delete OAuth client: %s", d.Id())
-	err := tfeClient.OAuthClients.Delete(ctx, d.Id())
+	err := scalrClient.OAuthClients.Delete(ctx, d.Id())
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			return nil
 		}
 		return fmt.Errorf("Error deleting OAuth client %s: %v", d.Id(), err)

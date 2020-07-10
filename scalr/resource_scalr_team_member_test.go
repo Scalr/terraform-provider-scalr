@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	tfe "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func TestPackTeamMemberID(t *testing.T) {
@@ -77,7 +77,7 @@ func TestUnpackTeamMemberID(t *testing.T) {
 }
 
 func TestAccTFETeamMember_basic(t *testing.T) {
-	user := &tfe.User{}
+	user := &scalr.User{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -118,9 +118,9 @@ func TestAccTFETeamMember_import(t *testing.T) {
 }
 
 func testAccCheckTFETeamMemberExists(
-	n string, user *tfe.User) resource.TestCheckFunc {
+	n string, user *scalr.User) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		tfeClient := testAccProvider.Meta().(*tfe.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -137,8 +137,8 @@ func testAccCheckTFETeamMemberExists(
 			return fmt.Errorf("Error unpacking team member ID: %v", err)
 		}
 
-		users, err := tfeClient.TeamMembers.List(ctx, teamID)
-		if err != nil && err != tfe.ErrResourceNotFound {
+		users, err := scalrClient.TeamMembers.List(ctx, teamID)
+		if err != nil && err != scalr.ErrResourceNotFound {
 			return err
 		}
 
@@ -160,7 +160,7 @@ func testAccCheckTFETeamMemberExists(
 }
 
 func testAccCheckTFETeamMemberAttributes(
-	user *tfe.User) resource.TestCheckFunc {
+	user *scalr.User) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if user.Username != "admin" {
 			return fmt.Errorf("Bad username: %s", user.Username)
@@ -170,7 +170,7 @@ func testAccCheckTFETeamMemberAttributes(
 }
 
 func testAccCheckTFETeamMemberDestroy(s *terraform.State) error {
-	tfeClient := testAccProvider.Meta().(*tfe.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_team_member" {
@@ -187,8 +187,8 @@ func testAccCheckTFETeamMemberDestroy(s *terraform.State) error {
 			return fmt.Errorf("Error unpacking team member ID: %v", err)
 		}
 
-		users, err := tfeClient.TeamMembers.List(ctx, teamID)
-		if err != nil && err != tfe.ErrResourceNotFound {
+		users, err := scalrClient.TeamMembers.List(ctx, teamID)
+		if err != nil && err != scalr.ErrResourceNotFound {
 			return err
 		}
 
