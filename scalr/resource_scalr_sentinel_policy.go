@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
-	tfe "github.com/scalr/go-tfe"
+	tfe "github.com/scalr/go-scalr"
 )
 
 func resourceTFESentinelPolicy() *schema.Resource {

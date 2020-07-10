@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/scalr/go-tfe"
+	"github.com/scalr/go-scalr"
 )
 
 func TestAccTFENotificationConfiguration_basic(t *testing.T) {

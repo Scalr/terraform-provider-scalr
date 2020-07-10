@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	tfe "github.com/scalr/go-tfe"
+	tfe "github.com/scalr/go-scalr"
 )
 
 // Note: The structure is inherited from OPA policy:

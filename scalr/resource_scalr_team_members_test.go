@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-	tfe "github.com/scalr/go-tfe"
+	tfe "github.com/scalr/go-scalr"
 )
 
 func TestAccTFETeamMembers_basic(t *testing.T) {
