@@ -24,7 +24,7 @@ import (
 
 const defaultHostname = "my.scalr.com"
 
-var scalrServiceIDs = []string{"scalr.v2.1", "scalr.v2"}
+var scalrServiceIDs = []string{"tfe.v2.1", "tfe.v2"}
 
 // Config is the structure of the configuration for the Terraform CLI.
 type Config struct {
@@ -62,29 +62,15 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"scalr_ssh_key":       dataSourceTFESSHKey(),
-			"scalr_team":          dataSourceTFETeam(),
-			"scalr_team_access":   dataSourceTFETeamAccess(),
 			"scalr_workspace":     dataSourceTFEWorkspace(),
 			"scalr_workspace_ids": dataSourceTFEWorkspaceIDs(),
 			"scalr_current_run":   dataSourceTFECurrentRun(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"scalr_notification_configuration": resourceTFENotificationConfiguration(),
-			"scalr_oauth_client":               resourceTFEOAuthClient(),
-			"scalr_organization":               resourceTFEOrganization(),
-			"scalr_organization_token":         resourceTFEOrganizationToken(),
-			"scalr_policy_set":                 resourceTFEPolicySet(),
-			"scalr_sentinel_policy":            resourceTFESentinelPolicy(),
-			"scalr_ssh_key":                    resourceTFESSHKey(),
-			"scalr_team":                       resourceTFETeam(),
-			"scalr_team_access":                resourceTFETeamAccess(),
-			"scalr_team_member":                resourceTFETeamMember(),
-			"scalr_team_members":               resourceTFETeamMembers(),
-			"scalr_team_token":                 resourceTFETeamToken(),
-			"scalr_workspace":                  resourceTFEWorkspace(),
-			"scalr_variable":                   resourceTFEVariable(),
+			"scalr_organization": resourceTFEOrganization(),
+			"scalr_workspace":    resourceTFEWorkspace(),
+			"scalr_variable":     resourceTFEVariable(),
 		},
 
 		ConfigureFunc: providerConfigure,
