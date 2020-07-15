@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	tfe "github.com/scalr/go-tfe"
+	scalr "github.com/scalr/go-scalr"
 )
 
 // Note: The structure is similar to one from policy-check phase:
@@ -96,7 +96,7 @@ func dataSourceTFECurrentRun() *schema.Resource {
 }
 
 func dataSourceTFECurrentRunRead(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	runID, exists := os.LookupEnv("TFE_RUN_ID")
 	if !exists {
@@ -104,18 +104,18 @@ func dataSourceTFECurrentRunRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Read configuration of run: %s", runID)
-	run, err := tfeClient.Runs.Read(ctx, runID)
+	run, err := scalrClient.Runs.Read(ctx, runID)
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			return fmt.Errorf("Could not find run %s", runID)
 		}
 		return fmt.Errorf("Error retrieving run: %v", err)
 	}
 
 	log.Printf("[DEBUG] Read workspace of run: %s", runID)
-	workspace, err := tfeClient.Workspaces.ReadByID(ctx, run.Workspace.ID)
+	workspace, err := scalrClient.Workspaces.ReadByID(ctx, run.Workspace.ID)
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			return fmt.Errorf("Could not find workspace %s", run.Workspace.ID)
 		}
 		return fmt.Errorf("Error retrieving workspace: %v", err)
@@ -132,9 +132,9 @@ func dataSourceTFECurrentRunRead(d *schema.ResourceData, meta interface{}) error
 
 	if workspace.VCSRepo != nil {
 		log.Printf("[DEBUG] Read ingress attributes of run: %s", runID)
-		ingressAttributes, err := tfeClient.ConfigurationVersions.ReadIngressAttributes(ctx, run.ConfigurationVersion.ID)
+		ingressAttributes, err := scalrClient.ConfigurationVersions.ReadIngressAttributes(ctx, run.ConfigurationVersion.ID)
 		if err != nil {
-			if err == tfe.ErrResourceNotFound {
+			if err == scalr.ErrResourceNotFound {
 				return fmt.Errorf("Could not find configuration version %s", run.ConfigurationVersion.ID)
 			}
 			return fmt.Errorf("Error retrieving ingress attributes: %v", err)

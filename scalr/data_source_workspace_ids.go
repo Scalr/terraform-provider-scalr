@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	tfe "github.com/scalr/go-tfe"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func dataSourceTFEWorkspaceIDs() *schema.Resource {
@@ -37,7 +37,7 @@ func dataSourceTFEWorkspaceIDs() *schema.Resource {
 }
 
 func dataSourceTFEWorkspaceIDsRead(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	// Get the organization.
 	organization := d.Get("organization").(string)
@@ -54,9 +54,9 @@ func dataSourceTFEWorkspaceIDsRead(d *schema.ResourceData, meta interface{}) err
 	ids := make(map[string]string, len(names))
 	externalIDs := make(map[string]string, len(names))
 
-	options := tfe.WorkspaceListOptions{}
+	options := scalr.WorkspaceListOptions{}
 	for {
-		wl, err := tfeClient.Workspaces.List(ctx, organization, options)
+		wl, err := scalrClient.Workspaces.List(ctx, organization, options)
 		if err != nil {
 			return fmt.Errorf("Error retrieving workspaces: %v", err)
 		}

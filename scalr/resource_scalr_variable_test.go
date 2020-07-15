@@ -6,11 +6,11 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	tfe "github.com/scalr/go-tfe"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func TestAccTFEVariable_basic(t *testing.T) {
-	variable := &tfe.Variable{}
+	variable := &scalr.Variable{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -40,7 +40,7 @@ func TestAccTFEVariable_basic(t *testing.T) {
 }
 
 func TestAccTFEVariable_update(t *testing.T) {
-	variable := &tfe.Variable{}
+	variable := &scalr.Variable{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -109,9 +109,9 @@ func TestAccTFEVariable_import(t *testing.T) {
 }
 
 func testAccCheckTFEVariableExists(
-	n string, variable *tfe.Variable) resource.TestCheckFunc {
+	n string, variable *scalr.Variable) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		tfeClient := testAccProvider.Meta().(*tfe.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -122,7 +122,7 @@ func testAccCheckTFEVariableExists(
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		v, err := tfeClient.Variables.Read(ctx, rs.Primary.ID)
+		v, err := scalrClient.Variables.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -134,7 +134,7 @@ func testAccCheckTFEVariableExists(
 }
 
 func testAccCheckTFEVariableAttributes(
-	variable *tfe.Variable) resource.TestCheckFunc {
+	variable *scalr.Variable) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if variable.Key != "key_test" {
 			return fmt.Errorf("Bad key: %s", variable.Key)
@@ -144,7 +144,7 @@ func testAccCheckTFEVariableAttributes(
 			return fmt.Errorf("Bad value: %s", variable.Value)
 		}
 
-		if variable.Category != tfe.CategoryEnv {
+		if variable.Category != scalr.CategoryEnv {
 			return fmt.Errorf("Bad category: %s", variable.Category)
 		}
 
@@ -161,7 +161,7 @@ func testAccCheckTFEVariableAttributes(
 }
 
 func testAccCheckTFEVariableAttributesUpdate(
-	variable *tfe.Variable) resource.TestCheckFunc {
+	variable *scalr.Variable) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if variable.Key != "key_updated" {
 			return fmt.Errorf("Bad key: %s", variable.Key)
@@ -171,7 +171,7 @@ func testAccCheckTFEVariableAttributesUpdate(
 			return fmt.Errorf("Bad value: %s", variable.Value)
 		}
 
-		if variable.Category != tfe.CategoryTerraform {
+		if variable.Category != scalr.CategoryTerraform {
 			return fmt.Errorf("Bad category: %s", variable.Category)
 		}
 
@@ -188,7 +188,7 @@ func testAccCheckTFEVariableAttributesUpdate(
 }
 
 func testAccCheckTFEVariableDestroy(s *terraform.State) error {
-	tfeClient := testAccProvider.Meta().(*tfe.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_variable" {
@@ -199,7 +199,7 @@ func testAccCheckTFEVariableDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := tfeClient.Variables.Read(ctx, rs.Primary.ID)
+		_, err := scalrClient.Variables.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Variable %s still exists", rs.Primary.ID)
 		}
