@@ -100,7 +100,8 @@ func dataSourceTFECurrentRunRead(d *schema.ResourceData, meta interface{}) error
 
 	runID, exists := os.LookupEnv("TFE_RUN_ID")
 	if !exists {
-		return fmt.Errorf("The current run is available only within the Terraform remote backend")
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] Read configuration of run: %s", runID)
