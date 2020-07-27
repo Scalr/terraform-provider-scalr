@@ -72,6 +72,10 @@ func dataSourceTFEWorkspace() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"path": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -145,6 +149,7 @@ func dataSourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 			"identifier":         workspace.VCSRepo.Identifier,
 			"ingress_submodules": workspace.VCSRepo.IngressSubmodules,
 			"oauth_token_id":     workspace.VCSRepo.OAuthTokenID,
+			"path":               workspace.VCSRepo.Path,
 		}
 		vcsRepo = append(vcsRepo, vcsConfig)
 	}

@@ -94,6 +94,10 @@ func resourceTFEWorkspace() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
+						"path": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -159,6 +163,7 @@ func resourceTFEWorkspaceCreate(d *schema.ResourceData, meta interface{}) error 
 			Identifier:        scalr.String(vcsRepo["identifier"].(string)),
 			IngressSubmodules: scalr.Bool(vcsRepo["ingress_submodules"].(bool)),
 			OAuthTokenID:      scalr.String(vcsRepo["oauth_token_id"].(string)),
+			Path:              scalr.String(vcsRepo["path"].(string)),
 		}
 
 		// Only set the branch if one is configured.
@@ -283,6 +288,7 @@ func resourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
 			"identifier":         workspace.VCSRepo.Identifier,
 			"ingress_submodules": workspace.VCSRepo.IngressSubmodules,
 			"oauth_token_id":     workspace.VCSRepo.OAuthTokenID,
+			"path":               workspace.VCSRepo.Path,
 		}
 
 		// Get and assert the VCS repo configuration block.
@@ -349,6 +355,7 @@ func resourceTFEWorkspaceUpdate(d *schema.ResourceData, meta interface{}) error 
 				Branch:            scalr.String(vcsRepo["branch"].(string)),
 				IngressSubmodules: scalr.Bool(vcsRepo["ingress_submodules"].(bool)),
 				OAuthTokenID:      scalr.String(vcsRepo["oauth_token_id"].(string)),
+				Path:              scalr.String(vcsRepo["path"].(string)),
 			}
 		}
 
