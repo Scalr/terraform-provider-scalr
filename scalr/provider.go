@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"net/url"
 	"os"
 	"sort"
@@ -24,7 +25,7 @@ import (
 
 const defaultHostname = "my.scalr.com"
 
-var scalrServiceIDs = []string{"tfe.v2.1", "tfe.v2"}
+var scalrServiceIDs = []string{"iacp.v3"}
 
 // Config is the structure of the configuration for the Terraform CLI.
 type Config struct {
@@ -63,6 +64,8 @@ func Provider() terraform.ResourceProvider {
 
 		DataSourcesMap: map[string]*schema.Resource{
 			"scalr_workspace":     dataSourceTFEWorkspace(),
+			"scalr_endpoint":      dataSourceScalrEndpoint(),
+			"scalr_webhook":       dataSourceScalrWebhook(),
 			"scalr_workspace_ids": dataSourceTFEWorkspaceIDs(),
 			"scalr_current_run":   dataSourceTFECurrentRun(),
 		},
@@ -178,7 +181,11 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		Address:    address.String(),
 		Token:      token,
 		HTTPClient: httpClient,
+		Headers:    make(http.Header),
 	}
+
+	// Set internal API profile
+	cfg.Headers.Set("Prefer", "profile=internal")
 
 	// Create a new TFE client.
 	client, err := scalr.NewClient(cfg)
