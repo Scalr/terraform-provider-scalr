@@ -39,8 +39,13 @@ func dataSourceScalrEndpoint() *schema.Resource {
 				Computed: true,
 			},
 
+			"url": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"timeout": {
-				Type:     schema.TypeBool,
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 
@@ -80,6 +85,7 @@ func dataSourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("max_attempts", endpoint.MaxAttempts)
 	d.Set("http_method", endpoint.HTTPMethod)
 	d.Set("secret_key", endpoint.SecretKey)
+	d.Set("url", endpoint.Url)
 	if endpoint.Workspace != nil {
 		d.Set("workspace_id", endpoint.Workspace.ID)
 	}
