@@ -1,3 +1,5 @@
+// +build envtest
+
 package scalr
 
 import (

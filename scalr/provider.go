@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"net/url"
 	"os"
 	"sort"
@@ -24,7 +25,7 @@ import (
 
 const defaultHostname = "my.scalr.com"
 
-var scalrServiceIDs = []string{"tfe.v2.1", "tfe.v2"}
+var scalrServiceIDs = []string{"iacp.v3"}
 
 // Config is the structure of the configuration for the Terraform CLI.
 type Config struct {
@@ -39,7 +40,7 @@ type ConfigHost struct {
 	Services map[string]interface{} `hcl:"services"`
 }
 
-// ctx is used as default context.Context when making TFE calls.
+// ctx is used as default context.Context when making Scalr calls.
 var ctx = context.Background()
 
 // Provider returns a terraform.ResourceProvider.
@@ -68,9 +69,8 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"scalr_organization": resourceTFEOrganization(),
-			"scalr_workspace":    resourceTFEWorkspace(),
-			"scalr_variable":     resourceTFEVariable(),
+			"scalr_workspace": resourceTFEWorkspace(),
+			"scalr_variable":  resourceTFEVariable(),
 		},
 
 		ConfigureFunc: providerConfigure,
@@ -93,7 +93,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	credsSrc := credentialsSource(config)
 	services := disco.NewWithCredentialsSource(credsSrc)
 	services.SetUserAgent(providerUaString)
-	services.Transport = logging.NewTransport("TFE Discovery", services.Transport)
+	services.Transport = logging.NewTransport("Scalr Service Discovery", services.Transport)
 
 	// Add any static host configurations service discovery object.
 	for userHost, hostConfig := range config.Hosts {
@@ -171,16 +171,19 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 
 	httpClient := scalr.DefaultConfig().HTTPClient
-	httpClient.Transport = logging.NewTransport("TFE", httpClient.Transport)
+	httpClient.Transport = logging.NewTransport("Scalr", httpClient.Transport)
 
-	// Create a new TFE client config
+	// Create a new Scalr client config
 	cfg := &scalr.Config{
 		Address:    address.String(),
 		Token:      token,
 		HTTPClient: httpClient,
+		Headers:    make(http.Header),
 	}
+	// Set internal API profile
+	cfg.Headers.Set("Prefer", "profile=internal")
 
-	// Create a new TFE client.
+	// Create a new Scalr client.
 	client, err := scalr.NewClient(cfg)
 	if err != nil {
 		return nil, err
@@ -331,14 +334,14 @@ func checkConstraints(c *disco.Constraints) error {
 		excluding = ""
 	}
 
-	summary := fmt.Sprintf("Incompatible TFE provider version v%s", v.String())
+	summary := fmt.Sprintf("Incompatible Scalr provider version v%s", v.String())
 	details := fmt.Sprintf(
-		"The configured Terraform Enterprise backend is compatible with TFE provider\n"+
+		"The configured Terraform Enterprise backend is compatible with Scalr provider\n"+
 			"versions >= %s, <= %s%s.", c.Minimum, c.Maximum, excluding,
 	)
 
 	if action != "" && toVersion != "" {
-		summary = fmt.Sprintf("Please %s the TFE provider to %s", action, toVersion)
+		summary = fmt.Sprintf("Please %s the Scalr provider to %s", action, toVersion)
 	}
 
 	// Return the customized and informational error message.

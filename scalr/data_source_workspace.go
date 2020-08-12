@@ -18,7 +18,7 @@ func dataSourceTFEWorkspace() *schema.Resource {
 				Required: true,
 			},
 
-			"organization": {
+			"environment_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -63,11 +63,6 @@ func dataSourceTFEWorkspace() *schema.Resource {
 							Computed: true,
 						},
 
-						"ingress_submodules": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-
 						"oauth_token_id": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -100,11 +95,6 @@ func dataSourceTFEWorkspace() *schema.Resource {
 					},
 				},
 			},
-
-			"external_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }
@@ -112,15 +102,15 @@ func dataSourceTFEWorkspace() *schema.Resource {
 func dataSourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
-	// Get the name and organization.
+	// Get the name and environment_id.
 	name := d.Get("name").(string)
-	organization := d.Get("organization").(string)
+	environmentID := d.Get("environment_id").(string)
 
 	log.Printf("[DEBUG] Read configuration of workspace: %s", name)
-	workspace, err := scalrClient.Workspaces.Read(ctx, organization, name)
+	workspace, err := scalrClient.Workspaces.Read(ctx, environmentID, name)
 	if err != nil {
 		if err == scalr.ErrResourceNotFound {
-			return fmt.Errorf("Could not find workspace %s/%s", organization, name)
+			return fmt.Errorf("Could not find workspace %s/%s", environmentID, name)
 		}
 		return fmt.Errorf("Error retrieving workspace: %v", err)
 	}
@@ -131,7 +121,6 @@ func dataSourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("queue_all_runs", workspace.QueueAllRuns)
 	d.Set("terraform_version", workspace.TerraformVersion)
 	d.Set("working_directory", workspace.WorkingDirectory)
-	d.Set("external_id", workspace.ID)
 
 	var createdBy []interface{}
 	if workspace.CreatedBy != nil {
@@ -146,21 +135,15 @@ func dataSourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	var vcsRepo []interface{}
 	if workspace.VCSRepo != nil {
 		vcsConfig := map[string]interface{}{
-			"identifier":         workspace.VCSRepo.Identifier,
-			"ingress_submodules": workspace.VCSRepo.IngressSubmodules,
-			"oauth_token_id":     workspace.VCSRepo.OAuthTokenID,
-			"path":               workspace.VCSRepo.Path,
+			"identifier":     workspace.VCSRepo.Identifier,
+			"oauth_token_id": workspace.VCSRepo.OAuthTokenID,
+			"path":           workspace.VCSRepo.Path,
 		}
 		vcsRepo = append(vcsRepo, vcsConfig)
 	}
 	d.Set("vcs_repo", vcsRepo)
 
-	id, err := packWorkspaceID(workspace)
-	if err != nil {
-		return fmt.Errorf("Error creating ID for workspace %s: %v", name, err)
-	}
-
-	d.SetId(id)
+	d.SetId(workspace.ID)
 
 	return nil
 }

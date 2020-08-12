@@ -16,8 +16,8 @@ Basic usage:
 
 ```hcl
 resource "scalr_workspace" "test" {
-  name         = "my-workspace-name"
-  organization = "my-org-name"
+  name           = "my-workspace-name"
+  environment_id = "my-env"
 }
 ```
 
@@ -26,7 +26,7 @@ resource "scalr_workspace" "test" {
 The following arguments are supported:
 
 * `name` - (Required) Name of the workspace.
-* `organization` - (Required) Name of the organization.
+* `environment_id` - (Required) ID of the environment.
 * `auto_apply` - (Optional) Whether to automatically apply changes when a
   Terraform plan is successful. Defaults to `false`.
 * `operations` - (Optional) Whether to use remote execution mode. When set
@@ -47,8 +47,6 @@ The `vcs_repo` block supports:
   in your VCS provider.
 * `branch` - (Optional) The repository branch that Terraform will execute from.
   Default to `master`.
-* `ingress_submodules` - (Optional) Whether submodules should be fetched when
-  cloning the VCS repository. Defaults to `false`.
 * `oauth_token_id` - (Required) Token ID of the VCS Connection (OAuth Conection Token)
   to use.
 
@@ -56,10 +54,7 @@ The `vcs_repo` block supports:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The workspace's human-readable ID, which looks like
-  `<ORGANIZATION>/<WORKSPACE>`.
-* `external_id` - The workspace's opaque external ID, which looks like
-  `ws-<RANDOM STRING>`.
+* `id` - The workspace's ID, which looks like `ws-<RANDOM STRING>`.
 
 ## Import
 
