@@ -28,7 +28,7 @@ func (m *mockWorkspaces) Create(ctx context.Context, environment string, options
 	ws := &scalr.Workspace{
 		ID:   options.ID,
 		Name: *options.Name,
-		Organization: &scalr.Organization{
+		Organization: &scalr.Environment{
 			Name: environment,
 		},
 	}
