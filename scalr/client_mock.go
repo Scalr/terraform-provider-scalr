@@ -86,11 +86,3 @@ func (m *mockWorkspaces) Unlock(ctx context.Context, workspaceID string) (*scalr
 func (m *mockWorkspaces) ForceUnlock(ctx context.Context, workspaceID string) (*scalr.Workspace, error) {
 	panic("not implemented")
 }
-
-func (m *mockWorkspaces) AssignSSHKey(ctx context.Context, workspaceID string, options scalr.WorkspaceAssignSSHKeyOptions) (*scalr.Workspace, error) {
-	panic("not implemented")
-}
-
-func (m *mockWorkspaces) UnassignSSHKey(ctx context.Context, workspaceID string) (*scalr.Workspace, error) {
-	panic("not implemented")
-}
