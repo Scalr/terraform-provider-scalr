@@ -68,13 +68,13 @@ func resourceTFEOrganizationCreate(d *schema.ResourceData, meta interface{}) err
 	name := d.Get("name").(string)
 
 	// Create a new options struct.
-	options := scalr.OrganizationCreateOptions{
+	options := scalr.EnvironmentCreateOptions{
 		Name:  scalr.String(name),
 		Email: scalr.String(d.Get("email").(string)),
 	}
 
 	log.Printf("[DEBUG] Create new organization: %s", name)
-	org, err := scalrClient.Organizations.Create(ctx, options)
+	org, err := scalrClient.Environments.Create(ctx, options)
 	if err != nil {
 		return fmt.Errorf("Error creating the new organization %s: %v", name, err)
 	}
@@ -88,7 +88,7 @@ func resourceTFEOrganizationRead(d *schema.ResourceData, meta interface{}) error
 	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Read configuration of organization: %s", d.Id())
-	org, err := scalrClient.Organizations.Read(ctx, d.Id())
+	org, err := scalrClient.Environments.Read(ctx, d.Id())
 	if err != nil {
 		if err == scalr.ErrResourceNotFound {
 			log.Printf("[DEBUG] Organization %s does no longer exist", d.Id())
@@ -113,7 +113,7 @@ func resourceTFEOrganizationUpdate(d *schema.ResourceData, meta interface{}) err
 	scalrClient := meta.(*scalr.Client)
 
 	// Create a new options struct.
-	options := scalr.OrganizationUpdateOptions{
+	options := scalr.EnvironmentUpdateOptions{
 		Name:  scalr.String(d.Get("name").(string)),
 		Email: scalr.String(d.Get("email").(string)),
 	}
@@ -139,7 +139,7 @@ func resourceTFEOrganizationUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	log.Printf("[DEBUG] Update configuration of organization: %s", d.Id())
-	org, err := scalrClient.Organizations.Update(ctx, d.Id(), options)
+	org, err := scalrClient.Environments.Update(ctx, d.Id(), options)
 	if err != nil {
 		return fmt.Errorf("Error updating organization %s: %v", d.Id(), err)
 	}
@@ -153,7 +153,7 @@ func resourceTFEOrganizationDelete(d *schema.ResourceData, meta interface{}) err
 	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Delete organization: %s", d.Id())
-	err := scalrClient.Organizations.Delete(ctx, d.Id())
+	err := scalrClient.Environments.Delete(ctx, d.Id())
 	if err != nil {
 		if err == scalr.ErrResourceNotFound {
 			return nil

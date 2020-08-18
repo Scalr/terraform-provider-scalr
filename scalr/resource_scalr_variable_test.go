@@ -32,7 +32,7 @@ func TestAccTFEVariable_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.foobar", "hcl", "false"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "sensitive", "false"),
+						"scalr_variable.foobar", "sensitive", "true"),
 				),
 			},
 		},
@@ -62,7 +62,7 @@ func TestAccTFEVariable_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.foobar", "hcl", "false"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "sensitive", "false"),
+						"scalr_variable.foobar", "sensitive", "true"),
 				),
 			},
 
@@ -81,7 +81,7 @@ func TestAccTFEVariable_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.foobar", "hcl", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "sensitive", "true"),
+						"scalr_variable.foobar", "sensitive", "false"),
 				),
 			},
 		},
@@ -95,13 +95,13 @@ func TestAccTFEVariable_import(t *testing.T) {
 		CheckDestroy: testAccCheckTFEVariableDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccTFEVariable_basic,
+				Config: testAccTFEVariable_basic_nonsensitive,
 			},
 
 			{
 				ResourceName:        "scalr_variable.foobar",
 				ImportState:         true,
-				ImportStateIdPrefix: "existing-org/existing-ws/",
+				ImportStateIdPrefix: "existing-env/existing-ws/",
 				ImportStateVerify:   true,
 			},
 		},
@@ -140,7 +140,7 @@ func testAccCheckTFEVariableAttributes(
 			return fmt.Errorf("Bad key: %s", variable.Key)
 		}
 
-		if variable.Value != "value_test" {
+		if variable.Value != "" {
 			return fmt.Errorf("Bad value: %s", variable.Value)
 		}
 
@@ -152,7 +152,7 @@ func testAccCheckTFEVariableAttributes(
 			return fmt.Errorf("Bad HCL: %t", variable.HCL)
 		}
 
-		if variable.Sensitive != false {
+		if variable.Sensitive != true {
 			return fmt.Errorf("Bad sensitive: %t", variable.Sensitive)
 		}
 
@@ -179,7 +179,7 @@ func testAccCheckTFEVariableAttributesUpdate(
 			return fmt.Errorf("Bad HCL: %t", variable.HCL)
 		}
 
-		if variable.Sensitive != true {
+		if variable.Sensitive != false {
 			return fmt.Errorf("Bad sensitive: %t", variable.Sensitive)
 		}
 
@@ -213,7 +213,17 @@ resource "scalr_variable" "foobar" {
   key          = "key_test"
   value        = "value_test"
   category     = "env"
-  workspace_id = "existing-org/existing-ws"
+  workspace_id = "existing-ws"
+  sensitive    = true
+}`
+
+const testAccTFEVariable_basic_nonsensitive = `
+resource "scalr_variable" "foobar" {
+  key          = "key_test"
+  value        = "value_test"
+  category     = "env"
+  workspace_id = "existing-ws"
+  sensitive    = false
 }`
 
 const testAccTFEVariable_update = `
@@ -222,6 +232,6 @@ resource "scalr_variable" "foobar" {
   value        = "value_updated"
   category     = "terraform"
   hcl          = true
-  sensitive    = true
-  workspace_id = "existing-org/existing-ws"
+  sensitive    = false
+  workspace_id = "existing-ws"
 }`

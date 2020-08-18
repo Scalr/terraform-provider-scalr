@@ -19,15 +19,11 @@ func TestAccTFEWorkspaceDataSource_basic(t *testing.T) {
 			{
 				Config: testAccTFEWorkspaceDataSourceConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"data.scalr_workspace.foobar",
-						"id",
-						fmt.Sprintf("existing-org/workspace-test-%d", rInt),
-					),
+					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "id"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.foobar", "name", fmt.Sprintf("workspace-test-%d", rInt)),
 					resource.TestCheckResourceAttr(
-						"data.scalr_workspace.foobar", "organization", "existing-org"),
+						"data.scalr_workspace.foobar", "environment_id", "existing-env"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.foobar", "auto_apply", "true"),
 					resource.TestCheckResourceAttr(
@@ -36,7 +32,6 @@ func TestAccTFEWorkspaceDataSource_basic(t *testing.T) {
 						"data.scalr_workspace.foobar", "terraform_version", "0.12.19"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.foobar", "working_directory", "terraform/test"),
-					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "external_id"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "created_by.0.email"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "created_by.0.username"),
@@ -50,7 +45,7 @@ func testAccTFEWorkspaceDataSourceConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource "scalr_workspace" "foobar" {
   name                  = "workspace-test-%d"
-  organization          = "existing-org"
+  environment_id        = "existing-env"
   auto_apply            = true
   queue_all_runs        = false
   terraform_version     = "0.12.19"
@@ -58,7 +53,7 @@ resource "scalr_workspace" "foobar" {
 }
 
 data "scalr_workspace" "foobar" {
-  name         = "${scalr_workspace.foobar.name}"
-  organization = "existing-org"
+  name           = "${scalr_workspace.foobar.name}"
+  environment_id = "existing-env"
 }`, rInt)
 }

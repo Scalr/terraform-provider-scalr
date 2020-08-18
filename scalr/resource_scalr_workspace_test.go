@@ -11,86 +11,6 @@ import (
 	scalr "github.com/scalr/go-scalr"
 )
 
-func TestPackWorkspaceID(t *testing.T) {
-	cases := []struct {
-		w   *scalr.Workspace
-		id  string
-		err bool
-	}{
-		{
-			w: &scalr.Workspace{
-				Name: "my-workspace-name",
-				Organization: &scalr.Organization{
-					Name: "my-org-name",
-				},
-			},
-			id:  "my-org-name/my-workspace-name",
-			err: false,
-		},
-		{
-			w: &scalr.Workspace{
-				Name: "my-workspace-name",
-			},
-			id:  "",
-			err: true,
-		},
-	}
-
-	for _, tc := range cases {
-		id, err := packWorkspaceID(tc.w)
-		if (err != nil) != tc.err {
-			t.Fatalf("expected error is %t, got %v", tc.err, err)
-		}
-
-		if tc.id != id {
-			t.Fatalf("expected ID %q, got %q", tc.id, id)
-		}
-	}
-}
-
-func TestUnpackWorkspaceID(t *testing.T) {
-	cases := []struct {
-		id   string
-		org  string
-		name string
-		err  bool
-	}{
-		{
-			id:   "my-org-name/my-workspace-name",
-			org:  "my-org-name",
-			name: "my-workspace-name",
-			err:  false,
-		},
-		{
-			id:   "my-workspace-name|my-org-name",
-			org:  "my-org-name",
-			name: "my-workspace-name",
-			err:  false,
-		},
-		{
-			id:   "some-invalid-id",
-			org:  "",
-			name: "",
-			err:  true,
-		},
-	}
-
-	for _, tc := range cases {
-		org, name, err := unpackWorkspaceID(tc.id)
-		if (err != nil) != tc.err {
-			t.Fatalf("expected error is %t, got %v", tc.err, err)
-		}
-
-		if tc.org != org {
-			t.Fatalf("expected organization %q, got %q", tc.org, org)
-		}
-
-		if tc.name != name {
-			t.Fatalf("expected name %q, got %q", tc.name, name)
-		}
-	}
-}
-
 func TestAccTFEWorkspace_basic(t *testing.T) {
 	workspace := &scalr.Workspace{}
 
@@ -115,7 +35,6 @@ func TestAccTFEWorkspace_basic(t *testing.T) {
 						"scalr_workspace.foobar", "queue_all_runs", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.foobar", "working_directory", ""),
-					resource.TestCheckResourceAttrSet("scalr_workspace.foobar", "external_id"),
 					resource.TestCheckResourceAttrSet("scalr_workspace.foobar", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("scalr_workspace.foobar", "created_by.0.email"),
 					resource.TestCheckResourceAttrSet("scalr_workspace.foobar", "created_by.0.username"),
@@ -285,24 +204,10 @@ func testAccCheckTFEWorkspaceExists(
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		// Get the organization and workspace name.
-		organization, name, err := unpackWorkspaceID(rs.Primary.ID)
-		if err != nil {
-			return fmt.Errorf("Error unpacking workspace ID: %v", err)
-		}
-
-		w, err := scalrClient.Workspaces.Read(ctx, organization, name)
+		// Get the workspace
+		w, err := scalrClient.Workspaces.ReadByID(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
-		}
-
-		id, err := packWorkspaceID(w)
-		if err != nil {
-			return fmt.Errorf("Error creating ID for workspace %s: %v", name, err)
-		}
-
-		if id != rs.Primary.ID {
-			return fmt.Errorf("Workspace not found")
 		}
 
 		*workspace = *w
@@ -358,7 +263,7 @@ func testAccCheckTFEWorkspaceRename() {
 
 	w, err := scalrClient.Workspaces.Update(
 		context.Background(),
-		"existing-org",
+		"existing-env",
 		"workspace-test",
 		scalr.WorkspaceUpdateOptions{Name: scalr.String("renamed-out-of-band")},
 	)
@@ -414,13 +319,7 @@ func testAccCheckTFEWorkspaceDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		// Get the organization and workspace name.
-		organization, name, err := unpackWorkspaceID(rs.Primary.ID)
-		if err != nil {
-			return fmt.Errorf("Error unpacking workspace ID: %v", err)
-		}
-
-		_, err = scalrClient.Workspaces.Read(ctx, organization, name)
+		_, err := scalrClient.Workspaces.ReadByID(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Workspace %s still exists", rs.Primary.ID)
 		}
@@ -431,29 +330,29 @@ func testAccCheckTFEWorkspaceDestroy(s *terraform.State) error {
 
 const testAccTFEWorkspace_basic = `
 resource "scalr_workspace" "foobar" {
-  name         = "workspace-test"
-  organization = "existing-org"
-  auto_apply   = true
+  name           = "workspace-test"
+  environment_id = "existing-env"
+  auto_apply     = true
 }`
 
 const testAccTFEWorkspace_monorepo = `
 resource "scalr_workspace" "foobar" {
   name                  = "workspace-monorepo"
-  organization          = "existing-org"
+  environment_id        = "existing-env"
   working_directory     = "/db"
 }`
 
 const testAccTFEWorkspace_renamed = `
 resource "scalr_workspace" "foobar" {
-  name         = "renamed-out-of-band"
-  organization = "existing-org"
-  auto_apply   = true
+  name           = "renamed-out-of-band"
+  environment_id = "existing-env"
+  auto_apply     = true
 }`
 
 const testAccTFEWorkspace_update = `
 resource "scalr_workspace" "foobar" {
   name                  = "workspace-updated"
-  organization          = "existing-org"
+  environment_id        = "existing-env"
   auto_apply            = false
   operations            = false
   queue_all_runs        = false
