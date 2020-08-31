@@ -11,9 +11,9 @@ import (
 
 // Note: The structure is similar to one from policy-check phase:
 // https://iacp.docs.scalr.com/en/latest/working-with-iacp/opa.html#policy-checking-process
-func dataSourceTFECurrentRun() *schema.Resource {
+func dataSourceScalrCurrentRun() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceTFECurrentRunRead,
+		Read: dataSourceScalrCurrentRunRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
@@ -95,7 +95,7 @@ func dataSourceTFECurrentRun() *schema.Resource {
 	}
 }
 
-func dataSourceTFECurrentRunRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrCurrentRunRead(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	runID, exists := os.LookupEnv("TFE_RUN_ID")

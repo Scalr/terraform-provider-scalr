@@ -7,9 +7,9 @@ import (
 	scalr "github.com/scalr/go-scalr"
 )
 
-func dataSourceTFEWorkspaceIDs() *schema.Resource {
+func dataSourceScalrWorkspaceIDs() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceTFEWorkspaceIDsRead,
+		Read: dataSourceScalrWorkspaceIDsRead,
 
 		Schema: map[string]*schema.Schema{
 			"names": {
@@ -31,7 +31,7 @@ func dataSourceTFEWorkspaceIDs() *schema.Resource {
 	}
 }
 
-func dataSourceTFEWorkspaceIDsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrWorkspaceIDsRead(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get the environment_id.
