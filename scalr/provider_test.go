@@ -40,7 +40,7 @@ func TestProvider_versionConstraints(t *testing.T) {
 		"compatible version": {
 			constraints: &disco.Constraints{
 				Service: "tfe.v2.1",
-				Product: "tfe-provider",
+				Product: "scalr-provider",
 				Minimum: "0.4.0",
 				Maximum: "0.7.0",
 			},
@@ -49,22 +49,22 @@ func TestProvider_versionConstraints(t *testing.T) {
 		"version too old": {
 			constraints: &disco.Constraints{
 				Service: "tfe.v2.1",
-				Product: "tfe-provider",
+				Product: "scalr-provider",
 				Minimum: "0.4.0",
 				Maximum: "0.7.0",
 			},
 			version: "0.3.0",
-			result:  "upgrade the TFE provider to >= 0.4.0",
+			result:  "upgrade the Scalr provider to >= 0.4.0",
 		},
 		"version too new": {
 			constraints: &disco.Constraints{
 				Service: "tfe.v2.1",
-				Product: "tfe-provider",
+				Product: "scalr-provider",
 				Minimum: "0.4.0",
 				Maximum: "0.7.0",
 			},
 			version: "0.8.0",
-			result:  "downgrade the TFE provider to <= 0.7.0",
+			result:  "downgrade the Scalr provider to <= 0.7.0",
 		},
 	}
 

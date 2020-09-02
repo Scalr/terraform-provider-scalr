@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	tfe "github.com/scalr/go-tfe"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func dataSourceTFEWorkspaceIDs() *schema.Resource {
@@ -18,7 +18,7 @@ func dataSourceTFEWorkspaceIDs() *schema.Resource {
 				Required: true,
 			},
 
-			"organization": {
+			"environment_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -27,20 +27,15 @@ func dataSourceTFEWorkspaceIDs() *schema.Resource {
 				Type:     schema.TypeMap,
 				Computed: true,
 			},
-
-			"external_ids": {
-				Type:     schema.TypeMap,
-				Computed: true,
-			},
 		},
 	}
 }
 
 func dataSourceTFEWorkspaceIDsRead(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
-	// Get the organization.
-	organization := d.Get("organization").(string)
+	// Get the environment_id.
+	environmentID := d.Get("environment_id").(string)
 
 	// Create a map with all the names we are looking for.
 	var id string
@@ -50,21 +45,19 @@ func dataSourceTFEWorkspaceIDsRead(d *schema.ResourceData, meta interface{}) err
 		names[name.(string)] = true
 	}
 
-	// Create two maps to hold the resuls.
+	// Create a map to store workspace IDs
 	ids := make(map[string]string, len(names))
-	externalIDs := make(map[string]string, len(names))
 
-	options := tfe.WorkspaceListOptions{}
+	options := scalr.WorkspaceListOptions{}
 	for {
-		wl, err := tfeClient.Workspaces.List(ctx, organization, options)
+		wl, err := scalrClient.Workspaces.List(ctx, environmentID, options)
 		if err != nil {
 			return fmt.Errorf("Error retrieving workspaces: %v", err)
 		}
 
 		for _, w := range wl.Items {
 			if names["*"] || names[w.Name] {
-				ids[w.Name] = organization + "/" + w.Name
-				externalIDs[w.Name] = w.ID
+				ids[w.Name] = w.ID
 			}
 		}
 
@@ -78,8 +71,7 @@ func dataSourceTFEWorkspaceIDsRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	d.Set("ids", ids)
-	d.Set("external_ids", externalIDs)
-	d.SetId(fmt.Sprintf("%s/%d", organization, schema.HashString(id)))
+	d.SetId(fmt.Sprintf("%s/%d", environmentID, schema.HashString(id)))
 
 	return nil
 }

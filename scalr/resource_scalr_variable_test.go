@@ -6,11 +6,11 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	tfe "github.com/scalr/go-tfe"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func TestAccTFEVariable_basic(t *testing.T) {
-	variable := &tfe.Variable{}
+	variable := &scalr.Variable{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -32,7 +32,7 @@ func TestAccTFEVariable_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.foobar", "hcl", "false"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "sensitive", "false"),
+						"scalr_variable.foobar", "sensitive", "true"),
 				),
 			},
 		},
@@ -40,7 +40,7 @@ func TestAccTFEVariable_basic(t *testing.T) {
 }
 
 func TestAccTFEVariable_update(t *testing.T) {
-	variable := &tfe.Variable{}
+	variable := &scalr.Variable{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -62,7 +62,7 @@ func TestAccTFEVariable_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.foobar", "hcl", "false"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "sensitive", "false"),
+						"scalr_variable.foobar", "sensitive", "true"),
 				),
 			},
 
@@ -81,7 +81,7 @@ func TestAccTFEVariable_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.foobar", "hcl", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "sensitive", "true"),
+						"scalr_variable.foobar", "sensitive", "false"),
 				),
 			},
 		},
@@ -95,13 +95,13 @@ func TestAccTFEVariable_import(t *testing.T) {
 		CheckDestroy: testAccCheckTFEVariableDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccTFEVariable_basic,
+				Config: testAccTFEVariable_basic_nonsensitive,
 			},
 
 			{
 				ResourceName:        "scalr_variable.foobar",
 				ImportState:         true,
-				ImportStateIdPrefix: "existing-org/existing-ws/",
+				ImportStateIdPrefix: "existing-env/existing-ws/",
 				ImportStateVerify:   true,
 			},
 		},
@@ -109,9 +109,9 @@ func TestAccTFEVariable_import(t *testing.T) {
 }
 
 func testAccCheckTFEVariableExists(
-	n string, variable *tfe.Variable) resource.TestCheckFunc {
+	n string, variable *scalr.Variable) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		tfeClient := testAccProvider.Meta().(*tfe.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -122,7 +122,7 @@ func testAccCheckTFEVariableExists(
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		v, err := tfeClient.Variables.Read(ctx, rs.Primary.ID)
+		v, err := scalrClient.Variables.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -134,48 +134,21 @@ func testAccCheckTFEVariableExists(
 }
 
 func testAccCheckTFEVariableAttributes(
-	variable *tfe.Variable) resource.TestCheckFunc {
+	variable *scalr.Variable) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if variable.Key != "key_test" {
 			return fmt.Errorf("Bad key: %s", variable.Key)
 		}
 
-		if variable.Value != "value_test" {
+		if variable.Value != "" {
 			return fmt.Errorf("Bad value: %s", variable.Value)
 		}
 
-		if variable.Category != tfe.CategoryEnv {
+		if variable.Category != scalr.CategoryEnv {
 			return fmt.Errorf("Bad category: %s", variable.Category)
 		}
 
 		if variable.HCL != false {
-			return fmt.Errorf("Bad HCL: %t", variable.HCL)
-		}
-
-		if variable.Sensitive != false {
-			return fmt.Errorf("Bad sensitive: %t", variable.Sensitive)
-		}
-
-		return nil
-	}
-}
-
-func testAccCheckTFEVariableAttributesUpdate(
-	variable *tfe.Variable) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if variable.Key != "key_updated" {
-			return fmt.Errorf("Bad key: %s", variable.Key)
-		}
-
-		if variable.Value != "value_updated" {
-			return fmt.Errorf("Bad value: %s", variable.Value)
-		}
-
-		if variable.Category != tfe.CategoryTerraform {
-			return fmt.Errorf("Bad category: %s", variable.Category)
-		}
-
-		if variable.HCL != true {
 			return fmt.Errorf("Bad HCL: %t", variable.HCL)
 		}
 
@@ -187,8 +160,35 @@ func testAccCheckTFEVariableAttributesUpdate(
 	}
 }
 
+func testAccCheckTFEVariableAttributesUpdate(
+	variable *scalr.Variable) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if variable.Key != "key_updated" {
+			return fmt.Errorf("Bad key: %s", variable.Key)
+		}
+
+		if variable.Value != "value_updated" {
+			return fmt.Errorf("Bad value: %s", variable.Value)
+		}
+
+		if variable.Category != scalr.CategoryTerraform {
+			return fmt.Errorf("Bad category: %s", variable.Category)
+		}
+
+		if variable.HCL != true {
+			return fmt.Errorf("Bad HCL: %t", variable.HCL)
+		}
+
+		if variable.Sensitive != false {
+			return fmt.Errorf("Bad sensitive: %t", variable.Sensitive)
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckTFEVariableDestroy(s *terraform.State) error {
-	tfeClient := testAccProvider.Meta().(*tfe.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_variable" {
@@ -199,7 +199,7 @@ func testAccCheckTFEVariableDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := tfeClient.Variables.Read(ctx, rs.Primary.ID)
+		_, err := scalrClient.Variables.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Variable %s still exists", rs.Primary.ID)
 		}
@@ -213,7 +213,17 @@ resource "scalr_variable" "foobar" {
   key          = "key_test"
   value        = "value_test"
   category     = "env"
-  workspace_id = "existing-org/existing-ws"
+  workspace_id = "existing-ws"
+  sensitive    = true
+}`
+
+const testAccTFEVariable_basic_nonsensitive = `
+resource "scalr_variable" "foobar" {
+  key          = "key_test"
+  value        = "value_test"
+  category     = "env"
+  workspace_id = "existing-ws"
+  sensitive    = false
 }`
 
 const testAccTFEVariable_update = `
@@ -222,6 +232,6 @@ resource "scalr_variable" "foobar" {
   value        = "value_updated"
   category     = "terraform"
   hcl          = true
-  sensitive    = true
-  workspace_id = "existing-org/existing-ws"
+  sensitive    = false
+  workspace_id = "existing-ws"
 }`

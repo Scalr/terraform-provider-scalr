@@ -1,6 +1,6 @@
 TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
-PKG_NAME=tfe
+PKG_NAME=scalr
 
 default: build
 

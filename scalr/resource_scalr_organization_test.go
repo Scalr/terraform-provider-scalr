@@ -1,3 +1,5 @@
+// +build envtest
+
 package scalr
 
 import (
@@ -6,11 +8,11 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	tfe "github.com/scalr/go-tfe"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func TestAccTFEOrganization_basic(t *testing.T) {
-	org := &tfe.Organization{}
+	org := &scalr.Organization{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -36,7 +38,7 @@ func TestAccTFEOrganization_basic(t *testing.T) {
 }
 
 func TestAccTFEOrganization_update(t *testing.T) {
-	org := &tfe.Organization{}
+	org := &scalr.Organization{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -102,9 +104,9 @@ func TestAccTFEOrganization_import(t *testing.T) {
 }
 
 func testAccCheckTFEOrganizationExists(
-	n string, org *tfe.Organization) resource.TestCheckFunc {
+	n string, org *scalr.Organization) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		tfeClient := testAccProvider.Meta().(*tfe.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -115,7 +117,7 @@ func testAccCheckTFEOrganizationExists(
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		o, err := tfeClient.Organizations.Read(ctx, rs.Primary.ID)
+		o, err := scalrClient.Organizations.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -131,7 +133,7 @@ func testAccCheckTFEOrganizationExists(
 }
 
 func testAccCheckTFEOrganizationAttributes(
-	org *tfe.Organization) resource.TestCheckFunc {
+	org *scalr.Organization) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if org.Name != "tst-terraform" {
 			return fmt.Errorf("Bad name: %s", org.Name)
@@ -141,7 +143,7 @@ func testAccCheckTFEOrganizationAttributes(
 			return fmt.Errorf("Bad email: %s", org.Email)
 		}
 
-		if org.CollaboratorAuthPolicy != tfe.AuthPolicyPassword {
+		if org.CollaboratorAuthPolicy != scalr.AuthPolicyPassword {
 			return fmt.Errorf("Bad auth policy: %s", org.CollaboratorAuthPolicy)
 		}
 
@@ -150,7 +152,7 @@ func testAccCheckTFEOrganizationAttributes(
 }
 
 func testAccCheckTFEOrganizationAttributesUpdated(
-	org *tfe.Organization) resource.TestCheckFunc {
+	org *scalr.Organization) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if org.Name != "terraform-updated" {
 			return fmt.Errorf("Bad name: %s", org.Name)
@@ -168,7 +170,7 @@ func testAccCheckTFEOrganizationAttributesUpdated(
 			return fmt.Errorf("Bad session remember minutes: %d", org.SessionRemember)
 		}
 
-		if org.CollaboratorAuthPolicy != tfe.AuthPolicyPassword {
+		if org.CollaboratorAuthPolicy != scalr.AuthPolicyPassword {
 			return fmt.Errorf("Bad auth policy: %s", org.CollaboratorAuthPolicy)
 		}
 
@@ -181,7 +183,7 @@ func testAccCheckTFEOrganizationAttributesUpdated(
 }
 
 func testAccCheckTFEOrganizationDestroy(s *terraform.State) error {
-	tfeClient := testAccProvider.Meta().(*tfe.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_organization" {
@@ -192,7 +194,7 @@ func testAccCheckTFEOrganizationDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := tfeClient.Organizations.Read(ctx, rs.Primary.ID)
+		_, err := scalrClient.Organizations.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Organization %s still exists", rs.Primary.ID)
 		}

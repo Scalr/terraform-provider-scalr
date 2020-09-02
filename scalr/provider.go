@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"net/url"
 	"os"
 	"sort"
@@ -18,13 +19,13 @@ import (
 	"github.com/hashicorp/terraform/helper/logging"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-	tfe "github.com/scalr/go-tfe"
+	scalr "github.com/scalr/go-scalr"
 	providerVersion "github.com/scalr/terraform-provider-scalr/version"
 )
 
 const defaultHostname = "my.scalr.com"
 
-var tfeServiceIDs = []string{"tfe.v2.1", "tfe.v2"}
+var scalrServiceIDs = []string{"iacp.v3"}
 
 // Config is the structure of the configuration for the Terraform CLI.
 type Config struct {
@@ -39,7 +40,7 @@ type ConfigHost struct {
 	Services map[string]interface{} `hcl:"services"`
 }
 
-// ctx is used as default context.Context when making TFE calls.
+// ctx is used as default context.Context when making Scalr calls.
 var ctx = context.Background()
 
 // Provider returns a terraform.ResourceProvider.
@@ -50,41 +51,26 @@ func Provider() terraform.ResourceProvider {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: descriptions["hostname"],
-				DefaultFunc: schema.EnvDefaultFunc("TFE_HOSTNAME", defaultHostname),
+				DefaultFunc: schema.EnvDefaultFunc("SCALR_HOSTNAME", defaultHostname),
 			},
 
 			"token": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: descriptions["token"],
-				DefaultFunc: schema.EnvDefaultFunc("TFE_TOKEN", nil),
+				DefaultFunc: schema.EnvDefaultFunc("SCALR_TOKEN", nil),
 			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"scalr_ssh_key":       dataSourceTFESSHKey(),
-			"scalr_team":          dataSourceTFETeam(),
-			"scalr_team_access":   dataSourceTFETeamAccess(),
 			"scalr_workspace":     dataSourceTFEWorkspace(),
 			"scalr_workspace_ids": dataSourceTFEWorkspaceIDs(),
 			"scalr_current_run":   dataSourceTFECurrentRun(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"scalr_notification_configuration": resourceTFENotificationConfiguration(),
-			"scalr_oauth_client":               resourceTFEOAuthClient(),
-			"scalr_organization":               resourceTFEOrganization(),
-			"scalr_organization_token":         resourceTFEOrganizationToken(),
-			"scalr_policy_set":                 resourceTFEPolicySet(),
-			"scalr_sentinel_policy":            resourceTFESentinelPolicy(),
-			"scalr_ssh_key":                    resourceTFESSHKey(),
-			"scalr_team":                       resourceTFETeam(),
-			"scalr_team_access":                resourceTFETeamAccess(),
-			"scalr_team_member":                resourceTFETeamMember(),
-			"scalr_team_members":               resourceTFETeamMembers(),
-			"scalr_team_token":                 resourceTFETeamToken(),
-			"scalr_workspace":                  resourceTFEWorkspace(),
-			"scalr_variable":                   resourceTFEVariable(),
+			"scalr_workspace": resourceTFEWorkspace(),
+			"scalr_variable":  resourceTFEVariable(),
 		},
 
 		ConfigureFunc: providerConfigure,
@@ -107,7 +93,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	credsSrc := credentialsSource(config)
 	services := disco.NewWithCredentialsSource(credsSrc)
 	services.SetUserAgent(providerUaString)
-	services.Transport = logging.NewTransport("TFE Discovery", services.Transport)
+	services.Transport = logging.NewTransport("Scalr Service Discovery", services.Transport)
 
 	// Add any static host configurations service discovery object.
 	for userHost, hostConfig := range config.Hosts {
@@ -128,8 +114,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	// Get the full Terraform Enterprise service address.
 	var address *url.URL
 	var discoErr error
-	for _, tfeServiceID := range tfeServiceIDs {
-		service, err := host.ServiceURL(tfeServiceID)
+	for _, scalrServiceID := range scalrServiceIDs {
+		service, err := host.ServiceURL(scalrServiceID)
 		if _, ok := err.(*disco.ErrVersionNotSupported); !ok && err != nil {
 			return nil, err
 		}
@@ -148,7 +134,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	if providerVersion.ProviderVersion != "dev" {
 		// We purposefully ignore the error and return the previous error, as
 		// checking for version constraints is considered optional.
-		constraints, _ := host.VersionConstraints(tfeServiceIDs[0], "tfe-provider")
+		constraints, _ := host.VersionConstraints(scalrServiceIDs[0], "scalr-provider")
 
 		// First check any constraints we might have received.
 		if constraints != nil {
@@ -184,18 +170,21 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		return nil, fmt.Errorf("required token could not be found")
 	}
 
-	httpClient := tfe.DefaultConfig().HTTPClient
-	httpClient.Transport = logging.NewTransport("TFE", httpClient.Transport)
+	httpClient := scalr.DefaultConfig().HTTPClient
+	httpClient.Transport = logging.NewTransport("Scalr", httpClient.Transport)
 
-	// Create a new TFE client config
-	cfg := &tfe.Config{
+	// Create a new Scalr client config
+	cfg := &scalr.Config{
 		Address:    address.String(),
 		Token:      token,
 		HTTPClient: httpClient,
+		Headers:    make(http.Header),
 	}
+	// Set internal API profile
+	cfg.Headers.Set("Prefer", "profile=internal")
 
-	// Create a new TFE client.
-	client, err := tfe.NewClient(cfg)
+	// Create a new Scalr client.
+	client, err := scalr.NewClient(cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -345,14 +334,14 @@ func checkConstraints(c *disco.Constraints) error {
 		excluding = ""
 	}
 
-	summary := fmt.Sprintf("Incompatible TFE provider version v%s", v.String())
+	summary := fmt.Sprintf("Incompatible Scalr provider version v%s", v.String())
 	details := fmt.Sprintf(
-		"The configured Terraform Enterprise backend is compatible with TFE provider\n"+
+		"The configured Terraform Enterprise backend is compatible with Scalr provider\n"+
 			"versions >= %s, <= %s%s.", c.Minimum, c.Maximum, excluding,
 	)
 
 	if action != "" && toVersion != "" {
-		summary = fmt.Sprintf("Please %s the TFE provider to %s", action, toVersion)
+		summary = fmt.Sprintf("Please %s the Scalr provider to %s", action, toVersion)
 	}
 
 	// Return the customized and informational error message.

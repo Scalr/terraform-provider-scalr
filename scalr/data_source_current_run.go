@@ -6,10 +6,10 @@ import (
 	"os"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	tfe "github.com/scalr/go-tfe"
+	scalr "github.com/scalr/go-scalr"
 )
 
-// Note: The structure is inherited from OPA policy:
+// Note: The structure is similar to one from policy-check phase:
 // https://iacp.docs.scalr.com/en/latest/working-with-iacp/opa.html#policy-checking-process
 func dataSourceTFECurrentRun() *schema.Resource {
 	return &schema.Resource{
@@ -19,26 +19,13 @@ func dataSourceTFECurrentRun() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"workspace": {
-				Type:     schema.TypeList,
+			"environment_id": {
+				Type:     schema.TypeString,
 				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"auto_apply": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-						"working_directory": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						// TODO: add description, tags
-					},
-				},
+			},
+			"workspace_name": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"vcs": {
 				Type:     schema.TypeList,
@@ -109,26 +96,27 @@ func dataSourceTFECurrentRun() *schema.Resource {
 }
 
 func dataSourceTFECurrentRunRead(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
 	runID, exists := os.LookupEnv("TFE_RUN_ID")
 	if !exists {
-		return fmt.Errorf("The current run is available only within the Terraform remote backend")
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] Read configuration of run: %s", runID)
-	run, err := tfeClient.Runs.Read(ctx, runID)
+	run, err := scalrClient.Runs.Read(ctx, runID)
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			return fmt.Errorf("Could not find run %s", runID)
 		}
 		return fmt.Errorf("Error retrieving run: %v", err)
 	}
 
 	log.Printf("[DEBUG] Read workspace of run: %s", runID)
-	workspace, err := tfeClient.Workspaces.ReadByID(ctx, run.Workspace.ID)
+	workspace, err := scalrClient.Workspaces.ReadByID(ctx, run.Workspace.ID)
 	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			return fmt.Errorf("Could not find workspace %s", run.Workspace.ID)
 		}
 		return fmt.Errorf("Error retrieving workspace: %v", err)
@@ -140,19 +128,14 @@ func dataSourceTFECurrentRunRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("is_destroy", run.IsDestroy)
 	d.Set("is_dry", run.Apply == nil)
 
-	var wsConfigs []map[string]interface{}
-	ws := map[string]interface{}{
-		"name":              workspace.Name,
-		"auto_apply":        workspace.AutoApply,
-		"working_directory": workspace.WorkingDirectory,
-	}
-	d.Set("workspace", append(wsConfigs, ws))
+	d.Set("workspace_name", workspace.Name)
+	d.Set("environment_id", workspace.Organization.Name)
 
 	if workspace.VCSRepo != nil {
 		log.Printf("[DEBUG] Read ingress attributes of run: %s", runID)
-		ingressAttributes, err := tfeClient.ConfigurationVersions.ReadIngressAttributes(ctx, run.ConfigurationVersion.ID)
+		ingressAttributes, err := scalrClient.ConfigurationVersions.ReadIngressAttributes(ctx, run.ConfigurationVersion.ID)
 		if err != nil {
-			if err == tfe.ErrResourceNotFound {
+			if err == scalr.ErrResourceNotFound {
 				return fmt.Errorf("Could not find configuration version %s", run.ConfigurationVersion.ID)
 			}
 			return fmt.Errorf("Error retrieving ingress attributes: %v", err)

@@ -3,10 +3,9 @@ package scalr
 import (
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	tfe "github.com/scalr/go-tfe"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func resourceTFEWorkspace() *schema.Resource {
@@ -25,7 +24,7 @@ func resourceTFEWorkspace() *schema.Resource {
 				Required: true,
 			},
 
-			"organization": {
+			"environment_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -84,15 +83,13 @@ func resourceTFEWorkspace() *schema.Resource {
 							Optional: true,
 						},
 
-						"ingress_submodules": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
-						},
-
 						"oauth_token_id": {
 							Type:     schema.TypeString,
 							Required: true,
+						},
+						"path": {
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 					},
 				},
@@ -118,134 +115,72 @@ func resourceTFEWorkspace() *schema.Resource {
 					},
 				},
 			},
-
-			"external_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }
 
 func resourceTFEWorkspaceCreate(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
-	// Get the name and organization.
+	// Get the name and environment_id.
 	name := d.Get("name").(string)
-	organization := d.Get("organization").(string)
+	environmentID := d.Get("environment_id").(string)
 
 	// Create a new options struct.
-	options := tfe.WorkspaceCreateOptions{
-		Name:         tfe.String(name),
-		AutoApply:    tfe.Bool(d.Get("auto_apply").(bool)),
-		Operations:   tfe.Bool(d.Get("operations").(bool)),
-		QueueAllRuns: tfe.Bool(d.Get("queue_all_runs").(bool)),
+	options := scalr.WorkspaceCreateOptions{
+		Name:         scalr.String(name),
+		AutoApply:    scalr.Bool(d.Get("auto_apply").(bool)),
+		Operations:   scalr.Bool(d.Get("operations").(bool)),
+		QueueAllRuns: scalr.Bool(d.Get("queue_all_runs").(bool)),
 	}
 
 	// Process all configured options.
 	if tfVersion, ok := d.GetOk("terraform_version"); ok {
-		options.TerraformVersion = tfe.String(tfVersion.(string))
+		options.TerraformVersion = scalr.String(tfVersion.(string))
 	}
 
 	if workingDir, ok := d.GetOk("working_directory"); ok {
-		options.WorkingDirectory = tfe.String(workingDir.(string))
+		options.WorkingDirectory = scalr.String(workingDir.(string))
 	}
 
 	// Get and assert the VCS repo configuration block.
 	if v, ok := d.GetOk("vcs_repo"); ok {
 		vcsRepo := v.([]interface{})[0].(map[string]interface{})
 
-		options.VCSRepo = &tfe.VCSRepoOptions{
-			Identifier:        tfe.String(vcsRepo["identifier"].(string)),
-			IngressSubmodules: tfe.Bool(vcsRepo["ingress_submodules"].(bool)),
-			OAuthTokenID:      tfe.String(vcsRepo["oauth_token_id"].(string)),
+		options.VCSRepo = &scalr.VCSRepoOptions{
+			Identifier:   scalr.String(vcsRepo["identifier"].(string)),
+			OAuthTokenID: scalr.String(vcsRepo["oauth_token_id"].(string)),
+			Path:         scalr.String(vcsRepo["path"].(string)),
 		}
 
 		// Only set the branch if one is configured.
 		if branch, ok := vcsRepo["branch"].(string); ok && branch != "" {
-			options.VCSRepo.Branch = tfe.String(branch)
+			options.VCSRepo.Branch = scalr.String(branch)
 		}
 	}
 
-	log.Printf("[DEBUG] Create workspace %s for organization: %s", name, organization)
-	workspace, err := tfeClient.Workspaces.Create(ctx, organization, options)
+	log.Printf("[DEBUG] Create workspace %s for environment: %s", name, environmentID)
+	workspace, err := scalrClient.Workspaces.Create(ctx, environmentID, options)
 	if err != nil {
 		return fmt.Errorf(
-			"Error creating workspace %s for organization %s: %v", name, organization, err)
+			"Error creating workspace %s for environment %s: %v", name, environmentID, err)
 	}
-
-	id, err := packWorkspaceID(workspace)
-	if err != nil {
-		return fmt.Errorf("Error creating ID for workspace %s: %v", name, err)
-	}
-
-	d.SetId(id)
-
-	if sshKeyID, ok := d.GetOk("ssh_key_id"); ok {
-		_, err = tfeClient.Workspaces.AssignSSHKey(ctx, workspace.ID, tfe.WorkspaceAssignSSHKeyOptions{
-			SSHKeyID: tfe.String(sshKeyID.(string)),
-		})
-		if err != nil {
-			return fmt.Errorf("Error assigning SSH key to workspace %s: %v", name, err)
-		}
-	}
-
+	d.SetId(workspace.ID)
 	return resourceTFEWorkspaceRead(d, meta)
 }
 
 func resourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
-
-	// Get the organization and workspace name.
-	organization, name, err := unpackWorkspaceID(d.Id())
+	scalrClient := meta.(*scalr.Client)
+	id := d.Id()
+	log.Printf("[DEBUG] Read configuration of workspace: %s", id)
+	workspace, err := scalrClient.Workspaces.ReadByID(ctx, id)
 	if err != nil {
-		return fmt.Errorf("Error unpacking workspace ID: %v", err)
-	}
-
-	log.Printf("[DEBUG] Read configuration of workspace: %s", name)
-	workspace, err := tfeClient.Workspaces.Read(ctx, organization, name)
-	if err != nil && err != tfe.ErrResourceNotFound {
-		return fmt.Errorf("Error reading configuration of workspace %s: %v", name, err)
-	}
-
-	// If we cannot find the workspace, it either doesn't exist anymore or is
-	// renamed. To make sure the workspace is really gone before we delete it
-	// from our state, we will list all workspaces and try to find it using
-	// the external ID.
-	if err == tfe.ErrResourceNotFound {
-		// Set the workspace to nil so we can check if we found one later.
-		workspace = nil
-
-		options := tfe.WorkspaceListOptions{}
-		externalID := d.Get("external_id").(string)
-		for {
-			wl, err := tfeClient.Workspaces.List(ctx, organization, options)
-			if err != nil {
-				return fmt.Errorf("Error retrieving workspaces: %v", err)
-			}
-
-			for _, w := range wl.Items {
-				if externalID == w.ID {
-					workspace = w
-					break
-				}
-			}
-
-			// Exit the loop if we found the workspace or have seen all pages.
-			if workspace != nil || wl.CurrentPage >= wl.TotalPages {
-				break
-			}
-
-			// Update the page number to get the next page.
-			options.PageNumber = wl.NextPage
-		}
-
-		// Return if we didn't find a matching workspace.
-		if workspace == nil {
-			log.Printf("[DEBUG] Workspace %s does no longer exist", name)
+		if err == scalr.ErrResourceNotFound {
+			log.Printf("[DEBUG] Workspace %s no longer exists", id)
 			d.SetId("")
 			return nil
 		}
+		return fmt.Errorf("Error reading configuration of workspace %s: %v", id, err)
 	}
 
 	// Update the config.
@@ -255,17 +190,7 @@ func resourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("queue_all_runs", workspace.QueueAllRuns)
 	d.Set("terraform_version", workspace.TerraformVersion)
 	d.Set("working_directory", workspace.WorkingDirectory)
-	d.Set("external_id", workspace.ID)
-
-	if workspace.Organization != nil {
-		d.Set("organization", workspace.Organization.Name)
-	}
-
-	var sshKeyID string
-	if workspace.SSHKey != nil {
-		sshKeyID = workspace.SSHKey.ID
-	}
-	d.Set("ssh_key_id", sshKeyID)
+	d.Set("environment_id", workspace.Organization.Name)
 
 	var createdBy []interface{}
 	if workspace.CreatedBy != nil {
@@ -280,9 +205,9 @@ func resourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
 	var vcsRepo []interface{}
 	if workspace.VCSRepo != nil {
 		vcsConfig := map[string]interface{}{
-			"identifier":         workspace.VCSRepo.Identifier,
-			"ingress_submodules": workspace.VCSRepo.IngressSubmodules,
-			"oauth_token_id":     workspace.VCSRepo.OAuthTokenID,
+			"identifier":     workspace.VCSRepo.Identifier,
+			"oauth_token_id": workspace.VCSRepo.OAuthTokenID,
+			"path":           workspace.VCSRepo.Path,
 		}
 
 		// Get and assert the VCS repo configuration block.
@@ -299,94 +224,51 @@ func resourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("vcs_repo", vcsRepo)
-
-	// We do this here as a means to convert the internal ID,
-	// in case anyone still uses the old format.
-	id, err := packWorkspaceID(workspace)
-	if err != nil {
-		return err
-	}
-	d.SetId(id)
-
 	return nil
 }
 
 func resourceTFEWorkspaceUpdate(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
 
-	// Get the organization and workspace name.
-	organization, name, err := unpackWorkspaceID(d.Id())
-	if err != nil {
-		return fmt.Errorf("Error unpacking workspace ID: %v", err)
-	}
+	id := d.Id()
 
 	if d.HasChange("name") || d.HasChange("auto_apply") || d.HasChange("queue_all_runs") ||
 		d.HasChange("terraform_version") || d.HasChange("working_directory") || d.HasChange("vcs_repo") ||
 		d.HasChange("operations") {
 		// Create a new options struct.
-		options := tfe.WorkspaceUpdateOptions{
-			Name:         tfe.String(d.Get("name").(string)),
-			AutoApply:    tfe.Bool(d.Get("auto_apply").(bool)),
-			Operations:   tfe.Bool(d.Get("operations").(bool)),
-			QueueAllRuns: tfe.Bool(d.Get("queue_all_runs").(bool)),
+		options := scalr.WorkspaceUpdateOptions{
+			Name:         scalr.String(d.Get("name").(string)),
+			AutoApply:    scalr.Bool(d.Get("auto_apply").(bool)),
+			Operations:   scalr.Bool(d.Get("operations").(bool)),
+			QueueAllRuns: scalr.Bool(d.Get("queue_all_runs").(bool)),
 		}
 
 		// Process all configured options.
 		if tfVersion, ok := d.GetOk("terraform_version"); ok {
-			options.TerraformVersion = tfe.String(tfVersion.(string))
+			options.TerraformVersion = scalr.String(tfVersion.(string))
 		}
 
 		if workingDir, ok := d.GetOk("working_directory"); ok {
-			options.WorkingDirectory = tfe.String(workingDir.(string))
+			options.WorkingDirectory = scalr.String(workingDir.(string))
 		}
 
 		// Get and assert the VCS repo configuration block.
 		if v, ok := d.GetOk("vcs_repo"); ok {
 			vcsRepo := v.([]interface{})[0].(map[string]interface{})
 
-			options.VCSRepo = &tfe.VCSRepoOptions{
-				Identifier:        tfe.String(vcsRepo["identifier"].(string)),
-				Branch:            tfe.String(vcsRepo["branch"].(string)),
-				IngressSubmodules: tfe.Bool(vcsRepo["ingress_submodules"].(bool)),
-				OAuthTokenID:      tfe.String(vcsRepo["oauth_token_id"].(string)),
+			options.VCSRepo = &scalr.VCSRepoOptions{
+				Identifier:   scalr.String(vcsRepo["identifier"].(string)),
+				Branch:       scalr.String(vcsRepo["branch"].(string)),
+				OAuthTokenID: scalr.String(vcsRepo["oauth_token_id"].(string)),
+				Path:         scalr.String(vcsRepo["path"].(string)),
 			}
 		}
 
-		log.Printf("[DEBUG] Update workspace %s for organization: %s", name, organization)
-		workspace, err := tfeClient.Workspaces.Update(ctx, organization, name, options)
+		log.Printf("[DEBUG] Update workspace %s", id)
+		_, err := scalrClient.Workspaces.UpdateByID(ctx, id, options)
 		if err != nil {
 			return fmt.Errorf(
-				"Error updating workspace %s for organization %s: %v", name, organization, err)
-		}
-
-		id, err := packWorkspaceID(workspace)
-		if err != nil {
-			return fmt.Errorf("Error creating ID for workspace %s: %v", name, err)
-		}
-
-		d.SetId(id)
-	}
-
-	if d.HasChange("ssh_key_id") {
-		sshKeyID := d.Get("ssh_key_id").(string)
-		externalID, _ := d.GetChange("external_id")
-
-		if sshKeyID != "" {
-			_, err := tfeClient.Workspaces.AssignSSHKey(
-				ctx,
-				externalID.(string),
-				tfe.WorkspaceAssignSSHKeyOptions{
-					SSHKeyID: tfe.String(sshKeyID),
-				},
-			)
-			if err != nil {
-				return fmt.Errorf("Error assigning SSH key to workspace %s: %v", name, err)
-			}
-		} else {
-			_, err := tfeClient.Workspaces.UnassignSSHKey(ctx, externalID.(string))
-			if err != nil {
-				return fmt.Errorf("Error unassigning SSH key from workspace %s: %v", name, err)
-			}
+				"Error updating workspace %s: %v", id, err)
 		}
 	}
 
@@ -394,45 +276,18 @@ func resourceTFEWorkspaceUpdate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceTFEWorkspaceDelete(d *schema.ResourceData, meta interface{}) error {
-	tfeClient := meta.(*tfe.Client)
+	scalrClient := meta.(*scalr.Client)
+	id := d.Id()
 
-	// Get the organization and workspace name.
-	organization, name, err := unpackWorkspaceID(d.Id())
+	log.Printf("[DEBUG] Delete workspace %s", id)
+	err := scalrClient.Workspaces.DeleteByID(ctx, id)
 	if err != nil {
-		return fmt.Errorf("Error unpacking workspace ID: %v", err)
-	}
-
-	log.Printf("[DEBUG] Delete workspace %s from organization: %s", name, organization)
-	err = tfeClient.Workspaces.Delete(ctx, organization, name)
-	if err != nil {
-		if err == tfe.ErrResourceNotFound {
+		if err == scalr.ErrResourceNotFound {
 			return nil
 		}
 		return fmt.Errorf(
-			"Error deleting workspace %s from organization %s: %v", name, organization, err)
+			"Error deleting workspace %s: %v", id, err)
 	}
 
 	return nil
-}
-
-func packWorkspaceID(w *tfe.Workspace) (id string, err error) {
-	if w.Organization == nil {
-		return "", fmt.Errorf("no organization in workspace response")
-	}
-	return w.Organization.Name + "/" + w.Name, nil
-}
-
-func unpackWorkspaceID(id string) (organization, name string, err error) {
-	// Support the old ID format for backwards compatibitily.
-	if s := strings.SplitN(id, "|", 2); len(s) == 2 {
-		return s[1], s[0], nil
-	}
-
-	s := strings.SplitN(id, "/", 2)
-	if len(s) != 2 {
-		return "", "", fmt.Errorf(
-			"invalid workspace ID format: %s (expected <ORGANIZATION>/<WORKSPACE>)", id)
-	}
-
-	return s[0], s[1], nil
 }
