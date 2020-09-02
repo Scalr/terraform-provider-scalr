@@ -8,14 +8,23 @@ import (
 	scalr "github.com/scalr/go-scalr"
 )
 
-func resourceTFEWorkspace() *schema.Resource {
+func resourceScalrWorkspace() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceTFEWorkspaceCreate,
-		Read:   resourceTFEWorkspaceRead,
-		Update: resourceTFEWorkspaceUpdate,
-		Delete: resourceTFEWorkspaceDelete,
+		Create: resourceScalrWorkspaceCreate,
+		Read:   resourceScalrWorkspaceRead,
+		Update: resourceScalrWorkspaceUpdate,
+		Delete: resourceScalrWorkspaceDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
+		},
+
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceScalrWorkspaceResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceScalrWorkspaceStateUpgradeV0,
+				Version: 0,
+			},
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -46,12 +55,6 @@ func resourceTFEWorkspace() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
-			},
-
-			"ssh_key_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
 			},
 
 			"terraform_version": {
@@ -119,7 +122,7 @@ func resourceTFEWorkspace() *schema.Resource {
 	}
 }
 
-func resourceTFEWorkspaceCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get the name and environment_id.
@@ -166,10 +169,10 @@ func resourceTFEWorkspaceCreate(d *schema.ResourceData, meta interface{}) error 
 			"Error creating workspace %s for environment %s: %v", name, environmentID, err)
 	}
 	d.SetId(workspace.ID)
-	return resourceTFEWorkspaceRead(d, meta)
+	return resourceScalrWorkspaceRead(d, meta)
 }
 
-func resourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 	log.Printf("[DEBUG] Read configuration of workspace: %s", id)
@@ -227,7 +230,7 @@ func resourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceTFEWorkspaceUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
@@ -272,10 +275,10 @@ func resourceTFEWorkspaceUpdate(d *schema.ResourceData, meta interface{}) error 
 		}
 	}
 
-	return resourceTFEWorkspaceRead(d, meta)
+	return resourceScalrWorkspaceRead(d, meta)
 }
 
-func resourceTFEWorkspaceDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWorkspaceDelete(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 
