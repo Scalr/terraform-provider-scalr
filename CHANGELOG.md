@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0-rc4] - 2020-08-25
+## [1.0.0-rc5] - 
 
 ### Added
 
@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Required
 
-- scalr server >= `8.0.1-beta.20200813`
+- scalr server >= `8.0.1-beta.20200901`
 
 ## [1.0.0-rc3] - 2020-07-30
 
