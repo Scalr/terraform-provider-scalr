@@ -29,6 +29,6 @@ The following arguments are supported:
 
 * `hostname` - (Optional) The Scalr hostname to connect to.
   Defaults to `my.scalr.com`. Can be overridden by setting the
-  `SCALR_HOSTNAME` environment variable.
+  `TFE_HOSTNAME` environment variable.
 * `token` - (Optional) The token used to authenticate with Scalr.
-  Can be overridden by setting the `SCALR_TOKEN` environment variable.
+  Can be overridden by setting the `TFE_HOSTNAME` environment variable.
