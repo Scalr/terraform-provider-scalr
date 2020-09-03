@@ -30,6 +30,11 @@ func resourceTFEWorkspace() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"vcs_provider_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"auto_apply": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -122,7 +127,7 @@ func resourceTFEWorkspace() *schema.Resource {
 func resourceTFEWorkspaceCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
-	// Get the name and environment_id.
+	// Get the name, environment_id and vcs-provider is.
 	name := d.Get("name").(string)
 	environmentID := d.Get("environment_id").(string)
 
@@ -143,13 +148,18 @@ func resourceTFEWorkspaceCreate(d *schema.ResourceData, meta interface{}) error 
 		options.WorkingDirectory = scalr.String(workingDir.(string))
 	}
 
+	if vcsProviderId, ok := d.GetOk("vcs_provider_id"); ok {
+		options.VcsProvider = &scalr.VcsProviderOptions{
+			ID: vcsProviderId.(string),
+		}
+	}
+
 	// Get and assert the VCS repo configuration block.
 	if v, ok := d.GetOk("vcs_repo"); ok {
 		vcsRepo := v.([]interface{})[0].(map[string]interface{})
 
 		options.VCSRepo = &scalr.VCSRepoOptions{
 			Identifier:   scalr.String(vcsRepo["identifier"].(string)),
-			OAuthTokenID: scalr.String(vcsRepo["oauth_token_id"].(string)),
 			Path:         scalr.String(vcsRepo["path"].(string)),
 		}
 
@@ -191,6 +201,7 @@ func resourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("terraform_version", workspace.TerraformVersion)
 	d.Set("working_directory", workspace.WorkingDirectory)
 	d.Set("environment_id", workspace.Organization.Name)
+	d.Set("vcs_provider_id", workspace.VcsProvider.ID)
 
 	var createdBy []interface{}
 	if workspace.CreatedBy != nil {
@@ -206,7 +217,6 @@ func resourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
 	if workspace.VCSRepo != nil {
 		vcsConfig := map[string]interface{}{
 			"identifier":     workspace.VCSRepo.Identifier,
-			"oauth_token_id": workspace.VCSRepo.OAuthTokenID,
 			"path":           workspace.VCSRepo.Path,
 		}
 
@@ -234,7 +244,7 @@ func resourceTFEWorkspaceUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	if d.HasChange("name") || d.HasChange("auto_apply") || d.HasChange("queue_all_runs") ||
 		d.HasChange("terraform_version") || d.HasChange("working_directory") || d.HasChange("vcs_repo") ||
-		d.HasChange("operations") {
+		d.HasChange("operations") || d.HasChange("vcs_provider_id") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
 			Name:         scalr.String(d.Get("name").(string)),
@@ -252,6 +262,12 @@ func resourceTFEWorkspaceUpdate(d *schema.ResourceData, meta interface{}) error 
 			options.WorkingDirectory = scalr.String(workingDir.(string))
 		}
 
+		if vcsProviderId, ok := d.GetOk("vcs_provider_id"); ok {
+			options.VcsProvider = &scalr.VcsProviderOptions{
+				ID: vcsProviderId.(string),
+			}
+		}
+
 		// Get and assert the VCS repo configuration block.
 		if v, ok := d.GetOk("vcs_repo"); ok {
 			vcsRepo := v.([]interface{})[0].(map[string]interface{})
@@ -259,7 +275,6 @@ func resourceTFEWorkspaceUpdate(d *schema.ResourceData, meta interface{}) error 
 			options.VCSRepo = &scalr.VCSRepoOptions{
 				Identifier:   scalr.String(vcsRepo["identifier"].(string)),
 				Branch:       scalr.String(vcsRepo["branch"].(string)),
-				OAuthTokenID: scalr.String(vcsRepo["oauth_token_id"].(string)),
 				Path:         scalr.String(vcsRepo["path"].(string)),
 			}
 		}

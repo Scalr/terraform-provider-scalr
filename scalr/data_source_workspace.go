@@ -23,6 +23,11 @@ func dataSourceTFEWorkspace() *schema.Resource {
 				Required: true,
 			},
 
+			"vcs_provider_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"auto_apply": {
 				Type:     schema.TypeBool,
 				Computed: true,
@@ -59,11 +64,6 @@ func dataSourceTFEWorkspace() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"identifier": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-
-						"oauth_token_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -121,6 +121,7 @@ func dataSourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("queue_all_runs", workspace.QueueAllRuns)
 	d.Set("terraform_version", workspace.TerraformVersion)
 	d.Set("working_directory", workspace.WorkingDirectory)
+	d.Set("vcs_provider_id", workspace.VcsProvider.ID)
 
 	var createdBy []interface{}
 	if workspace.CreatedBy != nil {
@@ -136,7 +137,6 @@ func dataSourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	if workspace.VCSRepo != nil {
 		vcsConfig := map[string]interface{}{
 			"identifier":     workspace.VCSRepo.Identifier,
-			"oauth_token_id": workspace.VCSRepo.OAuthTokenID,
 			"path":           workspace.VCSRepo.Path,
 		}
 		vcsRepo = append(vcsRepo, vcsConfig)
