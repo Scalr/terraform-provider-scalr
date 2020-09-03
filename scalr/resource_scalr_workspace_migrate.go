@@ -224,9 +224,11 @@ func resourceScalrWorkspaceResourceV1() *schema.Resource {
 }
 
 func resourceScalrWorkspaceStateUpgradeV1(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
-	vcsRepo := rawState["vcs_repo"].(map[string]interface{})
-	rawState["vcs_provider_id"] = vcsRepo["oauth_token_id"]
-	delete(vcsRepo, "oauth_token_id")
-	rawState["vcs_repo"] = vcsRepo
+	if rawState["vcs_repo"] != nil {
+		vcsRepo := rawState["vcs_repo"].(map[string]interface{})
+		rawState["vcs_provider_id"] = vcsRepo["oauth_token_id"]
+		delete(vcsRepo, "oauth_token_id")
+		rawState["vcs_repo"] = vcsRepo
+	}
 	return rawState, nil
 }

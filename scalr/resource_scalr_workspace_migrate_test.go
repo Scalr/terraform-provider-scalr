@@ -53,6 +53,13 @@ func testResourceScalrWorkspaceStateDataV2() map[string]interface{} {
 	}
 }
 
+func testResourceScalrWorkspaceStateDataV2NoVcs() map[string]interface{} {
+	v1 := testResourceScalrWorkspaceStateDataV1()
+	return map[string]interface{}{
+		"id":          v1["id"],
+	}
+}
+
 func TestResourceScalrWorkspaceStateUpgradeV1(t *testing.T) {
 	expected := testResourceScalrWorkspaceStateDataV2()
 	actual, err := resourceScalrWorkspaceStateUpgradeV1(testResourceScalrWorkspaceStateDataV1VcsRepo(), nil)
@@ -65,3 +72,14 @@ func TestResourceScalrWorkspaceStateUpgradeV1(t *testing.T) {
 	}
 }
 
+func TestResourceScalrWorkspaceStateUpgradeV1NoVcs(t *testing.T) {
+	expected := testResourceScalrWorkspaceStateDataV2NoVcs()
+	actual, err := resourceScalrWorkspaceStateUpgradeV1(testResourceScalrWorkspaceStateDataV1(), nil)
+	if err != nil {
+		t.Fatalf("error migrating state: %s", err)
+	}
+
+	if !reflect.DeepEqual(expected, actual) {
+		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", expected, actual)
+	}
+}
