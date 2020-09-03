@@ -43,11 +43,6 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Computed: true,
 			},
 
-			"ssh_key_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"terraform_version": {
 				Type:     schema.TypeString,
 				Computed: true,

@@ -18,12 +18,17 @@ func resourceScalrWorkspace() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
-		SchemaVersion: 1,
+		SchemaVersion: 2,
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceScalrWorkspaceResourceV0().CoreConfigSchema().ImpliedType(),
 				Upgrade: resourceScalrWorkspaceStateUpgradeV0,
 				Version: 0,
+			},
+			{
+				Type:    resourceScalrWorkspaceResourceV1().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceScalrWorkspaceStateUpgradeV1,
+				Version: 1,
 			},
 		},
 
