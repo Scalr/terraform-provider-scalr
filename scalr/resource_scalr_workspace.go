@@ -96,10 +96,6 @@ func resourceScalrWorkspace() *schema.Resource {
 							Optional: true,
 						},
 
-						"oauth_token_id": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
 						"path": {
 							Type:     schema.TypeString,
 							Optional: true,
