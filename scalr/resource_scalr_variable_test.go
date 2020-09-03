@@ -9,20 +9,20 @@ import (
 	scalr "github.com/scalr/go-scalr"
 )
 
-func TestAccTFEVariable_basic(t *testing.T) {
+func TestAccScalrVariable_basic(t *testing.T) {
 	variable := &scalr.Variable{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckTFEVariableDestroy,
+		CheckDestroy: testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccTFEVariable_basic,
+				Config: testAccScalrVariable_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckTFEVariableExists(
+					testAccCheckScalrVariableExists(
 						"scalr_variable.foobar", variable),
-					testAccCheckTFEVariableAttributes(variable),
+					testAccCheckScalrVariableAttributes(variable),
 					resource.TestCheckResourceAttr(
 						"scalr_variable.foobar", "key", "key_test"),
 					resource.TestCheckResourceAttr(
@@ -39,20 +39,20 @@ func TestAccTFEVariable_basic(t *testing.T) {
 	})
 }
 
-func TestAccTFEVariable_update(t *testing.T) {
+func TestAccScalrVariable_update(t *testing.T) {
 	variable := &scalr.Variable{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckTFEVariableDestroy,
+		CheckDestroy: testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccTFEVariable_basic,
+				Config: testAccScalrVariable_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckTFEVariableExists(
+					testAccCheckScalrVariableExists(
 						"scalr_variable.foobar", variable),
-					testAccCheckTFEVariableAttributes(variable),
+					testAccCheckScalrVariableAttributes(variable),
 					resource.TestCheckResourceAttr(
 						"scalr_variable.foobar", "key", "key_test"),
 					resource.TestCheckResourceAttr(
@@ -67,11 +67,11 @@ func TestAccTFEVariable_update(t *testing.T) {
 			},
 
 			{
-				Config: testAccTFEVariable_update,
+				Config: testAccScalrVariable_update,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckTFEVariableExists(
+					testAccCheckScalrVariableExists(
 						"scalr_variable.foobar", variable),
-					testAccCheckTFEVariableAttributesUpdate(variable),
+					testAccCheckScalrVariableAttributesUpdate(variable),
 					resource.TestCheckResourceAttr(
 						"scalr_variable.foobar", "key", "key_updated"),
 					resource.TestCheckResourceAttr(
@@ -88,14 +88,14 @@ func TestAccTFEVariable_update(t *testing.T) {
 	})
 }
 
-func TestAccTFEVariable_import(t *testing.T) {
+func TestAccScalrVariable_import(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckTFEVariableDestroy,
+		CheckDestroy: testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccTFEVariable_basic_nonsensitive,
+				Config: testAccScalrVariable_basic_nonsensitive,
 			},
 
 			{
@@ -108,7 +108,7 @@ func TestAccTFEVariable_import(t *testing.T) {
 	})
 }
 
-func testAccCheckTFEVariableExists(
+func testAccCheckScalrVariableExists(
 	n string, variable *scalr.Variable) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
@@ -133,7 +133,7 @@ func testAccCheckTFEVariableExists(
 	}
 }
 
-func testAccCheckTFEVariableAttributes(
+func testAccCheckScalrVariableAttributes(
 	variable *scalr.Variable) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if variable.Key != "key_test" {
@@ -160,7 +160,7 @@ func testAccCheckTFEVariableAttributes(
 	}
 }
 
-func testAccCheckTFEVariableAttributesUpdate(
+func testAccCheckScalrVariableAttributesUpdate(
 	variable *scalr.Variable) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if variable.Key != "key_updated" {
@@ -187,7 +187,7 @@ func testAccCheckTFEVariableAttributesUpdate(
 	}
 }
 
-func testAccCheckTFEVariableDestroy(s *terraform.State) error {
+func testAccCheckScalrVariableDestroy(s *terraform.State) error {
 	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
@@ -208,7 +208,7 @@ func testAccCheckTFEVariableDestroy(s *terraform.State) error {
 	return nil
 }
 
-const testAccTFEVariable_basic = `
+const testAccScalrVariable_basic = `
 resource "scalr_variable" "foobar" {
   key          = "key_test"
   value        = "value_test"
@@ -217,7 +217,7 @@ resource "scalr_variable" "foobar" {
   sensitive    = true
 }`
 
-const testAccTFEVariable_basic_nonsensitive = `
+const testAccScalrVariable_basic_nonsensitive = `
 resource "scalr_variable" "foobar" {
   key          = "key_test"
   value        = "value_test"
@@ -226,7 +226,7 @@ resource "scalr_variable" "foobar" {
   sensitive    = false
 }`
 
-const testAccTFEVariable_update = `
+const testAccScalrVariable_update = `
 resource "scalr_variable" "foobar" {
   key          = "key_updated"
   value        = "value_updated"

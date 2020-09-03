@@ -51,26 +51,26 @@ func Provider() terraform.ResourceProvider {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: descriptions["hostname"],
-				DefaultFunc: schema.EnvDefaultFunc("TFE_HOSTNAME", defaultHostname),
+				DefaultFunc: schema.EnvDefaultFunc("SCALR_HOSTNAME", defaultHostname),
 			},
 
 			"token": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: descriptions["token"],
-				DefaultFunc: schema.EnvDefaultFunc("TFE_TOKEN", nil),
+				DefaultFunc: schema.EnvDefaultFunc("SCALR_TOKEN", nil),
 			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"scalr_workspace":     dataSourceTFEWorkspace(),
-			"scalr_workspace_ids": dataSourceTFEWorkspaceIDs(),
-			"scalr_current_run":   dataSourceTFECurrentRun(),
+			"scalr_workspace":     dataSourceScalrWorkspace(),
+			"scalr_workspace_ids": dataSourceScalrWorkspaceIDs(),
+			"scalr_current_run":   dataSourceScalrCurrentRun(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"scalr_workspace": resourceTFEWorkspace(),
-			"scalr_variable":  resourceTFEVariable(),
+			"scalr_workspace": resourceScalrWorkspace(),
+			"scalr_variable":  resourceScalrVariable(),
 		},
 
 		ConfigureFunc: providerConfigure,

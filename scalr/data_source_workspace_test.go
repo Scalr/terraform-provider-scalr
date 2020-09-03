@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccTFEWorkspaceDataSource_basic(t *testing.T) {
+func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
@@ -17,7 +17,7 @@ func TestAccTFEWorkspaceDataSource_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccTFEWorkspaceDataSourceConfig(rInt),
+				Config: testAccScalrWorkspaceDataSourceConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "id"),
 					resource.TestCheckResourceAttr(
@@ -41,7 +41,7 @@ func TestAccTFEWorkspaceDataSource_basic(t *testing.T) {
 	})
 }
 
-func testAccTFEWorkspaceDataSourceConfig(rInt int) string {
+func testAccScalrWorkspaceDataSourceConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource "scalr_workspace" "foobar" {
   name                  = "workspace-test-%d"
