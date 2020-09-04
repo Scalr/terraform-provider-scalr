@@ -1,19 +1,22 @@
 TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 PKG_NAME=scalr
+BUILD_ENV="CGO_ENABLED=0"
 
 default: build
 
 build: fmtcheck
-	go install
+	$(BUILD_ENV) go build
+
+build-linux: fmtcheck
+	env $(BUILD_ENV) GOOS=linux GOARCH=amd64 go build
 
 test: fmtcheck
-	go test -i $(TEST) || exit 1
 	echo $(TEST) | \
-		xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=4
+		$(BUILD_ENV) xargs -t -n4  go test $(TESTARGS) -timeout=30s -parallel=4
 
 testacc: fmtcheck
-	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 15m
+	$(BUILD_ENV) TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 15m
 
 vet:
 	@echo "go vet ."
@@ -40,5 +43,5 @@ test-compile:
 		exit 1; \
 	fi
 	go test -c $(TEST) $(TESTARGS)
-.PHONY: build test testacc vet fmt fmtcheck errcheck test-compile website website-test
+.PHONY: build build-linux test testacc vet fmt fmtcheck errcheck test-compile
 
