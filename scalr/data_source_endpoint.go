@@ -26,12 +26,13 @@ func dataSourceScalrEndpoint() *schema.Resource {
 
 			"http_method": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 
 			"max_attempts": {
 				Type:     schema.TypeInt,
-				Computed: true,
+				Optional: true,
 			},
 
 			"secret_key": {
@@ -50,12 +51,6 @@ func dataSourceScalrEndpoint() *schema.Resource {
 			},
 
 			"environment_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-			},
-
-			"workspace_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
@@ -86,9 +81,6 @@ func dataSourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("http_method", endpoint.HTTPMethod)
 	d.Set("secret_key", endpoint.SecretKey)
 	d.Set("url", endpoint.Url)
-	if endpoint.Workspace != nil {
-		d.Set("workspace_id", endpoint.Workspace.ID)
-	}
 	if endpoint.Environment != nil {
 		d.Set("environment_id", endpoint.Environment.ID)
 	}

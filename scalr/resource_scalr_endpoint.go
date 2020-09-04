@@ -26,12 +26,13 @@ func resourceScalrEndpoint() *schema.Resource {
 
 			"http_method": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 
 			"max_attempts": {
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 
 			"url": {
@@ -46,7 +47,7 @@ func resourceScalrEndpoint() *schema.Resource {
 
 			"timeout": {
 				Type:     schema.TypeInt,
-				Required: true,
+				Optional: true,
 			},
 
 			"environment_id": {
@@ -69,12 +70,11 @@ func resourceScalrEndpointCreate(d *schema.ResourceData, meta interface{}) error
 
 	// Get attributes.
 	name := d.Get("name").(string)
-	httpMethod := d.Get("http_method").(string)
 
 	// Get scope
-	workspaceID := d.Get("workspace_id").(string)
 	environmentID := d.Get("environment_id").(string)
-	workspace, environment, account, err := getResourceScope(scalrClient, workspaceID, environmentID)
+	// we don't create endpoints on workspace scope for now
+	_, environment, account, err := getResourceScope(scalrClient, "", environmentID)
 	if err != nil {
 		return err
 	}
@@ -82,20 +82,24 @@ func resourceScalrEndpointCreate(d *schema.ResourceData, meta interface{}) error
 	// Create a new options struct.
 	options := scalr.EndpointCreateOptions{
 		Name:        scalr.String(name),
-		HTTPMethod:  scalr.String(httpMethod),
-		MaxAttempts: scalr.Int(d.Get("max_attempts").(int)),
 		SecretKey:   scalr.String(d.Get("secret_key").(string)),
-		Timeout:     scalr.Int(d.Get("timeout").(int)),
 		Url:         scalr.String(d.Get("url").(string)),
-		Workspace:   workspace,
 		Environment: environment,
 		Account:     account,
 	}
 
-	log.Printf("[DEBUG] Create %s endpoint: %s", httpMethod, name)
+	if maxAttempts, ok := d.GetOk("max_attempts"); ok {
+		options.MaxAttempts = scalr.Int(maxAttempts.(int))
+	}
+
+	if timeout, ok := d.GetOk("timeout"); ok {
+		options.Timeout = scalr.Int(timeout.(int))
+	}
+
+	log.Printf("[DEBUG] Create endpoint: %s", name)
 	endpoint, err := scalrClient.Endpoints.Create(ctx, options)
 	if err != nil {
-		return fmt.Errorf("Error creating %s endpoint %s: %v", httpMethod, name, err)
+		return fmt.Errorf("Error creating endpoint %s: %v", name, err)
 	}
 
 	d.SetId(endpoint.ID)
@@ -120,7 +124,6 @@ func resourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", endpoint.Name)
 	d.Set("timeout", endpoint.Timeout)
 	d.Set("max_attempts", endpoint.MaxAttempts)
-	d.Set("http_method", endpoint.HTTPMethod)
 	d.Set("secret_key", endpoint.SecretKey)
 	if endpoint.Workspace != nil {
 		d.Set("workspace_id", endpoint.Workspace.ID)
@@ -137,21 +140,18 @@ func resourceScalrEndpointUpdate(d *schema.ResourceData, meta interface{}) error
 	scalrClient := meta.(*scalr.Client)
 
 	// Get scope
-	workspaceID := d.Get("workspace_id").(string)
 	environmentID := d.Get("environment_id").(string)
-	workspace, environment, account, err := getResourceScope(scalrClient, workspaceID, environmentID)
+	_, environment, account, err := getResourceScope(scalrClient, "", environmentID)
 	if err != nil {
 		return err
 	}
 
 	// Create a new options struct.
 	options := scalr.EndpointUpdateOptions{
-		HTTPMethod:  scalr.String(d.Get("http_method").(string)),
 		MaxAttempts: scalr.Int(d.Get("max_attempts").(int)),
 		Url:         scalr.String(d.Get("url").(string)),
 		SecretKey:   scalr.String(d.Get("secret_key").(string)),
 		Timeout:     scalr.Int(d.Get("timeout").(int)),
-		Workspace:   workspace,
 		Environment: environment,
 		Account:     account,
 	}

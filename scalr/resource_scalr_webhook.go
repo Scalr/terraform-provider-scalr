@@ -153,7 +153,7 @@ func resourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error retrieving webhook: %v", err)
 	}
 
-	// // Update the config.
+	// Update the config.
 	d.Set("name", webhook.Name)
 	d.Set("enabled", webhook.Enabled)
 	d.Set("last_triggered_at", webhook.LastTriggeredAt)
@@ -225,7 +225,7 @@ func resourceScalrWebhookDelete(d *schema.ResourceData, meta interface{}) error 
 		if err == scalr.ErrResourceNotFound {
 			return nil
 		}
-		return fmt.Errorf("Error deleting webhook%s: %v", d.Id(), err)
+		return fmt.Errorf("Error deleting webhook %s: %v", d.Id(), err)
 	}
 
 	return nil
