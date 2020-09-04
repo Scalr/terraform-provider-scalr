@@ -16,8 +16,8 @@ Basic usage:
 
 ```hcl
 resource "scalr_workspace" "test" {
-  name         = "my-workspace-name"
-  organization = "my-org"
+  name           = "my-workspace-name"
+  environment_id = "my-env"
 }
 
 resource "scalr_variable" "test" {
@@ -41,7 +41,8 @@ The following arguments are supported:
 * `sensitive` - (Optional) Whether the value is sensitive. If true then the
   variable is written once and not visible thereafter. Defaults to `false`.
 * `workspace_id` - (Required) The workspace that owns the variable, specified as
-  a human-readable ID (`<ORGANIZATION>/<WORKSPACE>`).
+  an ID, which looks like `ws-<RANDOM STRING>`.
+
 
 ## Attributes Reference
 

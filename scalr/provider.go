@@ -40,7 +40,7 @@ type ConfigHost struct {
 	Services map[string]interface{} `hcl:"services"`
 }
 
-// ctx is used as default context.Context when making TFE calls.
+// ctx is used as default context.Context when making Scalr calls.
 var ctx = context.Background()
 
 // Provider returns a terraform.ResourceProvider.
@@ -51,31 +51,30 @@ func Provider() terraform.ResourceProvider {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: descriptions["hostname"],
-				DefaultFunc: schema.EnvDefaultFunc("TFE_HOSTNAME", defaultHostname),
+				DefaultFunc: schema.EnvDefaultFunc("SCALR_HOSTNAME", defaultHostname),
 			},
 
 			"token": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: descriptions["token"],
-				DefaultFunc: schema.EnvDefaultFunc("TFE_TOKEN", nil),
+				DefaultFunc: schema.EnvDefaultFunc("SCALR_TOKEN", nil),
 			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"scalr_workspace":     dataSourceTFEWorkspace(),
+			"scalr_workspace":     dataSourceScalrWorkspace(),
+			"scalr_workspace_ids": dataSourceScalrWorkspaceIDs(),
+			"scalr_current_run":   dataSourceScalrCurrentRun(),
 			"scalr_endpoint":      dataSourceScalrEndpoint(),
 			"scalr_webhook":       dataSourceScalrWebhook(),
-			"scalr_workspace_ids": dataSourceTFEWorkspaceIDs(),
-			"scalr_current_run":   dataSourceTFECurrentRun(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"scalr_workspace": resourceScalrWorkspace(),
+			"scalr_variable":  resourceScalrVariable(),
 			"scalr_endpoint":     resourceScalrEndpoint(),
 			"scalr_webhook":      resourceScalrWebhook(),
-			"scalr_organization": resourceTFEOrganization(),
-			"scalr_workspace":    resourceTFEWorkspace(),
-			"scalr_variable":     resourceTFEVariable(),
 		},
 
 		ConfigureFunc: providerConfigure,
@@ -98,7 +97,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	credsSrc := credentialsSource(config)
 	services := disco.NewWithCredentialsSource(credsSrc)
 	services.SetUserAgent(providerUaString)
-	services.Transport = logging.NewTransport("TFE Discovery", services.Transport)
+	services.Transport = logging.NewTransport("Scalr Service Discovery", services.Transport)
 
 	// Add any static host configurations service discovery object.
 	for userHost, hostConfig := range config.Hosts {
@@ -176,20 +175,19 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 
 	httpClient := scalr.DefaultConfig().HTTPClient
-	httpClient.Transport = logging.NewTransport("TFE", httpClient.Transport)
+	httpClient.Transport = logging.NewTransport("Scalr", httpClient.Transport)
 
-	// Create a new TFE client config
+	// Create a new Scalr client config
 	cfg := &scalr.Config{
 		Address:    address.String(),
 		Token:      token,
 		HTTPClient: httpClient,
 		Headers:    make(http.Header),
 	}
-
 	// Set internal API profile
 	cfg.Headers.Set("Prefer", "profile=internal")
 
-	// Create a new TFE client.
+	// Create a new Scalr client.
 	client, err := scalr.NewClient(cfg)
 	if err != nil {
 		return nil, err
@@ -340,14 +338,14 @@ func checkConstraints(c *disco.Constraints) error {
 		excluding = ""
 	}
 
-	summary := fmt.Sprintf("Incompatible TFE provider version v%s", v.String())
+	summary := fmt.Sprintf("Incompatible Scalr provider version v%s", v.String())
 	details := fmt.Sprintf(
-		"The configured Terraform Enterprise backend is compatible with TFE provider\n"+
+		"The configured Terraform Enterprise backend is compatible with Scalr provider\n"+
 			"versions >= %s, <= %s%s.", c.Minimum, c.Maximum, excluding,
 	)
 
 	if action != "" && toVersion != "" {
-		summary = fmt.Sprintf("Please %s the TFE provider to %s", action, toVersion)
+		summary = fmt.Sprintf("Please %s the Scalr provider to %s", action, toVersion)
 	}
 
 	// Return the customized and informational error message.

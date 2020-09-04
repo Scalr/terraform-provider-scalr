@@ -10,14 +10,23 @@ import (
 	scalr "github.com/scalr/go-scalr"
 )
 
-func resourceTFEVariable() *schema.Resource {
+func resourceScalrVariable() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceTFEVariableCreate,
-		Read:   resourceTFEVariableRead,
-		Update: resourceTFEVariableUpdate,
-		Delete: resourceTFEVariableDelete,
+		Create: resourceScalrVariableCreate,
+		Read:   resourceScalrVariableRead,
+		Update: resourceScalrVariableUpdate,
+		Delete: resourceScalrVariableDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceTFEVariableImporter,
+			State: resourceScalrVariableImporter,
+		},
+
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceScalrVariableResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceScalrVariableStateUpgradeV0,
+				Version: 0,
+			},
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -67,24 +76,19 @@ func resourceTFEVariable() *schema.Resource {
 	}
 }
 
-func resourceTFEVariableCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get key and category.
 	key := d.Get("key").(string)
 	category := d.Get("category").(string)
 
-	// Get organization and workspace.
-	organization, workspace, err := unpackWorkspaceID(d.Get("workspace_id").(string))
-	if err != nil {
-		return fmt.Errorf("Error unpacking workspace ID: %v", err)
-	}
-
 	// Get the workspace.
-	ws, err := scalrClient.Workspaces.Read(ctx, organization, workspace)
+	workspaceID := d.Get("workspace_id").(string)
+	ws, err := scalrClient.Workspaces.ReadByID(ctx, workspaceID)
 	if err != nil {
 		return fmt.Errorf(
-			"Error retrieving workspace %s from organization %s: %v", workspace, organization, err)
+			"Error retrieving workspace %s: %v", workspaceID, err)
 	}
 
 	// Create a new options struct.
@@ -105,10 +109,10 @@ func resourceTFEVariableCreate(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(variable.ID)
 
-	return resourceTFEVariableRead(d, meta)
+	return resourceScalrVariableRead(d, meta)
 }
 
-func resourceTFEVariableRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Read variable: %s", d.Id())
@@ -136,7 +140,7 @@ func resourceTFEVariableRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceTFEVariableUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrVariableUpdate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	// Create a new options struct.
@@ -153,10 +157,10 @@ func resourceTFEVariableUpdate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error updating variable %s: %v", d.Id(), err)
 	}
 
-	return resourceTFEVariableRead(d, meta)
+	return resourceScalrVariableRead(d, meta)
 }
 
-func resourceTFEVariableDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrVariableDelete(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Delete variable: %s", d.Id())
@@ -171,7 +175,8 @@ func resourceTFEVariableDelete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceTFEVariableImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceScalrVariableImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	scalrClient := meta.(*scalr.Client)
 	s := strings.SplitN(d.Id(), "/", 3)
 	if len(s) != 3 {
 		return nil, fmt.Errorf(
@@ -181,7 +186,12 @@ func resourceTFEVariableImporter(d *schema.ResourceData, meta interface{}) ([]*s
 	}
 
 	// Set the fields that are part of the import ID.
-	d.Set("workspace_id", s[0]+"/"+s[1])
+	workspaceID, err := fetchWorkspaceID(s[0]+"/"+s[1], scalrClient)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"error retrieving workspace %s from environment %s: %v", s[1], s[0], err)
+	}
+	d.Set("workspace_id", workspaceID)
 	d.SetId(s[2])
 
 	return []*schema.ResourceData{d}, nil
