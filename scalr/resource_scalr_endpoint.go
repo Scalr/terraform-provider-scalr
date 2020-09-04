@@ -55,12 +55,6 @@ func resourceScalrEndpoint() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-
-			"workspace_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
 		},
 	}
 }
@@ -125,9 +119,6 @@ func resourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("timeout", endpoint.Timeout)
 	d.Set("max_attempts", endpoint.MaxAttempts)
 	d.Set("secret_key", endpoint.SecretKey)
-	if endpoint.Workspace != nil {
-		d.Set("workspace_id", endpoint.Workspace.ID)
-	}
 	if endpoint.Environment != nil {
 		d.Set("environment_id", endpoint.Environment.ID)
 	}
@@ -148,12 +139,19 @@ func resourceScalrEndpointUpdate(d *schema.ResourceData, meta interface{}) error
 
 	// Create a new options struct.
 	options := scalr.EndpointUpdateOptions{
-		MaxAttempts: scalr.Int(d.Get("max_attempts").(int)),
+		Name:        scalr.String(d.Get("name").(string)),
 		Url:         scalr.String(d.Get("url").(string)),
 		SecretKey:   scalr.String(d.Get("secret_key").(string)),
-		Timeout:     scalr.Int(d.Get("timeout").(int)),
 		Environment: environment,
 		Account:     account,
+	}
+
+	if maxAttempts, ok := d.GetOk("max_attempts"); ok {
+		options.MaxAttempts = scalr.Int(maxAttempts.(int))
+	}
+
+	if timeout, ok := d.GetOk("timeout"); ok {
+		options.Timeout = scalr.Int(timeout.(int))
 	}
 
 	log.Printf("[DEBUG] Update endpoint: %s", d.Id())
