@@ -125,7 +125,6 @@ func resourceScalrWorkspaceStateUpgradeV0(rawState map[string]interface{}, meta 
 	return rawState, nil
 }
 
-
 func resourceScalrWorkspaceResourceV1() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{

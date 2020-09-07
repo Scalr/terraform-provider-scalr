@@ -131,7 +131,7 @@ func resourceScalrWorkspace() *schema.Resource {
 func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
-	// Get the name, environment_id and vcs-provider is.
+	// Get the name, environment_id and vcs_provider_id.
 	name := d.Get("name").(string)
 	environmentID := d.Get("environment_id").(string)
 
@@ -163,8 +163,8 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		vcsRepo := v.([]interface{})[0].(map[string]interface{})
 
 		options.VCSRepo = &scalr.VCSRepoOptions{
-			Identifier:   scalr.String(vcsRepo["identifier"].(string)),
-			Path:         scalr.String(vcsRepo["path"].(string)),
+			Identifier: scalr.String(vcsRepo["identifier"].(string)),
+			Path:       scalr.String(vcsRepo["path"].(string)),
 		}
 
 		// Only set the branch if one is configured.
@@ -220,8 +220,8 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	var vcsRepo []interface{}
 	if workspace.VCSRepo != nil {
 		vcsConfig := map[string]interface{}{
-			"identifier":     workspace.VCSRepo.Identifier,
-			"path":           workspace.VCSRepo.Path,
+			"identifier": workspace.VCSRepo.Identifier,
+			"path":       workspace.VCSRepo.Path,
 		}
 
 		// Get and assert the VCS repo configuration block.
@@ -277,9 +277,9 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 			vcsRepo := v.([]interface{})[0].(map[string]interface{})
 
 			options.VCSRepo = &scalr.VCSRepoOptions{
-				Identifier:   scalr.String(vcsRepo["identifier"].(string)),
-				Branch:       scalr.String(vcsRepo["branch"].(string)),
-				Path:         scalr.String(vcsRepo["path"].(string)),
+				Identifier: scalr.String(vcsRepo["identifier"].(string)),
+				Branch:     scalr.String(vcsRepo["branch"].(string)),
+				Path:       scalr.String(vcsRepo["path"].(string)),
 			}
 		}
 

@@ -33,10 +33,10 @@ func TestResourceScalrWorkspaceStateUpgradeV0(t *testing.T) {
 
 func testResourceScalrWorkspaceStateDataV1VcsRepo() map[string]interface{} {
 	return map[string]interface{}{
-		"id":          "my-org/test",
-		"vcs_repo":    map[string]interface{}{
+		"id": "my-org/test",
+		"vcs_repo": map[string]interface{}{
 			"oauth_token_id": "test_provider_id",
-			"identifier": "test_identifier",
+			"identifier":     "test_identifier",
 		},
 	}
 }
@@ -45,8 +45,8 @@ func testResourceScalrWorkspaceStateDataV2() map[string]interface{} {
 	v1 := testResourceScalrWorkspaceStateDataV1VcsRepo()
 	vcsRepo := v1["vcs_repo"].(map[string]interface{})
 	return map[string]interface{}{
-		"id":          v1["id"],
-		"vcs_repo":    map[string]interface{}{
+		"id": v1["id"],
+		"vcs_repo": map[string]interface{}{
 			"identifier": vcsRepo["identifier"],
 		},
 		"vcs_provider_id": vcsRepo["oauth_token_id"],
@@ -56,7 +56,7 @@ func testResourceScalrWorkspaceStateDataV2() map[string]interface{} {
 func testResourceScalrWorkspaceStateDataV2NoVcs() map[string]interface{} {
 	v1 := testResourceScalrWorkspaceStateDataV1()
 	return map[string]interface{}{
-		"id":          v1["id"],
+		"id": v1["id"],
 	}
 }
 
