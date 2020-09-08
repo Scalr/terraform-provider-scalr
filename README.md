@@ -1,5 +1,5 @@
 # Terraform provider for Scalr
-The Scalr Terraform provider can be used to manage the components within they Scalr IaCP. 
+The Scalr Terraform provider can be used to manage the components within the Scalr IaCP. 
 This will allow you to automate the creation of workspaces, variables, VCS providers and much more.
 
 ## Using the provider
