@@ -59,6 +59,7 @@ func resourceScalrWebhook() *schema.Resource {
 	}
 }
 
+//remove after https://scalr-labs.atlassian.net/browse/SCALRCORE-16234
 func getResourceScope(scalrClient *scalr.Client, workspaceID string, environmentID string) (*scalr.Workspace, *scalr.Environment, *scalr.Account, error) {
 
 	// Resource scope
@@ -96,6 +97,20 @@ func getResourceScope(scalrClient *scalr.Client, workspaceID string, environment
 	return workspace, environment, account, nil
 }
 
+//remove after https://scalr-labs.atlassian.net/browse/SCALRCORE-16234
+func validateEventDefinitions(eventName interface{}) error {
+	switch eventName {
+	case
+		"run:completed",
+		"run:errored",
+		"run:needs_attention":
+		return nil
+	}
+	return fmt.Errorf(
+		"Invalid value for events '%s'. Allowed values: 'run:completed', 'run:errored', 'run:needs_attention'",
+		eventName)
+}
+
 func resourceScalrWebhookCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
@@ -113,6 +128,9 @@ func resourceScalrWebhookCreate(d *schema.ResourceData, meta interface{}) error 
 	events := d.Get("events").([]interface{})
 	var eventDefinitions []*scalr.EventDefinition
 	for _, eventID := range events {
+		if err := validateEventDefinitions(eventID); err != nil {
+			return err
+		}
 		eventDefinitions = append(eventDefinitions, &scalr.EventDefinition{ID: eventID.(string)})
 	}
 
@@ -193,6 +211,9 @@ func resourceScalrWebhookUpdate(d *schema.ResourceData, meta interface{}) error 
 	events := d.Get("events").([]interface{})
 	var eventDefinitions []*scalr.EventDefinition
 	for _, eventID := range events {
+		if err := validateEventDefinitions(eventID); err != nil {
+			return err
+		}
 		eventDefinitions = append(eventDefinitions, &scalr.EventDefinition{ID: eventID.(string)})
 	}
 
