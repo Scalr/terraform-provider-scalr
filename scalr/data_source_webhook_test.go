@@ -26,7 +26,7 @@ func TestAccWebhookDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(
 						"data.scalr_webhook.test-wh", "endpoint_id"),
 					resource.TestCheckResourceAttr(
-						"data.scalr_webhook.test-wh", "workspace_id", "existing_ws"),
+						"data.scalr_webhook.test-wh", "workspace_id", "existing-ws"),
 				),
 			},
 		},
@@ -50,7 +50,7 @@ resource "scalr_webhook" "test-wh" {
   name                  = "webhook-test-%d"
   events                = ["run:completed", "run:errored"]
   endpoint_id           = "${scalr_endpoint.test-ep.id}"
-  workspace_id          = "existing_ws"
+  workspace_id          = "existing-ws"
 }
 
 data "scalr_webhook" "test-wh" {
