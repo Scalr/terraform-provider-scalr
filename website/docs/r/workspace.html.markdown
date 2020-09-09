@@ -16,8 +16,14 @@ Basic usage:
 
 ```hcl
 resource "scalr_workspace" "test" {
-  name           = "my-workspace-name"
-  environment_id = "my-env"
+  name            = "my-workspace-name"
+  environment_id  = "my-env"
+  vcs_provider_id = "my_vcs_provider"
+  vcs_repo {
+      identifier          = "org/repo"
+      branch              = "dev"
+      ingress_submodules  = true
+  }
 }
 ```
 
@@ -38,6 +44,7 @@ The following arguments are supported:
 * `terraform_version` - (Optional) The version of Terraform to use for this workspace. Defaults to the latest available version.
 * `working_directory` - (Optional) A relative path that Terraform will execute
   within.  Defaults to the root of your repository.
+* `vcs_provider_id` - (Optional) ID of vcs provider - required if vcs-repo present and vice versa
 * `vcs_repo` - (Optional) Settings for the workspace's VCS repository.
 
 The `vcs_repo` block supports:
@@ -47,8 +54,6 @@ The `vcs_repo` block supports:
   in your VCS provider.
 * `branch` - (Optional) The repository branch that Terraform will execute from.
   Default to `master`.
-* `oauth_token_id` - (Required) Token ID of the VCS Connection (OAuth Conection Token)
-  to use.
 
 ## Attributes Reference
 

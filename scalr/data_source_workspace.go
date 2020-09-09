@@ -23,6 +23,11 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Required: true,
 			},
 
+			"vcs_provider_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"auto_apply": {
 				Type:     schema.TypeBool,
 				Computed: true,
@@ -35,11 +40,6 @@ func dataSourceScalrWorkspace() *schema.Resource {
 
 			"queue_all_runs": {
 				Type:     schema.TypeBool,
-				Computed: true,
-			},
-
-			"ssh_key_id": {
-				Type:     schema.TypeString,
 				Computed: true,
 			},
 
@@ -59,11 +59,6 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"identifier": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-
-						"oauth_token_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -121,6 +116,7 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("queue_all_runs", workspace.QueueAllRuns)
 	d.Set("terraform_version", workspace.TerraformVersion)
 	d.Set("working_directory", workspace.WorkingDirectory)
+	d.Set("vcs_provider_id", workspace.VcsProvider.ID)
 
 	var createdBy []interface{}
 	if workspace.CreatedBy != nil {
@@ -135,9 +131,8 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 	var vcsRepo []interface{}
 	if workspace.VCSRepo != nil {
 		vcsConfig := map[string]interface{}{
-			"identifier":     workspace.VCSRepo.Identifier,
-			"oauth_token_id": workspace.VCSRepo.OAuthTokenID,
-			"path":           workspace.VCSRepo.Path,
+			"identifier": workspace.VCSRepo.Identifier,
+			"path":       workspace.VCSRepo.Path,
 		}
 		vcsRepo = append(vcsRepo, vcsConfig)
 	}
