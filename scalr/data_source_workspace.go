@@ -8,9 +8,9 @@ import (
 	scalr "github.com/scalr/go-scalr"
 )
 
-func dataSourceTFEWorkspace() *schema.Resource {
+func dataSourceScalrWorkspace() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceTFEWorkspaceRead,
+		Read: dataSourceScalrWorkspaceRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -21,6 +21,11 @@ func dataSourceTFEWorkspace() *schema.Resource {
 			"environment_id": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+
+			"vcs_provider_id": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"auto_apply": {
@@ -35,11 +40,6 @@ func dataSourceTFEWorkspace() *schema.Resource {
 
 			"queue_all_runs": {
 				Type:     schema.TypeBool,
-				Computed: true,
-			},
-
-			"ssh_key_id": {
-				Type:     schema.TypeString,
 				Computed: true,
 			},
 
@@ -59,11 +59,6 @@ func dataSourceTFEWorkspace() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"identifier": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-
-						"oauth_token_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -99,7 +94,7 @@ func dataSourceTFEWorkspace() *schema.Resource {
 	}
 }
 
-func dataSourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get the name and environment_id.
@@ -122,6 +117,10 @@ func dataSourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("terraform_version", workspace.TerraformVersion)
 	d.Set("working_directory", workspace.WorkingDirectory)
 
+	if workspace.VcsProvider != nil {
+		d.Set("vcs_provider_id", workspace.VcsProvider.ID)
+	}
+
 	var createdBy []interface{}
 	if workspace.CreatedBy != nil {
 		createdBy = append(createdBy, map[string]interface{}{
@@ -135,9 +134,8 @@ func dataSourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	var vcsRepo []interface{}
 	if workspace.VCSRepo != nil {
 		vcsConfig := map[string]interface{}{
-			"identifier":     workspace.VCSRepo.Identifier,
-			"oauth_token_id": workspace.VCSRepo.OAuthTokenID,
-			"path":           workspace.VCSRepo.Path,
+			"identifier": workspace.VCSRepo.Identifier,
+			"path":       workspace.VCSRepo.Path,
 		}
 		vcsRepo = append(vcsRepo, vcsConfig)
 	}

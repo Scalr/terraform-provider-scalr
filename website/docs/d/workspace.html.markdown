@@ -25,6 +25,7 @@ The following arguments are supported:
 
 * `name` - (Required) Name of the workspace.
 * `environment_id` - (Required) ID of the environment.
+* `vcs_provider_id` - (Optional) ID of vcs provider.
 
 ## Attributes Reference
 
@@ -37,12 +38,11 @@ In addition to all arguments above, the following attributes are exported:
 * `operations` - Indicates whether the workspace is using remote execution mode.
 * `queue_all_runs` - Indicates whether all runs should be queued.
 * `terraform_version` - The version of Terraform used for this workspace.
-* `vcs_repo` - Settings for the workspace's VCS repository.
 * `working_directory` - A relative path that Terraform will execute within.
+* `vcs_repo` - Settings for the workspace's VCS repository.
 
 The `vcs_repo` block contains:
 
 * `identifier` - A reference to your VCS repository in the format `:org/:repo`
   where `:org` and `:repo` refer to the organization and repository in your VCS
   provider.
-* `oauth_token_id` - OAuth token ID of the configured VCS connection.

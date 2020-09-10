@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccTFEWorkspaceIDsDataSource_basic(t *testing.T) {
+func TestAccScalrWorkspaceIDsDataSource_basic(t *testing.T) {
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
@@ -17,7 +17,7 @@ func TestAccTFEWorkspaceIDsDataSource_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccTFEWorkspaceIDsDataSourceConfig_basic(rInt),
+				Config: testAccScalrWorkspaceIDsDataSourceConfig_basic(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace_ids.foobar", "names.#", "2"),
@@ -40,7 +40,7 @@ func TestAccTFEWorkspaceIDsDataSource_basic(t *testing.T) {
 	})
 }
 
-func TestAccTFEWorkspaceIDsDataSource_wildcard(t *testing.T) {
+func TestAccScalrWorkspaceIDsDataSource_wildcard(t *testing.T) {
 	t.Skip("Wildcard test is not passing for unknown reasons. Using the wildcard symbol produces no workspaces")
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
@@ -49,7 +49,7 @@ func TestAccTFEWorkspaceIDsDataSource_wildcard(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccTFEWorkspaceIDsDataSourceConfig_wildcard(rInt),
+				Config: testAccScalrWorkspaceIDsDataSourceConfig_wildcard(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace_ids.foobar", "names.#", "1"),
@@ -72,7 +72,7 @@ func TestAccTFEWorkspaceIDsDataSource_wildcard(t *testing.T) {
 	})
 }
 
-func testAccTFEWorkspaceIDsDataSourceConfig_basic(rInt int) string {
+func testAccScalrWorkspaceIDsDataSourceConfig_basic(rInt int) string {
 	return fmt.Sprintf(`
 resource "scalr_workspace" "foo" {
   name           = "workspace-foo-%d"
@@ -95,7 +95,7 @@ data "scalr_workspace_ids" "foobar" {
 }`, rInt, rInt, rInt)
 }
 
-func testAccTFEWorkspaceIDsDataSourceConfig_wildcard(rInt int) string {
+func testAccScalrWorkspaceIDsDataSourceConfig_wildcard(rInt int) string {
 	return fmt.Sprintf(`
 resource "scalr_workspace" "foo" {
   name           = "workspace-foo-%d"
