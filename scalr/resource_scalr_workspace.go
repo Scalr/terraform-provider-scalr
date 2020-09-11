@@ -18,12 +18,17 @@ func resourceScalrWorkspace() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
-		SchemaVersion: 1,
+		SchemaVersion: 2,
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceScalrWorkspaceResourceV0().CoreConfigSchema().ImpliedType(),
 				Upgrade: resourceScalrWorkspaceStateUpgradeV0,
 				Version: 0,
+			},
+			{
+				Type:    resourceScalrWorkspaceResourceV1().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceScalrWorkspaceStateUpgradeV1,
+				Version: 1,
 			},
 		},
 
@@ -37,6 +42,11 @@ func resourceScalrWorkspace() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+			},
+
+			"vcs_provider_id": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"auto_apply": {
@@ -86,10 +96,6 @@ func resourceScalrWorkspace() *schema.Resource {
 							Optional: true,
 						},
 
-						"oauth_token_id": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
 						"path": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -125,7 +131,7 @@ func resourceScalrWorkspace() *schema.Resource {
 func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
-	// Get the name and environment_id.
+	// Get the name, environment_id and vcs_provider_id.
 	name := d.Get("name").(string)
 	environmentID := d.Get("environment_id").(string)
 
@@ -146,14 +152,19 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		options.WorkingDirectory = scalr.String(workingDir.(string))
 	}
 
+	if vcsProviderId, ok := d.GetOk("vcs_provider_id"); ok {
+		options.VcsProvider = &scalr.VcsProviderOptions{
+			ID: vcsProviderId.(string),
+		}
+	}
+
 	// Get and assert the VCS repo configuration block.
 	if v, ok := d.GetOk("vcs_repo"); ok {
 		vcsRepo := v.([]interface{})[0].(map[string]interface{})
 
 		options.VCSRepo = &scalr.VCSRepoOptions{
-			Identifier:   scalr.String(vcsRepo["identifier"].(string)),
-			OAuthTokenID: scalr.String(vcsRepo["oauth_token_id"].(string)),
-			Path:         scalr.String(vcsRepo["path"].(string)),
+			Identifier: scalr.String(vcsRepo["identifier"].(string)),
+			Path:       scalr.String(vcsRepo["path"].(string)),
 		}
 
 		// Only set the branch if one is configured.
@@ -195,6 +206,10 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("working_directory", workspace.WorkingDirectory)
 	d.Set("environment_id", workspace.Organization.Name)
 
+	if workspace.VcsProvider != nil {
+		d.Set("vcs_provider_id", workspace.VcsProvider.ID)
+	}
+
 	var createdBy []interface{}
 	if workspace.CreatedBy != nil {
 		createdBy = append(createdBy, map[string]interface{}{
@@ -208,9 +223,8 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	var vcsRepo []interface{}
 	if workspace.VCSRepo != nil {
 		vcsConfig := map[string]interface{}{
-			"identifier":     workspace.VCSRepo.Identifier,
-			"oauth_token_id": workspace.VCSRepo.OAuthTokenID,
-			"path":           workspace.VCSRepo.Path,
+			"identifier": workspace.VCSRepo.Identifier,
+			"path":       workspace.VCSRepo.Path,
 		}
 
 		// Get and assert the VCS repo configuration block.
@@ -237,7 +251,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("name") || d.HasChange("auto_apply") || d.HasChange("queue_all_runs") ||
 		d.HasChange("terraform_version") || d.HasChange("working_directory") || d.HasChange("vcs_repo") ||
-		d.HasChange("operations") {
+		d.HasChange("operations") || d.HasChange("vcs_provider_id") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
 			Name:         scalr.String(d.Get("name").(string)),
@@ -255,15 +269,20 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 			options.WorkingDirectory = scalr.String(workingDir.(string))
 		}
 
+		if vcsProviderId, ok := d.GetOk("vcs_provider_id"); ok {
+			options.VcsProvider = &scalr.VcsProviderOptions{
+				ID: vcsProviderId.(string),
+			}
+		}
+
 		// Get and assert the VCS repo configuration block.
 		if v, ok := d.GetOk("vcs_repo"); ok {
 			vcsRepo := v.([]interface{})[0].(map[string]interface{})
 
 			options.VCSRepo = &scalr.VCSRepoOptions{
-				Identifier:   scalr.String(vcsRepo["identifier"].(string)),
-				Branch:       scalr.String(vcsRepo["branch"].(string)),
-				OAuthTokenID: scalr.String(vcsRepo["oauth_token_id"].(string)),
-				Path:         scalr.String(vcsRepo["path"].(string)),
+				Identifier: scalr.String(vcsRepo["identifier"].(string)),
+				Branch:     scalr.String(vcsRepo["branch"].(string)),
+				Path:       scalr.String(vcsRepo["path"].(string)),
 			}
 		}
 
