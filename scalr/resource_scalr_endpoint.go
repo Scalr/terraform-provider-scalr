@@ -131,20 +131,12 @@ func resourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error {
 func resourceScalrEndpointUpdate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
-	// Get scope
-	environmentID := d.Get("environment_id").(string)
-	_, environment, account, err := getResourceScope(scalrClient, "", environmentID)
-	if err != nil {
-		return err
-	}
-
+	var err error
 	// Create a new options struct.
 	options := scalr.EndpointUpdateOptions{
 		Name:        scalr.String(d.Get("name").(string)),
 		Url:         scalr.String(d.Get("url").(string)),
 		SecretKey:   scalr.String(d.Get("secret_key").(string)),
-		Environment: environment,
-		Account:     account,
 	}
 
 	if maxAttempts, ok := d.GetOk("max_attempts"); ok {

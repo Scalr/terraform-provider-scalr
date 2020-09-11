@@ -200,18 +200,11 @@ func resourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error {
 func resourceScalrWebhookUpdate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
-	// Get scope.
-	workspaceID := d.Get("workspace_id").(string)
-	environmentID := d.Get("environment_id").(string)
-	workspace, environment, account, err := getResourceScope(scalrClient, workspaceID, environmentID)
-	if err != nil {
-		return err
-	}
-
+	var err error
 	events := d.Get("events").([]interface{})
 	var eventDefinitions []*scalr.EventDefinition
 	for _, eventID := range events {
-		if err := validateEventDefinitions(eventID); err != nil {
+		if err = validateEventDefinitions(eventID); err != nil {
 			return err
 		}
 		eventDefinitions = append(eventDefinitions, &scalr.EventDefinition{ID: eventID.(string)})
@@ -223,9 +216,6 @@ func resourceScalrWebhookUpdate(d *schema.ResourceData, meta interface{}) error 
 		Enabled:     scalr.Bool(d.Get("enabled").(bool)),
 		Events:      eventDefinitions,
 		Endpoint:    &scalr.Endpoint{ID: d.Get("endpoint_id").(string)},
-		Workspace:   workspace,
-		Environment: environment,
-		Account:     account,
 	}
 
 	log.Printf("[DEBUG] Update webhook: %s", d.Id())
