@@ -134,9 +134,9 @@ func resourceScalrEndpointUpdate(d *schema.ResourceData, meta interface{}) error
 	var err error
 	// Create a new options struct.
 	options := scalr.EndpointUpdateOptions{
-		Name:        scalr.String(d.Get("name").(string)),
-		Url:         scalr.String(d.Get("url").(string)),
-		SecretKey:   scalr.String(d.Get("secret_key").(string)),
+		Name:      scalr.String(d.Get("name").(string)),
+		Url:       scalr.String(d.Get("url").(string)),
+		SecretKey: scalr.String(d.Get("secret_key").(string)),
 	}
 
 	if maxAttempts, ok := d.GetOk("max_attempts"); ok {

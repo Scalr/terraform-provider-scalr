@@ -212,10 +212,10 @@ func resourceScalrWebhookUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	// Create a new options struct.
 	options := scalr.WebhookUpdateOptions{
-		Name:        scalr.String(d.Get("name").(string)),
-		Enabled:     scalr.Bool(d.Get("enabled").(bool)),
-		Events:      eventDefinitions,
-		Endpoint:    &scalr.Endpoint{ID: d.Get("endpoint_id").(string)},
+		Name:     scalr.String(d.Get("name").(string)),
+		Enabled:  scalr.Bool(d.Get("enabled").(bool)),
+		Events:   eventDefinitions,
+		Endpoint: &scalr.Endpoint{ID: d.Get("endpoint_id").(string)},
 	}
 
 	log.Printf("[DEBUG] Update webhook: %s", d.Id())
