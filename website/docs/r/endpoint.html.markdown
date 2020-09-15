@@ -16,11 +16,11 @@ Basic usage:
 
 ```hcl
 resource "scalr_endpoint" "test" {
-  name         = "my-endpoint-name"
-  secret_key   = "my-secret-key" 
-  timeout      = 15               
-  max_attempts = 3                
-  url          = "https://my-endpoint.url"
+  name           = "my-endpoint-name"
+  secret_key     = "my-secret-key"
+  timeout        = 15
+  max_attempts   = 3
+  url            = "https://my-endpoint.url"
   environment_id = "environment-ID"
 }
 ```

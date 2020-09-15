@@ -16,12 +16,12 @@ Basic usage:
 
 ```hcl
 resource "scalr_webhook" "test" {
-  name                  = "my-webhook-name"
-  enabled               = true
-  endpoint_id           = "my-endpoint-id"
-  events                = ["run:completed", "run:errored"]
-  workspace_id          = "my-workspace-ID"
-  environment_id        = "my-environment-ID"
+  name           = "my-webhook-name"
+  enabled        = true
+  endpoint_id    = "my-endpoint-id"
+  events         = ["run:completed", "run:errored"]
+  workspace_id   = "my-workspace-ID"
+  environment_id = "my-environment-ID"
 }
 ```
 

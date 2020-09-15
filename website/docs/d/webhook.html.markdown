@@ -14,7 +14,7 @@ Use this data source to get information about a webhook.
 
 ```hcl
 data "scalr_webhook" "test" {
-  id           = "my-webhook-ID"
+  id = "my-webhook-ID"
 }
 ```
 
