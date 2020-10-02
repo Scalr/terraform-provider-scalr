@@ -132,21 +132,14 @@ func dataSourceScalrCurrentRunRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("environment_id", workspace.Organization.Name)
 
 	if workspace.VCSRepo != nil {
-		log.Printf("[DEBUG] Read ingress attributes of run: %s", runID)
-		ingressAttributes, err := scalrClient.ConfigurationVersions.ReadIngressAttributes(ctx, run.ConfigurationVersion.ID)
-		if err != nil {
-			if err == scalr.ErrResourceNotFound {
-				return fmt.Errorf("Could not find configuration version %s", run.ConfigurationVersion.ID)
-			}
-			return fmt.Errorf("Error retrieving ingress attributes: %v", err)
-		}
+		log.Printf("[DEBUG] Read vcs revision attributes of run: %s", runID)
 
 		var commitConfig []map[string]interface{}
 		commit := map[string]interface{}{
-			"sha":     ingressAttributes.CommitSha,
-			"message": ingressAttributes.CommitMessage,
+			"sha":     run.VcsRevision.CommitSha,
+			"message": run.VcsRevision.CommitMessage,
 			"author": map[string]interface{}{
-				"username": ingressAttributes.SenderUsername,
+				"username": run.VcsRevision.SenderUsername,
 			},
 		}
 
