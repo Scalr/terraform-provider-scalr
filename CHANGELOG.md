@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `data.scalr_current_run` requires scalr server >= `8.0.1-beta.CURRENT_RELEASE_VERSION`
+
+
 ## [1.0.0-rc7] - 2020-10-01
 
 ### Added

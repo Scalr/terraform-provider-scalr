@@ -133,22 +133,24 @@ func dataSourceScalrCurrentRunRead(d *schema.ResourceData, meta interface{}) err
 
 	if workspace.VCSRepo != nil {
 		log.Printf("[DEBUG] Read vcs revision attributes of run: %s", runID)
-
-		var commitConfig []map[string]interface{}
-		commit := map[string]interface{}{
-			"sha":     run.VcsRevision.CommitSha,
-			"message": run.VcsRevision.CommitMessage,
-			"author": map[string]interface{}{
-				"username": run.VcsRevision.SenderUsername,
-			},
-		}
-
 		var vcsConfig []map[string]interface{}
 		vcs := map[string]interface{}{
 			"repository_id": workspace.VCSRepo.Identifier,
 			"branch":        workspace.VCSRepo.Branch,
-			"commit":        append(commitConfig, commit),
 		}
+
+		if run.VcsRevision != nil {
+			var commitConfig []map[string]interface{}
+			commit := map[string]interface{}{
+				"sha":     run.VcsRevision.CommitSha,
+				"message": run.VcsRevision.CommitMessage,
+				"author": map[string]interface{}{
+					"username": run.VcsRevision.SenderUsername,
+				},
+			}
+			vcs["commit"] = append(commitConfig, commit)
+		}
+
 		d.Set("vcs", append(vcsConfig, vcs))
 	}
 
