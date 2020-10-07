@@ -10,5 +10,5 @@ func main() {
 	plugin.Serve(&plugin.ServeOpts{
 		ProviderFunc: scalr.Provider})
 	greeting := "Bob"
-	fmt.Printf("Hello, %s", greeting)
+	fmt.Printf("Hello, %d", greeting)
 }
