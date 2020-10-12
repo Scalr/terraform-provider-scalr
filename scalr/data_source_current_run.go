@@ -137,6 +137,7 @@ func dataSourceScalrCurrentRunRead(d *schema.ResourceData, meta interface{}) err
 		vcs := map[string]interface{}{
 			"repository_id": workspace.VCSRepo.Identifier,
 			"branch":        workspace.VCSRepo.Branch,
+			"commit":        []map[string]interface{}{},
 		}
 
 		if run.VcsRevision != nil {
