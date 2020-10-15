@@ -6,9 +6,9 @@ description: |-
   Get information on a webhook.
 ---
 
-# Data Source: scalr_webhook
+# scalr_webhook
 
-Use this data source to get information about a webhook.
+This data source is used to retrieve details of a webhook.
 
 ## Example Usage
 
@@ -18,21 +18,21 @@ data "scalr_webhook" "test" {
 }
 ```
 
-## Argument Reference
+## Arguments
 
 The following arguments are supported:
 
 * `id` - (Required) Webhook ID.
 
-## Attributes Reference
+## Attributes
 
-In addition to all arguments above, the following attributes are exported:
+All arguments plus:
 
-* `id` - The webhook's ID, which looks like `wh-<RANDOM STRING>`.
+* `id` - The webhook ID, in the format `wh-<RANDOM STRING>`.
 * `name` - Name of the webhook.
 * `enabled` - Whether webhook is enabled. 
 * `endpoint_id` - ID of the endpoint.
-* `workspace_id` - ID of the workspace.
+* `workspace_id` - ID of the workspace if applicable.
 * `environment_id` - ID of the environment.
 * `events` - List of event IDs.
-* `last_triggered_at` - Datetime when webhook was triggered last time.
+* `last_triggered_at` - Date/time when webhook was triggered last time.

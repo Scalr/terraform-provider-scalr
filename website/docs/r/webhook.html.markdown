@@ -8,7 +8,7 @@ description: |-
 
 # scalr_webhook
 
-Provides a webhook resource.
+Manage the state of webhooks in Scalr. Creates, updates and destroy.
 
 ## Example Usage
 
@@ -36,9 +36,9 @@ The following arguments are supported:
 * `environment_id` - (Required if workspace ID is empty) ID of the environment.
 * `events` - (Required) List of event IDs.
 
-## Attributes Reference
+## Attributes
 
-In addition to all arguments above, the following attributes are exported:
+All arguments plus:
 
 * `id` - The webhook's ID, which looks like `wh-<RANDOM STRING>`.
-* `last_triggered_at` - Datetime when webhook was triggered last time.
+* `last_triggered_at` - Date/time when webhook was triggered last time.

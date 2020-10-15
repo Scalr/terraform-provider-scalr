@@ -6,9 +6,9 @@ description: |-
   Get information on workspace IDs.
 ---
 
-# Data Source: scalr_workspace_ids
+# scalr_workspace_ids
 
-Use this data source to get a map of workspace IDs.
+Obtain a map of workspace IDs based on the names provided. Wildcards are accepted.
 
 ## Example Usage
 
@@ -24,7 +24,7 @@ data "scalr_workspace_ids" "all" {
 }
 ```
 
-## Argument Reference
+## Arguments
 
 The following arguments are supported:
 
@@ -35,9 +35,9 @@ The following arguments are supported:
     asterisk, like `["*"]`. No other use of wildcards is supported.
 * `environment_id` - (Required) ID of the environment.
 
-## Attributes Reference
+## Attributes
 
-In addition to all arguments above, the following attributes are exported:
+All arguments plus:
 
 * `ids` - A map of workspace names and their opaque IDs, which
   look like `ws-<RANDOM STRING>`.
