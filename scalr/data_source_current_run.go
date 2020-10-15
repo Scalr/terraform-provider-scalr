@@ -141,15 +141,15 @@ func dataSourceScalrCurrentRunRead(d *schema.ResourceData, meta interface{}) err
 		}
 
 		if run.VcsRevision != nil {
-			var commitConfig []map[string]interface{}
-			commit := map[string]interface{}{
-				"sha":     run.VcsRevision.CommitSha,
-				"message": run.VcsRevision.CommitMessage,
-				"author": map[string]interface{}{
-					"username": run.VcsRevision.SenderUsername,
+			vcs["commit"] = []map[string]interface{}{
+				{
+					"sha":     run.VcsRevision.CommitSha,
+					"message": run.VcsRevision.CommitMessage,
+					"author": map[string]interface{}{
+						"username": run.VcsRevision.SenderUsername,
+					},
 				},
 			}
-			vcs["commit"] = append(commitConfig, commit)
 		}
 
 		d.Set("vcs", append(vcsConfig, vcs))
