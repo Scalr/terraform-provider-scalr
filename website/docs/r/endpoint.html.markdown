@@ -34,7 +34,7 @@ The following arguments are supported:
 * `url` - (Required) Endpoint URL. 
 * `max_attempts` - (Optional) Max delivery attempts. 
 * `timeout` - (Optional) Endpoint timeout (in sec). 
-* `environment_id` - (Required if workspace ID is empty) ID of the environment.
+* `environment_id` - (Required) ID of the environment.
 
 ## Attributes Reference
 
