@@ -1,0 +1,17 @@
+run:
+  tests: false
+linters:
+  enable:
+    - gofmt
+  disable:
+    - errcheck
+issues:
+  exclude-rules:
+    - path: testing.go
+      linters:
+        - deadcode
+        - unused
+    - path: client_mock.go
+      linters:
+        - deadcode
+        - unused
