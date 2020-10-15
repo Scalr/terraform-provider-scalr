@@ -22,7 +22,6 @@ resource "scalr_workspace" "test" {
   vcs_repo {
       identifier          = "org/repo"
       branch              = "dev"
-      ingress_submodules  = true
   }
 }
 ```
