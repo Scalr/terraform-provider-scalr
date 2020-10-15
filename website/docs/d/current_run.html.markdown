@@ -12,9 +12,9 @@ This data source allows you to get information about the current Terraform run w
 
 ## Example Usage
 
-```javascript
+```hcl
 data scalr_current_run example {
-  }
+}
 ```
 
 ## Arguments
