@@ -8,7 +8,7 @@ description: |-
 
 # scalr_endpoint
 
-Provides an endpoint resource.
+Manage the state of endpoints in Scalr. Create, update and destroy
 
 ## Example Usage
 
@@ -25,27 +25,24 @@ resource "scalr_endpoint" "test" {
 }
 ```
 
-## Argument Reference
-
-The following arguments are supported:
+## Arguments
 
 * `name` - (Required) Name of the endpoint.
 * `secret_key` - (Required) Secret key to sign payload. 
+* `environment_id` - (Required) ID of the environment, in the format `env-<RANDOM STRING>`.
 * `url` - (Required) Endpoint URL. 
 * `max_attempts` - (Optional) Max delivery attempts. 
 * `timeout` - (Optional) Endpoint timeout (in sec). 
-* `environment_id` - (Required) ID of the environment.
 
-## Attributes Reference
+## Attributes
 
-In addition to all arguments above, the following attributes are exported:
+All arguments plus:
 
-* `id` - The endpoint's ID, which looks like `ep-<RANDOM STRING>`.
-
+* `id` - The endpoint's ID, in the format `ep-<RANDOM STRING>`.
 
 ## Useful snippets
 
-Secret key can be generated using the `random_string` resource
+Secret key can be generated using the `random_string` resource.
 
 ```hcl
 resource "random_string" "r" {

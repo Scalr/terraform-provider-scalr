@@ -8,7 +8,7 @@ description: |-
 
 # scalr_variable
 
-Creates, updates and destroys variables.
+Manage the state of variables in Scalr. Creates, updates and destroy.
 
 ## Example Usage
 
@@ -28,23 +28,20 @@ resource "scalr_variable" "test" {
 }
 ```
 
-## Argument Reference
-
-The following arguments are supported:
+## Arguments
 
 * `key` - (Required) Name of the variable.
 * `value` - (Required) Value of the variable.
 * `category` - (Required) Whether this is a Terraform or environment variable.
   Valid values are `terraform` or `env`.
-* `hcl` - (Optional) Whether to evaluate the value of the variable as a string
-  of HCL code. Has no effect for environment variables. Defaults to `false`.
-* `sensitive` - (Optional) Whether the value is sensitive. If true then the
-  variable is written once and not visible thereafter. Defaults to `false`.
+* `hcl` - (Optional) Set (true/false) to configure if the value of the variable as a string of HCL code. Has no effect for `category = "env"` variables. Defaults to `false`.
+* `sensitive` - (Optional) Set (true/false) to configure if the value is sensitive. Sensitive variable values are not visible after being set. Defaults to `false`.
 * `workspace_id` - (Required) The workspace that owns the variable, specified as
-  an ID, which looks like `ws-<RANDOM STRING>`.
+  an ID, in the format `ws-<RANDOM STRING>`.
 
+## Attributes
 
-## Attributes Reference
+All arguments plus:
 
 * `id` - The ID of the variable.
 
