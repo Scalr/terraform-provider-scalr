@@ -32,8 +32,7 @@ resource "scalr_variable" "test" {
 
 * `key` - (Required) Name of the variable.
 * `value` - (Required) Value of the variable.
-* `category` - (Required) Whether this is a Terraform or environment variable.
-  Valid values are `terraform` or `env`.
+* `category` - (Required) Indicates if this is a Terraform or environment variable. Allowed values are `terraform` or `env`.
 * `hcl` - (Optional) Set (true/false) to configure if the value of the variable as a string of HCL code. Has no effect for `category = "env"` variables. Defaults to `false`.
 * `sensitive` - (Optional) Set (true/false) to configure if the value is sensitive. Sensitive variable values are not visible after being set. Defaults to `false`.
 * `workspace_id` - (Required) The workspace that owns the variable, specified as
