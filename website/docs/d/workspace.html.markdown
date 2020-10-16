@@ -15,7 +15,7 @@ This data source is used to retrieve details of a single workspace by name.
 ```hcl
 data "scalr_workspace" "test" {
   name           = "my-workspace-name"
-  environment_id = "my-env"
+  environment_id = "env-xxxxxxxxx"
 }
 ```
 
@@ -24,8 +24,8 @@ data "scalr_workspace" "test" {
 The following arguments are supported:
 
 * `name` - (Required) Name of the workspace.
-* `environment_id` - (Required) ID of the environment.
-* `vcs_provider_id` - (Optional) ID of vcs provider.
+* `environment_id` - (Required) ID of the environment, in the format `env-<RANDOM STRING>`.
+* `vcs_provider_id` - (Optional) ID of vcs provider, in the format `vcs-<RANDOM STRING>`.
 
 ## Attributes
 

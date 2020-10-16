@@ -14,25 +14,22 @@ This data source is used to retrieve details of a webhook.
 
 ```hcl
 data "scalr_webhook" "test" {
-  id = "my-webhook-ID"
+  id = "wh-xxxxxxxxxxx"
 }
 ```
 
 ## Arguments
 
-The following arguments are supported:
-
-* `id` - (Required) Webhook ID.
+* `id` - (Required) The webhook ID, in the format `wh-<RANDOM STRING>`.
 
 ## Attributes
 
 All arguments plus:
 
-* `id` - The webhook ID, in the format `wh-<RANDOM STRING>`.
 * `name` - Name of the webhook.
 * `enabled` - Whether webhook is enabled. 
-* `endpoint_id` - ID of the endpoint.
-* `workspace_id` - ID of the workspace if applicable.
-* `environment_id` - ID of the environment.
+* `endpoint_id` - ID of the endpoint, in the format `ep-<RANDOM STRING>`.
+* `workspace_id` - ID of the workspace if applicable, in the format `ws-<RANDOM STRING>`.
+* `environment_id` - ID of the environment, in the format `env-<RANDOM STRING>`.
 * `events` - List of event IDs.
 * `last_triggered_at` - Date/time when webhook was triggered last time.

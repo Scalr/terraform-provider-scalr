@@ -17,7 +17,7 @@ Basic usage:
 ```hcl
 resource "scalr_workspace" "test" {
   name            = "my-workspace-name"
-  environment_id  = "my-env"
+  environment_id  = "env-xxxxxxxxx"
   vcs_provider_id = "my_vcs_provider"
   vcs_repo {
       identifier          = "org/repo"
@@ -28,10 +28,8 @@ resource "scalr_workspace" "test" {
 
 ## Arguments
 
-The following arguments are supported:
-
 * `name` - (Required) Name of the workspace.
-* `environment_id` - (Required) ID of the environment.
+* `environment_id` - (Required) ID of the environment, in the format `env-<RANDOM STRING>`.
 * `auto_apply` - (Optional) Set (true/false) to configure if `terraform apply` should automatically run when `terraform plan` ends without error. Defaults to `false`.
 * `operations` - (Optional) Set (true/false) to configure workspace remote execution. When `false` only used to store state. Defaults to `true`.
   Defaults to `true`.
@@ -39,7 +37,7 @@ The following arguments are supported:
 * `terraform_version` - (Optional) The version of Terraform to use for this workspace. Defaults to the latest available version.
 * `working_directory` - (Optional) A relative path that Terraform will execute
   within.  Defaults to the root of your repository.
-* `vcs_provider_id` - (Optional) ID of vcs provider - required if vcs-repo present and vice versa
+* `vcs_provider_id` - (Optional) ID of vcs provider - required if vcs-repo present and vice versa, in the format `vcs-<RANDOM STRING>`
 * `vcs_repo` - (Optional) Settings for the workspace's VCS repository.
 
 The `vcs_repo` block supports:
@@ -54,7 +52,7 @@ The `vcs_repo` block supports:
 
 All arguments plus:
 
-* `id` - The workspace's ID, which looks like `ws-<RANDOM STRING>`.
+* `id` - The workspace's ID, in the format `ws-<RANDOM STRING>`.
 * `created_by` - Details of the user that created the workspace.
 
 The `created_by` block contains:

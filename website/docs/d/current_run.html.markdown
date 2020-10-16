@@ -25,16 +25,8 @@ No arguments required. This data source returns details of the current run.
 
 All arguments plus:
 
-* `id` - The endpoint's ID, which looks like `ep-<RANDOM STRING>`.
-* `name` - Name of the endpoint.
-* `secret_key` - Secret key to sign payload. 
-* `url` - Endpoint URL. 
-* `max_attempts` - Max delivery attempts. 
-* `timeout` - Endpoint timeout (in sec). 
-* `environment_id` - ID of the environment.
-
-* `id` - The ID of the run in `run-xxxxxxxxxxx` format.
-* `environment_id` - The ID of the environment in `org-xxxxxxxxxxx` format.
+* `id` - The ID of the run, in the format `run-<RANDOM STRING>`
+* `environment_id` - The ID of the environment, in the format `env-<RANDOM STRING>`
 * `workspace_name` - Workspace name.
 * `vcs` - Contains details of the VCS configuration if the workspace is linked to a VCS repo.
 * `is_destroy` - Boolean indicates if this is a "destroy" run.

@@ -14,7 +14,7 @@ This data source is used to retrieve details of an endpoint.
 
 ```hcl
 data "scalr_endpoint" "test" {
-  id = "my-endpoint-ID"
+  id = "ep-xxxxxxxxxxx"
 }
 ```
 
@@ -32,4 +32,4 @@ All arguments plus:
 * `url` - Endpoint URL. 
 * `max_attempts` - Max delivery attempts of the payload. 
 * `timeout` - Endpoint timeout (in sec). 
-* `environment_id` - ID of the environment in the format `env-<RANDOM STRING>`
+* `environment_id` - ID of the environment, in the format `env-<RANDOM STRING>`
