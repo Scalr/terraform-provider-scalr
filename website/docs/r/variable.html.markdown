@@ -17,14 +17,14 @@ Basic usage:
 ```hcl
 resource "scalr_workspace" "test" {
   name           = "my-workspace-name"
-  environment_id = "my-env"
+  environment_id = "env-xxxxxxxxxx"
 }
 
 resource "scalr_variable" "test" {
   key          = "my_key_name"
   value        = "my_value_name"
   category     = "terraform"
-  workspace_id = "${scalr_workspace.test.id}"
+  workspace_id = scalr_workspace.test.id
 }
 ```
 
@@ -43,7 +43,7 @@ resource "scalr_variable" "test" {
 
 All arguments plus:
 
-* `id` - The ID of the variable.
+* `id` - The ID of the variable, in the format `var-<RANDOM STRING>`.
 
 ## Import
 
