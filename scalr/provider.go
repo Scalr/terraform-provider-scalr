@@ -23,7 +23,7 @@ import (
 	providerVersion "github.com/scalr/terraform-provider-scalr/version"
 )
 
-const defaultHostname = "my.scalr.com"
+const defaultHostname = "scalr.io"
 
 var scalrServiceIDs = []string{"iacp.v3"}
 
@@ -50,7 +50,7 @@ func Provider() terraform.ResourceProvider {
 			"hostname": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Scalr instance hostname without scheme. Defaults to my.scalr.com.",
+				Description: fmt.Sprintf("Scalr instance hostname without scheme. Defaults to %s.", defaultHostname),
 				DefaultFunc: schema.EnvDefaultFunc("SCALR_HOSTNAME", defaultHostname),
 			},
 
