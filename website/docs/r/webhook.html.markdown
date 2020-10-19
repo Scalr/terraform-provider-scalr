@@ -8,7 +8,7 @@ description: |-
 
 # scalr_webhook
 
-Provides a webhook resource.
+Manage the state of webhooks in Scalr. Creates, updates and destroy.
 
 ## Example Usage
 
@@ -18,27 +18,25 @@ Basic usage:
 resource "scalr_webhook" "test" {
   name           = "my-webhook-name"
   enabled        = true
-  endpoint_id    = "my-endpoint-id"
+  endpoint_id    = "ep-xxxxxxxxxx"
   events         = ["run:completed", "run:errored"]
-  workspace_id   = "my-workspace-ID"
-  environment_id = "my-environment-ID"
+  workspace_id   = "ws-xxxxxxxxxx"
+  environment_id = "env-xxxxxxxxxx"
 }
 ```
 
 ## Argument Reference
 
-The following arguments are supported:
-
 * `name` - (Required) Name of the webhook.
 * `enabled` - (Optional) Whether webhook is enabled. 
-* `endpoint_id` - (Required) ID of the endpoint.
-* `workspace_id` - (Optional) ID of the workspace.
-* `environment_id` - (Required if workspace ID is empty) ID of the environment.
+* `endpoint_id` - (Required) ID of the endpoint, in the format `ep-<RANDOM STRING>`.
+* `workspace_id` - (Optional) ID of the workspace, in the format `ws-<RANDOM STRING>`.
+* `environment_id` - (Required if workspace ID is empty) ID of the environment, in the format `env-<RANDOM STRING>`.
 * `events` - (Required) List of event IDs.
 
-## Attributes Reference
+## Attributes
 
-In addition to all arguments above, the following attributes are exported:
+All arguments plus:
 
-* `id` - The webhook's ID, which looks like `wh-<RANDOM STRING>`.
-* `last_triggered_at` - Datetime when webhook was triggered last time.
+* `id` - The webhook ID, in the format `wh-<RANDOM STRING>`.
+* `last_triggered_at` - Date/time when webhook was triggered last time.

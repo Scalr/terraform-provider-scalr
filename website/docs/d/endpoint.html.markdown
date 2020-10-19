@@ -6,32 +6,30 @@ description: |-
   Get information on an endpoint.
 ---
 
-# Data Source: scalr_endpoint
+# scalr_endpoint
 
-Use this data source to get information about an endpoint.
+This data source is used to retrieve details of an endpoint.
 
 ## Example Usage
 
 ```hcl
 data "scalr_endpoint" "test" {
-  id = "my-endpoint-ID"
+  id = "ep-xxxxxxxxxxx"
 }
 ```
 
-## Argument Reference
-
-The following arguments are supported:
+## Arguments
 
 * `id` - (Required) Endpoint ID.
 
-## Attributes Reference
+## Attributes
 
-In addition to all arguments above, the following attributes are exported:
+All arguments plus:
 
-* `id` - The endpoint's ID, which looks like `ep-<RANDOM STRING>`.
+* `id` - The endpoint's ID, in the format `ep-<RANDOM STRING>`.
 * `name` - Name of the endpoint.
 * `secret_key` - Secret key to sign payload. 
 * `url` - Endpoint URL. 
-* `max_attempts` - Max delivery attempts. 
+* `max_attempts` - Max delivery attempts of the payload. 
 * `timeout` - Endpoint timeout (in sec). 
-* `environment_id` - ID of the environment.
+* `environment_id` - ID of the environment, in the format `env-<RANDOM STRING>`
