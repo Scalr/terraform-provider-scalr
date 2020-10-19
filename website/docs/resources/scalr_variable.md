@@ -45,9 +45,7 @@ All arguments plus:
 
 ## Import
 
-Variables can be imported; use
-`<Environment NAME>/<WORKSPACE NAME>/<VARIABLE ID>` as the import ID. For
-example:
+To import variables use `<Environment NAME>/<WORKSPACE NAME>/<VARIABLE ID>` as the import ID. For example:
 
 ```shell
 terraform import scalr_variable.example environment-name/workspace-name/var-xxxxxxxxxxxx

@@ -35,14 +35,13 @@ resource "scalr_workspace" "example" {
   Defaults to `true`.
 * `queue_all_runs` - (Optional) Set (true/false) to configure queuing all runs. When false one manually triggered run is required. Default `true`.
 * `terraform_version` - (Optional) The version of Terraform to use for this workspace. Defaults to the latest available version.
-* `working_directory` - (Optional) A relative path that Terraform will be ru in. Defaults to the root of the repository.
+* `working_directory` - (Optional) A relative path that Terraform will be run in. Defaults to the root of the repository.
 * `vcs_provider_id` - (Optional) ID of vcs provider - required if vcs-repo present and vice versa, in the format `vcs-<RANDOM STRING>`
 * `vcs_repo` - (Optional) Settings for the workspace's VCS repository.
 
 The `vcs_repo` block supports:
 
-* `identifier` - (Required) A reference to your VCS repository in the format
-  `:org/:repo` where `:org` and `:repo` refer to the organization and repository in your VCS provider.
+* `identifier` - (Required) A reference to your VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
 * `branch` - (Optional) The repository branch where Terraform will be run from. Default `master`.
 
 ## Attribute Reference
@@ -60,8 +59,7 @@ The `created_by` block contains:
 
 ## Import
 
-Workspaces can be imported; use `<ENVIRONMENT NAME>/<WORKSPACE NAME>` as the
-import ID. For example:
+To import workspaces use `<ENVIRONMENT NAME>/<WORKSPACE NAME>` as the import ID. For example:
 
 ```shell
 terraform import scalr_workspace.example environment-name/workspace-name

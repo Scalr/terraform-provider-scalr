@@ -26,11 +26,7 @@ data "scalr_workspace_ids" "all" {
 
 ## Argument Reference
 
-* `names` - (Required) A list of workspace names to search for. Names that don't
-  match a real workspace will be omitted from the results, but are not an error.
-
-    To select _all_ workspaces for an environment, provide a list with a single
-    asterisk, like `["*"]`. No other use of wildcards is supported.
+* `names` - (Required)   * A list of names to search for. If a name does not exist, it will not throw an error, it will just not exist in the returned output. Use `["*"]` to select all workspaces.
 * `environment_id` - (Required) ID of the environment, in the format `env-<RANDOM STRING>`.
 
 ## Attribute Reference

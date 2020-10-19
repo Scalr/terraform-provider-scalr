@@ -42,9 +42,7 @@ All arguments plus:
 
 The `vcs_repo` block contains:
 
-* `identifier` - A reference to your VCS repository in the format `:org/:repo`
-  where `:org` and `:repo` refer to the organization and repository in your VCS
-  provider.
+* `identifier` - * The reference to the VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
 * `path` - Path within the repo, if any.
 
 The `created_by` block contains:
