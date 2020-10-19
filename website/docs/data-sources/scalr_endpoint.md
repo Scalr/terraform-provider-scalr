@@ -6,30 +6,29 @@ description: |-
   Get information on an endpoint.
 ---
 
-# scalr_endpoint
+# scalr_endpoint Data Source
 
 This data source is used to retrieve details of an endpoint.
 
 ## Example Usage
 
 ```hcl
-data "scalr_endpoint" "test" {
+data "scalr_endpoint" "example" {
   id = "ep-xxxxxxxxxxx"
 }
 ```
 
-## Arguments
+## Argument Reference
 
-* `id` - (Required) Endpoint ID.
+* `id` - (Required) Endpoint ID, in the format `ep-<RANDOM STRING>`.
 
-## Attributes
+## Attribute Reference
 
 All arguments plus:
 
-* `id` - The endpoint's ID, in the format `ep-<RANDOM STRING>`.
 * `name` - Name of the endpoint.
-* `secret_key` - Secret key to sign payload. 
+* `secret_key` - Secret key to sign the webhook payload. 
 * `url` - Endpoint URL. 
 * `max_attempts` - Max delivery attempts of the payload. 
-* `timeout` - Endpoint timeout (in sec). 
+* `timeout` - Endpoint timeout (in seconds). 
 * `environment_id` - ID of the environment, in the format `env-<RANDOM STRING>`

@@ -6,22 +6,22 @@ description: |-
   Get information on the current run.
 ---
 
-# scalr_current_run
+# scalr_current_run Data Source
 
 This data source allows you to get information about the current Terraform run when using a Scalr remote backend workspace, including VCS (Git) metadata.
 
 ## Example Usage
 
-```javascript
+```hcl
 data scalr_current_run example {
   }
 ```
 
-## Arguments
+## Argument Reference
 
 No arguments required. This data source returns details of the current run.
 
-## Attributes
+## Attribute Reference
 
 All arguments plus:
 
@@ -36,7 +36,7 @@ All arguments plus:
 
 The `vcs` block contains:
 
-* `repository_id` - ID of the VCS repo in the for `:user/:repo`.
+* `repository_id` - ID of the VCS repo in the for `:org/:repo`.
 * `branch` - The linked VCS repo branch.
 * `commit` - Details of the last commit to the linked VCS repo.
 

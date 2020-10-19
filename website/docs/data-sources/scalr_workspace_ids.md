@@ -6,7 +6,7 @@ description: |-
   Get information on workspace IDs.
 ---
 
-# scalr_workspace_ids
+# scalr_workspace_ids Data Source
 
 Obtain a map of workspace IDs based on the names provided. Wildcards are accepted.
 
@@ -24,7 +24,7 @@ data "scalr_workspace_ids" "all" {
 }
 ```
 
-## Arguments
+## Argument Reference
 
 * `names` - (Required) A list of workspace names to search for. Names that don't
   match a real workspace will be omitted from the results, but are not an error.
@@ -33,8 +33,8 @@ data "scalr_workspace_ids" "all" {
     asterisk, like `["*"]`. No other use of wildcards is supported.
 * `environment_id` - (Required) ID of the environment, in the format `env-<RANDOM STRING>`.
 
-## Attributes
+## Attribute Reference
 
 All arguments plus:
 
-* `ids` - A map of workspace names and their opaque IDs, in the format `ws-<RANDOM STRING>`.
+* `ids` - A map of workspace names and their opaque IDs, in the format `env_id/name`.
