@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Required
 
-- scalr server >= `8.0.1-beta.CURRENT_RELEASE_VERSION`
+- scalr server >= `8.0.1-beta.20201019`
 
 ## [1.0.0-rc7] - 2020-10-01
 
