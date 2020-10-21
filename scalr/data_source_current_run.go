@@ -129,33 +129,29 @@ func dataSourceScalrCurrentRunRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("is_dry", run.Apply == nil)
 
 	d.Set("workspace_name", workspace.Name)
-	d.Set("environment_id", workspace.Organization.Name)
+	d.Set("environment_id", workspace.Organization.ID)
 
 	if workspace.VCSRepo != nil {
-		log.Printf("[DEBUG] Read ingress attributes of run: %s", runID)
-		ingressAttributes, err := scalrClient.ConfigurationVersions.ReadIngressAttributes(ctx, run.ConfigurationVersion.ID)
-		if err != nil {
-			if err == scalr.ErrResourceNotFound {
-				return fmt.Errorf("Could not find configuration version %s", run.ConfigurationVersion.ID)
-			}
-			return fmt.Errorf("Error retrieving ingress attributes: %v", err)
-		}
-
-		var commitConfig []map[string]interface{}
-		commit := map[string]interface{}{
-			"sha":     ingressAttributes.CommitSha,
-			"message": ingressAttributes.CommitMessage,
-			"author": map[string]interface{}{
-				"username": ingressAttributes.SenderUsername,
-			},
-		}
-
+		log.Printf("[DEBUG] Read vcs revision attributes of run: %s", runID)
 		var vcsConfig []map[string]interface{}
 		vcs := map[string]interface{}{
 			"repository_id": workspace.VCSRepo.Identifier,
 			"branch":        workspace.VCSRepo.Branch,
-			"commit":        append(commitConfig, commit),
+			"commit":        []map[string]interface{}{},
 		}
+
+		if run.VcsRevision != nil {
+			vcs["commit"] = []map[string]interface{}{
+				{
+					"sha":     run.VcsRevision.CommitSha,
+					"message": run.VcsRevision.CommitMessage,
+					"author": map[string]interface{}{
+						"username": run.VcsRevision.SenderUsername,
+					},
+				},
+			}
+		}
+
 		d.Set("vcs", append(vcsConfig, vcs))
 	}
 
