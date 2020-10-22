@@ -1,7 +1,6 @@
 package scalr
 
 import (
-	"os"
 	"strings"
 	"testing"
 
@@ -97,10 +96,3 @@ func testAccPreCheck(t *testing.T) {
 		t.Fatalf("err: %s", err)
 	}
 }
-
-var GITHUB_TOKEN = os.Getenv("GITHUB_TOKEN")
-var GITHUB_POLICY_SET_BRANCH = os.Getenv("GITHUB_POLICY_SET_BRANCH")
-var GITHUB_POLICY_SET_PATH = os.Getenv("GITHUB_POLICY_SET_PATH")
-var TFE_USER1 = os.Getenv("TFE_USER1")
-var TFE_USER2 = os.Getenv("TFE_USER2")
-var GITHUB_POLICY_SET_IDENTIFIER = os.Getenv("GITHUB_POLICY_SET_IDENTIFIER")
