@@ -71,7 +71,7 @@ func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] Read configuration of environment: %s", envID)
 
-	env, err := scalrClient.Environments.Read(ctx, envID)
+	environment, err := scalrClient.Environments.Read(ctx, envID)
 	if err != nil {
 		if err == scalr.ErrResourceNotFound {
 			// If the resource isn't available, the function should set the ID
@@ -80,31 +80,31 @@ func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 			return nil
 		}
 	}
-	// Update the config.
-	d.Set("name", env.Name)
-	d.Set("account_id", env.Account.ID)
-	d.Set("cost_estimation_enabled", env.CostEstimationEnabled)
-	d.Set("status", env.Status)
+	// Update the configuration.
+	d.Set("name", environment.Name)
+	d.Set("account_id", environment.Account.ID)
+	d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)
+	d.Set("status", environment.Status)
 
 	var createdBy []interface{}
-	if env.CreatedBy != nil {
+	if environment.CreatedBy != nil {
 		createdBy = append(createdBy, map[string]interface{}{
-			"username":  env.CreatedBy.Username,
-			"email":     env.CreatedBy.Email,
-			"full_name": env.CreatedBy.FullName,
+			"username":  environment.CreatedBy.Username,
+			"email":     environment.CreatedBy.Email,
+			"full_name": environment.CreatedBy.FullName,
 		})
-		d.Set("created_by", createdBy)
 	}
-	cloudCreds := []string{}
-	if env.CloudCredentials != nil {
-		for _, creds := range env.CloudCredentials {
-			cloudCreds = append(cloudCreds, creds.ID)
+	d.Set("created_by", createdBy)
+	cloudCredentials := []string{}
+	if environment.CloudCredentials != nil {
+		for _, creds := range environment.CloudCredentials {
+			cloudCredentials = append(cloudCredentials, creds.ID)
 		}
 	}
-	d.Set("cloud_credentials", cloudCreds)
+	d.Set("cloud_credentials", cloudCredentials)
 	policyGroups := []string{}
-	if env.PolicyGroups != nil {
-		for _, group := range env.PolicyGroups {
+	if environment.PolicyGroups != nil {
+		for _, group := range environment.PolicyGroups {
 			policyGroups = append(policyGroups, group.ID)
 		}
 	}
