@@ -12,8 +12,8 @@ func resourceScalrEnvironment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceScalrEnvironmnetCreate,
 		Read:   resourceScalrEnvironmentRead,
+		Delete: resourceScalrEnvironmentDelete,
 		Update: resourceScalrWebhookUpdate,
-		Delete: resourceScalrWebhookDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -160,6 +160,19 @@ func resourceScalrEnvironmentRead(d *schema.ResourceData, meta interface{}) erro
 func resourceScalrEnvironmnetUpdate(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
-func resourceScalrEnvironmnetDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrEnvironmentDelete(d *schema.ResourceData, meta interface{}) error {
+	scalrClient := meta.(*scalr.Client)
+	environmentID := d.Id()
+
+	log.Printf("[DEBUG] Delete environment %s", environmentID)
+	err := scalrClient.Environments.Delete(ctx, d.Id())
+	if err != nil {
+		if err == scalr.ErrResourceNotFound {
+			return nil
+		}
+		return fmt.Errorf(
+			"Error deleting environment %s: %v", environmentID, err)
+	}
+
 	return nil
 }
