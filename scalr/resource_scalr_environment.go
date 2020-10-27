@@ -13,7 +13,7 @@ func resourceScalrEnvironment() *schema.Resource {
 		Create: resourceScalrEnvironmnetCreate,
 		Read:   resourceScalrEnvironmentRead,
 		Delete: resourceScalrEnvironmentDelete,
-		Update: resourceScalrWebhookUpdate,
+		Update: resourceScalrEnvironmnetUpdate,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -158,8 +158,34 @@ func resourceScalrEnvironmentRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceScalrEnvironmnetUpdate(d *schema.ResourceData, meta interface{}) error {
-	return nil
+	scalrClient := meta.(*scalr.Client)
+
+	var err error
+	var cloudCredentials []*scalr.CloudCredential
+	for _, credsID := range d.Get("cloud_credentials").([]interface{}) {
+		cloudCredentials = append(cloudCredentials, &scalr.CloudCredential{ID: credsID.(string)})
+	}
+	var policyGroups []*scalr.PolicyGroup
+	for _, credsID := range d.Get("policy_groups").([]interface{}) {
+		policyGroups = append(policyGroups, &scalr.PolicyGroup{ID: credsID.(string)})
+	}
+
+	// Create a new options struct.
+	options := scalr.EnvironmentUpdateOptions{
+		Name:                  scalr.String(d.Get("name").(string)),
+		CostEstimationEnabled: scalr.Bool(d.Get("cost_estimation_enabled").(bool)),
+		CloudCredentials:      cloudCredentials,
+		PolicyGroups:          policyGroups,
+	}
+	log.Printf("[DEBUG] Update environment: %s", d.Id())
+	_, err = scalrClient.Environments.Update(ctx, d.Id(), options)
+	if err != nil {
+		return fmt.Errorf("Error updating environment %s: %v", d.Id(), err)
+	}
+
+	return resourceScalrEnvironmentRead(d, meta)
 }
+
 func resourceScalrEnvironmentDelete(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 	environmentID := d.Id()
