@@ -2,9 +2,7 @@ package scalr
 
 import (
 	"fmt"
-	"math/rand"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -12,7 +10,7 @@ import (
 )
 
 func TestAccEnvironment_basic(t *testing.T) {
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	environment := &scalr.Environment{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -20,9 +18,11 @@ func TestAccEnvironment_basic(t *testing.T) {
 		CheckDestroy: testAccCheckScalrEnvironmentDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEnvironmentConfig(rInt),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("scalr_environment.test", "name", fmt.Sprintf("test-env-%d", rInt)),
+				Config: testAccEnvironmentConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrEnvironmentExists("scalr_environment.test", environment),
+					testAccCheckScalrEnvironmentAttributes(environment),
+					resource.TestCheckResourceAttr("scalr_environment.test", "name", "test-env"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "cost_estimation_enabled", "true"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "status", "Active"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "account_id", "acc-svrcncgh453bi8g"),
@@ -37,46 +37,42 @@ func TestAccEnvironment_basic(t *testing.T) {
 	})
 }
 
-// func TestAccEndpoint_update(t *testing.T) {
-// 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+func TestAccEnvironment_update(t *testing.T) {
+	environment := &scalr.Environment{}
 
-// 	resource.Test(t, resource.TestCase{
-// 		PreCheck:  func() { testAccPreCheck(t) },
-// 		Providers: testAccProviders,
-// 		Steps: []resource.TestStep{
-// 			{
-// 				Config: testAccEndpointConfig(rInt),
-// 				Check: resource.ComposeAggregateTestCheckFunc(
-// 					resource.TestCheckResourceAttr(
-// 						"scalr_endpoint.test-ep", "name", fmt.Sprintf("test endpoint-%d", rInt)),
-// 					resource.TestCheckResourceAttr(
-// 						"scalr_endpoint.test-ep", "secret_key", "my-secret-key"),
-// 					resource.TestCheckResourceAttr(
-// 						"scalr_endpoint.test-ep", "timeout", "15"),
-// 					resource.TestCheckResourceAttr(
-// 						"scalr_endpoint.test-ep", "max_attempts", "3"),
-// 					resource.TestCheckResourceAttr(
-// 						"scalr_endpoint.test-ep", "url", "https://example.com/endpoint"),
-// 					resource.TestCheckResourceAttr(
-// 						"scalr_endpoint.test-ep", "environment_id", "existing-env"),
-// 				),
-// 			},
-// 			{
-// 				Config: testAccEndpointConfigUpdate(rInt),
-// 				Check: resource.ComposeAggregateTestCheckFunc(
-// 					resource.TestCheckResourceAttr(
-// 						"scalr_endpoint.test-ep", "name", fmt.Sprintf("test endpoint-%d", rInt)),
-// 					resource.TestCheckResourceAttr(
-// 						"scalr_endpoint.test-ep", "timeout", "10"),
-// 					resource.TestCheckResourceAttr(
-// 						"scalr_endpoint.test-ep", "max_attempts", "5"),
-// 					resource.TestCheckResourceAttr(
-// 						"scalr_endpoint.test-ep", "url", "https://example.com/endpoint-updated"),
-// 				),
-// 			},
-// 		},
-// 	})
-// }
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckScalrEnvironmentDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccEnvironmentConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrEnvironmentExists("scalr_environment.test", environment),
+					testAccCheckScalrEnvironmentAttributes(environment),
+					resource.TestCheckResourceAttr("scalr_environment.test", "name", "test-env"),
+					resource.TestCheckResourceAttr("scalr_environment.test", "cost_estimation_enabled", "true"),
+					resource.TestCheckResourceAttr("scalr_environment.test", "status", "Active"),
+					resource.TestCheckResourceAttr("scalr_environment.test", "account_id", "acc-svrcncgh453bi8g"),
+					resource.TestCheckResourceAttr("scalr_environment.test", "cloud_credentials.%", "0"),
+					resource.TestCheckResourceAttr("scalr_environment.test", "policy_groups.%", "0"),
+					resource.TestCheckResourceAttrSet("scalr_environment.test", "created_by.0.full_name"),
+					resource.TestCheckResourceAttrSet("scalr_environment.test", "created_by.0.email"),
+					resource.TestCheckResourceAttrSet("scalr_environment.test", "created_by.0.username"),
+				),
+			},
+			{
+				Config: testAccEnvironmentUpdateConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrEnvironmentExists("scalr_environment.test", environment),
+					testAccCheckScalrEnvironmentAttributesUpdate(environment),
+					resource.TestCheckResourceAttr("scalr_environment.test", "name", "test-env-patched"),
+					resource.TestCheckResourceAttr("scalr_environment.test", "cost_estimation_enabled", "false"),
+				),
+			},
+		},
+	})
+}
 
 func testAccCheckScalrEnvironmentDestroy(s *terraform.State) error {
 	scalrClient := testAccProvider.Meta().(*scalr.Client)
@@ -99,24 +95,75 @@ func testAccCheckScalrEnvironmentDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccEnvironmentConfig(rInt int) string {
-	return fmt.Sprintf(`
+func testAccCheckScalrEnvironmentExists(n string, environment *scalr.Environment) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
+
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No instance ID is set")
+		}
+		env, err := scalrClient.Environments.Read(ctx, rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+
+		*environment = *env
+
+		return nil
+	}
+}
+
+func testAccCheckScalrEnvironmentAttributes(environment *scalr.Environment) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if environment.Status != "Active" {
+			return fmt.Errorf("Bad status: %s", environment.Status)
+		}
+
+		if environment.CostEstimationEnabled != true {
+			return fmt.Errorf("Bad cost_estimation_enabled: %t", environment.CostEstimationEnabled)
+		}
+		if environment.Name != "test-env" {
+			return fmt.Errorf("Bad name: %s", environment.Name)
+		}
+		if environment.Account.ID != "acc-svrcncgh453bi8g" {
+			return fmt.Errorf("Bad account_id: %s", environment.Account.ID)
+		}
+
+		return nil
+	}
+}
+func testAccCheckScalrEnvironmentAttributesUpdate(environment *scalr.Environment) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if environment.CostEstimationEnabled != false {
+			return fmt.Errorf("Bad cost_estimation_enabled: %t", environment.CostEstimationEnabled)
+		}
+		if environment.Name != "test-env-patched" {
+			return fmt.Errorf("Bad name: %s", environment.Name)
+		}
+		return nil
+	}
+}
+
+func testAccEnvironmentConfig() string {
+	return `
 resource "scalr_environment" "test" {
-  name       = "test-env-%d"
+  name       = "test-env"
   account_id = "acc-svrcncgh453bi8g"
   cost_estimation_enabled = true
 
-}`, rInt)
+}`
 }
 
-// func testAccEndpointEnvironmentUpdate(rInt int) string {
-// 	return fmt.Sprintf(`
-// resource "scalr_" "test-ep" {
-//   name         = "test endpoint-%d"
-//   secret_key   = "my-secret-key"
-//   timeout      = 10
-//   max_attempts = 5
-//   url          = "https://example.com/endpoint-updated"
-//   environment_id = "existing-env"
-// }`, rInt)
-// }
+func testAccEnvironmentUpdateConfig() string {
+	return `
+resource "scalr_environment" "test" {
+  name       = "test-env-patched"
+  account_id = "acc-svrcncgh453bi8g"
+  cost_estimation_enabled = false
+}`
+}
