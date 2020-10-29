@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **New data source:** `scalr_environment` ([#10](https://github.com/Scalr/terraform-provider-scalr/pull/34))
 - **New resource:** `scalr_environment` ([#10](https://github.com/Scalr/terraform-provider-scalr/pull/34))
 
+### Required
+
+- scalr server >= `8.0.1-beta.20201019`
+
 ## [1.0.0-rc7] - 2020-10-01
 
 ### Added
