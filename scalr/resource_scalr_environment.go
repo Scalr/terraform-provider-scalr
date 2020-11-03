@@ -10,10 +10,10 @@ import (
 
 func resourceScalrEnvironment() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrEnvironmnetCreate,
+		Create: resourceScalrEnvironmentCreate,
 		Read:   resourceScalrEnvironmentRead,
 		Delete: resourceScalrEnvironmentDelete,
-		Update: resourceScalrEnvironmnetUpdate,
+		Update: resourceScalrEnvironmentUpdate,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -73,7 +73,7 @@ func resourceScalrEnvironment() *schema.Resource {
 	}
 }
 
-func resourceScalrEnvironmnetCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrEnvironmentCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	name := d.Get("name").(string)
@@ -157,7 +157,7 @@ func resourceScalrEnvironmentRead(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func resourceScalrEnvironmnetUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrEnvironmentUpdate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	var err error
