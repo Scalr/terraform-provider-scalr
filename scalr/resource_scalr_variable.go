@@ -179,7 +179,6 @@ func resourceScalrVariableImporter(d *schema.ResourceData, meta interface{}) ([]
 	scalrClient := meta.(*scalr.Client)
 	s := strings.SplitN(d.Id(), "/", 3)
 	log.Printf("[DEBUG] in resourceScalrVariableImporter: %s", s[0])
-	println("GOOOT: %s", d.Id())
 	if len(s) != 3 {
 		return nil, fmt.Errorf(
 			"invalid variable import format: %s (expected <ENVIRONMENT ID>/<WORKSPACE NAME>/<VARIABLE ID>)",

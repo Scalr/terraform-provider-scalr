@@ -2,7 +2,9 @@ package scalr
 
 import (
 	"fmt"
+	"math/rand"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -11,6 +13,7 @@ import (
 
 func TestAccScalrVariable_basic(t *testing.T) {
 	variable := &scalr.Variable{}
+	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -18,50 +21,29 @@ func TestAccScalrVariable_basic(t *testing.T) {
 		CheckDestroy: testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrVariableBasic,
+				Config: testAccScalrVariableBasic(rInt),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrVariableExists("scalr_variable.foobar", variable),
+					testAccCheckScalrVariableExists("scalr_variable.test", variable),
 					testAccCheckScalrVariableAttributes(variable),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "key", "key_test"),
+						"scalr_variable.test", "key", "key_test"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "value", "value_test"),
+						"scalr_variable.test", "value", "value_test"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "category", "env"),
+						"scalr_variable.test", "category", "env"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "hcl", "false"),
+						"scalr_variable.test", "hcl", "false"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "sensitive", "true"),
+						"scalr_variable.test", "sensitive", "true"),
 				),
 			},
 		},
 	})
 }
 
-// func GetResourceIDfromState(prefix *string, resourceDeclaration string) resource.TestCheckFunc {
-// 	return func(s *terraform.State) error {
-// 		rs, ok := s.RootModule().Resources[resourceDeclaration]
-// 		if !ok {
-// 			return fmt.Errorf("Not found: %s", resourceDeclaration)
-// 		}
-// 		if rs.Primary.ID == "" {
-// 			return fmt.Errorf("No instance ID is set")
-// 		}
-// 		*prefix = fmt.Sprintf("%s/test-ws/", rs.Primary.ID)
-// 		println("I GOT: %s", *prefix)
-// 		return nil
-// 	}
-// }
-
-// func CheckValue(resourceID *string) resource.TestCheckFunc {
-// 	return func(s *terraform.State) error {
-// 		println("I GOT: %s", *resourceID)
-// 		return nil
-// 	}
-// }
-
 func TestAccScalrVariable_update(t *testing.T) {
 	variable := &scalr.Variable{}
+	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -69,40 +51,40 @@ func TestAccScalrVariable_update(t *testing.T) {
 		CheckDestroy: testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrVariableBasic,
+				Config: testAccScalrVariableBasic(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrVariableExists(
-						"scalr_variable.foobar", variable),
+						"scalr_variable.test", variable),
 					testAccCheckScalrVariableAttributes(variable),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "key", "key_test"),
+						"scalr_variable.test", "key", "key_test"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "value", "value_test"),
+						"scalr_variable.test", "value", "value_test"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "category", "env"),
+						"scalr_variable.test", "category", "env"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "hcl", "false"),
+						"scalr_variable.test", "hcl", "false"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "sensitive", "true"),
+						"scalr_variable.test", "sensitive", "true"),
 				),
 			},
 
 			{
-				Config: testAccScalrVariableUpdate,
+				Config: testAccScalrVariableUpdate(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrVariableExists(
-						"scalr_variable.foobar", variable),
+						"scalr_variable.test", variable),
 					testAccCheckScalrVariableAttributesUpdate(variable),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "key", "key_updated"),
+						"scalr_variable.test", "key", "key_updated"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "value", "value_updated"),
+						"scalr_variable.test", "value", "value_updated"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "category", "terraform"),
+						"scalr_variable.test", "category", "terraform"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "hcl", "true"),
+						"scalr_variable.test", "hcl", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.foobar", "sensitive", "false"),
+						"scalr_variable.test", "sensitive", "false"),
 				),
 			},
 		},
@@ -110,13 +92,15 @@ func TestAccScalrVariable_update(t *testing.T) {
 }
 
 func TestAccScalrVariable_import(t *testing.T) {
+	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrVariableBasicNonsensitive,
+				Config: testAccScalrVariableBasicNonsensitive(rInt),
 			},
 			{
 				ResourceName: "scalr_variable.test",
@@ -125,7 +109,7 @@ func TestAccScalrVariable_import(t *testing.T) {
 					resources := s.RootModule().Resources
 					env := resources["scalr_environment.test"]
 					variable := resources["scalr_variable.test"]
-					return fmt.Sprintf("%s/test-ws/%s", env.Primary.ID, variable.Primary.ID), nil
+					return fmt.Sprintf("%s/test-ws-%d/%s", env.Primary.ID, rInt, variable.Primary.ID), nil
 				},
 				ImportStateVerify: true,
 			},
@@ -235,16 +219,17 @@ func testAccCheckScalrVariableDestroy(s *terraform.State) error {
 
 const testAccScalrVariableCommonConfig = `
 resource scalr_environment test {
-  name       = "test-env"
+  name       = "test-env-%d"
   account_id = "acc-svrcncgh453bi8g"
 }
   
 resource scalr_workspace test {
-  name           = "test-ws"
+  name           = "test-ws-%d"
   environment_id = scalr_environment.test.id
 }`
 
-const testAccScalrVariableBasic = testAccScalrVariableCommonConfig + `
+func testAccScalrVariableBasic(rInt int) string {
+	return fmt.Sprintf(testAccScalrVariableCommonConfig, rInt, rInt) + `
 resource scalr_variable test {
   key          = "key_test"
   value        = "value_test"
@@ -252,8 +237,10 @@ resource scalr_variable test {
   workspace_id = scalr_workspace.test.id
   sensitive    = true
 }`
+}
 
-const testAccScalrVariableBasicNonsensitive = testAccScalrVariableCommonConfig + `
+func testAccScalrVariableBasicNonsensitive(rInt int) string {
+	return fmt.Sprintf(testAccScalrVariableCommonConfig, rInt, rInt) + `
 resource scalr_variable test {
   key          = "key_test"
   value        = "value_test"
@@ -261,8 +248,10 @@ resource scalr_variable test {
   workspace_id = scalr_workspace.test.id 
   sensitive    = false
 }`
+}
 
-const testAccScalrVariableUpdate = testAccScalrVariableCommonConfig + `
+func testAccScalrVariableUpdate(rInt int) string {
+	return fmt.Sprintf(testAccScalrVariableCommonConfig, rInt, rInt) + `
 resource scalr_variable test {
   key          = "key_updated"
   value        = "value_updated"
@@ -271,3 +260,4 @@ resource scalr_variable test {
   sensitive    = false
   workspace_id = scalr_workspace.test.id
 }`
+}

@@ -20,17 +20,17 @@ func TestAccEndpointDataSource_basic(t *testing.T) {
 				Config: testAccEndpointDataSourceConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"data.scalr_endpoint.test-ep", "name", fmt.Sprintf("test endpoint-%d", rInt)),
+						"data.scalr_endpoint.test", "name", fmt.Sprintf("test endpoint-%d", rInt)),
 					resource.TestCheckResourceAttr(
-						"data.scalr_endpoint.test-ep", "secret_key", "my-secret-key"),
+						"data.scalr_endpoint.test", "secret_key", "my-secret-key"),
 					resource.TestCheckResourceAttr(
-						"data.scalr_endpoint.test-ep", "timeout", "15"),
+						"data.scalr_endpoint.test", "timeout", "15"),
 					resource.TestCheckResourceAttr(
-						"data.scalr_endpoint.test-ep", "max_attempts", "3"),
+						"data.scalr_endpoint.test", "max_attempts", "3"),
 					resource.TestCheckResourceAttr(
-						"data.scalr_endpoint.test-ep", "url", "https://example.com/endpoint"),
-					resource.TestCheckResourceAttr(
-						"data.scalr_endpoint.test-ep", "environment_id", "existing-env"),
+						"data.scalr_endpoint.test", "url", "https://example.com/endpoint"),
+					resource.TestCheckResourceAttrSet(
+						"data.scalr_endpoint.test", "environment_id"),
 				),
 			},
 		},
@@ -39,15 +39,20 @@ func TestAccEndpointDataSource_basic(t *testing.T) {
 
 func testAccEndpointDataSourceConfig(rInt int) string {
 	return fmt.Sprintf(`
-resource "scalr_endpoint" "test-ep" {
+resource scalr_environment test {
+  name       = "test-env"
+  account_id = "acc-svrcncgh453bi8g"
+}
+  
+resource scalr_endpoint test {
   name         = "test endpoint-%d"
   secret_key   = "my-secret-key" 
   timeout      = 15
   url          = "https://example.com/endpoint"
-  environment_id = "existing-env"
+  environment_id = scalr_environment.test.id
 }
 
-data "scalr_endpoint" "test-ep" {
-  id         = "${scalr_endpoint.test-ep.id}"
+data scalr_endpoint test {
+  id         = scalr_endpoint.test.id
 }`, rInt)
 }

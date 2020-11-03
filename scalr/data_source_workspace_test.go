@@ -23,8 +23,6 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.foobar", "name", fmt.Sprintf("workspace-test-%d", rInt)),
 					resource.TestCheckResourceAttr(
-						"data.scalr_workspace.foobar", "environment_id", "existing-env"),
-					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.foobar", "auto_apply", "true"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.foobar", "queue_all_runs", "false"),
@@ -32,6 +30,7 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 						"data.scalr_workspace.foobar", "terraform_version", "0.12.19"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.foobar", "working_directory", "terraform/test"),
+					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "environment_id"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "created_by.0.email"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "created_by.0.username"),
@@ -43,17 +42,22 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 
 func testAccScalrWorkspaceDataSourceConfig(rInt int) string {
 	return fmt.Sprintf(`
-resource "scalr_workspace" "foobar" {
+resource scalr_environment test {
+  name       = "test-env"
+  account_id = "acc-svrcncgh453bi8g"
+}
+
+resource scalr_workspace foobar {
   name                  = "workspace-test-%d"
-  environment_id        = "existing-env"
+  environment_id 		= scalr_environment.test.id
   auto_apply            = true
   queue_all_runs        = false
   terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
 }
 
-data "scalr_workspace" "foobar" {
-  name           = "${scalr_workspace.foobar.name}"
-  environment_id = "existing-env"
+data scalr_workspace foobar {
+  name           = scalr_workspace.foobar.name
+  environment_id = scalr_environment.test.id
 }`, rInt)
 }

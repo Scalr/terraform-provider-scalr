@@ -55,10 +55,8 @@ $ make test
 You will need to set up the environment variables for your Scalr installation. For example:
 ```sh
 export SCALR_HOSTNAME=abcdef.scalr.com
-export SCALR_TOKEN=eY.....
+export SCALR_TOKEN=.....
 ```
-The acceptance tests assume that the installation has an environment with ID `existing-env` 
-and a workspace with ID `existing-ws`.
 
 You can run the acceptance tests like this:
 ```sh
