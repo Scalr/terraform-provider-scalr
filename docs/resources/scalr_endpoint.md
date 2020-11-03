@@ -6,7 +6,7 @@ description: |-
   Manages endpoints.
 ---
 
-# scalr_endpoint
+# scalr_endpoint Resource
 
 Manage the state of endpoints in Scalr. Create, update and destroy
 
@@ -15,7 +15,7 @@ Manage the state of endpoints in Scalr. Create, update and destroy
 Basic usage:
 
 ```hcl
-resource "scalr_endpoint" "test" {
+resource "scalr_endpoint" "example" {
   name           = "my-endpoint-name"
   secret_key     = "my-secret-key"
   timeout        = 15
@@ -25,7 +25,7 @@ resource "scalr_endpoint" "test" {
 }
 ```
 
-## Arguments
+## Argument Reference
 
 * `name` - (Required) Name of the endpoint.
 * `secret_key` - (Required) Secret key to sign payload. 
@@ -34,7 +34,7 @@ resource "scalr_endpoint" "test" {
 * `max_attempts` - (Optional) Max delivery attempts. 
 * `timeout` - (Optional) Endpoint timeout (in sec). 
 
-## Attributes
+## Attribute Reference
 
 All arguments plus:
 
@@ -49,7 +49,7 @@ resource "random_string" "r" {
   length = 16
 }
 
-resource "scalr_endpoint" "test" {
+resource "scalr_endpoint" "example" {
   # ...
   secret_key = random_string.r.result
   # ...
