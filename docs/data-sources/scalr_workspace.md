@@ -6,20 +6,20 @@ description: |-
   Get information on a workspace.
 ---
 
-# scalr_workspace
+# scalr_workspace Data Source
 
 This data source is used to retrieve details of a single workspace by name.
 
 ## Example Usage
 
 ```hcl
-data "scalr_workspace" "test" {
+data "scalr_workspace" "example" {
   name           = "my-workspace-name"
   environment_id = "env-xxxxxxxxx"
 }
 ```
 
-## Arguments
+## Argument Reference
 
 The following arguments are supported:
 
@@ -27,7 +27,7 @@ The following arguments are supported:
 * `environment_id` - (Required) ID of the environment, in the format `env-<RANDOM STRING>`.
 * `vcs_provider_id` - (Optional) ID of vcs provider, in the format `vcs-<RANDOM STRING>`.
 
-## Attributes
+## Attribute Reference
 
 All arguments plus:
 
@@ -42,9 +42,7 @@ All arguments plus:
 
 The `vcs_repo` block contains:
 
-* `identifier` - A reference to your VCS repository in the format `:org/:repo`
-  where `:org` and `:repo` refer to the organization and repository in your VCS
-  provider.
+* `identifier` - * The reference to the VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
 * `path` - Path within the repo, if any.
 
 The `created_by` block contains:

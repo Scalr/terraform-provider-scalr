@@ -6,23 +6,23 @@ description: |-
   Get information on a webhook.
 ---
 
-# scalr_webhook
+# scalr_webhook Data Source
 
 This data source is used to retrieve details of a webhook.
 
 ## Example Usage
 
 ```hcl
-data "scalr_webhook" "test" {
+data "scalr_webhook" "example" {
   id = "wh-xxxxxxxxxxx"
 }
 ```
 
-## Arguments
+## Argument Reference
 
 * `id` - (Required) The webhook ID, in the format `wh-<RANDOM STRING>`.
 
-## Attributes
+## Attribute Reference
 
 All arguments plus:
 
@@ -32,4 +32,4 @@ All arguments plus:
 * `workspace_id` - ID of the workspace if applicable, in the format `ws-<RANDOM STRING>`.
 * `environment_id` - ID of the environment, in the format `env-<RANDOM STRING>`.
 * `events` - List of event IDs.
-* `last_triggered_at` - Date/time when webhook was triggered last time.
+* `last_triggered_at` - Date/time when webhook was last triggered.
