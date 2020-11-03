@@ -19,21 +19,21 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 			{
 				Config: testAccScalrWorkspaceDataSourceConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "id"),
+					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "id"),
 					resource.TestCheckResourceAttr(
-						"data.scalr_workspace.foobar", "name", fmt.Sprintf("workspace-test-%d", rInt)),
+						"data.scalr_workspace.test", "name", fmt.Sprintf("workspace-test-%d", rInt)),
 					resource.TestCheckResourceAttr(
-						"data.scalr_workspace.foobar", "auto_apply", "true"),
+						"data.scalr_workspace.test", "auto_apply", "true"),
 					resource.TestCheckResourceAttr(
-						"data.scalr_workspace.foobar", "queue_all_runs", "false"),
+						"data.scalr_workspace.test", "queue_all_runs", "false"),
 					resource.TestCheckResourceAttr(
-						"data.scalr_workspace.foobar", "terraform_version", "0.12.19"),
+						"data.scalr_workspace.test", "terraform_version", "0.12.19"),
 					resource.TestCheckResourceAttr(
-						"data.scalr_workspace.foobar", "working_directory", "terraform/test"),
-					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "environment_id"),
-					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "created_by.0.full_name"),
-					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "created_by.0.email"),
-					resource.TestCheckResourceAttrSet("data.scalr_workspace.foobar", "created_by.0.username"),
+						"data.scalr_workspace.test", "working_directory", "terraform/test"),
+					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "environment_id"),
+					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.full_name"),
+					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.email"),
+					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.username"),
 				),
 			},
 		},
@@ -47,7 +47,7 @@ resource scalr_environment test {
   account_id = "acc-svrcncgh453bi8g"
 }
 
-resource scalr_workspace foobar {
+resource scalr_workspace test {
   name                  = "workspace-test-%d"
   environment_id 		= scalr_environment.test.id
   auto_apply            = true
@@ -56,8 +56,8 @@ resource scalr_workspace foobar {
   working_directory     = "terraform/test"
 }
 
-data scalr_workspace foobar {
-  name           = scalr_workspace.foobar.name
+data scalr_workspace test {
+  name           = scalr_workspace.test.name
   environment_id = scalr_environment.test.id
 }`, rInt)
 }
