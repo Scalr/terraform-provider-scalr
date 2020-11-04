@@ -343,7 +343,7 @@ func testAccCheckScalrWorkspaceDestroy(s *terraform.State) error {
 const testAccScalrWorkspaceCommonConfig = `
 resource scalr_environment test {
   name       = "test-env-%d"
-  account_id = "acc-svrcncgh453bi8g"
+  account_id = "existing"
 }`
 
 func testAccScalrWorkspaceBasic(rInt int) string {

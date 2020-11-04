@@ -74,7 +74,7 @@ func testAccWebhookConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
   name       = "test-env-%d"
-  account_id = "acc-svrcncgh453bi8g"
+  account_id = "existing"
 }
   
 resource scalr_workspace test {
@@ -108,7 +108,7 @@ func testAccWebhookConfigUpdate(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
   name       = "test-env-%d"
-  account_id = "acc-svrcncgh453bi8g"
+  account_id = "existing"
 }
   
 resource scalr_workspace test {
