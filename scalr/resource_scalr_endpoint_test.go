@@ -81,7 +81,7 @@ func TestAccEndpoint_update(t *testing.T) {
 func testAccEndpointConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
-  name       = "test-env"
+  name       = "test-env-%d"
   account_id = "existing"
 }
 
@@ -92,13 +92,13 @@ resource scalr_endpoint test {
   max_attempts = 3                
   url          = "https://example.com/endpoint"
   environment_id = scalr_environment.test.id
-}`, rInt)
+}`, rInt, rInt)
 }
 
 func testAccEndpointConfigUpdate(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
-  name       = "test-env"
+  name       = "test-env-%d"
   account_id = "existing"
 }
 
@@ -109,5 +109,5 @@ resource scalr_endpoint test {
   max_attempts = 5                
   url          = "https://example.com/endpoint-updated"
   environment_id = scalr_environment.test.id
-}`, rInt)
+}`, rInt, rInt)
 }
