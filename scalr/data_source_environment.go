@@ -1,6 +1,7 @@
 package scalr
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -79,6 +80,7 @@ func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 			d.SetId("")
 			return nil
 		}
+		return fmt.Errorf("Error retrieving environment: %v", err)
 	}
 	// Update the configuration.
 	d.Set("name", environment.Name)
