@@ -23,7 +23,7 @@ import (
 	providerVersion "github.com/scalr/terraform-provider-scalr/version"
 )
 
-const defaultHostname = "my.scalr.com"
+const defaultHostname = "scalr.io"
 
 var scalrServiceIDs = []string{"iacp.v3"}
 
@@ -50,14 +50,14 @@ func Provider() terraform.ResourceProvider {
 			"hostname": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: descriptions["hostname"],
+				Description: fmt.Sprintf("Scalr instance hostname without scheme. Defaults to %s.", defaultHostname),
 				DefaultFunc: schema.EnvDefaultFunc("SCALR_HOSTNAME", defaultHostname),
 			},
 
 			"token": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: descriptions["token"],
+				Description: "Scalr API token.",
 				DefaultFunc: schema.EnvDefaultFunc("SCALR_TOKEN", nil),
 			},
 		},
@@ -68,13 +68,15 @@ func Provider() terraform.ResourceProvider {
 			"scalr_current_run":   dataSourceScalrCurrentRun(),
 			"scalr_endpoint":      dataSourceScalrEndpoint(),
 			"scalr_webhook":       dataSourceScalrWebhook(),
+			"scalr_environment":   dataSourceScalrEnvironment(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"scalr_workspace": resourceScalrWorkspace(),
-			"scalr_variable":  resourceScalrVariable(),
-			"scalr_endpoint":  resourceScalrEndpoint(),
-			"scalr_webhook":   resourceScalrWebhook(),
+			"scalr_workspace":   resourceScalrWorkspace(),
+			"scalr_variable":    resourceScalrVariable(),
+			"scalr_endpoint":    resourceScalrEndpoint(),
+			"scalr_webhook":     resourceScalrWebhook(),
+			"scalr_environment": resourceScalrEnvironment(),
 		},
 
 		ConfigureFunc: providerConfigure,
@@ -109,13 +111,13 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		services.ForceHostServices(host, hostConfig.Services)
 	}
 
-	// Discover the Terraform Enterprise address.
+	// Discover the address.
 	host, err := services.Discover(hostname)
 	if err != nil {
 		return nil, err
 	}
 
-	// Get the full Terraform Enterprise service address.
+	// Get the full service address.
 	var address *url.URL
 	var discoErr error
 	for _, scalrServiceID := range scalrServiceIDs {
@@ -340,7 +342,7 @@ func checkConstraints(c *disco.Constraints) error {
 
 	summary := fmt.Sprintf("Incompatible Scalr provider version v%s", v.String())
 	details := fmt.Sprintf(
-		"The configured Terraform Enterprise backend is compatible with Scalr provider\n"+
+		"The configured Scalr installation is compatible with Scalr provider\n"+
 			"versions >= %s, <= %s%s.", c.Minimum, c.Maximum, excluding,
 	)
 
@@ -359,10 +361,4 @@ func checkConstraintsWarning(err error) error {
 			"unexpected error which should be reported.",
 		err,
 	)
-}
-
-var descriptions = map[string]string{
-	"hostname": "The Terraform Enterprise hostname to connect to. Defaults to app.terraform.io.",
-	"token": "The token used to authenticate with Terraform Enterprise. We recommend omitting\n" +
-		"the token which can be set as credentials in the CLI config file.",
 }

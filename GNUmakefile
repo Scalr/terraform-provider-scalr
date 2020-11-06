@@ -5,17 +5,17 @@ BUILD_ENV=CGO_ENABLED=0
 
 default: build
 
-build: fmtcheck
+build: 
 	$(BUILD_ENV) go build
 
-build-linux: fmtcheck
+build-linux: 
 	env $(BUILD_ENV) GOOS=linux GOARCH=amd64 go build
 
-test: fmtcheck
+test: 
 	echo $(TEST) | \
 		$(BUILD_ENV) xargs -t -n4  go test $(TESTARGS) -timeout=30s -parallel=4
 
-testacc: fmtcheck
+testacc: 
 	$(BUILD_ENV) TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 15m
 
 vet:
@@ -30,12 +30,6 @@ vet:
 fmt:
 	gofmt -w $(GOFMT_FILES)
 
-fmtcheck:
-	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
-
-errcheck:
-	@sh -c "'$(CURDIR)/scripts/errcheck.sh'"
-
 test-compile:
 	@if [ "$(TEST)" = "./..." ]; then \
 		echo "ERROR: Set TEST to a specific package. For example,"; \
@@ -43,5 +37,5 @@ test-compile:
 		exit 1; \
 	fi
 	go test -c $(TEST) $(TESTARGS)
-.PHONY: build build-linux test testacc vet fmt fmtcheck errcheck test-compile
+.PHONY: build build-linux test testacc vet fmt test-compile
 
