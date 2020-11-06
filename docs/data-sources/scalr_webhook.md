@@ -27,7 +27,7 @@ data "scalr_webhook" "example" {
 All arguments plus:
 
 * `name` - Name of the webhook.
-* `enabled` - Whether webhook is enabled. 
+* `enabled` - Boolean indicates if the webhook is enabled. 
 * `endpoint_id` - ID of the endpoint, in the format `ep-<RANDOM STRING>`.
 * `workspace_id` - ID of the workspace if applicable, in the format `ws-<RANDOM STRING>`.
 * `environment_id` - ID of the environment, in the format `env-<RANDOM STRING>`.

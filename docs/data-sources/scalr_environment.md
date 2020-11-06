@@ -28,8 +28,14 @@ All arguments plus:
 
 * `name` - Name of the environment.
 * `created_by` - Details of the user that created the environment.
-* `cost_estimation_enabled` - Whether cost estimation for the environment  enabled (true/false).
+* `cost_estimation_enabled` - Boolean indicates if cost estimation is enabled for the environment.
 * `status` - Shows status of the environment. 
 * `account_id` - ID of the environment account, in the format `acc-<RANDOM STRING>`
 * `cloud_credentials` - List of the environment cloud-credentials IDs, in the format `cred-<RANDOM STRING>`.
 * `policy_groups` - List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.
+
+The `created_by` block contains:
+
+* `username` - Username of creator.
+* `email` - Email address of creator.
+* `full_name` - Full name of creator.
