@@ -6,7 +6,7 @@ description: |-
   Get information on an environment.
 ---
 
-# scalr_environment
+# scalr_environment Data Source
 
 This data source is used to retrieve details of a an environment.
 

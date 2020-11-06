@@ -6,7 +6,7 @@ description: |-
   Manages environments.
 ---
 
-# scalr_environment
+# scalr_environment Resource
 
 Manage the state of environments in Scalr. Creates, updates and destroy.
 
