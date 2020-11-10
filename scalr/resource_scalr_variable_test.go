@@ -219,39 +219,41 @@ func testAccCheckScalrVariableDestroy(s *terraform.State) error {
 
 const testAccScalrVariableCommonConfig = `
 resource scalr_environment test {
-  name       = "test-env-%d"
+  name       = "test-env-%[1]d"
   account_id = "existing"
 }
   
 resource scalr_workspace test {
-  name           = "test-ws-%d"
+  name           = "test-ws-%[1]d"
   environment_id = scalr_environment.test.id
-}`
+}
+%s
+`
 
 func testAccScalrVariableBasic(rInt int) string {
-	return fmt.Sprintf(testAccScalrVariableCommonConfig, rInt, rInt) + `
+	return fmt.Sprintf(testAccScalrVariableCommonConfig, rInt, `
 resource scalr_variable test {
   key          = "key_test"
   value        = "value_test"
   category     = "env"
   workspace_id = scalr_workspace.test.id
   sensitive    = true
-}`
+}`)
 }
 
 func testAccScalrVariableBasicNonsensitive(rInt int) string {
-	return fmt.Sprintf(testAccScalrVariableCommonConfig, rInt, rInt) + `
+	return fmt.Sprintf(testAccScalrVariableCommonConfig, rInt, `
 resource scalr_variable test {
   key          = "key_test"
   value        = "value_test"
   category     = "env"
   workspace_id = scalr_workspace.test.id 
   sensitive    = false
-}`
+}`)
 }
 
 func testAccScalrVariableUpdate(rInt int) string {
-	return fmt.Sprintf(testAccScalrVariableCommonConfig, rInt, rInt) + `
+	return fmt.Sprintf(testAccScalrVariableCommonConfig, rInt, `
 resource scalr_variable test {
   key          = "key_updated"
   value        = "value_updated"
@@ -259,5 +261,5 @@ resource scalr_variable test {
   hcl          = true
   sensitive    = false
   workspace_id = scalr_workspace.test.id
-}`
+}`)
 }

@@ -344,37 +344,39 @@ const testAccScalrWorkspaceCommonConfig = `
 resource scalr_environment test {
   name       = "test-env-%d"
   account_id = "existing"
-}`
+}
+%s
+`
 
 func testAccScalrWorkspaceBasic(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt) + `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, `
 resource scalr_workspace test {
   name           = "workspace-test"
   environment_id = scalr_environment.test.id
   auto_apply     = true
-}`
+}`)
 }
 
 func testAccScalrWorkspaceMonorepo(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt) + `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, `
 resource "scalr_workspace" "test" {
   name                  = "workspace-monorepo"
   environment_id 		= scalr_environment.test.id
   working_directory     = "/db"
-}`
+}`)
 }
 
 func testAccScalrWorkspaceRenamed(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt) + `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, `
 resource "scalr_workspace" "test" {
   name           = "renamed-out-of-band"
   environment_id = scalr_environment.test.id
   auto_apply     = true
-}`
+}`)
 }
 
 func testAccScalrWorkspaceUpdate(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt) + `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, `
 resource "scalr_workspace" "test" {
   name                  = "workspace-updated"
   environment_id 		= scalr_environment.test.id
@@ -383,5 +385,5 @@ resource "scalr_workspace" "test" {
   queue_all_runs        = false
   terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
-}`
+}`)
 }

@@ -36,17 +36,17 @@ func TestAccWebhookDataSource_basic(t *testing.T) {
 func testAccWebhookDataSourceConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
-  name       = "test-env-%d"
+  name       = "test-env-%[1]d"
   account_id = "existing"
 }
   
 resource scalr_workspace test {
-  name           = "test-ws-%d"
+  name           = "test-ws-%[1]d"
   environment_id = scalr_environment.test.id
 }
   
 resource scalr_endpoint test {
-  name           = "test endpoint-%d"
+  name           = "test endpoint-%[1]d"
   http_method    = "POST"
   secret_key     = "my-secret-key"
   timeout        = 15
@@ -57,7 +57,7 @@ resource scalr_endpoint test {
 
 resource scalr_webhook test {
   enabled      = false
-  name         = "webhook-test-%d"
+  name         = "webhook-test-%[1]d"
   events       = ["run:completed", "run:errored"]
   endpoint_id  = scalr_endpoint.test.id
   workspace_id = scalr_workspace.test.id
@@ -65,5 +65,5 @@ resource scalr_webhook test {
   
   data scalr_webhook test {
   id = scalr_webhook.test.id
-}`, rInt, rInt, rInt, rInt)
+}`, rInt)
 }

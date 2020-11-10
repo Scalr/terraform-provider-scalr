@@ -40,12 +40,12 @@ func TestAccEndpointDataSource_basic(t *testing.T) {
 func testAccEndpointDataSourceConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
-  name       = "test-env-%d"
+  name       = "test-env-%[1]d"
   account_id = "existing"
 }
   
 resource scalr_endpoint test {
-  name         = "test endpoint-%d"
+  name         = "test endpoint-%[1]d"
   secret_key   = "my-secret-key" 
   timeout      = 15
   url          = "https://example.com/endpoint"
@@ -54,5 +54,5 @@ resource scalr_endpoint test {
 
 data scalr_endpoint test {
   id         = scalr_endpoint.test.id
-}`, rInt, rInt)
+}`, rInt)
 }

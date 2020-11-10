@@ -43,12 +43,12 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 func testAccScalrWorkspaceDataSourceConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
-  name       = "test-env-%d"
+  name       = "test-env-%[1]d"
   account_id = "existing"
 }
 
 resource scalr_workspace test {
-  name                  = "workspace-test-%d"
+  name                  = "workspace-test-%[1]d"
   environment_id 		= scalr_environment.test.id
   auto_apply            = true
   queue_all_runs        = false
@@ -59,5 +59,5 @@ resource scalr_workspace test {
 data scalr_workspace test {
   name           = scalr_workspace.test.name
   environment_id = scalr_environment.test.id
-}`, rInt, rInt)
+}`, rInt)
 }
