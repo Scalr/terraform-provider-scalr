@@ -75,7 +75,6 @@ func TestAccScalrWorkspace_monorepo(t *testing.T) {
 }
 
 func TestAccScalrWorkspace_renamed(t *testing.T) {
-	var environmentID string
 	workspace := &scalr.Workspace{}
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
@@ -100,12 +99,11 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 						"scalr_workspace.test", "queue_all_runs", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
-					getResourceIDfromState(&environmentID, "scalr_environment.test"),
 				),
 			},
 
 			{
-				PreConfig: testAccCheckScalrWorkspaceRename(&environmentID),
+				PreConfig: testAccCheckScalrWorkspaceRename(fmt.Sprintf("test-env-%d", rInt)),
 				Config:    testAccScalrWorkspaceRenamed(rInt),
 				PlanOnly:  true,
 				Check: resource.ComposeTestCheckFunc(
@@ -268,9 +266,25 @@ func testAccCheckScalrWorkspaceMonorepoAttributes(
 	}
 }
 
-func testAccCheckScalrWorkspaceRename(environmentID *string) func() {
+func testAccCheckScalrWorkspaceRename(environmentName string) func() {
 	return func() {
+		var environmentID *string
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
+
+		envl, err := scalrClient.Environments.List(ctx)
+		if err != nil {
+			log.Fatalf("Error retrieving environments: %v", err)
+		}
+
+		for _, env := range envl.Items {
+			if env.Name == environmentName {
+				environmentID = &env.ID
+				break
+			}
+		}
+		if environmentID == nil {
+			log.Fatalf("Could not find environment with name: %s", environmentName)
+		}
 
 		w, err := scalrClient.Workspaces.Update(
 			context.Background(),
