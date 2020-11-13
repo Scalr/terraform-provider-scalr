@@ -3,10 +3,24 @@ package scalr
 import (
 	"fmt"
 	"log"
+	"sort"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	scalr "github.com/scalr/go-scalr"
 )
+
+var (
+	eventDefinitions = []string{
+		"run:completed",
+		"run:errored",
+		"run:needs_attention",
+	}
+)
+
+func init() {
+	sort.Strings(eventDefinitions)
+}
 
 func resourceScalrWebhook() *schema.Resource {
 	return &schema.Resource{
@@ -97,18 +111,16 @@ func getResourceScope(scalrClient *scalr.Client, workspaceID string, environment
 	return workspace, environment, account, nil
 }
 
-//remove after https://scalr-labs.atlassian.net/browse/SCALRCORE-16234
-func validateEventDefinitions(eventName interface{}) error {
-	switch eventName {
-	case
-		"run:completed",
-		"run:errored",
-		"run:needs_attention":
+func validateEventDefinitions(eventName string) error {
+	if sort.SearchStrings(eventDefinitions, eventName) < len(eventDefinitions) {
 		return nil
 	}
+	eventDefinitionsQuoted := make([]string, len(eventDefinitions))
+	for i, eventDefinition := range eventDefinitions {
+		eventDefinitionsQuoted[i] = fmt.Sprintf("'%s'", eventDefinition)
+	}
 	return fmt.Errorf(
-		"Invalid value for events '%s'. Allowed values: 'run:completed', 'run:errored', 'run:needs_attention'",
-		eventName)
+		"Invalid value for events '%s'. Allowed values: %s", eventName, strings.Join(eventDefinitionsQuoted, ", "))
 }
 
 func resourceScalrWebhookCreate(d *schema.ResourceData, meta interface{}) error {
@@ -128,7 +140,7 @@ func resourceScalrWebhookCreate(d *schema.ResourceData, meta interface{}) error 
 	events := d.Get("events").([]interface{})
 	var eventDefinitions []*scalr.EventDefinition
 	for _, eventID := range events {
-		if err := validateEventDefinitions(eventID); err != nil {
+		if err := validateEventDefinitions(eventID.(string)); err != nil {
 			return err
 		}
 		eventDefinitions = append(eventDefinitions, &scalr.EventDefinition{ID: eventID.(string)})
@@ -201,13 +213,13 @@ func resourceScalrWebhookUpdate(d *schema.ResourceData, meta interface{}) error 
 	scalrClient := meta.(*scalr.Client)
 
 	var err error
-	events := d.Get("events").([]interface{})
+	events := d.Get("events").([]string)
 	var eventDefinitions []*scalr.EventDefinition
 	for _, eventID := range events {
 		if err = validateEventDefinitions(eventID); err != nil {
 			return err
 		}
-		eventDefinitions = append(eventDefinitions, &scalr.EventDefinition{ID: eventID.(string)})
+		eventDefinitions = append(eventDefinitions, &scalr.EventDefinition{ID: eventID})
 	}
 
 	// Create a new options struct.
