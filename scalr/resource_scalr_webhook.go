@@ -75,11 +75,11 @@ func getResourceScope(scalrClient *scalr.Client, workspaceID string, environment
 			return nil, nil, nil, fmt.Errorf("Error retrieving workspace %s: %v", workspaceID, err)
 		}
 
-		if environmentID != "" && environmentID != workspace.Organization.ID {
+		if environmentID != "" && environmentID != workspace.Environment.ID {
 			return nil, nil, nil, fmt.Errorf("Workspace %s does not belong to an environment %s", workspaceID, environmentID)
 		}
 
-		environmentID = workspace.Organization.ID
+		environmentID = workspace.Environment.ID
 	}
 
 	// Get the environment.
