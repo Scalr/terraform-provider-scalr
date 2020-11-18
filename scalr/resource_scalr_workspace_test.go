@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -13,6 +15,7 @@ import (
 
 func TestAccScalrWorkspace_basic(t *testing.T) {
 	workspace := &scalr.Workspace{}
+	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -20,24 +23,24 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrWorkspace_basic,
+				Config: testAccScalrWorkspaceBasic(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrWorkspaceExists(
-						"scalr_workspace.foobar", workspace),
+						"scalr_workspace.test", workspace),
 					testAccCheckScalrWorkspaceAttributes(workspace),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "name", "workspace-test"),
+						"scalr_workspace.test", "name", "workspace-test"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "auto_apply", "true"),
+						"scalr_workspace.test", "auto_apply", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "operations", "true"),
+						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "queue_all_runs", "true"),
+						"scalr_workspace.test", "queue_all_runs", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "working_directory", ""),
-					resource.TestCheckResourceAttrSet("scalr_workspace.foobar", "created_by.0.full_name"),
-					resource.TestCheckResourceAttrSet("scalr_workspace.foobar", "created_by.0.email"),
-					resource.TestCheckResourceAttrSet("scalr_workspace.foobar", "created_by.0.username"),
+						"scalr_workspace.test", "working_directory", ""),
+					resource.TestCheckResourceAttrSet("scalr_workspace.test", "created_by.0.full_name"),
+					resource.TestCheckResourceAttrSet("scalr_workspace.test", "created_by.0.email"),
+					resource.TestCheckResourceAttrSet("scalr_workspace.test", "created_by.0.username"),
 				),
 			},
 		},
@@ -46,6 +49,7 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 
 func TestAccScalrWorkspace_monorepo(t *testing.T) {
 	workspace := &scalr.Workspace{}
+	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -53,17 +57,17 @@ func TestAccScalrWorkspace_monorepo(t *testing.T) {
 		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrWorkspace_monorepo,
+				Config: testAccScalrWorkspaceMonorepo(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrWorkspaceExists(
-						"scalr_workspace.foobar", workspace),
+						"scalr_workspace.test", workspace),
 					testAccCheckScalrWorkspaceMonorepoAttributes(workspace),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "name", "workspace-monorepo"),
+						"scalr_workspace.test", "name", "workspace-monorepo"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "operations", "true"),
+						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "working_directory", "/db"),
+						"scalr_workspace.test", "working_directory", "/db"),
 				),
 			},
 		},
@@ -72,6 +76,7 @@ func TestAccScalrWorkspace_monorepo(t *testing.T) {
 
 func TestAccScalrWorkspace_renamed(t *testing.T) {
 	workspace := &scalr.Workspace{}
+	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -79,42 +84,42 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrWorkspace_basic,
+				Config: testAccScalrWorkspaceBasic(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrWorkspaceExists(
-						"scalr_workspace.foobar", workspace),
+						"scalr_workspace.test", workspace),
 					testAccCheckScalrWorkspaceAttributes(workspace),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "name", "workspace-test"),
+						"scalr_workspace.test", "name", "workspace-test"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "auto_apply", "true"),
+						"scalr_workspace.test", "auto_apply", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "operations", "true"),
+						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "queue_all_runs", "true"),
+						"scalr_workspace.test", "queue_all_runs", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "working_directory", ""),
+						"scalr_workspace.test", "working_directory", ""),
 				),
 			},
 
 			{
-				PreConfig: testAccCheckScalrWorkspaceRename,
-				Config:    testAccScalrWorkspace_renamed,
+				PreConfig: testAccCheckScalrWorkspaceRename(fmt.Sprintf("test-env-%d", rInt)),
+				Config:    testAccScalrWorkspaceRenamed(rInt),
 				PlanOnly:  true,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrWorkspaceExists(
-						"scalr_workspace.foobar", workspace),
+						"scalr_workspace.test", workspace),
 					testAccCheckScalrWorkspaceAttributes(workspace),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "name", "workspace-test"),
+						"scalr_workspace.test", "name", "workspace-test"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "auto_apply", "true"),
+						"scalr_workspace.test", "auto_apply", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "operations", "true"),
+						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "queue_all_runs", "true"),
+						"scalr_workspace.test", "queue_all_runs", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "working_directory", ""),
+						"scalr_workspace.test", "working_directory", ""),
 				),
 			},
 		},
@@ -122,6 +127,7 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 }
 func TestAccScalrWorkspace_update(t *testing.T) {
 	workspace := &scalr.Workspace{}
+	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -129,42 +135,42 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrWorkspace_basic,
+				Config: testAccScalrWorkspaceBasic(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrWorkspaceExists(
-						"scalr_workspace.foobar", workspace),
+						"scalr_workspace.test", workspace),
 					testAccCheckScalrWorkspaceAttributes(workspace),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "name", "workspace-test"),
+						"scalr_workspace.test", "name", "workspace-test"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "auto_apply", "true"),
+						"scalr_workspace.test", "auto_apply", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "operations", "true"),
+						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "queue_all_runs", "true"),
+						"scalr_workspace.test", "queue_all_runs", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "working_directory", ""),
+						"scalr_workspace.test", "working_directory", ""),
 				),
 			},
 
 			{
-				Config: testAccScalrWorkspace_update,
+				Config: testAccScalrWorkspaceUpdate(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrWorkspaceExists(
-						"scalr_workspace.foobar", workspace),
+						"scalr_workspace.test", workspace),
 					testAccCheckScalrWorkspaceAttributesUpdated(workspace),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "name", "workspace-updated"),
+						"scalr_workspace.test", "name", "workspace-updated"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "auto_apply", "false"),
+						"scalr_workspace.test", "auto_apply", "false"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "operations", "false"),
+						"scalr_workspace.test", "operations", "false"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "queue_all_runs", "false"),
+						"scalr_workspace.test", "queue_all_runs", "false"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "terraform_version", "0.12.19"),
+						"scalr_workspace.test", "terraform_version", "0.12.19"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.foobar", "working_directory", "terraform/test"),
+						"scalr_workspace.test", "working_directory", "terraform/test"),
 				),
 			},
 		},
@@ -172,17 +178,19 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 }
 
 func TestAccScalrWorkspace_import(t *testing.T) {
+	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrWorkspace_basic,
+				Config: testAccScalrWorkspaceBasic(rInt),
 			},
 
 			{
-				ResourceName:      "scalr_workspace.foobar",
+				ResourceName:      "scalr_workspace.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -258,21 +266,39 @@ func testAccCheckScalrWorkspaceMonorepoAttributes(
 	}
 }
 
-func testAccCheckScalrWorkspaceRename() {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+func testAccCheckScalrWorkspaceRename(environmentName string) func() {
+	return func() {
+		var environmentID *string
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
-	w, err := scalrClient.Workspaces.Update(
-		context.Background(),
-		"existing-env",
-		"workspace-test",
-		scalr.WorkspaceUpdateOptions{Name: scalr.String("renamed-out-of-band")},
-	)
-	if err != nil {
-		log.Fatalf("Could not rename the workspace out of band: %v", err)
-	}
+		envl, err := scalrClient.Environments.List(ctx)
+		if err != nil {
+			log.Fatalf("Error retrieving environments: %v", err)
+		}
 
-	if w.Name != "renamed-out-of-band" {
-		log.Fatalf("Failed to rename the workspace out of band: %v", err)
+		for _, env := range envl.Items {
+			if env.Name == environmentName {
+				environmentID = &env.ID
+				break
+			}
+		}
+		if environmentID == nil {
+			log.Fatalf("Could not find environment with name: %s", environmentName)
+		}
+
+		w, err := scalrClient.Workspaces.Update(
+			context.Background(),
+			*environmentID,
+			"workspace-test",
+			scalr.WorkspaceUpdateOptions{Name: scalr.String("renamed-out-of-band")},
+		)
+		if err != nil {
+			log.Fatalf("Could not rename the workspace out of band: %v", err)
+		}
+
+		if w.Name != "renamed-out-of-band" {
+			log.Fatalf("Failed to rename the workspace out of band: %v", err)
+		}
 	}
 }
 
@@ -328,34 +354,50 @@ func testAccCheckScalrWorkspaceDestroy(s *terraform.State) error {
 	return nil
 }
 
-const testAccScalrWorkspace_basic = `
-resource "scalr_workspace" "foobar" {
+const testAccScalrWorkspaceCommonConfig = `
+resource scalr_environment test {
+  name       = "test-env-%d"
+  account_id = "existing"
+}
+%s
+`
+
+func testAccScalrWorkspaceBasic(rInt int) string {
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, `
+resource scalr_workspace test {
   name           = "workspace-test"
-  environment_id = "existing-env"
+  environment_id = scalr_environment.test.id
   auto_apply     = true
-}`
+}`)
+}
 
-const testAccScalrWorkspace_monorepo = `
-resource "scalr_workspace" "foobar" {
+func testAccScalrWorkspaceMonorepo(rInt int) string {
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, `
+resource "scalr_workspace" "test" {
   name                  = "workspace-monorepo"
-  environment_id        = "existing-env"
+  environment_id 		= scalr_environment.test.id
   working_directory     = "/db"
-}`
+}`)
+}
 
-const testAccScalrWorkspace_renamed = `
-resource "scalr_workspace" "foobar" {
+func testAccScalrWorkspaceRenamed(rInt int) string {
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, `
+resource "scalr_workspace" "test" {
   name           = "renamed-out-of-band"
-  environment_id = "existing-env"
+  environment_id = scalr_environment.test.id
   auto_apply     = true
-}`
+}`)
+}
 
-const testAccScalrWorkspace_update = `
-resource "scalr_workspace" "foobar" {
+func testAccScalrWorkspaceUpdate(rInt int) string {
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, `
+resource "scalr_workspace" "test" {
   name                  = "workspace-updated"
-  environment_id        = "existing-env"
+  environment_id 		= scalr_environment.test.id
   auto_apply            = false
   operations            = false
   queue_all_runs        = false
   terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
-}`
+}`)
+}

@@ -2,7 +2,9 @@ package scalr
 
 import (
 	"fmt"
+	"math/rand"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -11,6 +13,7 @@ import (
 
 func TestAccEnvironment_basic(t *testing.T) {
 	environment := &scalr.Environment{}
+	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -18,11 +21,11 @@ func TestAccEnvironment_basic(t *testing.T) {
 		CheckDestroy: testAccCheckScalrEnvironmentDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEnvironmentConfig(),
+				Config: testAccEnvironmentConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrEnvironmentExists("scalr_environment.test", environment),
-					testAccCheckScalrEnvironmentAttributes(environment),
-					resource.TestCheckResourceAttr("scalr_environment.test", "name", "test-env"),
+					testAccCheckScalrEnvironmentAttributes(environment, rInt),
+					resource.TestCheckResourceAttr("scalr_environment.test", "name", fmt.Sprintf("test-env-%d", rInt)),
 					resource.TestCheckResourceAttr("scalr_environment.test", "cost_estimation_enabled", "true"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "status", "Active"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "account_id", "existing"),
@@ -39,6 +42,7 @@ func TestAccEnvironment_basic(t *testing.T) {
 
 func TestAccEnvironment_update(t *testing.T) {
 	environment := &scalr.Environment{}
+	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -46,11 +50,11 @@ func TestAccEnvironment_update(t *testing.T) {
 		CheckDestroy: testAccCheckScalrEnvironmentDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEnvironmentConfig(),
+				Config: testAccEnvironmentConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrEnvironmentExists("scalr_environment.test", environment),
-					testAccCheckScalrEnvironmentAttributes(environment),
-					resource.TestCheckResourceAttr("scalr_environment.test", "name", "test-env"),
+					testAccCheckScalrEnvironmentAttributes(environment, rInt),
+					resource.TestCheckResourceAttr("scalr_environment.test", "name", fmt.Sprintf("test-env-%d", rInt)),
 					resource.TestCheckResourceAttr("scalr_environment.test", "cost_estimation_enabled", "true"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "status", "Active"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "account_id", "existing"),
@@ -62,11 +66,11 @@ func TestAccEnvironment_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccEnvironmentUpdateConfig(),
+				Config: testAccEnvironmentUpdateConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrEnvironmentExists("scalr_environment.test", environment),
-					testAccCheckScalrEnvironmentAttributesUpdate(environment),
-					resource.TestCheckResourceAttr("scalr_environment.test", "name", "test-env-patched"),
+					testAccCheckScalrEnvironmentAttributesUpdate(environment, rInt),
+					resource.TestCheckResourceAttr("scalr_environment.test", "name", fmt.Sprintf("test-env-%d-patched", rInt)),
 					resource.TestCheckResourceAttr("scalr_environment.test", "cost_estimation_enabled", "false"),
 				),
 			},
@@ -118,7 +122,7 @@ func testAccCheckScalrEnvironmentExists(n string, environment *scalr.Environment
 	}
 }
 
-func testAccCheckScalrEnvironmentAttributes(environment *scalr.Environment) resource.TestCheckFunc {
+func testAccCheckScalrEnvironmentAttributes(environment *scalr.Environment, rInt int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if environment.Status != "Active" {
 			return fmt.Errorf("Bad status: %s", environment.Status)
@@ -127,7 +131,7 @@ func testAccCheckScalrEnvironmentAttributes(environment *scalr.Environment) reso
 		if environment.CostEstimationEnabled != true {
 			return fmt.Errorf("Bad cost_estimation_enabled: %t", environment.CostEstimationEnabled)
 		}
-		if environment.Name != "test-env" {
+		if environment.Name != fmt.Sprintf("test-env-%d", rInt) {
 			return fmt.Errorf("Bad name: %s", environment.Name)
 		}
 		if environment.Account.ID != "existing" {
@@ -137,33 +141,32 @@ func testAccCheckScalrEnvironmentAttributes(environment *scalr.Environment) reso
 		return nil
 	}
 }
-func testAccCheckScalrEnvironmentAttributesUpdate(environment *scalr.Environment) resource.TestCheckFunc {
+func testAccCheckScalrEnvironmentAttributesUpdate(environment *scalr.Environment, rInt int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if environment.CostEstimationEnabled != false {
 			return fmt.Errorf("Bad cost_estimation_enabled: %t", environment.CostEstimationEnabled)
 		}
-		if environment.Name != "test-env-patched" {
+		if environment.Name != fmt.Sprintf("test-env-%d-patched", rInt) {
 			return fmt.Errorf("Bad name: %s", environment.Name)
 		}
 		return nil
 	}
 }
 
-func testAccEnvironmentConfig() string {
-	return `
+func testAccEnvironmentConfig(rInt int) string {
+	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
-  name       = "test-env"
+  name       = "test-env-%d"
   account_id = "existing"
   cost_estimation_enabled = true
-
-}`
+}`, rInt)
 }
 
-func testAccEnvironmentUpdateConfig() string {
-	return `
+func testAccEnvironmentUpdateConfig(rInt int) string {
+	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
-  name       = "test-env-patched"
+  name       = "test-env-%d-patched"
   account_id = "existing"
   cost_estimation_enabled = false
-}`
+}`, rInt)
 }

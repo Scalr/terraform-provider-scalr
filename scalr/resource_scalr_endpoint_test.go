@@ -20,17 +20,17 @@ func TestAccEndpoint_basic(t *testing.T) {
 				Config: testAccEndpointConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"scalr_endpoint.test-ep", "name", fmt.Sprintf("test endpoint-%d", rInt)),
+						"scalr_endpoint.test", "name", fmt.Sprintf("test endpoint-%d", rInt)),
 					resource.TestCheckResourceAttr(
-						"scalr_endpoint.test-ep", "secret_key", "my-secret-key"),
+						"scalr_endpoint.test", "secret_key", "my-secret-key"),
 					resource.TestCheckResourceAttr(
-						"scalr_endpoint.test-ep", "timeout", "15"),
+						"scalr_endpoint.test", "timeout", "15"),
 					resource.TestCheckResourceAttr(
-						"scalr_endpoint.test-ep", "max_attempts", "3"),
+						"scalr_endpoint.test", "max_attempts", "3"),
 					resource.TestCheckResourceAttr(
-						"scalr_endpoint.test-ep", "url", "https://example.com/endpoint"),
-					resource.TestCheckResourceAttr(
-						"scalr_endpoint.test-ep", "environment_id", "existing-env"),
+						"scalr_endpoint.test", "url", "https://example.com/endpoint"),
+					resource.TestCheckResourceAttrSet(
+						"scalr_endpoint.test", "environment_id"),
 				),
 			},
 		},
@@ -48,30 +48,30 @@ func TestAccEndpoint_update(t *testing.T) {
 				Config: testAccEndpointConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"scalr_endpoint.test-ep", "name", fmt.Sprintf("test endpoint-%d", rInt)),
+						"scalr_endpoint.test", "name", fmt.Sprintf("test endpoint-%d", rInt)),
 					resource.TestCheckResourceAttr(
-						"scalr_endpoint.test-ep", "secret_key", "my-secret-key"),
+						"scalr_endpoint.test", "secret_key", "my-secret-key"),
 					resource.TestCheckResourceAttr(
-						"scalr_endpoint.test-ep", "timeout", "15"),
+						"scalr_endpoint.test", "timeout", "15"),
 					resource.TestCheckResourceAttr(
-						"scalr_endpoint.test-ep", "max_attempts", "3"),
+						"scalr_endpoint.test", "max_attempts", "3"),
 					resource.TestCheckResourceAttr(
-						"scalr_endpoint.test-ep", "url", "https://example.com/endpoint"),
-					resource.TestCheckResourceAttr(
-						"scalr_endpoint.test-ep", "environment_id", "existing-env"),
+						"scalr_endpoint.test", "url", "https://example.com/endpoint"),
+					resource.TestCheckResourceAttrSet(
+						"scalr_endpoint.test", "environment_id"),
 				),
 			},
 			{
 				Config: testAccEndpointConfigUpdate(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"scalr_endpoint.test-ep", "name", fmt.Sprintf("test endpoint-%d", rInt)),
+						"scalr_endpoint.test", "name", fmt.Sprintf("test endpoint-%d", rInt)),
 					resource.TestCheckResourceAttr(
-						"scalr_endpoint.test-ep", "timeout", "10"),
+						"scalr_endpoint.test", "timeout", "10"),
 					resource.TestCheckResourceAttr(
-						"scalr_endpoint.test-ep", "max_attempts", "5"),
+						"scalr_endpoint.test", "max_attempts", "5"),
 					resource.TestCheckResourceAttr(
-						"scalr_endpoint.test-ep", "url", "https://example.com/endpoint-updated"),
+						"scalr_endpoint.test", "url", "https://example.com/endpoint-updated"),
 				),
 			},
 		},
@@ -80,24 +80,34 @@ func TestAccEndpoint_update(t *testing.T) {
 
 func testAccEndpointConfig(rInt int) string {
 	return fmt.Sprintf(`
-resource "scalr_endpoint" "test-ep" {
-  name         = "test endpoint-%d"
+resource scalr_environment test {
+  name       = "test-env-%[1]d"
+  account_id = "existing"
+}
+
+resource scalr_endpoint test {
+  name         = "test endpoint-%[1]d"
   secret_key   = "my-secret-key" 
   timeout      = 15               
   max_attempts = 3                
   url          = "https://example.com/endpoint"
-  environment_id = "existing-env"
+  environment_id = scalr_environment.test.id
 }`, rInt)
 }
 
 func testAccEndpointConfigUpdate(rInt int) string {
 	return fmt.Sprintf(`
-resource "scalr_endpoint" "test-ep" {
-  name         = "test endpoint-%d"
+resource scalr_environment test {
+  name       = "test-env-%[1]d"
+  account_id = "existing"
+}
+
+resource scalr_endpoint test {
+  name         = "test endpoint-%[1]d"
   secret_key   = "my-secret-key" 
   timeout      = 10               
   max_attempts = 5                
   url          = "https://example.com/endpoint-updated"
-  environment_id = "existing-env"
+  environment_id = scalr_environment.test.id
 }`, rInt)
 }
