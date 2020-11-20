@@ -35,8 +35,6 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "queue_all_runs", "true"),
-					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 					resource.TestCheckResourceAttrSet("scalr_workspace.test", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("scalr_workspace.test", "created_by.0.email"),
@@ -96,8 +94,6 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "queue_all_runs", "true"),
-					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 				),
 			},
@@ -116,8 +112,6 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 						"scalr_workspace.test", "auto_apply", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "queue_all_runs", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 				),
@@ -147,8 +141,6 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "queue_all_runs", "true"),
-					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 				),
 			},
@@ -165,8 +157,6 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 						"scalr_workspace.test", "auto_apply", "false"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "false"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "queue_all_runs", "false"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "terraform_version", "0.12.19"),
 					resource.TestCheckResourceAttr(
@@ -237,10 +227,6 @@ func testAccCheckScalrWorkspaceAttributes(
 
 		if workspace.Operations != true {
 			return fmt.Errorf("Bad operations: %t", workspace.Operations)
-		}
-
-		if workspace.QueueAllRuns != true {
-			return fmt.Errorf("Bad queue all runs: %t", workspace.QueueAllRuns)
 		}
 
 		if workspace.WorkingDirectory != "" {
@@ -315,10 +301,6 @@ func testAccCheckScalrWorkspaceAttributesUpdated(
 
 		if workspace.Operations != false {
 			return fmt.Errorf("Bad operations: %t", workspace.Operations)
-		}
-
-		if workspace.QueueAllRuns != false {
-			return fmt.Errorf("Bad queue all runs: %t", workspace.QueueAllRuns)
 		}
 
 		if workspace.TerraformVersion != "0.12.19" {
@@ -396,7 +378,6 @@ resource "scalr_workspace" "test" {
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
   operations            = false
-  queue_all_runs        = false
   terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
 }`)

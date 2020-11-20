@@ -30,12 +30,6 @@ func resourceScalrWorkspaceResourceV0() *schema.Resource {
 				Default:  true,
 			},
 
-			"queue_all_runs": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
-			},
-
 			"ssh_key_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -146,12 +140,6 @@ func resourceScalrWorkspaceResourceV1() *schema.Resource {
 			},
 
 			"operations": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
-			},
-
-			"queue_all_runs": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,

@@ -61,12 +61,6 @@ func resourceScalrWorkspace() *schema.Resource {
 				Default:  true,
 			},
 
-			"queue_all_runs": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
-			},
-
 			"terraform_version": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -137,10 +131,9 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 
 	// Create a new options struct.
 	options := scalr.WorkspaceCreateOptions{
-		Name:         scalr.String(name),
-		AutoApply:    scalr.Bool(d.Get("auto_apply").(bool)),
-		Operations:   scalr.Bool(d.Get("operations").(bool)),
-		QueueAllRuns: scalr.Bool(d.Get("queue_all_runs").(bool)),
+		Name:       scalr.String(name),
+		AutoApply:  scalr.Bool(d.Get("auto_apply").(bool)),
+		Operations: scalr.Bool(d.Get("operations").(bool)),
 	}
 
 	// Process all configured options.
@@ -201,7 +194,6 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("name", workspace.Name)
 	d.Set("auto_apply", workspace.AutoApply)
 	d.Set("operations", workspace.Operations)
-	d.Set("queue_all_runs", workspace.QueueAllRuns)
 	d.Set("terraform_version", workspace.TerraformVersion)
 	d.Set("working_directory", workspace.WorkingDirectory)
 	d.Set("environment_id", workspace.Environment.ID)
@@ -249,15 +241,14 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	id := d.Id()
 
-	if d.HasChange("name") || d.HasChange("auto_apply") || d.HasChange("queue_all_runs") ||
+	if d.HasChange("name") || d.HasChange("auto_apply") ||
 		d.HasChange("terraform_version") || d.HasChange("working_directory") || d.HasChange("vcs_repo") ||
 		d.HasChange("operations") || d.HasChange("vcs_provider_id") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
-			Name:         scalr.String(d.Get("name").(string)),
-			AutoApply:    scalr.Bool(d.Get("auto_apply").(bool)),
-			Operations:   scalr.Bool(d.Get("operations").(bool)),
-			QueueAllRuns: scalr.Bool(d.Get("queue_all_runs").(bool)),
+			Name:       scalr.String(d.Get("name").(string)),
+			AutoApply:  scalr.Bool(d.Get("auto_apply").(bool)),
+			Operations: scalr.Bool(d.Get("operations").(bool)),
 		}
 
 		// Process all configured options.
