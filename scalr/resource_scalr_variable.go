@@ -180,7 +180,7 @@ func resourceScalrVariableImporter(d *schema.ResourceData, meta interface{}) ([]
 	s := strings.SplitN(d.Id(), "/", 3)
 	if len(s) != 3 {
 		return nil, fmt.Errorf(
-			"invalid variable import format: %s (expected <ORGANIZATION>/<WORKSPACE>/<VARIABLE ID>)",
+			"invalid variable import format: %s (expected <ENVIRONMENT ID>/<WORKSPACE NAME>/<VARIABLE ID>)",
 			d.Id(),
 		)
 	}
