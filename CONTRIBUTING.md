@@ -1,6 +1,6 @@
 # How to contribute to the Scalr provider
 ## Updating the changelog
-Each PR should update the CHANGELOG.md file to include all changes affecting provider behaviour or compatibility. The version and date heading should be **Unreleased** and updated after being merged and released on the main branch.
+Each PR should update the [CHANGELOG.md](./CHANGELOG.md) file to include all changes affecting provider behaviour or compatibility. The version and date heading should be **Unreleased** and updated after being merged and released on the main branch.
 
 The format of the changelog for each release looks like this:
 
