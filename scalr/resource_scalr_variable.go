@@ -178,6 +178,7 @@ func resourceScalrVariableDelete(d *schema.ResourceData, meta interface{}) error
 func resourceScalrVariableImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	scalrClient := meta.(*scalr.Client)
 	s := strings.SplitN(d.Id(), "/", 3)
+	log.Printf("[DEBUG] in resourceScalrVariableImporter: %s", s[0])
 	if len(s) != 3 {
 		return nil, fmt.Errorf(
 			"invalid variable import format: %s (expected <ENVIRONMENT ID>/<WORKSPACE NAME>/<VARIABLE ID>)",

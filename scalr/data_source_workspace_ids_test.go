@@ -17,7 +17,7 @@ func TestAccScalrWorkspaceIDsDataSource_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrWorkspaceIDsDataSourceConfig_basic(rInt),
+				Config: testAccScalrWorkspaceIDsDataSourceConfigBasic(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace_ids.foobar", "names.#", "2"),
@@ -25,8 +25,8 @@ func TestAccScalrWorkspaceIDsDataSource_basic(t *testing.T) {
 						"data.scalr_workspace_ids.foobar", "names.0", fmt.Sprintf("workspace-foo-%d", rInt)),
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace_ids.foobar", "names.1", fmt.Sprintf("workspace-bar-%d", rInt)),
-					resource.TestCheckResourceAttr(
-						"data.scalr_workspace_ids.foobar", "environment_id", "existing-env"),
+					resource.TestCheckResourceAttrSet(
+						"data.scalr_workspace_ids.foobar", "environment_id"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace_ids.foobar", "ids.%", "2"),
 					resource.TestCheckResourceAttrSet(
@@ -49,16 +49,15 @@ func TestAccScalrWorkspaceIDsDataSource_wildcard(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrWorkspaceIDsDataSourceConfig_wildcard(rInt),
+				Config: testAccScalrWorkspaceIDsDataSourceConfigWildcard(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace_ids.foobar", "names.#", "1"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace_ids.foobar", "names.0", "*"),
 					resource.TestCheckResourceAttr(
-						"data.scalr_workspace_ids.foobar", "environment_id", "existing-env"),
-					resource.TestCheckResourceAttr(
 						"data.scalr_workspace_ids.foobar", "ids.%", "3"),
+					resource.TestCheckResourceAttrSet("data.scalr_workspace_ids.foobar", "environment_id"),
 					resource.TestCheckResourceAttrSet(
 						"data.scalr_workspace_ids.foobar", fmt.Sprintf("ids.workspace-foo-%d", rInt)),
 					resource.TestCheckResourceAttrSet(
@@ -72,48 +71,58 @@ func TestAccScalrWorkspaceIDsDataSource_wildcard(t *testing.T) {
 	})
 }
 
-func testAccScalrWorkspaceIDsDataSourceConfig_basic(rInt int) string {
+func testAccScalrWorkspaceIDsDataSourceConfigBasic(rInt int) string {
 	return fmt.Sprintf(`
-resource "scalr_workspace" "foo" {
-  name           = "workspace-foo-%d"
-  environment_id = "existing-env"
+resource scalr_environment test {
+  name       = "test-env-%[1]d"
+  account_id = "existing"
 }
 
-resource "scalr_workspace" "bar" {
-  name           = "workspace-bar-%d"
-  environment_id = "existing-env"
+resource scalr_workspace foo {
+  name           = "workspace-foo-%[1]d"
+  environment_id = scalr_environment.test.id
 }
 
-resource "scalr_workspace" "dummy" {
-  name           = "workspace-dummy-%d"
-  environment_id = "existing-env"
+resource scalr_workspace bar {
+  name           = "workspace-bar-%[1]d"
+  environment_id = scalr_environment.test.id
 }
 
-data "scalr_workspace_ids" "foobar" {
-  names          = ["${scalr_workspace.foo.name}", "${scalr_workspace.bar.name}"]
-  environment_id = "existing-env"
-}`, rInt, rInt, rInt)
+resource scalr_workspace dummy {
+  name           = "workspace-dummy-%[1]d"
+  environment_id = scalr_environment.test.id
 }
 
-func testAccScalrWorkspaceIDsDataSourceConfig_wildcard(rInt int) string {
+data scalr_workspace_ids foobar {
+  names          = [scalr_workspace.foo.name, scalr_workspace.bar.name]
+  environment_id = scalr_environment.test.id
+}`, rInt)
+}
+
+func testAccScalrWorkspaceIDsDataSourceConfigWildcard(rInt int) string {
 	return fmt.Sprintf(`
-resource "scalr_workspace" "foo" {
-  name           = "workspace-foo-%d"
-  environment_id = "existing-env"
+resource scalr_environment test {
+  name       = "test-env-%[1]d"
+  account_id = "existing"
 }
 
-resource "scalr_workspace" "bar" {
-  name           = "workspace-bar-%d"
-  environment_id = "existing-env"
+resource scalr_workspace foo {
+  name           = "workspace-foo-%[1]d"
+  environment_id = scalr_environment.test.id
 }
 
-resource "scalr_workspace" "dummy" {
-  name           = "workspace-dummy-%d"
-  environment_id = "existing-env"
+resource scalr_workspace bar {
+  name           = "workspace-bar-%[1]d"
+  environment_id = scalr_environment.test.id
 }
 
-data "scalr_workspace_ids" "foobar" {
+resource scalr_workspace dummy {
+  name           = "workspace-dummy-%[1]d"
+  environment_id = scalr_environment.test.id
+}
+
+data scalr_workspace_ids foobar {
   names          = ["*"]
-  environment_id = "existing-env"
-}`, rInt, rInt, rInt)
+  environment_id = scalr_environment.test.id
+}`, rInt)
 }
