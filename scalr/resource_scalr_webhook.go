@@ -123,6 +123,18 @@ func validateEventDefinitions(eventName string) error {
 		"Invalid value for events '%s'. Allowed values: %s", eventName, strings.Join(eventDefinitionsQuoted, ", "))
 }
 
+func parseEventDefinitions(d *schema.ResourceData) ([]*scalr.EventDefinition, error) {
+	events := d.Get("events").([]interface{})
+	var eventDefinitions []*scalr.EventDefinition
+	for _, eventID := range events {
+		if err := validateEventDefinitions(eventID.(string)); err != nil {
+			return nil, err
+		}
+		eventDefinitions = append(eventDefinitions, &scalr.EventDefinition{ID: eventID.(string)})
+	}
+	return eventDefinitions, nil
+}
+
 func resourceScalrWebhookCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
@@ -137,13 +149,9 @@ func resourceScalrWebhookCreate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	events := d.Get("events").([]interface{})
-	var eventDefinitions []*scalr.EventDefinition
-	for _, eventID := range events {
-		if err := validateEventDefinitions(eventID.(string)); err != nil {
-			return err
-		}
-		eventDefinitions = append(eventDefinitions, &scalr.EventDefinition{ID: eventID.(string)})
+	eventDefinitions, err := parseEventDefinitions(d)
+	if err != nil {
+		return err
 	}
 
 	// Create a new options struct.
@@ -213,13 +221,9 @@ func resourceScalrWebhookUpdate(d *schema.ResourceData, meta interface{}) error 
 	scalrClient := meta.(*scalr.Client)
 
 	var err error
-	events := d.Get("events").([]string)
-	var eventDefinitions []*scalr.EventDefinition
-	for _, eventID := range events {
-		if err = validateEventDefinitions(eventID); err != nil {
-			return err
-		}
-		eventDefinitions = append(eventDefinitions, &scalr.EventDefinition{ID: eventID})
+	eventDefinitions, err := parseEventDefinitions(d)
+	if err != nil {
+		return err
 	}
 
 	// Create a new options struct.

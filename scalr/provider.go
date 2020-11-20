@@ -137,19 +137,6 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		}
 	}
 
-	if providerVersion.ProviderVersion != "dev" {
-		// We purposefully ignore the error and return the previous error, as
-		// checking for version constraints is considered optional.
-		constraints, _ := host.VersionConstraints(scalrServiceIDs[0], "scalr-provider")
-
-		// First check any constraints we might have received.
-		if constraints != nil {
-			if err := checkConstraints(constraints); err != nil {
-				return nil, err
-			}
-		}
-	}
-
 	// When we don't have any constraints errors, also check for discovery
 	// errors before we continue.
 	if discoErr != nil {
@@ -261,6 +248,7 @@ func credentialsSource(config *Config) auth.CredentialsSource {
 // checkConstraints checks service version constrains against our own
 // version and returns rich and informational diagnostics in case any
 // incompatibilities are detected.
+// nolint:deadcode,unused
 func checkConstraints(c *disco.Constraints) error {
 	if c == nil || c.Minimum == "" || c.Maximum == "" {
 		return nil
@@ -354,6 +342,7 @@ func checkConstraints(c *disco.Constraints) error {
 	return fmt.Errorf("%s\n\n%s", summary, details)
 }
 
+// nolint:unused
 func checkConstraintsWarning(err error) error {
 	return fmt.Errorf(
 		"Failed to check version constraints: %v\n\n"+
