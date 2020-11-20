@@ -22,9 +22,10 @@ func testResourceScalrVariableStateDataV1() map[string]interface{} {
 func TestResourceScalrVariableStateUpgradeV0(t *testing.T) {
 	client := testScalrClient(t)
 	name := "a-workspace"
-	client.Workspaces.Create(nil, "my-env", scalr.WorkspaceCreateOptions{
-		ID:   "ws-123",
-		Name: &name,
+	client.Workspaces.Create(nil, scalr.WorkspaceCreateOptions{
+		ID:          "ws-123",
+		Name:        &name,
+		Environment: &scalr.Environment{ID: "my-env"},
 	})
 
 	expected := testResourceScalrVariableStateDataV1()

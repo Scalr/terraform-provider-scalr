@@ -131,9 +131,10 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 
 	// Create a new options struct.
 	options := scalr.WorkspaceCreateOptions{
-		Name:       scalr.String(name),
-		AutoApply:  scalr.Bool(d.Get("auto_apply").(bool)),
-		Operations: scalr.Bool(d.Get("operations").(bool)),
+		Name:        scalr.String(name),
+		AutoApply:   scalr.Bool(d.Get("auto_apply").(bool)),
+		Operations:  scalr.Bool(d.Get("operations").(bool)),
+		Environment: &scalr.Environment{ID: environmentID},
 	}
 
 	// Process all configured options.
@@ -145,9 +146,9 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		options.WorkingDirectory = scalr.String(workingDir.(string))
 	}
 
-	if vcsProviderId, ok := d.GetOk("vcs_provider_id"); ok {
+	if vcsProviderID, ok := d.GetOk("vcs_provider_id"); ok {
 		options.VcsProvider = &scalr.VcsProviderOptions{
-			ID: vcsProviderId.(string),
+			ID: vcsProviderID.(string),
 		}
 	}
 
@@ -167,7 +168,7 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Create workspace %s for environment: %s", name, environmentID)
-	workspace, err := scalrClient.Workspaces.Create(ctx, environmentID, options)
+	workspace, err := scalrClient.Workspaces.Create(ctx, options)
 	if err != nil {
 		return fmt.Errorf(
 			"Error creating workspace %s for environment %s: %v", name, environmentID, err)

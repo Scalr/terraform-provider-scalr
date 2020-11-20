@@ -24,16 +24,16 @@ func (m *mockWorkspaces) List(ctx context.Context, environment string, options s
 	panic("not implemented")
 }
 
-func (m *mockWorkspaces) Create(ctx context.Context, environment string, options scalr.WorkspaceCreateOptions) (*scalr.Workspace, error) {
+func (m *mockWorkspaces) Create(ctx context.Context, options scalr.WorkspaceCreateOptions) (*scalr.Workspace, error) {
 	ws := &scalr.Workspace{
 		ID:   options.ID,
 		Name: *options.Name,
 		Environment: &scalr.Environment{
-			Name: environment,
+			ID: options.Environment.ID,
 		},
 	}
 
-	m.workspaceNames[workspaceNamesKey{environment, *options.Name}] = ws
+	m.workspaceNames[workspaceNamesKey{options.Environment.ID, *options.Name}] = ws
 
 	return ws, nil
 }
