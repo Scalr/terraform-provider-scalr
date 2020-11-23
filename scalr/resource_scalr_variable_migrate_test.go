@@ -1,7 +1,6 @@
 package scalr
 
 import (
-	"reflect"
 	"testing"
 
 	scalr "github.com/scalr/go-scalr"
@@ -30,11 +29,5 @@ func TestResourceScalrVariableStateUpgradeV0(t *testing.T) {
 
 	expected := testResourceScalrVariableStateDataV1()
 	actual, err := resourceScalrVariableStateUpgradeV0(testResourceScalrVariableStateDataV0(), client)
-	if err != nil {
-		t.Fatalf("error migrating state: %s", err)
-	}
-
-	if !reflect.DeepEqual(expected, actual) {
-		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", expected, actual)
-	}
+	assertCorrectState(t, err, actual, expected)
 }
