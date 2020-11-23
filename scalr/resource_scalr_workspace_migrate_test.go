@@ -83,3 +83,21 @@ func TestResourceScalrWorkspaceStateUpgradeV1NoVcs(t *testing.T) {
 		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", expected, actual)
 	}
 }
+
+func testResourceScalrWorkspaceStateDataV3() map[string]interface{} {
+	v2 := testResourceScalrWorkspaceStateDataV2()
+	delete(v2, "queue_all_runs")
+	return v2
+}
+
+func TestResourceScalrWorkspaceStateUpgradeV2(t *testing.T) {
+	expected := testResourceScalrWorkspaceStateDataV3()
+	actual, err := resourceScalrWorkspaceStateUpgradeV2(testResourceScalrWorkspaceStateDataV2(), nil)
+	if err != nil {
+		t.Fatalf("error migrating state: %s", err)
+	}
+
+	if !reflect.DeepEqual(expected, actual) {
+		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", expected, actual)
+	}
+}
