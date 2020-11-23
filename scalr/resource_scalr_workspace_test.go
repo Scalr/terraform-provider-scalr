@@ -99,7 +99,7 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 			},
 
 			{
-				PreConfig: testAccCheckScalrWorkspaceRename(fmt.Sprintf("test-env-%d", rInt)),
+				PreConfig: testAccCheckScalrWorkspaceRename(fmt.Sprintf("test-env-%d", rInt), "workspace-test"),
 				Config:    testAccScalrWorkspaceRenamed(rInt),
 				PlanOnly:  true,
 				Check: resource.ComposeTestCheckFunc(
@@ -252,7 +252,7 @@ func testAccCheckScalrWorkspaceMonorepoAttributes(
 	}
 }
 
-func testAccCheckScalrWorkspaceRename(environmentName string) func() {
+func testAccCheckScalrWorkspaceRename(environmentName, workspaceName string) func() {
 	return func() {
 		var environmentID *string
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
@@ -272,10 +272,15 @@ func testAccCheckScalrWorkspaceRename(environmentName string) func() {
 			log.Fatalf("Could not find environment with name: %s", environmentName)
 		}
 
+		ws, err := scalrClient.Workspaces.Read(ctx, *environmentID, workspaceName)
+
+		if err != nil {
+			log.Fatalf("Error retrieving workspace: %v", err)
+		}
+
 		w, err := scalrClient.Workspaces.Update(
 			context.Background(),
-			*environmentID,
-			"workspace-test",
+			ws.ID,
 			scalr.WorkspaceUpdateOptions{Name: scalr.String("renamed-out-of-band")},
 		)
 		if err != nil {

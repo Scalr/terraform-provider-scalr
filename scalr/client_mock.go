@@ -20,7 +20,7 @@ func newMockWorkspaces() *mockWorkspaces {
 	}
 }
 
-func (m *mockWorkspaces) List(ctx context.Context, environment string, options scalr.WorkspaceListOptions) (*scalr.WorkspaceList, error) {
+func (m *mockWorkspaces) List(ctx context.Context, options scalr.WorkspaceListOptions) (*scalr.WorkspaceList, error) {
 	panic("not implemented")
 }
 
@@ -51,19 +51,11 @@ func (m *mockWorkspaces) ReadByID(ctx context.Context, workspaceID string) (*sca
 	panic("not implemented")
 }
 
-func (m *mockWorkspaces) Update(ctx context.Context, environment string, workspace string, options scalr.WorkspaceUpdateOptions) (*scalr.Workspace, error) {
+func (m *mockWorkspaces) Update(ctx context.Context, workspaceID string, options scalr.WorkspaceUpdateOptions) (*scalr.Workspace, error) {
 	panic("not implemented")
 }
 
-func (m *mockWorkspaces) UpdateByID(ctx context.Context, workspaceID string, options scalr.WorkspaceUpdateOptions) (*scalr.Workspace, error) {
-	panic("not implemented")
-}
-
-func (m *mockWorkspaces) Delete(ctx context.Context, environment string, workspace string) error {
-	panic("not implemented")
-}
-
-func (m *mockWorkspaces) DeleteByID(ctx context.Context, workspaceID string) error {
+func (m *mockWorkspaces) Delete(ctx context.Context, workspaceID string) error {
 	panic("not implemented")
 }
 

@@ -279,7 +279,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		log.Printf("[DEBUG] Update workspace %s", id)
-		_, err := scalrClient.Workspaces.UpdateByID(ctx, id, options)
+		_, err := scalrClient.Workspaces.Update(ctx, id, options)
 		if err != nil {
 			return fmt.Errorf(
 				"Error updating workspace %s: %v", id, err)
@@ -294,7 +294,7 @@ func resourceScalrWorkspaceDelete(d *schema.ResourceData, meta interface{}) erro
 	id := d.Id()
 
 	log.Printf("[DEBUG] Delete workspace %s", id)
-	err := scalrClient.Workspaces.DeleteByID(ctx, id)
+	err := scalrClient.Workspaces.Delete(ctx, id)
 	if err != nil {
 		if err == scalr.ErrResourceNotFound {
 			return nil
