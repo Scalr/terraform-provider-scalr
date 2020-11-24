@@ -30,8 +30,9 @@ func dataSourceScalrEndpoint() *schema.Resource {
 			},
 
 			"secret_key": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
 			},
 
 			"url": {

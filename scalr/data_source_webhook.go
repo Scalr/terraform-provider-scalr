@@ -27,7 +27,6 @@ func dataSourceScalrWebhook() *schema.Resource {
 			"enabled": {
 				Type:     schema.TypeBool,
 				Computed: true,
-				Optional: true,
 			},
 
 			"last_triggered_at": {

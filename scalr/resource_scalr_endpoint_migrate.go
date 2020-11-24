@@ -30,7 +30,8 @@ func resourceScalrEndpointResourceV0() *schema.Resource {
 
 			"secret_key": {
 				Type:      schema.TypeString,
-				Required:  true,
+				Optional:  true,
+				Computed:  true,
 				Sensitive: true,
 			},
 
