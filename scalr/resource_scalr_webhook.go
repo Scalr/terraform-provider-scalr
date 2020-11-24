@@ -26,7 +26,8 @@ func resourceScalrWebhook() *schema.Resource {
 
 			"enabled": {
 				Type:     schema.TypeBool,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 
 			"last_triggered_at": {
