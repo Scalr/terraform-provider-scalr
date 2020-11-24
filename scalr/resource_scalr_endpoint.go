@@ -17,16 +17,19 @@ func resourceScalrEndpoint() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceScalrEndpointResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceScalrVariableStateUpgradeV0,
+				Version: 0,
+			},
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-			},
-
-			"http_method": {
-				Type:     schema.TypeString,
-				Optional: true,
 			},
 
 			"max_attempts": {

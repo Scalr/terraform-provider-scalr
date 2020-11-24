@@ -1,0 +1,54 @@
+package scalr
+
+import (
+	"github.com/hashicorp/terraform/helper/schema"
+)
+
+func resourceScalrEndpointResourceV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+
+			"http_method": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"max_attempts": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+
+			"url": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+
+			"secret_key": {
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
+			},
+
+			"timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+
+			"environment_id": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+		},
+	}
+}
+
+func resourceScalrEndpointStateUpgradeV0(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	delete(rawState, "http_method")
+	return rawState, nil
+}
