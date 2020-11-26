@@ -21,7 +21,7 @@ func resourceScalrEndpoint() *schema.Resource {
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceScalrEndpointResourceV0().CoreConfigSchema().ImpliedType(),
-				Upgrade: resourceScalrVariableStateUpgradeV0,
+				Upgrade: resourceScalrEndpointStateUpgradeV0,
 				Version: 0,
 			},
 		},
