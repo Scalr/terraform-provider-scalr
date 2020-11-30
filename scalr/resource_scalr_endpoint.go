@@ -88,7 +88,6 @@ func resourceScalrEndpointCreate(d *schema.ResourceData, meta interface{}) error
 	if secretKey, ok := d.GetOk("secret_key"); ok {
 		options.SecretKey = scalr.String(secretKey.(string))
 	}
-	options.SecretKey = scalr.String(d.Get("secret_key").(string))
 
 	if maxAttempts, ok := d.GetOk("max_attempts"); ok {
 		options.MaxAttempts = scalr.Int(maxAttempts.(int))
