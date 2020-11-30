@@ -85,8 +85,8 @@ func resourceScalrEndpointCreate(d *schema.ResourceData, meta interface{}) error
 		Environment: environment,
 		Account:     account,
 	}
-	if SecretKey, ok := d.GetOk("secret_key"); ok {
-		options.SecretKey = scalr.String(SecretKey.(string))
+	if secretKey, ok := d.GetOk("secret_key"); ok {
+		options.SecretKey = scalr.String(secretKey.(string))
 	}
 	options.SecretKey = scalr.String(d.Get("secret_key").(string))
 
