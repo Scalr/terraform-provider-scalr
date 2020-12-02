@@ -31,9 +31,10 @@ func TestFetchWorkspaceID(t *testing.T) {
 
 	client := testScalrClient(t)
 	name := "a-workspace"
-	client.Workspaces.Create(nil, "hashicorp", scalr.WorkspaceCreateOptions{
-		ID:   "ws-123",
-		Name: &name,
+	client.Workspaces.Create(nil, scalr.WorkspaceCreateOptions{
+		ID:          "ws-123",
+		Name:        &name,
+		Environment: &scalr.Environment{ID: "hashicorp"},
 	})
 
 	for name, test := range tests {

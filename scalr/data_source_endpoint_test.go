@@ -21,8 +21,8 @@ func TestAccEndpointDataSource_basic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"data.scalr_endpoint.test", "name", fmt.Sprintf("test endpoint-%d", rInt)),
-					resource.TestCheckResourceAttr(
-						"data.scalr_endpoint.test", "secret_key", "my-secret-key"),
+					resource.TestCheckResourceAttrSet(
+						"data.scalr_endpoint.test", "secret_key"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_endpoint.test", "timeout", "15"),
 					resource.TestCheckResourceAttr(
@@ -46,7 +46,6 @@ resource scalr_environment test {
   
 resource scalr_endpoint test {
   name         = "test endpoint-%[1]d"
-  secret_key   = "my-secret-key" 
   timeout      = 15
   url          = "https://example.com/endpoint"
   environment_id = scalr_environment.test.id

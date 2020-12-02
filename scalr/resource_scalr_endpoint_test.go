@@ -11,18 +11,19 @@ import (
 
 func TestAccEndpoint_basic(t *testing.T) {
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	secretKey := "stong_key_with_UPPERCASE_letter_at_leaast_1_number"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEndpointConfig(rInt),
+				Config: testAccEndpointConfig(rInt, secretKey),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"scalr_endpoint.test", "name", fmt.Sprintf("test endpoint-%d", rInt)),
 					resource.TestCheckResourceAttr(
-						"scalr_endpoint.test", "secret_key", "my-secret-key"),
+						"scalr_endpoint.test", "secret_key", secretKey),
 					resource.TestCheckResourceAttr(
 						"scalr_endpoint.test", "timeout", "15"),
 					resource.TestCheckResourceAttr(
@@ -39,18 +40,19 @@ func TestAccEndpoint_basic(t *testing.T) {
 
 func TestAccEndpoint_update(t *testing.T) {
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	secretKey := "stong_key_with_UPPERCASE_letter_at_leaast_1_number"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEndpointConfig(rInt),
+				Config: testAccEndpointConfig(rInt, secretKey),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"scalr_endpoint.test", "name", fmt.Sprintf("test endpoint-%d", rInt)),
 					resource.TestCheckResourceAttr(
-						"scalr_endpoint.test", "secret_key", "my-secret-key"),
+						"scalr_endpoint.test", "secret_key", secretKey),
 					resource.TestCheckResourceAttr(
 						"scalr_endpoint.test", "timeout", "15"),
 					resource.TestCheckResourceAttr(
@@ -62,7 +64,7 @@ func TestAccEndpoint_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccEndpointConfigUpdate(rInt),
+				Config: testAccEndpointConfigUpdate(rInt, secretKey),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"scalr_endpoint.test", "name", fmt.Sprintf("test endpoint-%d", rInt)),
@@ -78,7 +80,7 @@ func TestAccEndpoint_update(t *testing.T) {
 	})
 }
 
-func testAccEndpointConfig(rInt int) string {
+func testAccEndpointConfig(rInt int, secretKey string) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
   name       = "test-env-%[1]d"
@@ -87,15 +89,15 @@ resource scalr_environment test {
 
 resource scalr_endpoint test {
   name         = "test endpoint-%[1]d"
-  secret_key   = "my-secret-key" 
+  secret_key   = "%s"
   timeout      = 15               
   max_attempts = 3                
   url          = "https://example.com/endpoint"
   environment_id = scalr_environment.test.id
-}`, rInt)
+}`, rInt, secretKey)
 }
 
-func testAccEndpointConfigUpdate(rInt int) string {
+func testAccEndpointConfigUpdate(rInt int, secretKey string) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
   name       = "test-env-%[1]d"
@@ -104,10 +106,10 @@ resource scalr_environment test {
 
 resource scalr_endpoint test {
   name         = "test endpoint-%[1]d"
-  secret_key   = "my-secret-key" 
+  secret_key   = "%s"
   timeout      = 10               
   max_attempts = 5                
   url          = "https://example.com/endpoint-updated"
   environment_id = scalr_environment.test.id
-}`, rInt)
+}`, rInt, secretKey)
 }

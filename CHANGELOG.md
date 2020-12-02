@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- `scalr_workspace`: drop attribute `queue_all_runs`. ([#40](https://github.com/Scalr/terraform-provider-scalr/pull/40))
+- `scalr_endpoint`: drop attribute `http_method`. ([#40](https://github.com/Scalr/terraform-provider-scalr/pull/40))
+
+### Changed
+- `scalr_webhook` attribute `enabled` is optional with default: `true`. ([#40](https://github.com/Scalr/terraform-provider-scalr/pull/40))
+- `scalr_endpoint` attribute `secret_key` is optional and sensitive.
+
+### Required
+
+- scalr server >= `TODO`
+
 ## [1.0.0-rc9] - 2020-11-12
 
 ### Added
@@ -139,5 +152,3 @@ Requires Scalr 8.0.1-beta.20200625 at least
 [1.0.0-rc1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc1
 [0.0.0-rc2]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v0.0.0-rc2
 [0.0.0-rc1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v0.0.0-rc1
-
-
