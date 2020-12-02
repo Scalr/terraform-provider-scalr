@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+
+- `data.scalr_current_run` use the `SCALR_RUN_ID` environment variable to read the current run ID ([#42](https://github.com/Scalr/terraform-provider-scalr/pull/42))
 
 ## [1.0.0-rc9] - 2020-11-12
 
