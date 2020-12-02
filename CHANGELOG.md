@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Required
 
-- scalr server >= `TODO`
+- scalr server >= `8.0.1-beta.20201125`
 
 ## [1.0.0-rc9] - 2020-11-12
 
