@@ -48,9 +48,9 @@ func dataSourceScalrWorkspaceIDsRead(d *schema.ResourceData, meta interface{}) e
 	// Create a map to store workspace IDs
 	ids := make(map[string]string, len(names))
 
-	options := scalr.WorkspaceListOptions{}
+	options := scalr.WorkspaceListOptions{Environment: &environmentID}
 	for {
-		wl, err := scalrClient.Workspaces.List(ctx, environmentID, options)
+		wl, err := scalrClient.Workspaces.List(ctx, options)
 		if err != nil {
 			return fmt.Errorf("Error retrieving workspaces: %v", err)
 		}

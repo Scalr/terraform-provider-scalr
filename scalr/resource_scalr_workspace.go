@@ -18,7 +18,7 @@ func resourceScalrWorkspace() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
-		SchemaVersion: 2,
+		SchemaVersion: 3,
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceScalrWorkspaceResourceV0().CoreConfigSchema().ImpliedType(),
@@ -29,6 +29,11 @@ func resourceScalrWorkspace() *schema.Resource {
 				Type:    resourceScalrWorkspaceResourceV1().CoreConfigSchema().ImpliedType(),
 				Upgrade: resourceScalrWorkspaceStateUpgradeV1,
 				Version: 1,
+			},
+			{
+				Type:    resourceScalrWorkspaceResourceV2().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceScalrWorkspaceStateUpgradeV2,
+				Version: 2,
 			},
 		},
 
@@ -56,12 +61,6 @@ func resourceScalrWorkspace() *schema.Resource {
 			},
 
 			"operations": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
-			},
-
-			"queue_all_runs": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
@@ -137,10 +136,10 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 
 	// Create a new options struct.
 	options := scalr.WorkspaceCreateOptions{
-		Name:         scalr.String(name),
-		AutoApply:    scalr.Bool(d.Get("auto_apply").(bool)),
-		Operations:   scalr.Bool(d.Get("operations").(bool)),
-		QueueAllRuns: scalr.Bool(d.Get("queue_all_runs").(bool)),
+		Name:        scalr.String(name),
+		AutoApply:   scalr.Bool(d.Get("auto_apply").(bool)),
+		Operations:  scalr.Bool(d.Get("operations").(bool)),
+		Environment: &scalr.Environment{ID: environmentID},
 	}
 
 	// Process all configured options.
@@ -152,9 +151,9 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		options.WorkingDirectory = scalr.String(workingDir.(string))
 	}
 
-	if vcsProviderId, ok := d.GetOk("vcs_provider_id"); ok {
+	if vcsProviderID, ok := d.GetOk("vcs_provider_id"); ok {
 		options.VcsProvider = &scalr.VcsProviderOptions{
-			ID: vcsProviderId.(string),
+			ID: vcsProviderID.(string),
 		}
 	}
 
@@ -174,7 +173,7 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] Create workspace %s for environment: %s", name, environmentID)
-	workspace, err := scalrClient.Workspaces.Create(ctx, environmentID, options)
+	workspace, err := scalrClient.Workspaces.Create(ctx, options)
 	if err != nil {
 		return fmt.Errorf(
 			"Error creating workspace %s for environment %s: %v", name, environmentID, err)
@@ -201,10 +200,9 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("name", workspace.Name)
 	d.Set("auto_apply", workspace.AutoApply)
 	d.Set("operations", workspace.Operations)
-	d.Set("queue_all_runs", workspace.QueueAllRuns)
 	d.Set("terraform_version", workspace.TerraformVersion)
 	d.Set("working_directory", workspace.WorkingDirectory)
-	d.Set("environment_id", workspace.Organization.ID)
+	d.Set("environment_id", workspace.Environment.ID)
 
 	if workspace.VcsProvider != nil {
 		d.Set("vcs_provider_id", workspace.VcsProvider.ID)
@@ -249,15 +247,14 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	id := d.Id()
 
-	if d.HasChange("name") || d.HasChange("auto_apply") || d.HasChange("queue_all_runs") ||
+	if d.HasChange("name") || d.HasChange("auto_apply") ||
 		d.HasChange("terraform_version") || d.HasChange("working_directory") || d.HasChange("vcs_repo") ||
 		d.HasChange("operations") || d.HasChange("vcs_provider_id") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
-			Name:         scalr.String(d.Get("name").(string)),
-			AutoApply:    scalr.Bool(d.Get("auto_apply").(bool)),
-			Operations:   scalr.Bool(d.Get("operations").(bool)),
-			QueueAllRuns: scalr.Bool(d.Get("queue_all_runs").(bool)),
+			Name:       scalr.String(d.Get("name").(string)),
+			AutoApply:  scalr.Bool(d.Get("auto_apply").(bool)),
+			Operations: scalr.Bool(d.Get("operations").(bool)),
 		}
 
 		// Process all configured options.
@@ -287,7 +284,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		log.Printf("[DEBUG] Update workspace %s", id)
-		_, err := scalrClient.Workspaces.UpdateByID(ctx, id, options)
+		_, err := scalrClient.Workspaces.Update(ctx, id, options)
 		if err != nil {
 			return fmt.Errorf(
 				"Error updating workspace %s: %v", id, err)
@@ -302,7 +299,7 @@ func resourceScalrWorkspaceDelete(d *schema.ResourceData, meta interface{}) erro
 	id := d.Id()
 
 	log.Printf("[DEBUG] Delete workspace %s", id)
-	err := scalrClient.Workspaces.DeleteByID(ctx, id)
+	err := scalrClient.Workspaces.Delete(ctx, id)
 	if err != nil {
 		if err == scalr.ErrResourceNotFound {
 			return nil

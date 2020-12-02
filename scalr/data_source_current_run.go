@@ -134,7 +134,7 @@ func dataSourceScalrCurrentRunRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("is_dry", run.Apply == nil)
 
 	d.Set("workspace_name", workspace.Name)
-	d.Set("environment_id", workspace.Organization.ID)
+	d.Set("environment_id", workspace.Environment.ID)
 
 	if workspace.VCSRepo != nil {
 		log.Printf("[DEBUG] Read vcs revision attributes of run: %s", runID)

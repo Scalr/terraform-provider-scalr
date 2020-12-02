@@ -1,7 +1,6 @@
 package scalr
 
 import (
-	"reflect"
 	"testing"
 )
 
@@ -22,13 +21,7 @@ func testResourceScalrWorkspaceStateDataV1() map[string]interface{} {
 func TestResourceScalrWorkspaceStateUpgradeV0(t *testing.T) {
 	expected := testResourceScalrWorkspaceStateDataV1()
 	actual, err := resourceScalrWorkspaceStateUpgradeV0(testResourceScalrWorkspaceStateDataV0(), nil)
-	if err != nil {
-		t.Fatalf("error migrating state: %s", err)
-	}
-
-	if !reflect.DeepEqual(expected, actual) {
-		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", expected, actual)
-	}
+	assertCorrectState(t, err, actual, expected)
 }
 
 func testResourceScalrWorkspaceStateDataV1VcsRepo() map[string]interface{} {
@@ -63,23 +56,23 @@ func testResourceScalrWorkspaceStateDataV2NoVcs() map[string]interface{} {
 func TestResourceScalrWorkspaceStateUpgradeV1(t *testing.T) {
 	expected := testResourceScalrWorkspaceStateDataV2()
 	actual, err := resourceScalrWorkspaceStateUpgradeV1(testResourceScalrWorkspaceStateDataV1VcsRepo(), nil)
-	if err != nil {
-		t.Fatalf("error migrating state: %s", err)
-	}
-
-	if !reflect.DeepEqual(expected, actual) {
-		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", expected, actual)
-	}
+	assertCorrectState(t, err, actual, expected)
 }
 
 func TestResourceScalrWorkspaceStateUpgradeV1NoVcs(t *testing.T) {
 	expected := testResourceScalrWorkspaceStateDataV2NoVcs()
 	actual, err := resourceScalrWorkspaceStateUpgradeV1(testResourceScalrWorkspaceStateDataV1(), nil)
-	if err != nil {
-		t.Fatalf("error migrating state: %s", err)
-	}
+	assertCorrectState(t, err, actual, expected)
+}
 
-	if !reflect.DeepEqual(expected, actual) {
-		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", expected, actual)
-	}
+func testResourceScalrWorkspaceStateDataV3() map[string]interface{} {
+	v2 := testResourceScalrWorkspaceStateDataV2()
+	delete(v2, "queue_all_runs")
+	return v2
+}
+
+func TestResourceScalrWorkspaceStateUpgradeV2(t *testing.T) {
+	expected := testResourceScalrWorkspaceStateDataV3()
+	actual, err := resourceScalrWorkspaceStateUpgradeV2(testResourceScalrWorkspaceStateDataV2(), nil)
+	assertCorrectState(t, err, actual, expected)
 }

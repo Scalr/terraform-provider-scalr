@@ -34,7 +34,6 @@ All arguments plus:
 * `id` - The workspace's ID, in the format `ws-<RANDOM STRING>`.
 * `auto_apply` - Boolean indicates if `terrafrom apply` will be automatically run when `terraform plan` ends without error.
 * `operations` - Boolean indicates if the workspace is being used for remote execution.
-* `queue_all_runs` - Boolean indicates if all runs should be queued.
 * `terraform_version` - The version of Terraform used for this workspace.
 * `working_directory` - A relative path that Terraform will execute within.
 * `vcs_repo` - If workspace is linked to VCS repository this block shows the details, otherwise `{}`

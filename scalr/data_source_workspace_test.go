@@ -25,8 +25,6 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.test", "auto_apply", "true"),
 					resource.TestCheckResourceAttr(
-						"data.scalr_workspace.test", "queue_all_runs", "false"),
-					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.test", "terraform_version", "0.12.19"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.test", "working_directory", "terraform/test"),
@@ -51,7 +49,6 @@ resource scalr_workspace test {
   name                  = "workspace-test-%[1]d"
   environment_id 		= scalr_environment.test.id
   auto_apply            = true
-  queue_all_runs        = false
   terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
 }
