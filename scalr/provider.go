@@ -173,8 +173,6 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		HTTPClient: httpClient,
 		Headers:    make(http.Header),
 	}
-	// Set internal API profile
-	cfg.Headers.Set("Prefer", "profile=internal")
 
 	// Create a new Scalr client.
 	client, err := scalr.NewClient(cfg)

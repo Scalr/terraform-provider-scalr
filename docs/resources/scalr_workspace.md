@@ -33,7 +33,6 @@ resource "scalr_workspace" "example" {
 * `auto_apply` - (Optional) Set (true/false) to configure if `terraform apply` should automatically run when `terraform plan` ends without error. Default `false`.
 * `operations` - (Optional) Set (true/false) to configure workspace remote execution. When `false` workspace is only used to store state. Default `true`.
   Defaults to `true`.
-* `queue_all_runs` - (Optional) Set (true/false) to configure queuing all runs. When false one manually triggered run is required. Default `true`.
 * `terraform_version` - (Optional) The version of Terraform to use for this workspace. Defaults to the latest available version.
 * `working_directory` - (Optional) A relative path that Terraform will be run in. Defaults to the root of the repository.
 * `vcs_provider_id` - (Optional) ID of vcs provider - required if vcs-repo present and vice versa, in the format `vcs-<RANDOM STRING>`

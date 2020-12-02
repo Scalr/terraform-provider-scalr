@@ -17,16 +17,19 @@ func resourceScalrEndpoint() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceScalrEndpointResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceScalrEndpointStateUpgradeV0,
+				Version: 0,
+			},
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-			},
-
-			"http_method": {
-				Type:     schema.TypeString,
-				Optional: true,
 			},
 
 			"max_attempts": {
@@ -42,7 +45,8 @@ func resourceScalrEndpoint() *schema.Resource {
 
 			"secret_key": {
 				Type:      schema.TypeString,
-				Required:  true,
+				Optional:  true,
+				Computed:  true,
 				Sensitive: true,
 			},
 
@@ -77,10 +81,12 @@ func resourceScalrEndpointCreate(d *schema.ResourceData, meta interface{}) error
 	// Create a new options struct.
 	options := scalr.EndpointCreateOptions{
 		Name:        scalr.String(name),
-		SecretKey:   scalr.String(d.Get("secret_key").(string)),
 		Url:         scalr.String(d.Get("url").(string)),
 		Environment: environment,
 		Account:     account,
+	}
+	if secretKey, ok := d.GetOk("secret_key"); ok {
+		options.SecretKey = scalr.String(secretKey.(string))
 	}
 
 	if maxAttempts, ok := d.GetOk("max_attempts"); ok {

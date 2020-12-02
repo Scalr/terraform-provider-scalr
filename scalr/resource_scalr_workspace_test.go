@@ -35,8 +35,6 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "queue_all_runs", "true"),
-					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 					resource.TestCheckResourceAttrSet("scalr_workspace.test", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("scalr_workspace.test", "created_by.0.email"),
@@ -96,14 +94,12 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "queue_all_runs", "true"),
-					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 				),
 			},
 
 			{
-				PreConfig: testAccCheckScalrWorkspaceRename(fmt.Sprintf("test-env-%d", rInt)),
+				PreConfig: testAccCheckScalrWorkspaceRename(fmt.Sprintf("test-env-%d", rInt), "workspace-test"),
 				Config:    testAccScalrWorkspaceRenamed(rInt),
 				PlanOnly:  true,
 				Check: resource.ComposeTestCheckFunc(
@@ -116,8 +112,6 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 						"scalr_workspace.test", "auto_apply", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "queue_all_runs", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 				),
@@ -147,8 +141,6 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "queue_all_runs", "true"),
-					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 				),
 			},
@@ -165,8 +157,6 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 						"scalr_workspace.test", "auto_apply", "false"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "false"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "queue_all_runs", "false"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "terraform_version", "0.12.19"),
 					resource.TestCheckResourceAttr(
@@ -239,10 +229,6 @@ func testAccCheckScalrWorkspaceAttributes(
 			return fmt.Errorf("Bad operations: %t", workspace.Operations)
 		}
 
-		if workspace.QueueAllRuns != true {
-			return fmt.Errorf("Bad queue all runs: %t", workspace.QueueAllRuns)
-		}
-
 		if workspace.WorkingDirectory != "" {
 			return fmt.Errorf("Bad working directory: %s", workspace.WorkingDirectory)
 		}
@@ -266,7 +252,7 @@ func testAccCheckScalrWorkspaceMonorepoAttributes(
 	}
 }
 
-func testAccCheckScalrWorkspaceRename(environmentName string) func() {
+func testAccCheckScalrWorkspaceRename(environmentName, workspaceName string) func() {
 	return func() {
 		var environmentID *string
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
@@ -286,10 +272,15 @@ func testAccCheckScalrWorkspaceRename(environmentName string) func() {
 			log.Fatalf("Could not find environment with name: %s", environmentName)
 		}
 
+		ws, err := scalrClient.Workspaces.Read(ctx, *environmentID, workspaceName)
+
+		if err != nil {
+			log.Fatalf("Error retrieving workspace: %v", err)
+		}
+
 		w, err := scalrClient.Workspaces.Update(
 			context.Background(),
-			*environmentID,
-			"workspace-test",
+			ws.ID,
 			scalr.WorkspaceUpdateOptions{Name: scalr.String("renamed-out-of-band")},
 		)
 		if err != nil {
@@ -315,10 +306,6 @@ func testAccCheckScalrWorkspaceAttributesUpdated(
 
 		if workspace.Operations != false {
 			return fmt.Errorf("Bad operations: %t", workspace.Operations)
-		}
-
-		if workspace.QueueAllRuns != false {
-			return fmt.Errorf("Bad queue all runs: %t", workspace.QueueAllRuns)
 		}
 
 		if workspace.TerraformVersion != "0.12.19" {
@@ -396,7 +383,6 @@ resource "scalr_workspace" "test" {
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
   operations            = false
-  queue_all_runs        = false
   terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
 }`)

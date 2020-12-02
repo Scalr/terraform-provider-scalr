@@ -84,7 +84,6 @@ resource scalr_workspace test {
 
 resource scalr_endpoint test {
   name         = "test endpoint-%[1]d"
-  secret_key   = "my-secret-key" 
   timeout      = 15               
   max_attempts = 3                
   url          = "https://example.com/webhook"
@@ -118,7 +117,6 @@ resource scalr_workspace test {
 
 resource scalr_endpoint test {
   name         = "test endpoint-%[1]d"
-  secret_key   = "my-secret-key" 
   timeout      = 15               
   max_attempts = 3                
   url          = "https://example.com/webhook"
