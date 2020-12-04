@@ -15,8 +15,8 @@ jobs:
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.29
-  test:
-    name: test
+  unit-tests:
+    name: unit-tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -24,5 +24,34 @@ jobs:
         with:
           go-version: "1.13"
 
-      - name: unit tests
+      - name: Run unit tests
         run: make test
+  acc-tests:
+    runs-on: ubuntu-latest
+    name: acc-tests
+    env:
+      REVIZOR_URL: ${{ secrets.REVIZOR_URL }}
+      REVIZOR_TOKEN: ${{ secrets.REVIZOR_TOKEN }}
+      SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: "1.13"
+      - name: Create container
+        id: create
+        uses: Scalr/gh-action-revizor@feature/SCALRCORE-16917
+        with:
+          command: create
+      - name: Run acceptance tests
+        env:
+          SCALR_HOSTNAME: ${{ steps.create.outputs.hostname }}
+        run: |
+          printenv
+      - name: Delete container
+        id: delete
+        if: ${{ always() }}
+        uses: Scalr/gh-action-revizor@feature/SCALRCORE-16917
+        with:
+          command: delete
+          container_id: ${{ steps.create.outputs.container_id }}
