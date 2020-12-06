@@ -22,8 +22,8 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "name", fmt.Sprintf("test-env-%d", rInt)),
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "status", "Active"),
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "cost_estimation_enabled", "false"),
-					resource.TestCheckResourceAttr("data.scalr_environment.test", "account_id", "existing"),
-					resource.TestCheckResourceAttr("data.scalr_environment.test", "account_id", "existing"),
+					resource.TestCheckResourceAttr("data.scalr_environment.test", "account_id", "acc-svrcncgh453bi8g"),
+					resource.TestCheckResourceAttr("data.scalr_environment.test", "account_id", "acc-svrcncgh453bi8g"),
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "cloud_credentials.%", "0"),
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.email"),
@@ -38,7 +38,7 @@ func testAccEnvironmentDataSourceConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
   name       = "test-env-%d"
-  account_id = "existing"
+  account_id = "acc-svrcncgh453bi8g"
 }
 
 data "scalr_environment" "test" {
