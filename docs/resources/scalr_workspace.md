@@ -58,8 +58,7 @@ The `created_by` block contains:
 
 ## Import
 
-To import workspaces use `<ENVIRONMENT NAME>/<WORKSPACE NAME>` as the import ID. For example:
-
+To import workspaces use workspace ID as the import ID. For example:
 ```shell
-terraform import scalr_workspace.example environment-name/workspace-name
+terraform import scalr_workspace.example ws-t47s1aa6s4boubg
 ```

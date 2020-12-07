@@ -1,8 +1,8 @@
 ### Changelog
-* [ ] I have updated CHANGELOG.md
+* [ ] I have updated CHANGELOG.md according to [CONTRIBUTING.md](../CONTRIBUTING.md)
 
 ### Documentation
-* [ ] I have updated resource/data source documentation in [website/docs](https://github.com/Scalr/terraform-provider-scalr/tree/develop/website/docs)
+* [ ] I have updated resource/data source documentation in [docs](../docs)
 
 ### State
 * [ ] My changes affect the state
