@@ -9,6 +9,10 @@ import (
 	scalr "github.com/scalr/go-scalr"
 )
 
+const (
+	currentRunIDEnvVar = "SCALR_RUN_ID"
+)
+
 // Note: The structure is similar to one from policy-check phase:
 // https://iacp.docs.scalr.com/en/latest/working-with-iacp/opa.html#policy-checking-process
 func dataSourceScalrCurrentRun() *schema.Resource {
@@ -98,8 +102,9 @@ func dataSourceScalrCurrentRun() *schema.Resource {
 func dataSourceScalrCurrentRunRead(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
-	runID, exists := os.LookupEnv("TFE_RUN_ID")
+	runID, exists := os.LookupEnv(currentRunIDEnvVar)
 	if !exists {
+		log.Printf("[DEBUG] %s is not set", currentRunIDEnvVar)
 		d.SetId("")
 		return nil
 	}

@@ -6,17 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+
+- `data.scalr_current_run` use the `SCALR_RUN_ID` environment variable to read the current run ID ([#42](https://github.com/Scalr/terraform-provider-scalr/pull/42))
 
 ## [1.0.0-rc10] - 2020-12-03
+
+### Changed
+
+- `scalr_webhook` attribute `enabled` is optional with default: `true`. ([#40](https://github.com/Scalr/terraform-provider-scalr/pull/40))
+- `scalr_endpoint` attribute `secret_key` is optional and sensitive.
 
 ### Removed
 
 - `scalr_workspace`: drop attribute `queue_all_runs`. ([#40](https://github.com/Scalr/terraform-provider-scalr/pull/40))
 - `scalr_endpoint`: drop attribute `http_method`. ([#40](https://github.com/Scalr/terraform-provider-scalr/pull/40))
-
-### Changed
-- `scalr_webhook` attribute `enabled` is optional with default: `true`. ([#40](https://github.com/Scalr/terraform-provider-scalr/pull/40))
-- `scalr_endpoint` attribute `secret_key` is optional and sensitive.
 
 ### Required
 
