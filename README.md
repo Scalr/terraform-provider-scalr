@@ -66,3 +66,21 @@ If you want to run one or more specific tests you can pass the targets as an env
 ```sh
 TESTARGS="-run TestAccScalrWorkspace_basic TestAccScalrWorkspace_update" make testacc
 ```
+
+### CI
+
+#### Acceptance tests
+
+To run tests with the container from the current branch. You need to specify branch flags in the commit message.
+Flags:
+- `[API_BRANCH]` - whether to use current branch as API branch.
+- `[DB_BRANCH]` - whether to use current branch as DB branch.
+
+For example, commit message:
+```
+Commit title
+
+Some description
+[API_BRANCH]
+[DB_BRANCH]
+```
