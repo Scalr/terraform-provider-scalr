@@ -9,10 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `data.scalr_current_run` use the `SCALR_RUN_ID` environment variable to read the current run ID ([#42](https://github.com/Scalr/terraform-provider-scalr/pull/42))
-- `scalr_webhook` attribute `enabled` is optional with default: `true`. ([#40](https://github.com/Scalr/terraform-provider-scalr/pull/40))
-- `scalr_endpoint` attribute `secret_key` is optional and sensitive.
 
 ## [1.0.0-rc10] - 2020-12-03
+
+### Changed
+
+- `scalr_webhook` attribute `enabled` is optional with default: `true`. ([#40](https://github.com/Scalr/terraform-provider-scalr/pull/40))
+- `scalr_endpoint` attribute `secret_key` is optional and sensitive.
 
 ### Removed
 
