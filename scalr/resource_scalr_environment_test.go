@@ -28,7 +28,7 @@ func TestAccEnvironment_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_environment.test", "name", fmt.Sprintf("test-env-%d", rInt)),
 					resource.TestCheckResourceAttr("scalr_environment.test", "cost_estimation_enabled", "true"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "status", "Active"),
-					resource.TestCheckResourceAttr("scalr_environment.test", "account_id", "acc-svrcncgh453bi8g"),
+					resource.TestCheckResourceAttr("scalr_environment.test", "account_id", DefaultAccount),
 					resource.TestCheckResourceAttr("scalr_environment.test", "cloud_credentials.%", "0"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "policy_groups.%", "0"),
 					resource.TestCheckResourceAttrSet("scalr_environment.test", "created_by.0.full_name"),
@@ -57,7 +57,7 @@ func TestAccEnvironment_update(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_environment.test", "name", fmt.Sprintf("test-env-%d", rInt)),
 					resource.TestCheckResourceAttr("scalr_environment.test", "cost_estimation_enabled", "true"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "status", "Active"),
-					resource.TestCheckResourceAttr("scalr_environment.test", "account_id", "acc-svrcncgh453bi8g"),
+					resource.TestCheckResourceAttr("scalr_environment.test", "account_id", DefaultAccount),
 					resource.TestCheckResourceAttr("scalr_environment.test", "cloud_credentials.%", "0"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "policy_groups.%", "0"),
 					resource.TestCheckResourceAttrSet("scalr_environment.test", "created_by.0.full_name"),
@@ -134,7 +134,7 @@ func testAccCheckScalrEnvironmentAttributes(environment *scalr.Environment, rInt
 		if environment.Name != fmt.Sprintf("test-env-%d", rInt) {
 			return fmt.Errorf("Bad name: %s", environment.Name)
 		}
-		if environment.Account.ID != "acc-svrcncgh453bi8g" {
+		if environment.Account.ID != DefaultAccount {
 			return fmt.Errorf("Bad account_id: %s", environment.Account.ID)
 		}
 
@@ -157,16 +157,16 @@ func testAccEnvironmentConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
   name       = "test-env-%d"
-  account_id = "acc-svrcncgh453bi8g"
+  account_id = "%s"
   cost_estimation_enabled = true
-}`, rInt)
+}`, rInt, DefaultAccount)
 }
 
 func testAccEnvironmentUpdateConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
   name       = "test-env-%d-patched"
-  account_id = "acc-svrcncgh453bi8g"
+  account_id = "%s"
   cost_estimation_enabled = false
-}`, rInt)
+}`, rInt, DefaultAccount)
 }

@@ -344,13 +344,13 @@ func testAccCheckScalrWorkspaceDestroy(s *terraform.State) error {
 const testAccScalrWorkspaceCommonConfig = `
 resource scalr_environment test {
   name       = "test-env-%d"
-  account_id = "acc-svrcncgh453bi8g"
+  account_id = "%s"
 }
 %s
 `
 
 func testAccScalrWorkspaceBasic(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, DefaultAccount, `
 resource scalr_workspace test {
   name           = "workspace-test"
   environment_id = scalr_environment.test.id
@@ -359,7 +359,7 @@ resource scalr_workspace test {
 }
 
 func testAccScalrWorkspaceMonorepo(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, DefaultAccount, `
 resource "scalr_workspace" "test" {
   name                  = "workspace-monorepo"
   environment_id 		= scalr_environment.test.id
@@ -368,7 +368,7 @@ resource "scalr_workspace" "test" {
 }
 
 func testAccScalrWorkspaceRenamed(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, DefaultAccount, `
 resource "scalr_workspace" "test" {
   name           = "renamed-out-of-band"
   environment_id = scalr_environment.test.id
@@ -377,7 +377,7 @@ resource "scalr_workspace" "test" {
 }
 
 func testAccScalrWorkspaceUpdate(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, DefaultAccount, `
 resource "scalr_workspace" "test" {
   name                  = "workspace-updated"
   environment_id 		= scalr_environment.test.id

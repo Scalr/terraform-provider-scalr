@@ -42,7 +42,7 @@ func testAccScalrWorkspaceDataSourceConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
   name       = "test-env-%[1]d"
-  account_id = "acc-svrcncgh453bi8g"
+  account_id = "%s"
 }
 
 resource scalr_workspace test {
@@ -56,5 +56,5 @@ resource scalr_workspace test {
 data scalr_workspace test {
   name           = scalr_workspace.test.name
   environment_id = scalr_environment.test.id
-}`, rInt)
+}`, rInt, DefaultAccount)
 }
