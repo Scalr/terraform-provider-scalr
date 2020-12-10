@@ -99,6 +99,7 @@ data scalr_workspace_ids foobar {
 }`, rInt, defaultAccount)
 }
 
+// nolint:unused
 func testAccScalrWorkspaceIDsDataSourceConfigWildcard(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
