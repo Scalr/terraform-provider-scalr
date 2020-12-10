@@ -37,7 +37,7 @@ func testAccWebhookDataSourceConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
   name       = "test-env-%[1]d"
-  account_id = "existing"
+  account_id = "%s"
 }
   
 resource scalr_workspace test {
@@ -63,5 +63,5 @@ resource scalr_webhook test {
   
   data scalr_webhook test {
   id = scalr_webhook.test.id
-}`, rInt)
+}`, rInt, defaultAccount)
 }

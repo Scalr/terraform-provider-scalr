@@ -84,32 +84,32 @@ func testAccEndpointConfig(rInt int, secretKey string) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
   name       = "test-env-%[1]d"
-  account_id = "existing"
+  account_id = "%[2]s"
 }
 
 resource scalr_endpoint test {
   name         = "test endpoint-%[1]d"
-  secret_key   = "%s"
+  secret_key   = "%[3]s"
   timeout      = 15               
   max_attempts = 3                
   url          = "https://example.com/endpoint"
   environment_id = scalr_environment.test.id
-}`, rInt, secretKey)
+}`, rInt, defaultAccount, secretKey)
 }
 
 func testAccEndpointConfigUpdate(rInt int, secretKey string) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
   name       = "test-env-%[1]d"
-  account_id = "existing"
+  account_id = "%[2]s"
 }
 
 resource scalr_endpoint test {
   name         = "test endpoint-%[1]d"
-  secret_key   = "%s"
+  secret_key   = "%[3]s"
   timeout      = 10               
   max_attempts = 5                
   url          = "https://example.com/endpoint-updated"
   environment_id = scalr_environment.test.id
-}`, rInt, secretKey)
+}`, rInt, defaultAccount, secretKey)
 }

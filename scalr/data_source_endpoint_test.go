@@ -41,7 +41,7 @@ func testAccEndpointDataSourceConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
   name       = "test-env-%[1]d"
-  account_id = "existing"
+  account_id = "%s"
 }
   
 resource scalr_endpoint test {
@@ -53,5 +53,5 @@ resource scalr_endpoint test {
 
 data scalr_endpoint test {
   id         = scalr_endpoint.test.id
-}`, rInt)
+}`, rInt, defaultAccount)
 }
