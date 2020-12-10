@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `data.scalr_current_run` use the `SCALR_RUN_ID` environment variable to read the current run ID ([#42](https://github.com/Scalr/terraform-provider-scalr/pull/42))
 
+- scalr server >= `8.0.1-beta.20201202`
+
 ## [1.0.0-rc10] - 2020-12-03
 
 ### Changed
