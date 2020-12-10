@@ -51,7 +51,7 @@ jobs:
           echo "Set env variable: BRANCH=${GITHUB_REF#refs/heads/}"
       - name: Create container
         id: create
-        uses: Scalr/gh-action-revizor@feature/SCALRCORE-16917
+        uses: Scalr/gh-action-revizor@master
         with:
           command: create
       - name: Run acceptance tests
@@ -61,7 +61,7 @@ jobs:
       - name: Delete container
         id: delete
         if: ${{ always() && steps.create.outputs.container_id }}
-        uses: Scalr/gh-action-revizor@feature/SCALRCORE-16917
+        uses: Scalr/gh-action-revizor@master
         with:
           command: delete
           container_id: ${{ steps.create.outputs.container_id }}
