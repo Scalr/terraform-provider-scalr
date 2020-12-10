@@ -53,5 +53,5 @@ resource scalr_endpoint test {
 
 data scalr_endpoint test {
   id         = scalr_endpoint.test.id
-}`, rInt, DefaultAccount)
+}`, rInt, defaultAccount)
 }

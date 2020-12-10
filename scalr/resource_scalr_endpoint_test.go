@@ -94,7 +94,7 @@ resource scalr_endpoint test {
   max_attempts = 3                
   url          = "https://example.com/endpoint"
   environment_id = scalr_environment.test.id
-}`, rInt, DefaultAccount, secretKey)
+}`, rInt, defaultAccount, secretKey)
 }
 
 func testAccEndpointConfigUpdate(rInt int, secretKey string) string {
@@ -111,5 +111,5 @@ resource scalr_endpoint test {
   max_attempts = 5                
   url          = "https://example.com/endpoint-updated"
   environment_id = scalr_environment.test.id
-}`, rInt, DefaultAccount, secretKey)
+}`, rInt, defaultAccount, secretKey)
 }

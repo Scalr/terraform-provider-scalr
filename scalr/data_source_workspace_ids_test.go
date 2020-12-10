@@ -96,7 +96,7 @@ resource scalr_workspace dummy {
 data scalr_workspace_ids foobar {
   names          = [scalr_workspace.foo.name, scalr_workspace.bar.name]
   environment_id = scalr_environment.test.id
-}`, rInt, DefaultAccount)
+}`, rInt, defaultAccount)
 }
 
 func testAccScalrWorkspaceIDsDataSourceConfigWildcard(rInt int) string {
@@ -124,5 +124,5 @@ resource scalr_workspace dummy {
 data scalr_workspace_ids foobar {
   names          = ["*"]
   environment_id = scalr_environment.test.id
-}`, rInt, DefaultAccount)
+}`, rInt, defaultAccount)
 }

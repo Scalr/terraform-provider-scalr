@@ -350,7 +350,7 @@ resource scalr_environment test {
 `
 
 func testAccScalrWorkspaceBasic(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, DefaultAccount, `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
 resource scalr_workspace test {
   name           = "workspace-test"
   environment_id = scalr_environment.test.id
@@ -359,7 +359,7 @@ resource scalr_workspace test {
 }
 
 func testAccScalrWorkspaceMonorepo(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, DefaultAccount, `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
 resource "scalr_workspace" "test" {
   name                  = "workspace-monorepo"
   environment_id 		= scalr_environment.test.id
@@ -368,7 +368,7 @@ resource "scalr_workspace" "test" {
 }
 
 func testAccScalrWorkspaceRenamed(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, DefaultAccount, `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
 resource "scalr_workspace" "test" {
   name           = "renamed-out-of-band"
   environment_id = scalr_environment.test.id
@@ -377,7 +377,7 @@ resource "scalr_workspace" "test" {
 }
 
 func testAccScalrWorkspaceUpdate(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, DefaultAccount, `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
 resource "scalr_workspace" "test" {
   name                  = "workspace-updated"
   environment_id 		= scalr_environment.test.id

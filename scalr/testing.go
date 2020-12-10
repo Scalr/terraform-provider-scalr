@@ -7,7 +7,7 @@ import (
 	scalr "github.com/scalr/go-scalr"
 )
 
-const DefaultAccount = "acc-svrcncgh453bi8g"
+const defaultAccount = "acc-svrcncgh453bi8g"
 
 func testScalrClient(t *testing.T) *scalr.Client {
 	config := &scalr.Config{

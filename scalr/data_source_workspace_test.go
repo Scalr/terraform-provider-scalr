@@ -56,5 +56,5 @@ resource scalr_workspace test {
 data scalr_workspace test {
   name           = scalr_workspace.test.name
   environment_id = scalr_environment.test.id
-}`, rInt, DefaultAccount)
+}`, rInt, defaultAccount)
 }

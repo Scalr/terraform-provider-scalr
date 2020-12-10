@@ -231,7 +231,7 @@ resource scalr_workspace test {
 `
 
 func testAccScalrVariableBasic(rInt int) string {
-	return fmt.Sprintf(testAccScalrVariableCommonConfig, rInt, DefaultAccount, `
+	return fmt.Sprintf(testAccScalrVariableCommonConfig, rInt, defaultAccount, `
 resource scalr_variable test {
   key          = "key_test"
   value        = "value_test"
@@ -242,7 +242,7 @@ resource scalr_variable test {
 }
 
 func testAccScalrVariableBasicNonsensitive(rInt int) string {
-	return fmt.Sprintf(testAccScalrVariableCommonConfig, rInt, DefaultAccount, `
+	return fmt.Sprintf(testAccScalrVariableCommonConfig, rInt, defaultAccount, `
 resource scalr_variable test {
   key          = "key_test"
   value        = "value_test"
@@ -253,7 +253,7 @@ resource scalr_variable test {
 }
 
 func testAccScalrVariableUpdate(rInt int) string {
-	return fmt.Sprintf(testAccScalrVariableCommonConfig, rInt, DefaultAccount, `
+	return fmt.Sprintf(testAccScalrVariableCommonConfig, rInt, defaultAccount, `
 resource scalr_variable test {
   key          = "key_updated"
   value        = "value_updated"

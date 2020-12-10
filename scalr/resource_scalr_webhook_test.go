@@ -100,7 +100,7 @@ resource scalr_webhook test {
 
 data scalr_webhook test {
   id         = scalr_webhook.test.id
-}`, rInt, DefaultAccount)
+}`, rInt, defaultAccount)
 }
 
 func testAccWebhookConfigUpdate(rInt int) string {
@@ -133,5 +133,5 @@ resource scalr_webhook test {
 
 data scalr_webhook test {
   id         = scalr_webhook.test.id
-}`, rInt, DefaultAccount)
+}`, rInt, defaultAccount)
 }
