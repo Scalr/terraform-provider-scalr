@@ -20,12 +20,17 @@ func resourceScalrVariable() *schema.Resource {
 			State: resourceScalrVariableImporter,
 		},
 
-		SchemaVersion: 1,
+		SchemaVersion: 2,
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceScalrVariableResourceV0().CoreConfigSchema().ImpliedType(),
 				Upgrade: resourceScalrVariableStateUpgradeV0,
 				Version: 0,
+			},
+			{
+				Type:    resourceScalrVariableResourceV1().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceScalrVariableStateUpgradeV1,
+				Version: 1,
 			},
 		},
 
@@ -67,10 +72,31 @@ func resourceScalrVariable() *schema.Resource {
 				Default:  false,
 			},
 
+			"final": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
+			"force": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
 			"workspace_id": {
 				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Optional: true,
+			},
+
+			"environment_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"account_id": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 		},
 	}
@@ -83,14 +109,6 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 	key := d.Get("key").(string)
 	category := d.Get("category").(string)
 
-	// Get the workspace.
-	workspaceID := d.Get("workspace_id").(string)
-	ws, err := scalrClient.Workspaces.ReadByID(ctx, workspaceID)
-	if err != nil {
-		return fmt.Errorf(
-			"Error retrieving workspace %s: %v", workspaceID, err)
-	}
-
 	// Create a new options struct.
 	options := scalr.VariableCreateOptions{
 		Key:       scalr.String(key),
@@ -98,7 +116,35 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 		Category:  scalr.Category(scalr.CategoryType(category)),
 		HCL:       scalr.Bool(d.Get("hcl").(bool)),
 		Sensitive: scalr.Bool(d.Get("sensitive").(bool)),
-		Workspace: ws,
+		Final:     scalr.Bool(d.Get("final").(bool)),
+		Force:     scalr.Bool(d.Get("force").(bool)),
+	}
+
+	// Get and check the workspace.
+	if workspaceID, ok := d.GetOk("workspace_id"); ok {
+		ws, err := scalrClient.Workspaces.ReadByID(ctx, workspaceID.(string))
+		if err != nil {
+			return fmt.Errorf(
+				"Error retrieving workspace %s: %v", workspaceID, err)
+		}
+		options.Workspace = ws
+	}
+
+	// Get and check the environment
+	if environmentId, ok := d.GetOk("environment_id"); ok {
+		env, err := scalrClient.Environments.Read(ctx, environmentId.(string))
+		if err != nil {
+			return fmt.Errorf(
+				"Error retrieving environment %s: %v", environmentId, err)
+		}
+		options.Environment = env
+	}
+
+	// Get the account
+	if accountId, ok := d.GetOk("account_id"); ok {
+		options.Account = &scalr.Account{
+			ID: accountId.(string),
+		}
 	}
 
 	log.Printf("[DEBUG] Create %s variable: %s", category, key)
@@ -131,6 +177,7 @@ func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("category", string(variable.Category))
 	d.Set("hcl", variable.HCL)
 	d.Set("sensitive", variable.Sensitive)
+	d.Set("final", variable.Final)
 
 	// Only set the value if its not sensitive, as otherwise it will be empty.
 	if !variable.Sensitive {
@@ -149,6 +196,8 @@ func resourceScalrVariableUpdate(d *schema.ResourceData, meta interface{}) error
 		Value:     scalr.String(d.Get("value").(string)),
 		HCL:       scalr.Bool(d.Get("hcl").(bool)),
 		Sensitive: scalr.Bool(d.Get("sensitive").(bool)),
+		Final:     scalr.Bool(d.Get("final").(bool)),
+		Force:     scalr.Bool(d.Get("force").(bool)),
 	}
 
 	log.Printf("[DEBUG] Update variable: %s", d.Id())
