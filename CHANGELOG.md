@@ -7,15 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0-rc11] - 2020-12-10
+## [1.0.0-rc12] - 2021-01-??
+
+### Added
+
+- `scalr_variable`: new attribute `final` ([#45](https://github.com/Scalr/terraform-provider-scalr/pull/45))
+- `scalr_variable`: new attribute `force` ([#45](https://github.com/Scalr/terraform-provider-scalr/pull/45))
+- `scalr_variable`: new attribute `environment_id` ([#45](https://github.com/Scalr/terraform-provider-scalr/pull/45))
+- `scalr_variable`: new attribute `account_id` ([#45](https://github.com/Scalr/terraform-provider-scalr/pull/45))
 
 ### Changed
 
-- `data.scalr_current_run` use the `SCALR_RUN_ID` environment variable to read the current run ID ([#42](https://github.com/Scalr/terraform-provider-scalr/pull/42))
+- `scalr_variable`: attribute `workspace_id` is optional ([#45](https://github.com/Scalr/terraform-provider-scalr/pull/45))
 
 ### Required
 
-- scalr server >= `8.0.1-beta.20201202`
+- scalr server >= `???`
+
+## [1.0.0-rc11] - 2020-12-10
+
+ ### Changed
+
+-- `data.scalr_current_run` use the `SCALR_RUN_ID` environment variable to read the current run ID ([#42](https://github.com/Scalr/terraform-provider-scalr/pull/42))
+
+ ### Required
+
+-- scalr server >= `8.0.1-beta.20201202`
 
 ## [1.0.0-rc10] - 2020-12-03
 
