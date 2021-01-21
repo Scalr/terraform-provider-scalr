@@ -178,6 +178,7 @@ func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("hcl", variable.HCL)
 	d.Set("sensitive", variable.Sensitive)
 	d.Set("final", variable.Final)
+	d.Set("force", variable.Force)
 
 	// Only set the value if its not sensitive, as otherwise it will be empty.
 	if !variable.Sensitive {
