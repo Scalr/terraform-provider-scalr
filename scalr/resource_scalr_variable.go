@@ -117,7 +117,6 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 		HCL:       scalr.Bool(d.Get("hcl").(bool)),
 		Sensitive: scalr.Bool(d.Get("sensitive").(bool)),
 		Final:     scalr.Bool(d.Get("final").(bool)),
-		Force:     scalr.Bool(d.Get("force").(bool)),
 	}
 
 	// Get and check the workspace.
@@ -147,8 +146,10 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
+	force := scalr.Bool(d.Get("force").(bool))
+
 	log.Printf("[DEBUG] Create %s variable: %s", category, key)
-	variable, err := scalrClient.Variables.Create(ctx, options)
+	variable, err := scalrClient.Variables.Create(ctx, options, *force)
 	if err != nil {
 		return fmt.Errorf("Error creating %s variable %s: %v", category, key, err)
 	}
@@ -178,7 +179,6 @@ func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("hcl", variable.HCL)
 	d.Set("sensitive", variable.Sensitive)
 	d.Set("final", variable.Final)
-	d.Set("force", variable.Force)
 
 	// Only set the value if its not sensitive, as otherwise it will be empty.
 	if !variable.Sensitive {
@@ -198,11 +198,12 @@ func resourceScalrVariableUpdate(d *schema.ResourceData, meta interface{}) error
 		HCL:       scalr.Bool(d.Get("hcl").(bool)),
 		Sensitive: scalr.Bool(d.Get("sensitive").(bool)),
 		Final:     scalr.Bool(d.Get("final").(bool)),
-		Force:     scalr.Bool(d.Get("force").(bool)),
 	}
 
+	force := scalr.Bool(d.Get("force").(bool))
+
 	log.Printf("[DEBUG] Update variable: %s", d.Id())
-	_, err := scalrClient.Variables.Update(ctx, d.Id(), options)
+	_, err := scalrClient.Variables.Update(ctx, d.Id(), options, *force)
 	if err != nil {
 		return fmt.Errorf("Error updating variable %s: %v", d.Id(), err)
 	}
