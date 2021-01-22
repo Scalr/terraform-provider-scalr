@@ -15,7 +15,7 @@ This data source is used to retrieve details of a an environment.
 ```hcl
 data "scalr_environment" "test" {
   id = "env-xxxxxxxxxx"
-}`
+}
 ```
 
 ## Arguments
