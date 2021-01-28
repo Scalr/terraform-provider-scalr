@@ -5,7 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.0-rc12] - 2021-01-28
+
+### Changed
+
+- Fix for workspace vcs_repo state migration panic ([#46](https://github.com/Scalr/terraform-provider-scalr/pull/46))
+
+### Required
+
+- scalr server >= `8.0.1-beta.20201202`
 
 ## [1.0.0-rc11] - 2020-12-10
 
