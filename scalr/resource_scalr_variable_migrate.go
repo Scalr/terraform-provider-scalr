@@ -2,6 +2,7 @@ package scalr
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
@@ -61,6 +62,11 @@ func resourceScalrVariableStateUpgradeV0(rawState map[string]interface{}, meta i
 	scalrClient := meta.(*scalr.Client)
 
 	humanID := rawState["workspace_id"].(string)
+	if !strings.ContainsAny(humanID, "|/") {
+		// In some obscure cases schema-versionV0 can contain workspace_id in format: <WORKSPACE_ID>
+		// so we skip the migration for these cases.
+		return rawState, nil
+	}
 	id, err := fetchWorkspaceID(humanID, scalrClient)
 	if err != nil {
 		return nil, fmt.Errorf("Error reading configuration of workspace %s: %v", humanID, err)
