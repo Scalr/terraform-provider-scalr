@@ -63,8 +63,8 @@ func resourceScalrVariableStateUpgradeV0(rawState map[string]interface{}, meta i
 
 	humanID := rawState["workspace_id"].(string)
 	if !strings.ContainsAny(humanID, "|/") {
-		// In some obscure cases schema-versionV0 can contain workspace_id in format: <WORKSPACE_ID>
-		// so we skip the migration for these cases.
+		// Due to migration drift, schema-versionV0 can contain workspace_id in format: <WORKSPACE_ID>
+		// so we can skip V0->V1 the migration.
 		return rawState, nil
 	}
 	id, err := fetchWorkspaceID(humanID, scalrClient)
