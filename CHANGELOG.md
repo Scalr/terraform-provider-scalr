@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-rc13] - 2021-02-04
+
+### Changed
+
+- Fix inconsistency in migration (since 1.0.0-rc5) ([#49](https://github.com/Scalr/terraform-provider-scalr/pull/49))
+
+### Required
+
+- scalr server >= `8.0.1-beta.20201202`
+
 ## [1.0.0-rc12] - 2021-01-28
 
 ### Changed
@@ -164,7 +174,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc12...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc13...HEAD
+[1.0.0-rc12]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc13
 [1.0.0-rc12]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc12
 [1.0.0-rc11]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc11
 [1.0.0-rc10]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc10
