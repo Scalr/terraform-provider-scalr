@@ -113,6 +113,11 @@ func resourceScalrWorkspaceResourceV0() *schema.Resource {
 }
 
 func resourceScalrWorkspaceStateUpgradeV0(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	if _, ok := rawState["external_id"]; !ok {
+		// Due to migration drift, schema-versionV0 can already contain 'id' field
+		// so we can skip V0->V1 the migration.
+		return rawState, nil
+	}
 	rawState["id"] = rawState["external_id"]
 	delete(rawState, "external_id")
 	delete(rawState, "ssh_key_id")
