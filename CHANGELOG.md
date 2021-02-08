@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0-rc12] - 2021-01-??
+## [1.0.0-rc14] - 2021-01-??
 
 ### Added
 
@@ -23,6 +23,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Required
 
 - scalr server >= `???`
+
+## [1.0.0-rc13] - 2021-02-04
+
+### Changed
+
+- Fix inconsistency in migration (since 1.0.0-rc5) ([#49](https://github.com/Scalr/terraform-provider-scalr/pull/49))
+
+### Required
+
+- scalr server >= `8.0.1-beta.20201202`
+
+## [1.0.0-rc12] - 2021-01-28
+
+### Changed
+
+- Fix for workspace vcs_repo state migration panic ([#46](https://github.com/Scalr/terraform-provider-scalr/pull/46))
+
+### Required
+
+- scalr server >= `8.0.1-beta.20201202`
 
 ## [1.0.0-rc11] - 2020-12-10
 
@@ -171,8 +191,10 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc11...HEAD
-[1.0.0-rc11]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc10
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc13...HEAD
+[1.0.0-rc13]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc13
+[1.0.0-rc12]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc12
+[1.0.0-rc11]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc11
 [1.0.0-rc10]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc10
 [1.0.0-rc9]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc9
 [1.0.0-rc8]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc8

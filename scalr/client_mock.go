@@ -58,23 +58,3 @@ func (m *mockWorkspaces) Update(ctx context.Context, workspaceID string, options
 func (m *mockWorkspaces) Delete(ctx context.Context, workspaceID string) error {
 	panic("not implemented")
 }
-
-func (m *mockWorkspaces) RemoveVCSConnection(ctx context.Context, environment string, workspace string) (*scalr.Workspace, error) {
-	panic("not implemented")
-}
-
-func (m *mockWorkspaces) RemoveVCSConnectionByID(ctx context.Context, workspaceID string) (*scalr.Workspace, error) {
-	panic("not implemented")
-}
-
-func (m *mockWorkspaces) Lock(ctx context.Context, workspaceID string, options scalr.WorkspaceLockOptions) (*scalr.Workspace, error) {
-	panic("not implemented")
-}
-
-func (m *mockWorkspaces) Unlock(ctx context.Context, workspaceID string) (*scalr.Workspace, error) {
-	panic("not implemented")
-}
-
-func (m *mockWorkspaces) ForceUnlock(ctx context.Context, workspaceID string) (*scalr.Workspace, error) {
-	panic("not implemented")
-}
