@@ -116,29 +116,7 @@ func resourceScalrVariableResourceV1() *schema.Resource {
 				Default:  false,
 			},
 
-			"final": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-			},
-
-			"force": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-			},
-
 			"workspace_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
-			"environment_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
-			"account_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
