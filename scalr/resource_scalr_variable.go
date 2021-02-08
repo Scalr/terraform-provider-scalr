@@ -111,12 +111,13 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 
 	// Create a new options struct.
 	options := scalr.VariableCreateOptions{
-		Key:       scalr.String(key),
-		Value:     scalr.String(d.Get("value").(string)),
-		Category:  scalr.Category(scalr.CategoryType(category)),
-		HCL:       scalr.Bool(d.Get("hcl").(bool)),
-		Sensitive: scalr.Bool(d.Get("sensitive").(bool)),
-		Final:     scalr.Bool(d.Get("final").(bool)),
+		Key:          scalr.String(key),
+		Value:        scalr.String(d.Get("value").(string)),
+		Category:     scalr.Category(scalr.CategoryType(category)),
+		HCL:          scalr.Bool(d.Get("hcl").(bool)),
+		Sensitive:    scalr.Bool(d.Get("sensitive").(bool)),
+		Final:        scalr.Bool(d.Get("final").(bool)),
+		QueryOptions: &scalr.VariableWriteQueryOptions{Force: scalr.Bool(d.Get("force").(bool))},
 	}
 
 	// Get and check the workspace.
@@ -146,10 +147,8 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	force := scalr.Bool(d.Get("force").(bool))
-
 	log.Printf("[DEBUG] Create %s variable: %s", category, key)
-	variable, err := scalrClient.Variables.Create(ctx, options, *force)
+	variable, err := scalrClient.Variables.Create(ctx, options)
 	if err != nil {
 		return fmt.Errorf("Error creating %s variable %s: %v", category, key, err)
 	}
@@ -193,17 +192,16 @@ func resourceScalrVariableUpdate(d *schema.ResourceData, meta interface{}) error
 
 	// Create a new options struct.
 	options := scalr.VariableUpdateOptions{
-		Key:       scalr.String(d.Get("key").(string)),
-		Value:     scalr.String(d.Get("value").(string)),
-		HCL:       scalr.Bool(d.Get("hcl").(bool)),
-		Sensitive: scalr.Bool(d.Get("sensitive").(bool)),
-		Final:     scalr.Bool(d.Get("final").(bool)),
+		Key:          scalr.String(d.Get("key").(string)),
+		Value:        scalr.String(d.Get("value").(string)),
+		HCL:          scalr.Bool(d.Get("hcl").(bool)),
+		Sensitive:    scalr.Bool(d.Get("sensitive").(bool)),
+		Final:        scalr.Bool(d.Get("final").(bool)),
+		QueryOptions: &scalr.VariableWriteQueryOptions{Force: scalr.Bool(d.Get("force").(bool))},
 	}
 
-	force := scalr.Bool(d.Get("force").(bool))
-
 	log.Printf("[DEBUG] Update variable: %s", d.Id())
-	_, err := scalrClient.Variables.Update(ctx, d.Id(), options, *force)
+	_, err := scalrClient.Variables.Update(ctx, d.Id(), options)
 	if err != nil {
 		return fmt.Errorf("Error updating variable %s: %v", d.Id(), err)
 	}

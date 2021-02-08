@@ -11,3 +11,5 @@ require (
 )
 
 go 1.13
+
+replace github.com/scalr/go-scalr => /Users/vmotso/prog/scalr-labs/go-scalr
