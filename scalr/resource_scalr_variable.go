@@ -3,7 +3,6 @@ package scalr
 import (
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
@@ -17,7 +16,7 @@ func resourceScalrVariable() *schema.Resource {
 		Update: resourceScalrVariableUpdate,
 		Delete: resourceScalrVariableDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceScalrVariableImporter,
+			State: schema.ImportStatePassthrough,
 		},
 
 		SchemaVersion: 2,
@@ -178,6 +177,19 @@ func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("hcl", variable.HCL)
 	d.Set("sensitive", variable.Sensitive)
 	d.Set("final", variable.Final)
+	_, exists := d.GetOk("force")
+	if !exists {
+		d.Set("force", false)
+	}
+	if variable.Account != nil {
+		d.Set("account_id", variable.Account.ID)
+	}
+	if variable.Environment != nil {
+		d.Set("environment_id", variable.Environment.ID)
+	}
+	if variable.Workspace != nil {
+		d.Set("workspace_id", variable.Workspace.ID)
+	}
 
 	// Only set the value if its not sensitive, as otherwise it will be empty.
 	if !variable.Sensitive {
@@ -222,27 +234,4 @@ func resourceScalrVariableDelete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	return nil
-}
-
-func resourceScalrVariableImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	scalrClient := meta.(*scalr.Client)
-	s := strings.SplitN(d.Id(), "/", 3)
-	log.Printf("[DEBUG] in resourceScalrVariableImporter: %s", s[0])
-	if len(s) != 3 {
-		return nil, fmt.Errorf(
-			"invalid variable import format: %s (expected <ENVIRONMENT ID>/<WORKSPACE NAME>/<VARIABLE ID>)",
-			d.Id(),
-		)
-	}
-
-	// Set the fields that are part of the import ID.
-	workspaceID, err := fetchWorkspaceID(s[0]+"/"+s[1], scalrClient)
-	if err != nil {
-		return nil, fmt.Errorf(
-			"error retrieving workspace %s from environment %s: %v", s[1], s[0], err)
-	}
-	d.Set("workspace_id", workspaceID)
-	d.SetId(s[2])
-
-	return []*schema.ResourceData{d}, nil
 }
