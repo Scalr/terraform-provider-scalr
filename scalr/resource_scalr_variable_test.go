@@ -385,7 +385,7 @@ resource scalr_variable test {
   value          = "updated"
   category       = "terraform"
   hcl            = true
-  force		     = true
+  force          = true
   final          = true
   account_id     = "%[2]s"
   environment_id = scalr_environment.test.id
