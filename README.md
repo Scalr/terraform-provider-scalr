@@ -1,4 +1,6 @@
 # Terraform provider for Scalr
+[![Build status](https://github.com/Scalr/terraform-provider-scalr/workflows/default/badge.svg)](https://github.com/Scalr/terraform-provider-scalr/actions) [![Coverage status](https://coveralls.io/repos/github/Scalr/terraform-provider-scalr/badge.svg?branch=develop)](https://coveralls.io/github/Scalr/terraform-provider-scalr?branch=develop)
+
 The Scalr Terraform provider can be used to manage the components within the Scalr IaCP. 
 This will allow you to automate the creation of workspaces, variables, VCS providers and much more.
 

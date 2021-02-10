@@ -58,6 +58,14 @@ jobs:
         env:
           SCALR_HOSTNAME: ${{ steps.create.outputs.hostname }}
         run: make testacc
+      - name: Install goveralls
+        env:
+          GO111MODULE: off
+        run: go get github.com/mattn/goveralls
+      - name: Send coverage
+        env:
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: goveralls -coverprofile=covprofile -service=github
       - name: Delete container
         id: delete
         if: ${{ always() && steps.create.outputs.container_id }}
