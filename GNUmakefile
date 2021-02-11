@@ -16,7 +16,7 @@ test:
 		$(BUILD_ENV) xargs -t -n4  go test $(TESTARGS) -timeout=30s -parallel=4
 
 testacc: 
-	$(BUILD_ENV) TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 15m
+	$(BUILD_ENV) TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 15m  -covermode atomic -coverprofile=covprofile
 
 vet:
 	@echo "go vet ."
