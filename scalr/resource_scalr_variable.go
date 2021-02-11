@@ -86,16 +86,19 @@ func resourceScalrVariable() *schema.Resource {
 			"workspace_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 			},
 
 			"environment_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 			},
 
 			"account_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 			},
 		},
 	}
@@ -106,13 +109,13 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 
 	// Get key and category.
 	key := d.Get("key").(string)
-	category := d.Get("category").(string)
+	category := scalr.CategoryType(d.Get("category").(string))
 
 	// Create a new options struct.
 	options := scalr.VariableCreateOptions{
 		Key:          scalr.String(key),
 		Value:        scalr.String(d.Get("value").(string)),
-		Category:     scalr.Category(scalr.CategoryType(category)),
+		Category:     scalr.Category(category),
 		HCL:          scalr.Bool(d.Get("hcl").(bool)),
 		Sensitive:    scalr.Bool(d.Get("sensitive").(bool)),
 		Final:        scalr.Bool(d.Get("final").(bool)),
@@ -127,6 +130,10 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 				"Error retrieving workspace %s: %v", workspaceID, err)
 		}
 		options.Workspace = ws
+	} else {
+		if category == scalr.CategoryTerraform {
+			return fmt.Errorf("Only environment variables should be multi-scoped.")
+		}
 	}
 
 	// Get and check the environment

@@ -3,6 +3,7 @@ package scalr
 import (
 	"fmt"
 	"math/rand"
+	"regexp"
 	"testing"
 	"time"
 
@@ -71,6 +72,23 @@ func TestAccScalrVariable_scopes(t *testing.T) {
 			{
 				Config: testAccScalrVariableOnAllScopes(rInt),
 				Check:  testAccCheckScalrVariableOnScopes(variable),
+			},
+		},
+	})
+}
+
+func TestAccScalrVariable_notTerraformOnMultiscope(t *testing.T) {
+	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	r, _ := regexp.Compile("Only environment variables should be multi-scoped.")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckScalrVariableDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccScalrVariableNotTerraformOnMultiscope(rInt),
+				ExpectError: r,
 			},
 		},
 	})
@@ -322,6 +340,27 @@ resource scalr_variable test {
   account_id     = "%[2]s"
   environment_id = scalr_environment.test.id
   workspace_id   = scalr_workspace.test.id
+}`, rInt, defaultAccount)
+}
+
+func testAccScalrVariableNotTerraformOnMultiscope(rInt int) string {
+	return fmt.Sprintf(`
+resource scalr_environment test {
+  name       = "test-env-%[1]d"
+  account_id = "%[2]s"
+}
+  
+resource scalr_workspace test {
+  name           = "test-ws-%[1]d"
+  environment_id = scalr_environment.test.id
+}
+
+resource scalr_variable test {
+  key            = "var-on-ws-%[1]d"
+  value          = "test"
+  category       = "terraform"
+  account_id     = "%[2]s"
+  environment_id = scalr_environment.test.id
 }`, rInt, defaultAccount)
 }
 
