@@ -19,17 +19,12 @@ func resourceScalrVariable() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
-		SchemaVersion: 2,
+		SchemaVersion: 1,
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceScalrVariableResourceV0().CoreConfigSchema().ImpliedType(),
 				Upgrade: resourceScalrVariableStateUpgradeV0,
 				Version: 0,
-			},
-			{
-				Type:    resourceScalrVariableResourceV1().CoreConfigSchema().ImpliedType(),
-				Upgrade: resourceScalrVariableStateUpgradeV1,
-				Version: 1,
 			},
 		},
 
