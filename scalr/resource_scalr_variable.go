@@ -1,6 +1,7 @@
 package scalr
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -8,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform/helper/validation"
 	scalr "github.com/scalr/go-scalr"
 )
+
+var errVariableMultiOnlyEnv = errors.New("Only environment variables should be multi-scoped.")
 
 func resourceScalrVariable() *schema.Resource {
 	return &schema.Resource{
@@ -127,7 +130,7 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 		options.Workspace = ws
 	} else {
 		if category == scalr.CategoryTerraform {
-			return fmt.Errorf("Only environment variables should be multi-scoped.")
+			return errVariableMultiOnlyEnv
 		}
 	}
 

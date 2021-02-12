@@ -79,7 +79,7 @@ func TestAccScalrVariable_scopes(t *testing.T) {
 
 func TestAccScalrVariable_notTerraformOnMultiscope(t *testing.T) {
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
-	r, _ := regexp.Compile("Only environment variables should be multi-scoped.")
+	r, _ := regexp.Compile(errVariableMultiOnlyEnv.Error())
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
