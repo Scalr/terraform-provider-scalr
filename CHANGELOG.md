@@ -7,8 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0-rc14] - 2021-01-??
-
 ### Added
 
 - `scalr_variable`: new attribute `final` ([#50](https://github.com/Scalr/terraform-provider-scalr/pull/50))
