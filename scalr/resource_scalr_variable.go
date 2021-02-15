@@ -1,14 +1,16 @@
 package scalr
 
 import (
+	"errors"
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	scalr "github.com/scalr/go-scalr"
 )
+
+var errVariableMultiOnlyEnv = errors.New("Only environment variables should be multi-scoped.")
 
 func resourceScalrVariable() *schema.Resource {
 	return &schema.Resource{
@@ -17,7 +19,7 @@ func resourceScalrVariable() *schema.Resource {
 		Update: resourceScalrVariableUpdate,
 		Delete: resourceScalrVariableDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceScalrVariableImporter,
+			State: schema.ImportStatePassthrough,
 		},
 
 		SchemaVersion: 1,
@@ -67,9 +69,33 @@ func resourceScalrVariable() *schema.Resource {
 				Default:  false,
 			},
 
+			"final": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
+			"force": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
 			"workspace_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				ForceNew: true,
+			},
+
+			"environment_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
+			"account_id": {
+				Type:     schema.TypeString,
+				Optional: true,
 				ForceNew: true,
 			},
 		},
@@ -81,24 +107,48 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 
 	// Get key and category.
 	key := d.Get("key").(string)
-	category := d.Get("category").(string)
-
-	// Get the workspace.
-	workspaceID := d.Get("workspace_id").(string)
-	ws, err := scalrClient.Workspaces.ReadByID(ctx, workspaceID)
-	if err != nil {
-		return fmt.Errorf(
-			"Error retrieving workspace %s: %v", workspaceID, err)
-	}
+	category := scalr.CategoryType(d.Get("category").(string))
 
 	// Create a new options struct.
 	options := scalr.VariableCreateOptions{
-		Key:       scalr.String(key),
-		Value:     scalr.String(d.Get("value").(string)),
-		Category:  scalr.Category(scalr.CategoryType(category)),
-		HCL:       scalr.Bool(d.Get("hcl").(bool)),
-		Sensitive: scalr.Bool(d.Get("sensitive").(bool)),
-		Workspace: ws,
+		Key:          scalr.String(key),
+		Value:        scalr.String(d.Get("value").(string)),
+		Category:     scalr.Category(category),
+		HCL:          scalr.Bool(d.Get("hcl").(bool)),
+		Sensitive:    scalr.Bool(d.Get("sensitive").(bool)),
+		Final:        scalr.Bool(d.Get("final").(bool)),
+		QueryOptions: &scalr.VariableWriteQueryOptions{Force: scalr.Bool(d.Get("force").(bool))},
+	}
+
+	// Get and check the workspace.
+	if workspaceID, ok := d.GetOk("workspace_id"); ok {
+		ws, err := scalrClient.Workspaces.ReadByID(ctx, workspaceID.(string))
+		if err != nil {
+			return fmt.Errorf(
+				"Error retrieving workspace %s: %v", workspaceID, err)
+		}
+		options.Workspace = ws
+	} else {
+		if category == scalr.CategoryTerraform {
+			return errVariableMultiOnlyEnv
+		}
+	}
+
+	// Get and check the environment
+	if environmentId, ok := d.GetOk("environment_id"); ok {
+		env, err := scalrClient.Environments.Read(ctx, environmentId.(string))
+		if err != nil {
+			return fmt.Errorf(
+				"Error retrieving environment %s: %v", environmentId, err)
+		}
+		options.Environment = env
+	}
+
+	// Get the account
+	if accountId, ok := d.GetOk("account_id"); ok {
+		options.Account = &scalr.Account{
+			ID: accountId.(string),
+		}
 	}
 
 	log.Printf("[DEBUG] Create %s variable: %s", category, key)
@@ -131,6 +181,20 @@ func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("category", string(variable.Category))
 	d.Set("hcl", variable.HCL)
 	d.Set("sensitive", variable.Sensitive)
+	d.Set("final", variable.Final)
+	_, exists := d.GetOk("force")
+	if !exists {
+		d.Set("force", false)
+	}
+	if variable.Account != nil {
+		d.Set("account_id", variable.Account.ID)
+	}
+	if variable.Environment != nil {
+		d.Set("environment_id", variable.Environment.ID)
+	}
+	if variable.Workspace != nil {
+		d.Set("workspace_id", variable.Workspace.ID)
+	}
 
 	// Only set the value if its not sensitive, as otherwise it will be empty.
 	if !variable.Sensitive {
@@ -145,10 +209,12 @@ func resourceScalrVariableUpdate(d *schema.ResourceData, meta interface{}) error
 
 	// Create a new options struct.
 	options := scalr.VariableUpdateOptions{
-		Key:       scalr.String(d.Get("key").(string)),
-		Value:     scalr.String(d.Get("value").(string)),
-		HCL:       scalr.Bool(d.Get("hcl").(bool)),
-		Sensitive: scalr.Bool(d.Get("sensitive").(bool)),
+		Key:          scalr.String(d.Get("key").(string)),
+		Value:        scalr.String(d.Get("value").(string)),
+		HCL:          scalr.Bool(d.Get("hcl").(bool)),
+		Sensitive:    scalr.Bool(d.Get("sensitive").(bool)),
+		Final:        scalr.Bool(d.Get("final").(bool)),
+		QueryOptions: &scalr.VariableWriteQueryOptions{Force: scalr.Bool(d.Get("force").(bool))},
 	}
 
 	log.Printf("[DEBUG] Update variable: %s", d.Id())
@@ -173,27 +239,4 @@ func resourceScalrVariableDelete(d *schema.ResourceData, meta interface{}) error
 	}
 
 	return nil
-}
-
-func resourceScalrVariableImporter(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	scalrClient := meta.(*scalr.Client)
-	s := strings.SplitN(d.Id(), "/", 3)
-	log.Printf("[DEBUG] in resourceScalrVariableImporter: %s", s[0])
-	if len(s) != 3 {
-		return nil, fmt.Errorf(
-			"invalid variable import format: %s (expected <ENVIRONMENT ID>/<WORKSPACE NAME>/<VARIABLE ID>)",
-			d.Id(),
-		)
-	}
-
-	// Set the fields that are part of the import ID.
-	workspaceID, err := fetchWorkspaceID(s[0]+"/"+s[1], scalrClient)
-	if err != nil {
-		return nil, fmt.Errorf(
-			"error retrieving workspace %s from environment %s: %v", s[1], s[0], err)
-	}
-	d.Set("workspace_id", workspaceID)
-	d.SetId(s[2])
-
-	return []*schema.ResourceData{d}, nil
 }

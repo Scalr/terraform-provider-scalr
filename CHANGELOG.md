@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `scalr_variable`: new attribute `final` ([#50](https://github.com/Scalr/terraform-provider-scalr/pull/50))
+- `scalr_variable`: new attribute `force` ([#50](https://github.com/Scalr/terraform-provider-scalr/pull/50))
+- `scalr_variable`: new attribute `environment_id` ([#50](https://github.com/Scalr/terraform-provider-scalr/pull/50))
+- `scalr_variable`: new attribute `account_id` ([#50](https://github.com/Scalr/terraform-provider-scalr/pull/50))
+
+### Changed
+
+- `scalr_variable`: attribute `workspace_id` is optional ([#50](https://github.com/Scalr/terraform-provider-scalr/pull/50))
+
+### Required
+
+- scalr server >= `8.0.1-beta.20201202`
+
 ## [1.0.0-rc13] - 2021-02-04
 
 ### Changed
@@ -175,6 +190,7 @@ Requires Scalr 8.0.1-beta.20200625 at least
 - Initial release.
 
 [Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc13...HEAD
+[1.0.0-rc14]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc14
 [1.0.0-rc13]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc13
 [1.0.0-rc12]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc12
 [1.0.0-rc11]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc11

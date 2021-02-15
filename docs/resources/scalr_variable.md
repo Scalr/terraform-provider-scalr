@@ -35,7 +35,12 @@ resource "scalr_variable" "example" {
 * `category` - (Required) Indicates if this is a Terraform or environment variable. Allowed values are `terraform` or `env`.
 * `hcl` - (Optional) Set (true/false) to configure the variable as a string of HCL code. Has no effect for `category = "env"` variables. Default `false`.
 * `sensitive` - (Optional) Set (true/false) to configure as sensitive. Sensitive variable values are not visible after being set. Default `false`.
-* `workspace_id` - (Required) The workspace that owns the variable, specified as an ID, in the format `ws-<RANDOM STRING>`.
+* `final` - (Optional) Set (true/false) to configure as final. Indicates whether the variable can be overridden on a lower scope down the Scalr organizational model. Default `false`.
+* `force` - (Optional) Set (true/false) to configure as force. Allows creating final variables on higher scope, even if the same variable exists on lower scope (lower is to be deleted). Default `false`.
+* `workspace_id` - (Optional) The workspace that owns the variable, specified as an ID, in the format `ws-<RANDOM STRING>`.
+* `environment_id` - (Optional) The environment that owns the variable, specified as an ID, in the format `env-<RANDOM STRING>`.
+* `account_id` - (Optional) The account that owns the variable, specified as an ID, in the format `acc-<RANDOM STRING>`.
+
 
 ## Attribute Reference
 
