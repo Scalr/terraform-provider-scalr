@@ -41,7 +41,8 @@ All arguments plus:
 
 The `vcs_repo` block contains:
 
-* `identifier` - * The reference to the VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
+* `identifier` - The reference to the VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
+* `branch` - The repository branch where Terraform will be run from.
 * `path` - Path within the repo, if any.
 
 The `created_by` block contains:

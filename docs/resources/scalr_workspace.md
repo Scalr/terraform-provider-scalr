@@ -42,6 +42,7 @@ The `vcs_repo` block supports:
 
 * `identifier` - (Required) A reference to your VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
 * `branch` - (Optional) The repository branch where Terraform will be run from. Default `master`.
+* `path` - (Optional) Path within the repo, if any.
 
 ## Attribute Reference
 
