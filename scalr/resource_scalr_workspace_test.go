@@ -270,6 +270,7 @@ func testAccCheckScalrWorkspaceRename(environmentName, workspaceName string) fun
 		}
 		if environmentID == nil {
 			log.Fatalf("Could not find environment with name: %s", environmentName)
+			return
 		}
 
 		ws, err := scalrClient.Workspaces.Read(ctx, *environmentID, workspaceName)

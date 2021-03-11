@@ -26,7 +26,7 @@ func TestAccScalrVariable_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrVariableExists("scalr_variable.test", variable),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "key", fmt.Sprintf("var-on-global-%d", rInt)),
+						"scalr_variable.test", "key", fmt.Sprintf("var_on_global_%d", rInt)),
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "value", "test"),
 					resource.TestCheckResourceAttr(
@@ -110,7 +110,7 @@ func TestAccScalrVariable_update(t *testing.T) {
 						"scalr_variable.test", variable),
 					testAccCheckScalrVariableAttributes(variable, rInt),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "key", fmt.Sprintf("var-on-ws-%d", rInt)),
+						"scalr_variable.test", "key", fmt.Sprintf("var_on_ws_%d", rInt)),
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "value", "test"),
 					resource.TestCheckResourceAttr(
@@ -133,7 +133,7 @@ func TestAccScalrVariable_update(t *testing.T) {
 						"scalr_variable.test", variable),
 					testAccCheckScalrVariableAttributesUpdate(variable, rInt),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "key", fmt.Sprintf("var-on-ws-updated-%d", rInt)),
+						"scalr_variable.test", "key", fmt.Sprintf("var_on_ws_updated_%d", rInt)),
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "value", "updated"),
 					resource.TestCheckResourceAttr(
@@ -237,7 +237,7 @@ func testAccCheckScalrVariableOnScopes(v *scalr.Variable) resource.TestCheckFunc
 func testAccCheckScalrVariableAttributes(
 	variable *scalr.Variable, rInt int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if variable.Key != fmt.Sprintf("var-on-ws-%d", rInt) {
+		if variable.Key != fmt.Sprintf("var_on_ws_%d", rInt) {
 			return fmt.Errorf("Bad key: %s != %s", variable.Key, variable.Key)
 		}
 
@@ -267,7 +267,7 @@ func testAccCheckScalrVariableAttributes(
 func testAccCheckScalrVariableAttributesUpdate(
 	variable *scalr.Variable, rInt int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if variable.Key != fmt.Sprintf("var-on-ws-updated-%d", rInt) {
+		if variable.Key != fmt.Sprintf("var_on_ws_updated_%d", rInt) {
 			return fmt.Errorf("Bad key: %s != %s", variable.Key, variable.Key)
 		}
 
@@ -315,7 +315,7 @@ func testAccCheckScalrVariableDestroy(s *terraform.State) error {
 func testAccScalrVariableOnGlobalScope(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_variable test {
-  key          = "var-on-global-%d"
+  key          = "var_on_global_%d"
   value        = "test"
   category     = "env"
 }`, rInt)
@@ -334,7 +334,7 @@ resource scalr_workspace test {
 }
 
 resource scalr_variable test {
-  key            = "var-on-ws-%[1]d"
+  key            = "var_on_ws_%[1]d"
   value          = "test"
   category       = "env"
   account_id     = "%[2]s"
@@ -356,7 +356,7 @@ resource scalr_workspace test {
 }
 
 resource scalr_variable test {
-  key            = "var-on-ws-%[1]d"
+  key            = "var_on_ws_%[1]d"
   value          = "test"
   category       = "terraform"
   account_id     = "%[2]s"
@@ -377,20 +377,20 @@ resource scalr_workspace test {
 }
 
 resource scalr_variable on_global {
-  key          = "var-on-global-%[1]d"
+  key          = "var_on_global_%[1]d"
   value        = "test"
   category     = "env"
 }
 
 resource scalr_variable on_account {
-  key          = "var-on-acc-%[1]d"
+  key          = "var_on_acc_%[1]d"
   value        = "test"
   category     = "env"
   account_id   = "%[2]s"
 }
 
 resource scalr_variable on_environment {
-  key            = "var-on-env-%[1]d"
+  key            = "var_on_env_%[1]d"
   value          = "test"
   category       = "env"
   account_id     = "%[2]s"
@@ -398,7 +398,7 @@ resource scalr_variable on_environment {
 }
 
 resource scalr_variable on_workspace {
-  key            = "var-on-ws-%[1]d"
+  key            = "var_on_ws_%[1]d"
   value          = "test"
   category       = "env"
   account_id     = "%[2]s"
@@ -420,7 +420,7 @@ resource scalr_workspace test {
 }
 
 resource scalr_variable test {
-  key            = "var-on-ws-updated-%[1]d"
+  key            = "var_on_ws_updated_%[1]d"
   value          = "updated"
   category       = "terraform"
   hcl            = true
