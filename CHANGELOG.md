@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-rc15] - 2021-03-24
+
+### Changed
+
+- `scalr_endpoint`: refresh state after manually endpoint deleting ([#55](https://github.com/Scalr/terraform-provider-scalr/pull/55))
+
+### Required
+
+- scalr server >= `8.0.1-beta.20201202`
+
 ## [1.0.0-rc14] - 2021-03-11
 
 ### Added
