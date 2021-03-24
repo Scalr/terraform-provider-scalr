@@ -116,7 +116,8 @@ func resourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error {
 	endpoint, err := scalrClient.Endpoints.Read(ctx, endpointID)
 	if err != nil {
 		if err == scalr.ErrResourceNotFound {
-			return fmt.Errorf("Could not find endpoint %s: %v", endpointID, err)
+			d.SetId("")
+			return nil
 		}
 		return fmt.Errorf("Error retrieving endpoint: %v", err)
 	}
