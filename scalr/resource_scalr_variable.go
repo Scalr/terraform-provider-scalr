@@ -31,14 +31,20 @@ func resourceScalrVariable() *schema.Resource {
 				return nil
 			},
 			func(d *schema.ResourceDiff, meta interface{}) error {
-				// Reject any changes for account_id, environment_id or workspace_id
-				const templateString string = "Error changing '%s' attribute for variable %s: immutable attribute"
-				var scope_attributes = []string{"workspace_id", "environment_id", "account_id"}
+				// Reject any changes for variable scope
+				var scopeAttributes = []string{"workspace_id", "environment_id", "account_id"}
 
-				for _, scope := range scope_attributes {
-					if d.HasChange(scope) {
-						return fmt.Errorf(templateString, scope, d.Id())
+				notChangedFields := 0
+				for _, scope := range scopeAttributes {
+					old, new := d.GetChange(scope)
+
+					if old.(string) == "" || old.(string) == new.(string) {
+						notChangedFields++
 					}
+				}
+
+				if notChangedFields < len(scopeAttributes) {
+					return fmt.Errorf("Error changing scope for variable %s: scope is immutable attribute", d.Id())
 				}
 
 				return nil
@@ -213,7 +219,7 @@ func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 	if variable.Workspace != nil {
 		d.Set("workspace_id", variable.Workspace.ID)
 	} else if variable.Environment != nil {
-		d.Set("environment_id", variable.Environment.ID)
+		d.Set("workspace_id", nil)
 	} else if variable.Account != nil {
 		d.Set("account_id", variable.Account.ID)
 	}
