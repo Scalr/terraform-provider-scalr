@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	scalr "github.com/scalr/go-scalr"
@@ -18,6 +19,31 @@ func resourceScalrVariable() *schema.Resource {
 		Read:   resourceScalrVariableRead,
 		Update: resourceScalrVariableUpdate,
 		Delete: resourceScalrVariableDelete,
+		CustomizeDiff: customdiff.All(
+			func(d *schema.ResourceDiff, meta interface{}) error {
+				// Reject change for key if variable is sensitive
+				old, new := d.GetChange("key")
+				sensitive := d.Get("sensitive")
+
+				if sensitive.(bool) && old.(string) != new.(string) {
+					return fmt.Errorf("Error changing 'key' attribute for variable %s: immutable for sensitive variable", d.Id())
+				}
+				return nil
+			},
+			func(d *schema.ResourceDiff, meta interface{}) error {
+				// Reject any changes for account_id, environment_id or workspace_id
+				const templateString string = "Error changing '%s' attribute for variable %s: immutable attribute"
+				var scope_attributes = []string{"workspace_id", "environment_id", "account_id"}
+
+				for _, scope := range scope_attributes {
+					if d.HasChange(scope) {
+						return fmt.Errorf(templateString, scope, d.Id())
+					}
+				}
+
+				return nil
+			},
+		),
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -183,14 +209,13 @@ func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 	if !exists {
 		d.Set("force", false)
 	}
-	if variable.Account != nil {
-		d.Set("account_id", variable.Account.ID)
-	}
-	if variable.Environment != nil {
-		d.Set("environment_id", variable.Environment.ID)
-	}
+
 	if variable.Workspace != nil {
 		d.Set("workspace_id", variable.Workspace.ID)
+	} else if variable.Environment != nil {
+		d.Set("environment_id", variable.Environment.ID)
+	} else if variable.Account != nil {
+		d.Set("account_id", variable.Account.ID)
 	}
 
 	// Only set the value if its not sensitive, as otherwise it will be empty.
