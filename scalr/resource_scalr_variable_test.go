@@ -351,27 +351,6 @@ resource scalr_variable test {
 }`, rInt, defaultAccount)
 }
 
-func testAccScalrVariableOnWorkspaceScopeSensitive(rInt int) string {
-	return fmt.Sprintf(`
-resource scalr_environment test {
-  name       = "test-env-%[1]d"
-  account_id = "%[2]s"
-}
-
-resource scalr_workspace test {
-  name           = "test-ws-%[1]d"
-  environment_id = scalr_environment.test.id
-}
-
-resource scalr_variable test {
-  key            = "var_on_ws_%[1]d"
-  value          = "test"
-  category       = "env"
-  sensitive      = true
-  workspace_id   = scalr_workspace.test.id
-}`, rInt, defaultAccount)
-}
-
 func testAccScalrVariableNotTerraformOnMultiscope(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
@@ -482,32 +461,6 @@ resource scalr_variable test {
   final          = true
   sensitive      = true
   account_id     = "%[2]s"
-  environment_id = scalr_environment.test.id
-  workspace_id   = scalr_workspace.test.id
-}`, rInt, defaultAccount)
-}
-
-func testAccScalrVariableOnWorkspaceScopeUpdateSensitive(rInt int) string {
-	return fmt.Sprintf(`
-resource scalr_environment test {
-  name       = "test-env-%[1]d"
-  account_id = "%[2]s"
-}
-
-resource scalr_workspace test {
-  name           = "test-ws-%[1]d"
-  environment_id = scalr_environment.test.id
-}
-
-resource scalr_variable test {
-  key            = "var_on_ws_updated_sensitive_%[1]d"
-  value          = "updated"
-  category       = "terraform"
-  hcl            = true
-  force          = true
-  final          = true
-  account_id     = "%[2]s"
-  sensitive      = true
   environment_id = scalr_environment.test.id
   workspace_id   = scalr_workspace.test.id
 }`, rInt, defaultAccount)
