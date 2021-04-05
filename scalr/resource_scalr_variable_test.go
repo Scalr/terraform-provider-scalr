@@ -513,6 +513,6 @@ resource scalr_variable test {
   sensitive      = true
   account_id     = "%[2]s"
   environment_id = scalr_environment.test.id
-  workspace_id   = "scalr_workspace.test.id
+  workspace_id   = scalr_workspace.test.id
 }`, rInt, defaultAccount)
 }
