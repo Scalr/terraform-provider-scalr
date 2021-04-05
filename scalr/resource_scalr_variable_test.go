@@ -21,6 +21,7 @@ resource scalr_workspace test {
   name           = "test-ws-%[1]d"
   environment_id = scalr_environment.test.id
 }
+
 `
 
 func TestAccScalrVariable_basic(t *testing.T) {
