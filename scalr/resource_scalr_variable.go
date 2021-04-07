@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"
 	scalr "github.com/scalr/go-scalr"
@@ -18,6 +19,37 @@ func resourceScalrVariable() *schema.Resource {
 		Read:   resourceScalrVariableRead,
 		Update: resourceScalrVariableUpdate,
 		Delete: resourceScalrVariableDelete,
+		CustomizeDiff: customdiff.All(
+			func(d *schema.ResourceDiff, meta interface{}) error {
+				// Reject change for key if variable is sensitive
+				old, new := d.GetChange("key")
+				sensitive := d.Get("sensitive")
+
+				if sensitive.(bool) && old.(string) != new.(string) {
+					return fmt.Errorf("Error changing 'key' attribute for variable %s: immutable for sensitive variable", d.Id())
+				}
+				return nil
+			},
+			func(d *schema.ResourceDiff, meta interface{}) error {
+				// Reject any changes for variable scope
+				var scopeAttributes = []string{"workspace_id", "environment_id", "account_id"}
+
+				notChangedFields := 0
+				for _, scope := range scopeAttributes {
+					old, new := d.GetChange(scope)
+
+					if old.(string) == "" || old.(string) == new.(string) {
+						notChangedFields++
+					}
+				}
+
+				if notChangedFields < len(scopeAttributes) {
+					return fmt.Errorf("Error changing scope for variable %s: scope is immutable attribute", d.Id())
+				}
+
+				return nil
+			},
+		),
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -183,14 +215,13 @@ func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 	if !exists {
 		d.Set("force", false)
 	}
-	if variable.Account != nil {
-		d.Set("account_id", variable.Account.ID)
-	}
-	if variable.Environment != nil {
-		d.Set("environment_id", variable.Environment.ID)
-	}
+
 	if variable.Workspace != nil {
 		d.Set("workspace_id", variable.Workspace.ID)
+	} else if variable.Environment != nil {
+		d.Set("workspace_id", nil)
+	} else if variable.Account != nil {
+		d.Set("account_id", variable.Account.ID)
 	}
 
 	// Only set the value if its not sensitive, as otherwise it will be empty.

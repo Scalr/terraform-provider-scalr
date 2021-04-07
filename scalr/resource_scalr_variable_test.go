@@ -12,6 +12,18 @@ import (
 	scalr "github.com/scalr/go-scalr"
 )
 
+const baseForUpdate = `
+resource scalr_environment test {
+  name       = "test-env-%[1]d"
+  account_id = "%[2]s"
+}
+resource scalr_workspace test {
+  name           = "test-ws-%[1]d"
+  environment_id = scalr_environment.test.id
+}
+
+`
+
 func TestAccScalrVariable_basic(t *testing.T) {
 	variable := &scalr.Variable{}
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
@@ -79,7 +91,7 @@ func TestAccScalrVariable_scopes(t *testing.T) {
 
 func TestAccScalrVariable_notTerraformOnMultiscope(t *testing.T) {
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
-	r, _ := regexp.Compile(errVariableMultiOnlyEnv.Error())
+	r := regexp.MustCompile(errVariableMultiOnlyEnv.Error())
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -127,7 +139,7 @@ func TestAccScalrVariable_update(t *testing.T) {
 			},
 
 			{
-				Config: testAccScalrVariableOnWorkspaceScopeUpdate(rInt),
+				Config: testAccScalrVariableOnWorkspaceScopeUpdateValue(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrVariableExists(
 						"scalr_variable.test", variable),
@@ -144,6 +156,36 @@ func TestAccScalrVariable_update(t *testing.T) {
 						"scalr_variable.test", "force", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "final", "true")),
+			},
+
+			// Test change scope
+			{
+				Config:      testAccScalrVariableOnWorkspaceScopeUpdateWorkspace(rInt),
+				ExpectError: regexp.MustCompile("Error changing scope for variable var-[a-z0-9]+: scope is immutable attribute"),
+				PlanOnly:    true,
+			},
+
+			{
+				Config:      testAccScalrVariableOnWorkspaceScopeUpdateEnvironment(rInt),
+				ExpectError: regexp.MustCompile("Error changing scope for variable var-[a-z0-9]+: scope is immutable attribute"),
+				PlanOnly:    true,
+			},
+
+			{
+				Config:      testAccScalrVariableOnWorkspaceScopeUpdateAccount(rInt),
+				ExpectError: regexp.MustCompile("Error changing scope for variable var-[a-z0-9]+: scope is immutable attribute"),
+				PlanOnly:    true,
+			},
+
+			// Test change key attribute for sensitive variable
+			{
+				Config: testAccScalrVariableOnWorkspaceScopeUpdateSensitivity(rInt),
+			},
+
+			{
+				Config:      testAccScalrVariableOnWorkspaceScopeUpdateSensitivity(rInt + 1),
+				ExpectError: regexp.MustCompile("Error changing 'key' attribute for variable var-[a-z0-9]+: immutable for sensitive variable"),
+				PlanOnly:    true,
 			},
 		},
 	})
@@ -327,7 +369,7 @@ resource scalr_environment test {
   name       = "test-env-%[1]d"
   account_id = "%[2]s"
 }
-  
+
 resource scalr_workspace test {
   name           = "test-ws-%[1]d"
   environment_id = scalr_environment.test.id
@@ -337,8 +379,6 @@ resource scalr_variable test {
   key            = "var_on_ws_%[1]d"
   value          = "test"
   category       = "env"
-  account_id     = "%[2]s"
-  environment_id = scalr_environment.test.id
   workspace_id   = scalr_workspace.test.id
 }`, rInt, defaultAccount)
 }
@@ -349,7 +389,7 @@ resource scalr_environment test {
   name       = "test-env-%[1]d"
   account_id = "%[2]s"
 }
-  
+
 resource scalr_workspace test {
   name           = "test-ws-%[1]d"
   environment_id = scalr_environment.test.id
@@ -370,7 +410,7 @@ resource scalr_environment test {
   name       = "test-env-%[1]d"
   account_id = "%[2]s"
 }
-  
+
 resource scalr_workspace test {
   name           = "test-ws-%[1]d"
   environment_id = scalr_environment.test.id
@@ -407,18 +447,8 @@ resource scalr_variable on_workspace {
 }`, rInt, defaultAccount)
 }
 
-func testAccScalrVariableOnWorkspaceScopeUpdate(rInt int) string {
-	return fmt.Sprintf(`
-resource scalr_environment test {
-  name       = "test-env-%[1]d"
-  account_id = "%[2]s"
-}
-  
-resource scalr_workspace test {
-  name           = "test-ws-%[1]d"
-  environment_id = scalr_environment.test.id
-}
-
+func testAccScalrVariableOnWorkspaceScopeUpdateValue(rInt int) string {
+	return fmt.Sprintf(baseForUpdate+`
 resource scalr_variable test {
   key            = "var_on_ws_updated_%[1]d"
   value          = "updated"
@@ -426,6 +456,61 @@ resource scalr_variable test {
   hcl            = true
   force          = true
   final          = true
+  account_id     = "%[2]s"
+  environment_id = scalr_environment.test.id
+  workspace_id   = scalr_workspace.test.id
+}`, rInt, defaultAccount)
+}
+
+func testAccScalrVariableOnWorkspaceScopeUpdateWorkspace(rInt int) string {
+	return fmt.Sprintf(baseForUpdate+`
+resource scalr_variable test {
+  key            = "var_on_ws_updated_%[1]d"
+  value          = "updated"
+  category       = "terraform"
+  hcl            = true
+  force          = true
+  final          = true
+  workspace_id   = "42"
+}`, rInt, defaultAccount)
+}
+
+func testAccScalrVariableOnWorkspaceScopeUpdateEnvironment(rInt int) string {
+	return fmt.Sprintf(baseForUpdate+`
+resource scalr_variable test {
+  key            = "var_on_ws_updated_%[1]d"
+  value          = "updated"
+  category       = "terraform"
+  hcl            = true
+  force          = true
+  final          = true
+  environment_id = "42"
+}`, rInt, defaultAccount)
+}
+
+func testAccScalrVariableOnWorkspaceScopeUpdateAccount(rInt int) string {
+	return fmt.Sprintf(baseForUpdate+`
+resource scalr_variable test {
+  key            = "var_on_ws_updated_%[1]d"
+  value          = "updated"
+  category       = "terraform"
+  hcl            = true
+  force          = true
+  final          = true
+  account_id     = "42"
+}`, rInt, defaultAccount)
+}
+
+func testAccScalrVariableOnWorkspaceScopeUpdateSensitivity(rInt int) string {
+	return fmt.Sprintf(baseForUpdate+`
+resource scalr_variable test {
+  key            = "var_on_ws_updated_%[1]d"
+  value          = "updated"
+  category       = "terraform"
+  hcl            = true
+  force          = true
+  final          = true
+  sensitive      = true
   account_id     = "%[2]s"
   environment_id = scalr_environment.test.id
   workspace_id   = scalr_workspace.test.id

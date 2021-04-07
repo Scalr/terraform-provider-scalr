@@ -1,7 +1,9 @@
 TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 PKG_NAME=scalr
+BIN_NAME=terraform-provider-scalr
 BUILD_ENV=CGO_ENABLED=0
+USER_PLUGIN_DIR_LINUX=${HOME}/.terraform.d/plugins/scalr.com/scalr/scalr/1.0.0/linux_amd64
 
 default: build
 
@@ -10,6 +12,9 @@ build:
 
 build-linux: 
 	env $(BUILD_ENV) GOOS=linux GOARCH=amd64 go build
+
+install-linux-user: build-linux
+	mkdir -p $(USER_PLUGIN_DIR_LINUX); cp $(BIN_NAME) $(USER_PLUGIN_DIR_LINUX)
 
 test: 
 	echo $(TEST) | \
