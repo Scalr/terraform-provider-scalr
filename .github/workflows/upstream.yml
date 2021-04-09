@@ -1,4 +1,5 @@
 name: upstream
+
 on:
   workflow_dispatch:
     inputs:
@@ -9,9 +10,7 @@ on:
         description: "DB Branch"
         required: false
         default: "master"
-      upstream_sha:
-        description: "Upstream SHA"
-        required: true
+
 jobs:
   acc-tests:
     runs-on: ubuntu-latest
@@ -22,8 +21,6 @@ jobs:
       SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
       API_BRANCH: ${{ github.event.inputs.api_branch }}
       DB_BRANCH: ${{ github.event.inputs.db_branch }}
-      UPSTREAM_SHA: ${{ github.event.inputs.upstream_sha }}
-      ORG_ADMIN_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
