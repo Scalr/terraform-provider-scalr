@@ -167,7 +167,7 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 	// Get and assert the VCS repo configuration block.
 	if v, ok := d.GetOk("vcs_repo"); ok {
 		vcsRepo := v.([]interface{})[0].(map[string]interface{})
-		triggerPrefixes := []string{}
+		triggerPrefixes := make([]string, 0)
 
 		for _, pref := range vcsRepo["trigger_prefixes"].([]interface{}) {
 			triggerPrefixes = append(triggerPrefixes, pref.(string))
