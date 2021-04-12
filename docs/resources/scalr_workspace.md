@@ -44,8 +44,8 @@ The `vcs_repo` block supports:
 
 * `identifier` - (Required) A reference to your VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
 * `branch` - (Optional) The repository branch where Terraform will be run from. Default `master`.
-* `path` - (Optional) A root path in your VCS repository, which triggers a run for the workspace on change, if `trigger-prefixes` attribute is not provided.
-* `trigger_prefixes` - (Optional) A list of paths (relative to `path`), which trigger a run for the workspace on change. If omitted or submitted as an empty list, any change in `path` will trigger a new run.
+* `path` - (Optional) The repository sub-directory that Terraform will execute from. If omitted or submitted as an empty string, this defaults to the repository's root.
+* `trigger_prefixes` - (Optional) List of paths (relative to `path`), whose changes will trigger a run for the workspace using this binding when the CV is created. If omitted or submitted as an empty list, any change in `path` will trigger a new run.
 
 ## Attribute Reference
 
