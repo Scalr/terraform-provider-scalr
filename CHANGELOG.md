@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+ - `scalr_workspace`: new attribute `vcs_repo.path` ([#59](https://github.com/Scalr/terraform-provider-scalr/pull/59))
+ - `scalr_workspace`: new attribute `vcs_repo.trigger_prefixes` ([#59](https://github.com/Scalr/terraform-provider-scalr/pull/59))
+
+
+ ### Required
+
+- scalr server >= `8.0.1-beta.20201202`
+
 ### Changed
 
 - `scalr_variable`: variable's scope becomes immutable (can not change `workspace_id`, `environment_id` or `account_id`) ([#57](https://github.com/Scalr/terraform-provider-scalr/pull/57))
