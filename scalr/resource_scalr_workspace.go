@@ -233,26 +233,15 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 
 	var vcsRepo []interface{}
 	if workspace.VCSRepo != nil {
-		vcsConfig := map[string]interface{}{
+		vcsRepo = append(vcsRepo, map[string]interface{}{
+			"branch":           workspace.VCSRepo.Branch,
 			"identifier":       workspace.VCSRepo.Identifier,
 			"path":             workspace.VCSRepo.Path,
-			"trigger-prefixes": workspace.VCSRepo.TriggerPrefixes,
-		}
-
-		// Get and assert the VCS repo configuration block.
-		if v, ok := d.GetOk("vcs_repo"); ok {
-			if vcsRepo, ok := v.([]interface{})[0].(map[string]interface{}); ok {
-				// Only set the branch if one is configured.
-				if branch, ok := vcsRepo["branch"].(string); ok && branch != "" {
-					vcsConfig["branch"] = workspace.VCSRepo.Branch
-				}
-			}
-		}
-
-		vcsRepo = append(vcsRepo, vcsConfig)
+			"trigger_prefixes": workspace.VCSRepo.TriggerPrefixes,
+		})
 	}
-
 	d.Set("vcs_repo", vcsRepo)
+
 	return nil
 }
 
