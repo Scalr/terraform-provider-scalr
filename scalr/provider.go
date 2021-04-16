@@ -166,12 +166,16 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	httpClient := scalr.DefaultConfig().HTTPClient
 	httpClient.Transport = logging.NewTransport("Scalr", httpClient.Transport)
 
+	headers := make(http.Header)
+	userAgent := fmt.Sprintf("terraform-provider-scalr/%s", providerVersion.ProviderVersion)
+	headers.Add("User-Agent", userAgent)
+
 	// Create a new Scalr client config
 	cfg := &scalr.Config{
 		Address:    address.String(),
 		Token:      token,
 		HTTPClient: httpClient,
-		Headers:    make(http.Header),
+		Headers:    headers,
 	}
 
 	// Create a new Scalr client.
