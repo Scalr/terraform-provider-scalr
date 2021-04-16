@@ -3,10 +3,9 @@ before:
     - go mod download
 builds:
 - env:
-    - CGO_ENABLED=0
-    - VERSION={{ if .Branch == "develop" }} {{ .Version }} {{ else }} {{ .Branch }} {{ end }}
-  ldflags:
-    - -s -w -X "github.com/scalr/terraform-provider-scalr/version.ProviderVersion={{ .Env.VERSION }}"
+    CGO_ENABLED: 0
+    VERSION: '{{ if .Branch == "develop" }} {{ .Version }} {{ else }} {{ .Branch }} {{ end }}'
+  ldflags: '-s -w -X "github.com/scalr/terraform-provider-scalr/version.ProviderVersion={{ .Env.VERSION }}"'
   binary: '{{ .ProjectName }}_v{{ .Version }}'
 
 changelog:
