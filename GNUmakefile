@@ -1,19 +1,20 @@
 TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 PKG_NAME=scalr
-BIN_NAME=terraform-provider-scalr
 BUILD_ENV=CGO_ENABLED=0
-USER_PLUGIN_DIR_LINUX=${HOME}/.terraform.d/plugins/scalr.com/scalr/scalr/1.0.0/linux_amd64
 VERSION=$(shell git describe --tags --abbrev=0)
 BRANCH=$(shell git branch --show-current)
+USER_PLUGIN_DIR_LINUX=${HOME}/.terraform.d/plugins/scalr.io/scalr/scalr/$(VERSION)/linux_amd64
+BIN_NAME=terraform-provider-scalr_v$(VERSION)
+ARGS=-ldflags='-X github.com/scalr/terraform-provider-scalr/version.ProviderVersion=$(VERSION) -X github.com/scalr/terraform-provider-scalr/version.Branch=$(BRANCH)'
 
 default: build
 
 build:
-	$(BUILD_ENV) go build -ldflags='-X github.com/scalr/terraform-provider-scalr/version.ProviderVersion=$(VERSION) -X github.com/scalr/terraform-provider-scalr/version.Branch=$(BRANCH)'
+	$(BUILD_ENV) go build -o $(BIN_NAME) $(ARGS)
 
 build-linux:
-	env $(BUILD_ENV) GOOS=linux GOARCH=amd64 go build
+	env $(BUILD_ENV) GOOS=linux GOARCH=amd64 go build -o $(BIN_NAME) $(ARGS)
 
 install-linux-user: build-linux
 	mkdir -p $(USER_PLUGIN_DIR_LINUX); cp $(BIN_NAME) $(USER_PLUGIN_DIR_LINUX)
