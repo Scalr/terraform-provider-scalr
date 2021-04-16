@@ -93,7 +93,13 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		return nil, err
 	}
 
-	providerUaString := fmt.Sprintf("terraform-provider-scalr/%s", providerVersion.ProviderVersion)
+	var providerUaString string
+	if providerVersion.Branch == defaultBranch {
+		providerUaString = fmt.Sprintf("terraform-provider-scalr/%s", providerVersion.ProviderVersion)
+	} else {
+		branch := strings.Replace(providerVersion.Branch, "/", "-", -1)
+		providerUaString = fmt.Sprintf("terraform-provider-scalr/%s", branch)
+	}
 
 	// Get the Terraform CLI configuration.
 	config := cliConfig()
@@ -169,15 +175,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	httpClient := scalr.DefaultConfig().HTTPClient
 	httpClient.Transport = logging.NewTransport("Scalr", httpClient.Transport)
 
-	var userAgent string
 	headers := make(http.Header)
-	if providerVersion.Branch == defaultBranch {
-		userAgent = fmt.Sprintf("terraform-provider-scalr-%s", providerVersion.Branch)
-	} else {
-		userAgent = fmt.Sprintf("terraform-provider-scalr/%s", providerVersion.ProviderVersion)
-	}
-
-	headers.Add("User-Agent", userAgent)
+	headers.Add("User-Agent", providerUaString)
 
 	// Create a new Scalr client config
 	cfg := &scalr.Config{
