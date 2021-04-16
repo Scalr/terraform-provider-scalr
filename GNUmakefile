@@ -4,12 +4,13 @@ PKG_NAME=scalr
 BIN_NAME=terraform-provider-scalr
 BUILD_ENV=CGO_ENABLED=0
 USER_PLUGIN_DIR_LINUX=${HOME}/.terraform.d/plugins/scalr.com/scalr/scalr/1.0.0/linux_amd64
-CURRENT_VERSION=$(shell BRANCH=`git branch --show-current`; if [[ $$BRANCH == "develop" ]]; then git describe --tags --abbrev=0; else echo $$BRANCH; fi)
+VERSION=$(shell git describe --tags --abbrev=0)
+BRANCH=$(shell git branch --show-current)
 
 default: build
 
 build:
-	$(BUILD_ENV) go build -ldflags='-X github.com/scalr/terraform-provider-scalr/version.ProviderVersion=$(CURRENT_VERSION)'
+	$(BUILD_ENV) go build -ldflags='-X github.com/scalr/terraform-provider-scalr/version.ProviderVersion=$(VERSION) -X github.com/scalr/terraform-provider-scalr/version.Branch=$(BRANCH)'
 
 build-linux:
 	env $(BUILD_ENV) GOOS=linux GOARCH=amd64 go build

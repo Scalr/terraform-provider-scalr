@@ -23,7 +23,10 @@ import (
 	providerVersion "github.com/scalr/terraform-provider-scalr/version"
 )
 
-const defaultHostname = "scalr.io"
+const (
+	defaultHostname = "scalr.io"
+	defaultBranch   = "develop"
+)
 
 var scalrServiceIDs = []string{"iacp.v3"}
 
@@ -166,8 +169,14 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	httpClient := scalr.DefaultConfig().HTTPClient
 	httpClient.Transport = logging.NewTransport("Scalr", httpClient.Transport)
 
+	var userAgent string
 	headers := make(http.Header)
-	userAgent := fmt.Sprintf("terraform-provider-scalr/%s", providerVersion.ProviderVersion)
+	if providerVersion.Branch == defaultBranch {
+		userAgent = fmt.Sprintf("terraform-provider-scalr-%s", providerVersion.Branch)
+	} else {
+		userAgent = fmt.Sprintf("terraform-provider-scalr/%s", providerVersion.ProviderVersion)
+	}
+
 	headers.Add("User-Agent", userAgent)
 
 	// Create a new Scalr client config
