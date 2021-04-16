@@ -5,7 +5,7 @@ BUILD_ENV=CGO_ENABLED=0
 VERSION=$(shell git describe --tags --abbrev=0)
 BRANCH=$(shell git branch --show-current)
 USER_PLUGIN_DIR_LINUX=${HOME}/.terraform.d/plugins/scalr.io/scalr/scalr/$(VERSION)/linux_amd64
-BIN_NAME=terraform-provider-scalr_v$(VERSION)
+BIN_NAME=terraform-provider-scalr_$(VERSION)
 ARGS=-ldflags='-X github.com/scalr/terraform-provider-scalr/version.ProviderVersion=$(VERSION) -X github.com/scalr/terraform-provider-scalr/version.Branch=$(BRANCH)'
 
 default: build
