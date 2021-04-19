@@ -1,7 +1,5 @@
 package version
 
-const defaultBranch = "develop"
-
 var (
 	// ProviderVersion is set to the release version of
 	// the binary during the automated release process.
