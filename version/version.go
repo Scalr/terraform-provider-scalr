@@ -15,6 +15,7 @@ var (
 )
 
 func init() {
+	// Empty branch could we if git repo was checkouted to tag
 	if Branch != defaultBranch && Branch != "" {
 		ProviderVersion = strings.Replace(Branch, "/", "-", -1)
 	}
