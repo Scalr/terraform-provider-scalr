@@ -1,9 +1,5 @@
 package version
 
-import (
-	"strings"
-)
-
 const defaultBranch = "develop"
 
 var (
@@ -15,8 +11,7 @@ var (
 )
 
 func init() {
-	// Empty branch could we if git repo was checkouted to tag
-	if Branch != defaultBranch && Branch != "" {
-		ProviderVersion = strings.Replace(Branch, "/", "-", -1)
+	if ProviderVersion == "" {
+		ProviderVersion = Branch
 	}
 }
