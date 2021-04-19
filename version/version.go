@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-const defaultBranch   = "develop"
+const defaultBranch = "develop"
 
 var (
 	// ProviderVersion is set to the release version of
@@ -13,7 +13,6 @@ var (
 	// Branch is current provider git branch
 	Branch = "dev"
 )
-
 
 func init() {
 	if Branch != defaultBranch {
