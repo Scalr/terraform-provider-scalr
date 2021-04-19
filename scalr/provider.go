@@ -93,13 +93,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		return nil, err
 	}
 
-	var providerUaString string
-	if providerVersion.Branch == defaultBranch {
-		providerUaString = fmt.Sprintf("terraform-provider-scalr/%s", providerVersion.ProviderVersion)
-	} else {
-		branch := strings.Replace(providerVersion.Branch, "/", "-", -1)
-		providerUaString = fmt.Sprintf("terraform-provider-scalr/%s", branch)
-	}
+	providerUaString := fmt.Sprintf("terraform-provider-scalr/%s", providerVersion.ProviderVersion)
 
 	// Get the Terraform CLI configuration.
 	config := cliConfig()
