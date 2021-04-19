@@ -15,7 +15,7 @@ var (
 )
 
 func init() {
-	if Branch != defaultBranch {
+	if Branch != defaultBranch && Branch != "" {
 		ProviderVersion = strings.Replace(Branch, "/", "-", -1)
 	}
 }
