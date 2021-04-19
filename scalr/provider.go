@@ -23,10 +23,7 @@ import (
 	providerVersion "github.com/scalr/terraform-provider-scalr/version"
 )
 
-const (
-	defaultHostname = "scalr.io"
-	defaultBranch   = "develop"
-)
+const defaultHostname = "scalr.io"
 
 var scalrServiceIDs = []string{"iacp.v3"}
 
