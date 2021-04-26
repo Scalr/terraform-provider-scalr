@@ -209,7 +209,7 @@ Requires Scalr 8.0.1-beta.20200625 at least
 - Initial release.
 
 [Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc15...HEAD
-[1.0.0-rc14]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc15
+[1.0.0-rc15]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc15
 [1.0.0-rc14]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc14
 [1.0.0-rc13]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc13
 [1.0.0-rc12]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc12
