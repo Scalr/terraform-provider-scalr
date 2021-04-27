@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `scalr_variable`: variable's scope becomes immutable (can not change `workspace_id`, `environment_id` or `account_id`) ([#57](https://github.com/Scalr/terraform-provider-scalr/pull/57))
 - `scalr_variable`: can not change `key` attribute for sensitive variable ([#57](https://github.com/Scalr/terraform-provider-scalr/pull/57))
+- `scalr_endpoint`: refresh state after manually endpoint deleting ([#55](https://github.com/Scalr/terraform-provider-scalr/pull/55))
 
 ### Required
 
