@@ -97,6 +97,13 @@ func resourceScalrWorkspace() *schema.Resource {
 
 						"path": {
 							Type:     schema.TypeString,
+							Default:  "",
+							Optional: true,
+						},
+
+						"trigger_prefixes": {
+							Type:     schema.TypeList,
+							Elem:     &schema.Schema{Type: schema.TypeString},
 							Optional: true,
 						},
 					},
@@ -160,10 +167,16 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 	// Get and assert the VCS repo configuration block.
 	if v, ok := d.GetOk("vcs_repo"); ok {
 		vcsRepo := v.([]interface{})[0].(map[string]interface{})
+		triggerPrefixes := make([]string, 0)
+
+		for _, pref := range vcsRepo["trigger_prefixes"].([]interface{}) {
+			triggerPrefixes = append(triggerPrefixes, pref.(string))
+		}
 
 		options.VCSRepo = &scalr.VCSRepoOptions{
-			Identifier: scalr.String(vcsRepo["identifier"].(string)),
-			Path:       scalr.String(vcsRepo["path"].(string)),
+			Identifier:      scalr.String(vcsRepo["identifier"].(string)),
+			Path:            scalr.String(vcsRepo["path"].(string)),
+			TriggerPrefixes: &triggerPrefixes,
 		}
 
 		// Only set the branch if one is configured.
@@ -220,25 +233,15 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 
 	var vcsRepo []interface{}
 	if workspace.VCSRepo != nil {
-		vcsConfig := map[string]interface{}{
-			"identifier": workspace.VCSRepo.Identifier,
-			"path":       workspace.VCSRepo.Path,
-		}
-
-		// Get and assert the VCS repo configuration block.
-		if v, ok := d.GetOk("vcs_repo"); ok {
-			if vcsRepo, ok := v.([]interface{})[0].(map[string]interface{}); ok {
-				// Only set the branch if one is configured.
-				if branch, ok := vcsRepo["branch"].(string); ok && branch != "" {
-					vcsConfig["branch"] = workspace.VCSRepo.Branch
-				}
-			}
-		}
-
-		vcsRepo = append(vcsRepo, vcsConfig)
+		vcsRepo = append(vcsRepo, map[string]interface{}{
+			"branch":           workspace.VCSRepo.Branch,
+			"identifier":       workspace.VCSRepo.Identifier,
+			"path":             workspace.VCSRepo.Path,
+			"trigger_prefixes": workspace.VCSRepo.TriggerPrefixes,
+		})
 	}
-
 	d.Set("vcs_repo", vcsRepo)
+
 	return nil
 }
 
@@ -275,11 +278,17 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		// Get and assert the VCS repo configuration block.
 		if v, ok := d.GetOk("vcs_repo"); ok {
 			vcsRepo := v.([]interface{})[0].(map[string]interface{})
+			triggerPrefixes := make([]string, 0)
+
+			for _, pref := range vcsRepo["trigger_prefixes"].([]interface{}) {
+				triggerPrefixes = append(triggerPrefixes, pref.(string))
+			}
 
 			options.VCSRepo = &scalr.VCSRepoOptions{
-				Identifier: scalr.String(vcsRepo["identifier"].(string)),
-				Branch:     scalr.String(vcsRepo["branch"].(string)),
-				Path:       scalr.String(vcsRepo["path"].(string)),
+				Identifier:      scalr.String(vcsRepo["identifier"].(string)),
+				Branch:          scalr.String(vcsRepo["branch"].(string)),
+				Path:            scalr.String(vcsRepo["path"].(string)),
+				TriggerPrefixes: &triggerPrefixes,
 			}
 		}
 

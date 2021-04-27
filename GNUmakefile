@@ -2,20 +2,32 @@ TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 PKG_NAME=scalr
 BUILD_ENV=CGO_ENABLED=0
+TAG=$(shell PAGER= git tag --points-at HEAD)
+BRANCH=$(subst /,-,$(shell git branch --show-current))
+VERSION=$(if $(TAG),$(TAG),$(BRANCH))
+USER_PLUGIN_DIR_LINUX=${HOME}/.terraform.d/plugins/scalr.io/scalr/scalr/$(VERSION)/linux_amd64
+BIN_NAME := terraform-provider-scalr_$(VERSION)
+ARGS=-ldflags='-X github.com/scalr/terraform-provider-scalr/version.ProviderVersion=$(TAG) -X github.com/scalr/terraform-provider-scalr/version.Branch=$(BRANCH)'
 
 default: build
 
-build: 
-	$(BUILD_ENV) go build
+build:
+	@echo "Building version $(VERSION)"
+	$(BUILD_ENV) go build -o $(BIN_NAME) $(ARGS)
 
-build-linux: 
-	env $(BUILD_ENV) GOOS=linux GOARCH=amd64 go build
+build-linux:
+	@echo "Building version $(VERSION) for linux"
+	env $(BUILD_ENV) GOOS=linux GOARCH=amd64 go build -o $(BIN_NAME) $(ARGS)
 
-test: 
+install-linux-user: build-linux
+	@echo "Installing version $(VERSION) for linux"
+	mkdir -p $(USER_PLUGIN_DIR_LINUX); cp $(BIN_NAME) $(USER_PLUGIN_DIR_LINUX)
+
+test:
 	echo $(TEST) | \
 		$(BUILD_ENV) xargs -t -n4  go test $(TESTARGS) -timeout=30s -parallel=4
 
-testacc: 
+testacc:
 	$(BUILD_ENV) TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 15m  -covermode atomic -coverprofile=covprofile
 
 vet:

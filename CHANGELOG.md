@@ -15,6 +15,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - scalr server >= `8.0.1-beta.20201202`
 
+## [1.0.0-rc15] - 2021-04-22
+
+### Added
+
+ - Version number in terraform provider binary name and in User-Agent header during API calls to Scalr server ([#60](https://github.com/Scalr/terraform-provider-scalr/pull/60))
+ - `scalr_workspace`: new attribute `vcs_repo.path` ([#59](https://github.com/Scalr/terraform-provider-scalr/pull/59))
+ - `scalr_workspace`: new attribute `vcs_repo.trigger_prefixes` ([#59](https://github.com/Scalr/terraform-provider-scalr/pull/59))
+
+### Changed
+
+- `scalr_variable`: variable's scope becomes immutable (can not change `workspace_id`, `environment_id` or `account_id`) ([#57](https://github.com/Scalr/terraform-provider-scalr/pull/57))
+- `scalr_variable`: can not change `key` attribute for sensitive variable ([#57](https://github.com/Scalr/terraform-provider-scalr/pull/57))
+
+### Required
+
+- scalr server >= `8.0.1-beta.20210407`
+
 ## [1.0.0-rc14] - 2021-03-11
 
 ### Added
@@ -199,7 +216,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc14...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc15...HEAD
+[1.0.0-rc15]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc15
 [1.0.0-rc14]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc14
 [1.0.0-rc13]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc13
 [1.0.0-rc12]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc12
