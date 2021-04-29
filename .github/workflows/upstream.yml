@@ -3,10 +3,13 @@ name: upstream
 on:
   workflow_dispatch:
     inputs:
-      api_branch:
+      upstream-sha:
+        description: "Upstream commit SHA"
+        required: true
+      api-branch:
         description: "API Branch"
         required: true
-      db_branch:
+      db-branch:
         description: "DB Branch"
         required: false
         default: "master"
@@ -18,9 +21,10 @@ jobs:
     env:
       REVIZOR_URL: ${{ secrets.REVIZOR_URL }}
       REVIZOR_TOKEN: ${{ secrets.REVIZOR_TOKEN }}
+      ORG_ADMIN_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
       SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
-      API_BRANCH: ${{ github.event.inputs.api_branch }}
-      DB_BRANCH: ${{ github.event.inputs.db_branch }}
+      API_BRANCH: ${{ github.event.inputs.api-branch }}
+      DB_BRANCH: ${{ github.event.inputs.db-branch }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
@@ -42,3 +46,9 @@ jobs:
         with:
           command: delete
           container_id: ${{ steps.create.outputs.container_id }}
+      - name: Notify upstream about success
+        if: ${{ success() }}
+        run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=success
+      - name: Notify upstream about failure
+        if: ${{ failure() }}
+        run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=failure
