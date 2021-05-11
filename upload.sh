@@ -88,16 +88,19 @@ cat << EOF > $TMP_DIR/.well-known/terraform.json
 EOF
 
 cat << EOF > $TMP_DIR/index.html
-Example usage:
-
+<p>Example usage:</p>
+<pre>
+<code>
 terraform {
-  required_providers {
-    scalr = {
-      source = "$URL/$PROVIDER_SOURCE"
-      version= "$VERSION"
+    required_providers {
+        scalr = {
+            source = "$URL/$PROVIDER_SOURCE"
+            version= "$VERSION"
+        }
     }
-  }
 }
+</code>
+</pre>
 EOF
 
 gsutil -m -h "Cache-Control:private, max-age=0, no-transform" rsync -R $TMP_DIR $BUCKET_NAME
