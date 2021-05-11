@@ -32,7 +32,7 @@ jobs:
           go-version: "1.13"
       - name: Create container
         id: create
-        uses: Scalr/gh-action-revizor@master
+        uses: Scalr/gh-action-revizor@feature/SCALRCORE-16285
         with:
           command: create
       - name: Run acceptance tests
@@ -42,7 +42,7 @@ jobs:
       - name: Delete container
         id: delete
         if: ${{ always() && steps.create.outputs.container_id }}
-        uses: Scalr/gh-action-revizor@master
+        uses: Scalr/gh-action-revizor@feature/SCALRCORE-16285
         with:
           command: delete
           container_id: ${{ steps.create.outputs.container_id }}
