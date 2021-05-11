@@ -79,6 +79,18 @@ jobs:
     needs: [lint, unit-tests, acc-tests]
     runs-on: ubuntu-latest
     steps:
+      - name: Import GPG key
+        id: import_gpg
+        uses: artemvang/ghaction-import-gpg@v2.1.1
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -94,3 +106,11 @@ jobs:
           args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
+      - name: Upload provider to registry
+        env:
+          DOMAIN: "registry.scalr.io"
+          BUCKET_NAME: "gs://terraform_registry_test"
+          GPG_KEY_ID: ${{ steps.import_gpg.outputs.fingerprint }}
+          GPG_PUB_KEY: ${{ steps.import_gpg.outputs.pubkey }}
+        run: bash upload.sh
