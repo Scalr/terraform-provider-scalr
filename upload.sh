@@ -44,7 +44,7 @@ do
     "signing_keys": {
         "gpg_public_keys": [
             {
-                "key_id": "$KEY_ID",
+                "key_id": "$GPG_KEY_ID",
                 "ascii_armor": "$GPG_PUB_KEY",
                 "trust_signature": "",
                 "source": "HashiCorp",
