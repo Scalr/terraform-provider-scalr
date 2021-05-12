@@ -110,7 +110,7 @@ jobs:
       - name: Upload provider to registry
         env:
           DOMAIN: "registry.scalr.io"
-          BUCKET_NAME: "gs://terraform_registry_test"
+          BUCKET_NAME: "gs://tf_registry"
           GPG_KEY_ID: ${{ steps.import_gpg.outputs.fingerprint }}
           GPG_PUB_KEY: ${{ steps.import_gpg.outputs.pubkey }}
         run: bash upload.sh
