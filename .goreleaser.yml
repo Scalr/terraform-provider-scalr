@@ -9,7 +9,6 @@ builds:
     - '-X github.com/scalr/terraform-provider-scalr/version.Branch={{ .Branch }}'
   binary: '{{ .ProjectName }}_v{{ .Version }}'
   goos:
-    - freebsd
     - windows
     - linux
     - darwin
