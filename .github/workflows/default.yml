@@ -109,8 +109,8 @@ jobs:
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
       - name: Upload provider to registry
         env:
-          DOMAIN: "registry.scalr.io"
-          BUCKET_NAME: "gs://tf_registry"
+          DOMAIN: ${{ secrets.DOMAIN }}
+          BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
           GPG_KEY_ID: ${{ steps.import_gpg.outputs.fingerprint }}
           GPG_PUB_KEY: ${{ steps.import_gpg.outputs.pubkey }}
-        run: bash upload.sh
+        run: bash scripts/upload.sh
