@@ -3,6 +3,8 @@
 # Required env variables:
 # DOMAIN, GPG_KEY_ID, GPG_PUB_KEY, BUCKET_NAME
 
+SOURCE="Scalr"
+SOURCE_URL="https://scalr.com"
 PROVIDER_NAME="terraform-provider-scalr"
 PROVIDER_SOURCE="scalr/scalr"
 URL="https://$DOMAIN"
@@ -14,15 +16,21 @@ TMP_DIR=$(mktemp -d -t scalr-provider-$VERSION-XXXXXXXXXXX)
 PROVIDER_BIN_PATH=$TMP_DIR/$PROVIDER_NAME/$VERSION
 DOWNLOAD_DIR=$TMP_DIR/$PROVIDER_SOURCE/$VERSION/download/
 
+# Copy remote provider registry to working directory.
+# Old versions of terraform provider is using for composing versions file
 gsutil -m rsync -R $BUCKET_NAME $TMP_DIR
 
+# Copy all built binaries, sha256sums and its signature to bin path
 mkdir -p $PROVIDER_BIN_PATH
 cp dist/*.zip dist/*_SHA256SUMS* $PROVIDER_BIN_PATH
 
 mkdir -p $DOWNLOAD_DIR
 
+# Compose provider package metadata for provider (for each arch and os)
+# https://www.terraform.io/docs/internals/provider-registry-protocol.html#find-a-provider-package
 for zip_name in $(ls dist/*.zip)
 do
+    # Extract shasum, os and arch from zip file file with provider binary
     shasum=$(sha256sum $zip_name | head -c 64)
     zip_name=${zip_name#"dist/"}
     os_arch=${zip_name#"${PROVIDER_NAME}_${VERSION}_"}
@@ -47,8 +55,8 @@ do
                 "key_id": "$GPG_KEY_ID",
                 "ascii_armor": "$GPG_PUB_KEY",
                 "trust_signature": "",
-                "source": "Scalr",
-                "source_url": "https://scalr.com"
+                "source": "$SOURCE",
+                "source_url": "$SOURCE_URL"
             }
         ]
     }
@@ -56,21 +64,25 @@ do
 EOF
 done
 
+# Compose file with all available terraform provider versions and supported platforms
+# https://www.terraform.io/docs/internals/provider-registry-protocol.html#list-available-versions
+
+# Each version contains list of available platforms
+platforms=()
+for zip_name in $(ls dist/*.zip)
+do
+    os_arch=${zip_name#"dist/${PROVIDER_NAME}_${VERSION}_"}
+    os_arch=${os_arch%".zip"}
+    os_arch=(${os_arch//_/ })
+    platforms+=( "{\"os\": \"${os_arch[0]}\", \"arch\": \"${os_arch[1]}\"}" )
+done
+
+platforms=$(printf ", %s" "${platforms[@]}")
+platforms=${platforms:1}
+
 versions=()
 for version in $(find "$TMP_DIR/$PROVIDER_SOURCE/" -maxdepth 1 ! -path "$TMP_DIR/$PROVIDER_SOURCE/" -type d -printf "%f\n")
 do
-    platforms=()
-    for zip_name in $(ls dist/*.zip)
-    do
-        os_arch=${zip_name#"dist/${PROVIDER_NAME}_${VERSION}_"}
-        os_arch=${os_arch%".zip"}
-        os_arch=(${os_arch//_/ })
-        platforms+=( "{\"os\": \"${os_arch[0]}\", \"arch\": \"${os_arch[1]}\"}" )
-    done
-
-    platforms=$(printf ", %s" "${platforms[@]}")
-    platforms=${platforms:1}
-
     versions+=( "{\"version\": \"$version\", \"protocols\": $PROTOCOLS, \"platforms\": [$platforms]}" )
 done
 
@@ -81,12 +93,14 @@ cat << EOF > $TMP_DIR/$PROVIDER_SOURCE/versions
 {"versions": [$versions]}
 EOF
 
+# Starting point for
 mkdir -p $TMP_DIR/.well-known/
 
 cat << EOF > $TMP_DIR/.well-known/terraform.json
 {"providers.v1": "/"}
 EOF
 
+# Compose index.html page with provider example usage
 cat << EOF > $TMP_DIR/index.html
 <p>Example usage:</p>
 <pre>
@@ -103,6 +117,7 @@ terraform {
 </pre>
 EOF
 
+# Do not cache files
 gsutil -m -h "Cache-Control:private, max-age=0, no-transform" rsync -R $TMP_DIR $BUCKET_NAME
 
 rm -rf $TMP_DIR
