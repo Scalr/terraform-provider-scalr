@@ -76,7 +76,7 @@ jobs:
     steps:
       - name: Import GPG key
         id: import_gpg
-        uses: artemvang/ghaction-import-gpg@v2.1.1
+        uses: Scalr/ghaction-import-gpg@v2.1.1
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
