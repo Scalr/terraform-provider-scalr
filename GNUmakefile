@@ -8,6 +8,8 @@ VERSION=$(if $(TAG),$(TAG),$(BRANCH))
 USER_PLUGIN_DIR_LINUX=${HOME}/.terraform.d/plugins/scalr.io/scalr/scalr/$(VERSION)/linux_amd64
 BIN_NAME := terraform-provider-scalr_$(VERSION)
 ARGS=-ldflags='-X github.com/scalr/terraform-provider-scalr/version.ProviderVersion=$(TAG) -X github.com/scalr/terraform-provider-scalr/version.Branch=$(BRANCH)'
+UPSTREAM_COMMIT_DESCRIPTION="Scalr terraform provider acceptance tests"
+UPSTREAM_COMMIT_TARGET_URL = "https://github.com/Scalr/terraform-provider-scalr/actions/workflows/upstream.yml"
 
 default: build
 
@@ -30,6 +32,14 @@ test:
 testacc:
 	$(BUILD_ENV) TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 15m  -covermode atomic -coverprofile=covprofile
 
+notify-upstream:
+	curl -X POST \
+	-H "Accept: application/vnd.github.v3+json" \
+	-H "Authorization: token $(ORG_ADMIN_TOKEN)" \
+	https://api.github.com/repos/Scalr/fatmouse/statuses/$(upstream_sha) \
+	-d '{"context":"downstream/provider", "state":"$(state)", "description": $(UPSTREAM_COMMIT_DESCRIPTION), "target_url": $(UPSTREAM_COMMIT_TARGET_URL)}'
+
+
 vet:
 	@echo "go vet ."
 	@go vet $$(go list ./... | grep -v vendor/) ; if [ $$? -eq 1 ]; then \
@@ -49,5 +59,4 @@ test-compile:
 		exit 1; \
 	fi
 	go test -c $(TEST) $(TESTARGS)
-.PHONY: build build-linux test testacc vet fmt test-compile
-
+.PHONY: build build-linux test testacc vet fmt test-compile notify-upstream

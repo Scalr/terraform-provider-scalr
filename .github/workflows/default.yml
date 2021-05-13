@@ -38,17 +38,12 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: "1.13"
-      - name: Environment settings
-        env:
-          API_BRANCH: ${{ contains(github.event.head_commit.message, '[API_BRANCH]') }}
-          DB_BRANCH: ${{ contains(github.event.head_commit.message, '[DB_BRANCH]') }}
-        run: |
-          echo "API_BRANCH=${API_BRANCH}" >> $GITHUB_ENV
-          echo "Set env variable from commit message: API_BRANCH=${API_BRANCH}"
-          echo "DB_BRANCH=${DB_BRANCH}" >> $GITHUB_ENV
-          echo "Set env variable from commit message: DB_BRANCH=${DB_BRANCH}"
-          echo BRANCH=${GITHUB_REF#refs/heads/} >> $GITHUB_ENV
-          echo "Set env variable: BRANCH=${GITHUB_REF#refs/heads/}"
+      - name: Set API_BRANCH
+        if: ${{ contains(github.event.head_commit.message, '[API_BRANCH]') }}
+        run: echo "API_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+      - name: Set DB_BRANCH
+        if: ${{ contains(github.event.head_commit.message, '[DB_BRANCH]') }}
+        run: echo "DB_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
       - name: Create container
         id: create
         uses: Scalr/gh-action-revizor@master
