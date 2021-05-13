@@ -47,8 +47,8 @@ do
                 "key_id": "$GPG_KEY_ID",
                 "ascii_armor": "$GPG_PUB_KEY",
                 "trust_signature": "",
-                "source": "HashiCorp",
-                "source_url": "https://www.hashicorp.com/security.html"
+                "source": "Scalr",
+                "source_url": "https://scalr.com"
             }
         ]
     }
