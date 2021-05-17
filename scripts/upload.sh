@@ -102,9 +102,16 @@ EOF
 
 # Compose index.html page with provider example usage
 cat << EOF > $TMP_DIR/index.html
-<p>Example usage:</p>
-<pre>
-<code>
+<html>
+    <head>
+        <meta charset='UTF-8'>
+        <title>Scalr terraform registry</title>
+    </head>
+    <body>
+        <p>Versions list: <code>$(ls -m $TMP_DIR/$PROVIDER_NAME)</code></p>
+        <p>Example usage:</p>
+        <pre>
+            <code>
 terraform {
     required_providers {
         scalr = {
@@ -113,8 +120,10 @@ terraform {
         }
     }
 }
-</code>
-</pre>
+            </code>
+        </pre>
+    </body>
+</html>
 EOF
 
 # Do not cache files
