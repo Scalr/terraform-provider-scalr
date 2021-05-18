@@ -108,8 +108,9 @@ cat << EOF > $TMP_DIR/index.html
         <title>Scalr terraform registry</title>
     </head>
     <body>
-        <p>Versions list: <code>$(ls -m $TMP_DIR/$PROVIDER_NAME)</code></p>
-        <p>Example usage:</p>
+        <p>Versions:</p>
+        <p><code>$(ls -m $TMP_DIR/$PROVIDER_NAME)</code></p>
+        <p>Example:</p>
         <pre>
             <code>
 terraform {
