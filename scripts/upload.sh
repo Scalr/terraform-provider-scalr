@@ -115,7 +115,7 @@ cat << EOF > $TMP_DIR/index.html
 terraform {
     required_providers {
         scalr = {
-            source = "$URL/$PROVIDER_SOURCE"
+            source = "$DOMAIN/$PROVIDER_SOURCE"
             version= "$VERSION"
         }
     }
