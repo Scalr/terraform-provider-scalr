@@ -43,8 +43,5 @@ signs:
       - "--detach-sign"
       - "${artifact}"
 
-release:
-  draft: true
-
 snapshot:
   name_template: "devel"
