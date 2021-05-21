@@ -32,18 +32,28 @@ func resourceScalrVariable() *schema.Resource {
 			},
 			func(d *schema.ResourceDiff, meta interface{}) error {
 				// Reject any changes for variable scope
-				var scopeAttributes = []string{"workspace_id", "environment_id", "account_id"}
+				var scopeAttributes = []string{"workspace_id", "account_id", "environment_id"}
 
-				notChangedFields := 0
+				scopeIsAlreadySet := false
 				for _, scope := range scopeAttributes {
-					old, new := d.GetChange(scope)
-
-					if old.(string) == "" || old.(string) == new.(string) {
-						notChangedFields++
+					old, _ := d.GetChange(scope)
+					if old.(string) != "" {
+						scopeIsAlreadySet = true
+						break
 					}
 				}
 
-				if notChangedFields < len(scopeAttributes) {
+				scopeWasChanged := false
+				for _, scope := range scopeAttributes {
+					old, new := d.GetChange(scope)
+
+					if scopeIsAlreadySet && old.(string) != new.(string) {
+						scopeWasChanged = true
+						break
+					}
+				}
+
+				if scopeWasChanged {
 					return fmt.Errorf("Error changing scope for variable %s: scope is immutable attribute", d.Id())
 				}
 
@@ -116,16 +126,19 @@ func resourceScalrVariable() *schema.Resource {
 			"workspace_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			"environment_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			"account_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 		},
 	}
@@ -218,9 +231,13 @@ func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 
 	if variable.Workspace != nil {
 		d.Set("workspace_id", variable.Workspace.ID)
-	} else if variable.Environment != nil {
-		d.Set("workspace_id", nil)
-	} else if variable.Account != nil {
+	}
+
+	if variable.Environment != nil {
+		d.Set("environment_id", variable.Environment.ID)
+	}
+
+	if variable.Account != nil {
 		d.Set("account_id", variable.Account.ID)
 	}
 
@@ -234,7 +251,6 @@ func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceScalrVariableUpdate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
-
 	// Create a new options struct.
 	options := scalr.VariableUpdateOptions{
 		Key:          scalr.String(d.Get("key").(string)),
