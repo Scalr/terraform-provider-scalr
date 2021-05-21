@@ -43,17 +43,7 @@ func resourceScalrVariable() *schema.Resource {
 					}
 				}
 
-				scopeWasChanged := false
-				for _, scope := range scopeAttributes {
-					old, new := d.GetChange(scope)
-
-					if scopeIsAlreadySet && old.(string) != new.(string) {
-						scopeWasChanged = true
-						break
-					}
-				}
-
-				if scopeWasChanged {
+				if scopeIsAlreadySet && (d.HasChange("workspace_id") || d.HasChange("environment_id") || d.HasChange("account_id")) {
 					return fmt.Errorf("Error changing scope for variable %s: scope is immutable attribute", d.Id())
 				}
 
