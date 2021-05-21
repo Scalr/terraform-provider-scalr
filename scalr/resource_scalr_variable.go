@@ -32,7 +32,7 @@ func resourceScalrVariable() *schema.Resource {
 			},
 			func(d *schema.ResourceDiff, meta interface{}) error {
 				// Reject any changes for variable scope
-				var scopeAttributes = []string{"workspace_id", "account_id", "environment_id"}
+				var scopeAttributes = []string{"workspace_id", "environment_id", "account_id"}
 
 				scopeIsAlreadySet := false
 				for _, scope := range scopeAttributes {
@@ -251,6 +251,7 @@ func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceScalrVariableUpdate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
+
 	// Create a new options struct.
 	options := scalr.VariableUpdateOptions{
 		Key:          scalr.String(d.Get("key").(string)),
