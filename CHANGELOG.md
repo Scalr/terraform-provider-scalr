@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `scalr_variable`: make `environment_id`, `workspace_id` and `account_id` attributes computable ([#60](https://github.com/Scalr/terraform-provider-scalr/pull/62))
+
+### Required
+
+- scalr server >= `8.0.1-beta.20210407`
+
 ## [1.0.0-rc15] - 2021-04-22
 
 ### Added
