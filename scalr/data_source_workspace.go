@@ -48,6 +48,11 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Computed: true,
 			},
 
+			"is_destroyed": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+
 			"vcs_repo": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -110,6 +115,12 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("operations", workspace.Operations)
 	d.Set("terraform_version", workspace.TerraformVersion)
 	d.Set("working_directory", workspace.WorkingDirectory)
+
+	if workspace.LatestRun != nil {
+		d.Set("is_destroyed", workspace.LatestRun.IsDestroy)
+	} else {
+		d.Set("is_destroyed", false)
+	}
 
 	if workspace.VcsProvider != nil {
 		d.Set("vcs_provider_id", workspace.VcsProvider.ID)
