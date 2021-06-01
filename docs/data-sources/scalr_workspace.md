@@ -38,6 +38,7 @@ All arguments plus:
 * `working_directory` - A relative path that Terraform will execute within.
 * `vcs_repo` - If workspace is linked to VCS repository this block shows the details, otherwise `{}`
 * `created_by` - Details of the user that created the workspace.
+* `is_destroyed` - Boolean indicates if infrastructure in workspace was destroyed.
 
 The `vcs_repo` block contains:
 

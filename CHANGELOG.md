@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+### Added
+
+- `scalr_workspace` (data): added new attribute `is_destroyed` ([#63](https://github.com/Scalr/terraform-provider-scalr/pull/63))
+
+### Required
+
+- scalr server >= `8.0.1-beta.20210519.1`
+
 ## [1.0.0-rc16] - 2021-05-25
 
 ### Changed
