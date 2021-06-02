@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `scalr_workspace` (data): added new attribute `is_destroyed` ([#63](https://github.com/Scalr/terraform-provider-scalr/pull/63))
+- `data.scalr_workspace`: added new attribute `is_destroyed` ([#63](https://github.com/Scalr/terraform-provider-scalr/pull/63))
 
 ### Required
 
