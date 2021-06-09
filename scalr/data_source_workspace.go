@@ -109,6 +109,10 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 		}
 		return fmt.Errorf("Error retrieving workspace: %v", err)
 	}
+	stateVersion, err := scalrClient.StateVersions.ReadCurrentFromWorkspace(ctx, workspace.ID)
+	if err != nil {
+		return fmt.Errorf("Workspace has to state versions %v", err)
+	}
 
 	// Update the config.
 	d.Set("auto_apply", workspace.AutoApply)
@@ -116,8 +120,8 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("terraform_version", workspace.TerraformVersion)
 	d.Set("working_directory", workspace.WorkingDirectory)
 
-	if workspace.LatestRun != nil {
-		d.Set("is_destroyed", workspace.LatestRun.IsDestroy)
+	if len(stateVersion.Resources) == 0 {
+		d.Set("is_destroyed", true)
 	} else {
 		d.Set("is_destroyed", false)
 	}
