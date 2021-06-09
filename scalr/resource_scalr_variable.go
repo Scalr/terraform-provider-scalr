@@ -57,7 +57,7 @@ func resourceScalrVariable() *schema.Resource {
 		SchemaVersion: 2,
 		StateUpgraders: []schema.StateUpgrader{
 			{
-				Type:    resourceScalrVariableResourceV0().CoreConfigSchema().ImpliedType(),
+				Type:    resourceScalrVariableResourceV1().CoreConfigSchema().ImpliedType(),
 				Upgrade: resourceScalrVariableStateUpgradeV0,
 				Version: 0,
 			},
