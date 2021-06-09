@@ -75,3 +75,63 @@ func resourceScalrVariableStateUpgradeV0(rawState map[string]interface{}, meta i
 	rawState["workspace_id"] = id
 	return rawState, nil
 }
+
+func resourceScalrVariableResourceV1() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"key": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+
+			"value": {
+				Type:      schema.TypeString,
+				Optional:  true,
+				Default:   "",
+				Sensitive: true,
+			},
+
+			"category": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice(
+					[]string{
+						string(scalr.CategoryEnv),
+						string(scalr.CategoryTerraform),
+					},
+					false,
+				),
+			},
+
+			"hcl": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
+			"sensitive": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
+			"workspace_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+		},
+	}
+}
+
+func resourceScalrVariableStateUpgradeV1(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+
+	var_category := rawState["category"].(string)
+
+	if var_category == string(scalr.CategoryEnv) {
+		var_category = string(scalr.CategoryShell)
+	}
+	rawState["category"] = var_category
+	return rawState, nil
+}
