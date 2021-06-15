@@ -116,22 +116,44 @@ func resourceScalrVariableResourceV1() *schema.Resource {
 				Default:  false,
 			},
 
+			"final": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
+			"force": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
 			"workspace_id": {
 				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Optional: true,
+				Computed: true,
+			},
+
+			"environment_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"account_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
 }
 
 func resourceScalrVariableStateUpgradeV1(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
-
-	var_category := rawState["category"].(string)
-
-	if var_category == string(scalr.CategoryEnv) {
-		var_category = string(scalr.CategoryShell)
+	varCategory := rawState["category"].(string)
+	if varCategory == string(scalr.CategoryEnv) {
+		varCategory = string(scalr.CategoryShell)
 	}
-	rawState["category"] = var_category
+	rawState["category"] = varCategory
 	return rawState, nil
 }

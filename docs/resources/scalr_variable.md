@@ -32,8 +32,8 @@ resource "scalr_variable" "example" {
 
 * `key` - (Required) Key of the variable.
 * `value` - (Required) Variable value.
-* `category` - (Required) Indicates if this is a Terraform or environment variable. Allowed values are `terraform` or `shell`.
-* `hcl` - (Optional) Set (true/false) to configure the variable as a string of HCL code. Has no effect for `category = "env"` variables. Default `false`.
+* `category` - (Required) Indicates if this is a Terraform or shell variable. Allowed values are `terraform` or `shell`.
+* `hcl` - (Optional) Set (true/false) to configure the variable as a string of HCL code. Has no effect for `category = "shell"` variables. Default `false`.
 * `sensitive` - (Optional) Set (true/false) to configure as sensitive. Sensitive variable values are not visible after being set. Default `false`.
 * `final` - (Optional) Set (true/false) to configure as final. Indicates whether the variable can be overridden on a lower scope down the Scalr organizational model. Default `false`.
 * `force` - (Optional) Set (true/false) to configure as force. Allows creating final variables on higher scope, even if the same variable exists on lower scope (lower is to be deleted). Default `false`.

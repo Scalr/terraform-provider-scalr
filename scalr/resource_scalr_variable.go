@@ -57,12 +57,12 @@ func resourceScalrVariable() *schema.Resource {
 		SchemaVersion: 2,
 		StateUpgraders: []schema.StateUpgrader{
 			{
-				Type:    resourceScalrVariableResourceV1().CoreConfigSchema().ImpliedType(),
+				Type:    resourceScalrVariableResourceV0().CoreConfigSchema().ImpliedType(),
 				Upgrade: resourceScalrVariableStateUpgradeV0,
 				Version: 0,
 			},
 			{
-				Type:    resourceScalrVariableResourceV0().CoreConfigSchema().ImpliedType(),
+				Type:    resourceScalrVariableResourceV1().CoreConfigSchema().ImpliedType(),
 				Upgrade: resourceScalrVariableStateUpgradeV1,
 				Version: 1,
 			},
@@ -88,7 +88,6 @@ func resourceScalrVariable() *schema.Resource {
 				ValidateFunc: validation.StringInSlice(
 					[]string{
 						string(scalr.CategoryEnv),
-						string(scalr.CategoryShell),
 						string(scalr.CategoryTerraform),
 					},
 					false,
