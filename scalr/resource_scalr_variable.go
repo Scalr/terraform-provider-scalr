@@ -89,6 +89,7 @@ func resourceScalrVariable() *schema.Resource {
 					[]string{
 						string(scalr.CategoryEnv),
 						string(scalr.CategoryTerraform),
+						string(scalr.CategoryShell),
 					},
 					false,
 				),
