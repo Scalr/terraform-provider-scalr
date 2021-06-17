@@ -48,7 +48,7 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Computed: true,
 			},
 
-			"is_destroyed": {
+			"has_active_state": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
@@ -109,26 +109,13 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 		}
 		return fmt.Errorf("Error retrieving workspace: %v", err)
 	}
-	stateVersion, err := scalrClient.StateVersions.ReadCurrentFromWorkspace(ctx, workspace.ID)
-	if err != nil {
-		if err == scalr.ErrResourceNotFound {
-			d.Set("is_destroyed", true)
-		} else {
-			return fmt.Errorf("Workspace has no state versions %v", err)
-		}
-	} else {
-		if len(stateVersion.Resources) == 0 {
-			d.Set("is_destroyed", true)
-		} else {
-			d.Set("is_destroyed", false)
-		}
-	}
 
 	// Update the config.
 	d.Set("auto_apply", workspace.AutoApply)
 	d.Set("operations", workspace.Operations)
 	d.Set("terraform_version", workspace.TerraformVersion)
 	d.Set("working_directory", workspace.WorkingDirectory)
+	d.Set("has_active_state", workspace.HasActiveState)
 
 	if workspace.VcsProvider != nil {
 		d.Set("vcs_provider_id", workspace.VcsProvider.ID)
