@@ -78,6 +78,11 @@ func resourceScalrWorkspace() *schema.Resource {
 				Computed: true,
 			},
 
+			"has_active_state": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+
 			"vcs_repo": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -216,6 +221,7 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("terraform_version", workspace.TerraformVersion)
 	d.Set("working_directory", workspace.WorkingDirectory)
 	d.Set("environment_id", workspace.Environment.ID)
+	d.Set("has_active_state", workspace.HasActiveState)
 
 	if workspace.VcsProvider != nil {
 		d.Set("vcs_provider_id", workspace.VcsProvider.ID)
