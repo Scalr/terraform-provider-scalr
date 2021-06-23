@@ -15,11 +15,10 @@ var errVariableMultiOnlyEnv = errors.New("Only environment variables should be m
 
 func resourceScalrVariable() *schema.Resource {
 	return &schema.Resource{
-		Create:             resourceScalrVariableCreate,
-		Read:               resourceScalrVariableRead,
-		Update:             resourceScalrVariableUpdate,
-		Delete:             resourceScalrVariableDelete,
-		DeprecationMessage: "Category `env` will be deprecated. Please use `shell` instead.",
+		Create: resourceScalrVariableCreate,
+		Read:   resourceScalrVariableRead,
+		Update: resourceScalrVariableUpdate,
+		Delete: resourceScalrVariableDelete,
 		CustomizeDiff: customdiff.All(
 			func(d *schema.ResourceDiff, meta interface{}) error {
 				// Reject change for key if variable is sensitive
