@@ -48,6 +48,34 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Computed: true,
 			},
 
+			"hooks": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"pre_plan": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+
+						"post_plan": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+
+						"pre_apply": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+
+						"post_apply": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
+
 			"vcs_repo": {
 				Type:     schema.TypeList,
 				Computed: true,

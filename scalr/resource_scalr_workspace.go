@@ -78,6 +78,34 @@ func resourceScalrWorkspace() *schema.Resource {
 				Computed: true,
 			},
 
+			"hooks": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"pre_plan": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+
+						"post_plan": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+
+						"pre_apply": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+
+						"post_apply": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
+
 			"vcs_repo": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -147,6 +175,7 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		AutoApply:   scalr.Bool(d.Get("auto_apply").(bool)),
 		Operations:  scalr.Bool(d.Get("operations").(bool)),
 		Environment: &scalr.Environment{ID: environmentID},
+		Hooks:       &scalr.HooksOptions{},
 	}
 
 	// Process all configured options.
@@ -182,6 +211,18 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		// Only set the branch if one is configured.
 		if branch, ok := vcsRepo["branch"].(string); ok && branch != "" {
 			options.VCSRepo.Branch = scalr.String(branch)
+		}
+	}
+
+	// Get and assert the hooks
+	if v, ok := d.GetOk("hooks"); ok {
+		hooks := v.([]interface{})[0].(map[string]interface{})
+
+		options.Hooks = &scalr.HooksOptions{
+			PrePlan:   scalr.String(hooks["pre_plan"].(string)),
+			PostPlan:  scalr.String(hooks["post_plan"].(string)),
+			PreApply:  scalr.String(hooks["pre_apply"].(string)),
+			PostApply: scalr.String(hooks["post_apply"].(string)),
 		}
 	}
 
@@ -242,6 +283,17 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	}
 	d.Set("vcs_repo", vcsRepo)
 
+	var hooks []interface{}
+	if workspace.Hooks != nil {
+		hooks = append(hooks, map[string]interface{}{
+			"pre_plan":   workspace.Hooks.PrePlan,
+			"post_plan":  workspace.Hooks.PostPlan,
+			"pre_apply":  workspace.Hooks.PreApply,
+			"post_apply": workspace.Hooks.PostApply,
+		})
+	}
+	d.Set("hooks", hooks)
+
 	return nil
 }
 
@@ -252,12 +304,13 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("name") || d.HasChange("auto_apply") ||
 		d.HasChange("terraform_version") || d.HasChange("working_directory") || d.HasChange("vcs_repo") ||
-		d.HasChange("operations") || d.HasChange("vcs_provider_id") {
+		d.HasChange("operations") || d.HasChange("vcs_provider_id") || d.HasChange("hooks") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
 			Name:       scalr.String(d.Get("name").(string)),
 			AutoApply:  scalr.Bool(d.Get("auto_apply").(bool)),
 			Operations: scalr.Bool(d.Get("operations").(bool)),
+			Hooks:      &scalr.HooksOptions{},
 		}
 
 		// Process all configured options.
@@ -289,6 +342,18 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 				Branch:          scalr.String(vcsRepo["branch"].(string)),
 				Path:            scalr.String(vcsRepo["path"].(string)),
 				TriggerPrefixes: &triggerPrefixes,
+			}
+		}
+
+		// Get and assert the hooks
+		if v, ok := d.GetOk("hooks"); ok {
+			hooks := v.([]interface{})[0].(map[string]interface{})
+
+			options.Hooks = &scalr.HooksOptions{
+				PrePlan:   scalr.String(hooks["pre_plan"].(string)),
+				PostPlan:  scalr.String(hooks["post_plan"].(string)),
+				PreApply:  scalr.String(hooks["pre_apply"].(string)),
+				PostApply: scalr.String(hooks["post_apply"].(string)),
 			}
 		}
 
