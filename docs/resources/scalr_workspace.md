@@ -53,6 +53,7 @@ All arguments plus:
 
 * `id` - The workspace's ID, in the format `ws-<RANDOM STRING>`.
 * `created_by` - Details of the user that created the workspace.
+* `has_active_state` - The presence of active state in workspace.
 
 The `created_by` block contains:
 
