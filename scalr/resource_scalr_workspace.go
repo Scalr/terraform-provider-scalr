@@ -216,13 +216,15 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 
 	// Get and assert the hooks
 	if v, ok := d.GetOk("hooks"); ok {
-		hooks := v.([]interface{})[0].(map[string]interface{})
+		if _, ok := v.([]interface{})[0].(map[string]interface{}); ok {
+			hooks := v.([]interface{})[0].(map[string]interface{})
 
-		options.Hooks = &scalr.HooksOptions{
-			PrePlan:   scalr.String(hooks["pre_plan"].(string)),
-			PostPlan:  scalr.String(hooks["post_plan"].(string)),
-			PreApply:  scalr.String(hooks["pre_apply"].(string)),
-			PostApply: scalr.String(hooks["post_apply"].(string)),
+			options.Hooks = &scalr.HooksOptions{
+				PrePlan:   scalr.String(hooks["pre_plan"].(string)),
+				PostPlan:  scalr.String(hooks["post_plan"].(string)),
+				PreApply:  scalr.String(hooks["pre_apply"].(string)),
+				PostApply: scalr.String(hooks["post_apply"].(string)),
+			}
 		}
 	}
 

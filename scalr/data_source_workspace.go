@@ -163,6 +163,17 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.Set("vcs_repo", vcsRepo)
 
+	var hooks []interface{}
+	if workspace.Hooks != nil {
+		hooks = append(hooks, map[string]interface{}{
+			"pre_plan":   workspace.Hooks.PrePlan,
+			"post_plan":  workspace.Hooks.PostPlan,
+			"pre_apply":  workspace.Hooks.PreApply,
+			"post_apply": workspace.Hooks.PostApply,
+		})
+	}
+	d.Set("hooks", hooks)
+
 	d.SetId(workspace.ID)
 
 	return nil
