@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Error changing workspace's working directory to empty: plan outputs to diff
+- Error changing workspace's working directory to empty: plan outputs to empty diff
 
 ### Required
 
