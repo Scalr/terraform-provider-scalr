@@ -167,6 +167,8 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 			{
 				Config: testAccScalrWorkspaceUpdateWorkingDir(rInt),
 				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrWorkspaceExists(
+						"scalr_workspace.test", workspace),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 				),

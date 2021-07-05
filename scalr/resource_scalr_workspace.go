@@ -267,6 +267,8 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 		if workingDir, ok := d.GetOk("working_directory"); ok {
 			options.WorkingDirectory = scalr.String(workingDir.(string))
+		} else {
+			options.WorkingDirectory = scalr.String("")
 		}
 
 		if vcsProviderId, ok := d.GetOk("vcs_provider_id"); ok {
