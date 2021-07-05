@@ -75,7 +75,7 @@ func resourceScalrWorkspace() *schema.Resource {
 			"working_directory": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 
 			"vcs_repo": {

@@ -163,6 +163,14 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 						"scalr_workspace.test", "working_directory", "terraform/test"),
 				),
 			},
+
+			{
+				Config: testAccScalrWorkspaceUpdateWorkingDir(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "working_directory", ""),
+				),
+			},
 		},
 	})
 }
@@ -386,5 +394,16 @@ resource "scalr_workspace" "test" {
   operations            = false
   terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
+}`)
+}
+
+func testAccScalrWorkspaceUpdateWorkingDir(rInt int) string {
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
+resource "scalr_workspace" "test" {
+  name                  = "workspace-updated"
+  environment_id 		= scalr_environment.test.id
+  auto_apply            = false
+  operations            = false
+  terraform_version     = "0.12.19"
 }`)
 }
