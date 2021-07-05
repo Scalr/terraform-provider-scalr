@@ -405,5 +405,6 @@ resource "scalr_workspace" "test" {
   auto_apply            = false
   operations            = false
   terraform_version     = "0.12.19"
+  working_directory     = ""
 }`)
 }
