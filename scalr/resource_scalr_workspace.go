@@ -265,11 +265,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 			options.TerraformVersion = scalr.String(tfVersion.(string))
 		}
 
-		if workingDir, ok := d.GetOk("working_directory"); ok {
-			options.WorkingDirectory = scalr.String(workingDir.(string))
-		} else {
-			options.WorkingDirectory = scalr.String("")
-		}
+		options.WorkingDirectory = scalr.String(d.Get("working_directory").(string))
 
 		if vcsProviderId, ok := d.GetOk("vcs_provider_id"); ok {
 			options.VcsProvider = &scalr.VcsProviderOptions{

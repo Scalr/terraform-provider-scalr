@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Required
 
-- scalr server >= `8.0.1-beta.20210616.1`
+- scalr server >= `8.0.1-beta.20210407`
 
 ## [1.0.0-rc16] - 2021-05-25
 
