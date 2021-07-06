@@ -9,14 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `scalr_workspace`: new attribute `vcs_repo.hooks.pre_plan` ([#65](https://github.com/Scalr/terraform-provider-scalr/pull/65))
-- `scalr_workspace`: new attribute `vcs_repo.hooks.post_plan` ([#65](https://github.com/Scalr/terraform-provider-scalr/pull/65))
-- `scalr_workspace`: new attribute `vcs_repo.hooks.pre_apply` ([#65](https://github.com/Scalr/terraform-provider-scalr/pull/65))
-- `scalr_workspace`: new attribute `vcs_repo.hooks.post_apply` ([#65](https://github.com/Scalr/terraform-provider-scalr/pull/65))
-- `data.scalr_workspace`: new attribute `vcs_repo.hooks.pre_plan` ([#65](https://github.com/Scalr/terraform-provider-scalr/pull/65))
-- `data.scalr_workspace`: new attribute `vcs_repo.hooks.post_plan` ([#65](https://github.com/Scalr/terraform-provider-scalr/pull/65))
-- `data.scalr_workspace`: new attribute `vcs_repo.hooks.pre_apply` ([#65](https://github.com/Scalr/terraform-provider-scalr/pull/65))
-- `data.scalr_workspace`: new attribute `vcs_repo.hooks.post_apply` ([#65](https://github.com/Scalr/terraform-provider-scalr/pull/65))  
+- `scalr_workspace`: new attribute `vcs_repo.hooks` ([#65](https://github.com/Scalr/terraform-provider-scalr/pull/65))
+- `data.scalr_workspace`: new attribute `vcs_repo.hooks` ([#65](https://github.com/Scalr/terraform-provider-scalr/pull/65))
 
 
 ## [1.0.0-rc16] - 2021-05-25
