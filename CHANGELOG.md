@@ -18,6 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - scalr server >= `8.0.1-beta.20210407`
 
+## [1.0.0-rc17] - 2021-06-21
+
+### Added
+
+- `shell`: new attribute type for `scalr_variable.category` ([#59](https://github.com/Scalr/terraform-provider-scalr/pull/64))
+
+
 ## [1.0.0-rc16] - 2021-05-25
 
 ### Changed
