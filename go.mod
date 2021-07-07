@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/terraform v0.12.0
 	github.com/hashicorp/terraform-svchost v0.0.0-20191011084731-65d371908596
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
-	github.com/scalr/go-scalr v0.0.0-20210624082453-2dcc3f0e27b8
+	github.com/scalr/go-scalr v0.0.0-20210609115955-0d6bc85a9297
 )
 
 go 1.13
