@@ -48,6 +48,34 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Computed: true,
 			},
 
+			"hooks": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"pre_plan": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+
+						"post_plan": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+
+						"pre_apply": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+
+						"post_apply": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
+
 			"vcs_repo": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -134,6 +162,17 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 		vcsRepo = append(vcsRepo, vcsConfig)
 	}
 	d.Set("vcs_repo", vcsRepo)
+
+	var hooks []interface{}
+	if workspace.Hooks != nil {
+		hooks = append(hooks, map[string]interface{}{
+			"pre_plan":   workspace.Hooks.PrePlan,
+			"post_plan":  workspace.Hooks.PostPlan,
+			"pre_apply":  workspace.Hooks.PreApply,
+			"post_apply": workspace.Hooks.PostApply,
+		})
+	}
+	d.Set("hooks", hooks)
 
 	d.SetId(workspace.ID)
 

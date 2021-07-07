@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `shell`: new attribute type for `scalr_variable.category` ([#59](https://github.com/Scalr/terraform-provider-scalr/pull/64))
+- `scalr_workspace`: new attribute `hooks` ([#65](https://github.com/Scalr/terraform-provider-scalr/pull/65))
+- `data.scalr_workspace`: new attribute `hooks` ([#65](https://github.com/Scalr/terraform-provider-scalr/pull/65))
 
 
 ## [1.0.0-rc16] - 2021-05-25
