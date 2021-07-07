@@ -32,3 +32,21 @@ func TestResourceScalrVariableStateUpgradeV0(t *testing.T) {
 	actual, err := resourceScalrVariableStateUpgradeV0(testResourceScalrVariableStateDataV0(), client)
 	assertCorrectState(t, err, actual, expected)
 }
+
+func testResourceScalrVariableStateDataCategoryV1() map[string]interface{} {
+	return map[string]interface{}{
+		"category": "env",
+	}
+}
+
+func testResourceScalrVariableStateDataV2() map[string]interface{} {
+	return map[string]interface{}{
+		"category": "shell",
+	}
+}
+
+func TestResourceScalrVariableStateUpgradeV1(t *testing.T) {
+	expected := testResourceScalrVariableStateDataV2()
+	actual, err := resourceScalrVariableStateUpgradeV1(testResourceScalrVariableStateDataCategoryV1(), nil)
+	assertCorrectState(t, err, actual, expected)
+}
