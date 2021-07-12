@@ -5,7 +5,6 @@ import (
 	"log"
 	"math/rand"
 	"os"
-	"regexp"
 	"testing"
 	"time"
 
@@ -21,7 +20,6 @@ func TestAccCurrentRun_basic(t *testing.T) {
 		Providers:                 testAccProviders,
 		PreventPostDestroyRefresh: true,
 		Steps: []resource.TestStep{
-			// env var is empty
 			{
 				PreConfig: func() {
 					os.Unsetenv(currentRunIDEnvVar)
@@ -33,23 +31,15 @@ func TestAccCurrentRun_basic(t *testing.T) {
 			},
 
 			{
-				PreConfig: launchRun(fmt.Sprintf("test-env-%d", rInt), "workspace-test"),
+				PreConfig: launchRun(fmt.Sprintf("test-env-%d", rInt), fmt.Sprintf("test-ws-%d", rInt)),
 				Config:    testAccCurrentRunDataSourceConfig(rInt),
+				PlanOnly:  true,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
 						"data.scalr_current_run.test", "id"),
 					resource.TestCheckResourceAttr(
-						"data.scalr_current_run.test", "workspace_name", "workspace-test"),
+						"data.scalr_current_run.test", "workspace_name", fmt.Sprintf("test-ws-%d", rInt)),
 				),
-			},
-
-			// invalid run id in env var
-			{
-				PreConfig: func() {
-					os.Setenv(currentRunIDEnvVar, "invalid-run-id")
-				},
-				Config:      testAccCurrentRunDataSourceConfig(rInt),
-				ExpectError: regexp.MustCompile("Could not find run"),
 			},
 		},
 	})
@@ -116,7 +106,7 @@ resource scalr_environment test {
 }
 
 resource scalr_workspace test {
-  name       = "workspace-test"
+  name       = "test-ws-%[1]d"
   environment_id = scalr_environment.test.id
 }
 
