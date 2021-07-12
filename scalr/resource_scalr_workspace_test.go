@@ -36,6 +36,14 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan.sh"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.post_plan", "./scripts/post-plan.sh"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.pre_apply", "./scripts/pre-apply.sh"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.post_apply", "./scripts/post-apply.sh"),
 					resource.TestCheckResourceAttrSet("scalr_workspace.test", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("scalr_workspace.test", "created_by.0.email"),
 					resource.TestCheckResourceAttrSet("scalr_workspace.test", "created_by.0.username"),
@@ -95,6 +103,14 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan.sh"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.post_plan", "./scripts/post-plan.sh"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.pre_apply", "./scripts/pre-apply.sh"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.post_apply", "./scripts/post-apply.sh"),
 				),
 			},
 
@@ -114,6 +130,14 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan.sh"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.post_plan", "./scripts/post-plan.sh"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.pre_apply", "./scripts/pre-apply.sh"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.post_apply", "./scripts/post-apply.sh"),
 				),
 			},
 		},
@@ -131,17 +155,20 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 			{
 				Config: testAccScalrWorkspaceBasic(rInt),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrWorkspaceExists(
-						"scalr_workspace.test", workspace),
+					testAccCheckScalrWorkspaceExists("scalr_workspace.test", workspace),
 					testAccCheckScalrWorkspaceAttributes(workspace),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "name", "workspace-test"),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "auto_apply", "true"),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "operations", "true"),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "working_directory", ""),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "name", "workspace-test"),
+						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan.sh"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "auto_apply", "true"),
+						"scalr_workspace.test", "hooks.0.post_plan", "./scripts/post-plan.sh"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "operations", "true"),
+						"scalr_workspace.test", "hooks.0.pre_apply", "./scripts/pre-apply.sh"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "working_directory", ""),
+						"scalr_workspace.test", "hooks.0.post_apply", "./scripts/post-apply.sh"),
 				),
 			},
 
@@ -161,6 +188,14 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 						"scalr_workspace.test", "terraform_version", "0.12.19"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", "terraform/test"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan_updated.sh"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.post_plan", "./scripts/post-plan_updated.sh"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.pre_apply", "./scripts/pre-apply_updated.sh"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.post_apply", "./scripts/post-apply_updated.sh"),
 				),
 			},
 		},
@@ -356,6 +391,12 @@ resource scalr_workspace test {
   name           = "workspace-test"
   environment_id = scalr_environment.test.id
   auto_apply     = true
+  hooks {
+    pre_plan   = "./scripts/pre-plan.sh"
+    post_plan  = "./scripts/post-plan.sh"
+    pre_apply  = "./scripts/pre-apply.sh"
+    post_apply = "./scripts/post-apply.sh"
+  }
 }`)
 }
 
@@ -374,6 +415,12 @@ resource "scalr_workspace" "test" {
   name           = "renamed-out-of-band"
   environment_id = scalr_environment.test.id
   auto_apply     = true
+  hooks {
+    pre_plan   = "./scripts/pre-plan.sh"
+    post_plan  = "./scripts/post-plan.sh"
+    pre_apply  = "./scripts/pre-apply.sh"
+    post_apply = "./scripts/post-apply.sh"
+  }
 }`)
 }
 
@@ -386,5 +433,11 @@ resource "scalr_workspace" "test" {
   operations            = false
   terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
+  hooks {
+    pre_plan   = "./scripts/pre-plan_updated.sh"
+    post_plan  = "./scripts/post-plan_updated.sh"
+    pre_apply  = "./scripts/pre-apply_updated.sh"
+    post_apply = "./scripts/post-apply_updated.sh"
+  }
 }`)
 }
