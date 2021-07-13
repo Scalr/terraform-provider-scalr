@@ -461,5 +461,11 @@ resource "scalr_workspace" "test" {
   operations            = false
   terraform_version     = "0.12.19"
   working_directory     = ""
+  hooks {
+    pre_plan   = "./scripts/pre-plan_updated.sh"
+    post_plan  = "./scripts/post-plan_updated.sh"
+    pre_apply  = "./scripts/pre-apply_updated.sh"
+    post_apply = "./scripts/post-apply_updated.sh"
+  }
 }`)
 }
