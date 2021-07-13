@@ -198,6 +198,16 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 						"scalr_workspace.test", "hooks.0.post_apply", "./scripts/post-apply_updated.sh"),
 				),
 			},
+
+			{
+				Config: testAccScalrWorkspaceUpdateWorkingDir(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrWorkspaceExists(
+						"scalr_workspace.test", workspace),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "working_directory", ""),
+				),
+			},
 		},
 	})
 }
@@ -433,6 +443,24 @@ resource "scalr_workspace" "test" {
   operations            = false
   terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
+  hooks {
+    pre_plan   = "./scripts/pre-plan_updated.sh"
+    post_plan  = "./scripts/post-plan_updated.sh"
+    pre_apply  = "./scripts/pre-apply_updated.sh"
+    post_apply = "./scripts/post-apply_updated.sh"
+  }
+}`)
+}
+
+func testAccScalrWorkspaceUpdateWorkingDir(rInt int) string {
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
+resource "scalr_workspace" "test" {
+  name                  = "workspace-updated"
+  environment_id 		= scalr_environment.test.id
+  auto_apply            = false
+  operations            = false
+  terraform_version     = "0.12.19"
+  working_directory     = ""
   hooks {
     pre_plan   = "./scripts/pre-plan_updated.sh"
     post_plan  = "./scripts/post-plan_updated.sh"
