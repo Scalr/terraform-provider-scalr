@@ -47,26 +47,15 @@ func TestAccCurrentRun_basic(t *testing.T) {
 
 func launchRun(environmentName, workspaceName string) func() {
 	return func() {
-		var environmentID *string
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
-		envl, err := scalrClient.Environments.List(ctx)
+		env, err := GetEnvironmentByName(environmentName, scalrClient)
 		if err != nil {
-			log.Fatalf("Error retrieving environments: %v", err)
-		}
-
-		for _, env := range envl.Items {
-			if env.Name == environmentName {
-				environmentID = &env.ID
-				break
-			}
-		}
-		if environmentID == nil {
-			log.Fatalf("Could not find environment with name: %s", environmentName)
+			log.Fatalf("Got error during environment fetching: %v", err)
 			return
 		}
 
-		ws, err := scalrClient.Workspaces.Read(ctx, *environmentID, workspaceName)
+		ws, err := scalrClient.Workspaces.Read(ctx, env.ID, workspaceName)
 		if err != nil {
 			log.Fatalf("Error retrieving workspace: %v", err)
 		}
