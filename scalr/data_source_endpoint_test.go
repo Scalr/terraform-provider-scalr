@@ -43,7 +43,7 @@ resource scalr_environment test {
   name       = "test-env-%[1]d"
   account_id = "%s"
 }
-  
+
 resource scalr_endpoint test {
   name         = "test endpoint-%[1]d"
   timeout      = 15
