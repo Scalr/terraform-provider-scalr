@@ -1,7 +1,6 @@
 package scalr
 
 import (
-	"errors"
 	"fmt"
 
 	scalr "github.com/scalr/go-scalr"
@@ -12,7 +11,7 @@ func GetEnvironmentByName(environmentName string, scalrClient *scalr.Client) (*s
 
 	envl, err := scalrClient.Environments.List(ctx)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Error retrieving environments: %v", err))
+		return nil, fmt.Errorf("Error retrieving environments: %v", err)
 	}
 
 	for _, env := range envl.Items {
@@ -22,7 +21,7 @@ func GetEnvironmentByName(environmentName string, scalrClient *scalr.Client) (*s
 		}
 	}
 	if environment == nil {
-		return nil, errors.New(fmt.Sprintf("Could not find environment with name: %s", environmentName))
+		return nil, fmt.Errorf("Could not find environment with name: %s", environmentName)
 	}
 
 	return environment, nil
