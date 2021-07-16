@@ -2,9 +2,15 @@ package scalr
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
 
 	scalr "github.com/scalr/go-scalr"
 )
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 func GetEnvironmentByName(environmentName string, scalrClient *scalr.Client) (*scalr.Environment, error) {
 	var environment *scalr.Environment
@@ -25,4 +31,8 @@ func GetEnvironmentByName(environmentName string, scalrClient *scalr.Client) (*s
 	}
 
 	return environment, nil
+}
+
+func GetRandomInteger() int {
+	return rand.Int()
 }

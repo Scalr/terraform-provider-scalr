@@ -3,17 +3,15 @@ package scalr
 import (
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	scalr "github.com/scalr/go-scalr"
 )
 
 func TestAccCurrentRun_basic(t *testing.T) {
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                  func() { testAccPreCheck(t) },

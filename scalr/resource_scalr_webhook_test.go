@@ -2,15 +2,13 @@ package scalr
 
 import (
 	"fmt"
-	"math/rand"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
 func TestAccWebhook_basic(t *testing.T) {
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -34,7 +32,7 @@ func TestAccWebhook_basic(t *testing.T) {
 }
 
 func TestAccWebhook_update(t *testing.T) {
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -76,7 +74,7 @@ resource scalr_environment test {
   name       = "test-env-%[1]d"
   account_id = "%s"
 }
-  
+
 resource scalr_workspace test {
   name           = "test-ws-%[1]d"
   environment_id = scalr_environment.test.id
@@ -84,8 +82,8 @@ resource scalr_workspace test {
 
 resource scalr_endpoint test {
   name         = "test endpoint-%[1]d"
-  timeout      = 15               
-  max_attempts = 3                
+  timeout      = 15
+  max_attempts = 3
   url          = "https://example.com/webhook"
   environment_id = scalr_environment.test.id
 }
@@ -109,7 +107,7 @@ resource scalr_environment test {
   name       = "test-env-%[1]d"
   account_id = "%s"
 }
-  
+
 resource scalr_workspace test {
   name           = "test-ws-%[1]d"
   environment_id = scalr_environment.test.id
@@ -117,8 +115,8 @@ resource scalr_workspace test {
 
 resource scalr_endpoint test {
   name         = "test endpoint-%[1]d"
-  timeout      = 15               
-  max_attempts = 3                
+  timeout      = 15
+  max_attempts = 3
   url          = "https://example.com/webhook"
   environment_id = scalr_environment.test.id
 }

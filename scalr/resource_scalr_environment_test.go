@@ -2,9 +2,7 @@ package scalr
 
 import (
 	"fmt"
-	"math/rand"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -13,7 +11,7 @@ import (
 
 func TestAccEnvironment_basic(t *testing.T) {
 	environment := &scalr.Environment{}
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -42,7 +40,7 @@ func TestAccEnvironment_basic(t *testing.T) {
 
 func TestAccEnvironment_update(t *testing.T) {
 	environment := &scalr.Environment{}
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
