@@ -8,11 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+
 - `scalr_workspace`: make `working_directory` attribute non-computable, set default value to `""` ([#66](https://github.com/Scalr/terraform-provider-scalr/pull/66))
 
 ### Fixed
 
-- Error changing workspace's working directory to empty: plan outputs to empty diff
+- `scalr_variable`: fix unability to create sensitive variable ([#68](https://github.com/Scalr/terraform-provider-scalr/pull/68))
+- `scalr_workspace`: fix error changing workspace's working directory to empty: plan outputs to empty diff ([#66](https://github.com/Scalr/terraform-provider-scalr/pull/66))
 
 ### Required
 
