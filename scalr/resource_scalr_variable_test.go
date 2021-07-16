@@ -42,7 +42,7 @@ func TestAccScalrVariable_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "value", "test"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "category", "env"),
+						"scalr_variable.test", "category", "shell"),
 				),
 			},
 		},
@@ -126,7 +126,7 @@ func TestAccScalrVariable_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "value", "test"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "category", "env"),
+						"scalr_variable.test", "category", "shell"),
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "hcl", "false"),
 					resource.TestCheckResourceAttr(
@@ -287,7 +287,7 @@ func testAccCheckScalrVariableAttributes(
 			return fmt.Errorf("Bad value: %s", variable.Value)
 		}
 
-		if variable.Category != scalr.CategoryEnv {
+		if variable.Category != scalr.CategoryShell {
 			return fmt.Errorf("Bad category: %s", variable.Category)
 		}
 
@@ -359,7 +359,7 @@ func testAccScalrVariableOnGlobalScope(rInt int) string {
 resource scalr_variable test {
   key          = "var_on_global_%d"
   value        = "test"
-  category     = "env"
+  category     = "shell"
 }`, rInt)
 }
 
@@ -378,7 +378,7 @@ resource scalr_workspace test {
 resource scalr_variable test {
   key            = "var_on_ws_%[1]d"
   value          = "test"
-  category       = "env"
+  category       = "shell"
   workspace_id   = scalr_workspace.test.id
 }`, rInt, defaultAccount)
 }
@@ -419,20 +419,20 @@ resource scalr_workspace test {
 resource scalr_variable on_global {
   key          = "var_on_global_%[1]d"
   value        = "test"
-  category     = "env"
+  category     = "shell"
 }
 
 resource scalr_variable on_account {
   key          = "var_on_acc_%[1]d"
   value        = "test"
-  category     = "env"
+  category     = "shell"
   account_id   = "%[2]s"
 }
 
 resource scalr_variable on_environment {
   key            = "var_on_env_%[1]d"
   value          = "test"
-  category       = "env"
+  category       = "shell"
   account_id     = "%[2]s"
   environment_id = scalr_environment.test.id
 }
@@ -440,7 +440,7 @@ resource scalr_variable on_environment {
 resource scalr_variable on_workspace {
   key            = "var_on_ws_%[1]d"
   value          = "test"
-  category       = "env"
+  category       = "shell"
   account_id     = "%[2]s"
   environment_id = scalr_environment.test.id
   workspace_id   = scalr_workspace.test.id
