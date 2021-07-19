@@ -2,15 +2,13 @@ package scalr
 
 import (
 	"fmt"
-	"math/rand"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
 func TestAccScalrWorkspaceIDsDataSource_basic(t *testing.T) {
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -42,7 +40,7 @@ func TestAccScalrWorkspaceIDsDataSource_basic(t *testing.T) {
 
 func TestAccScalrWorkspaceIDsDataSource_wildcard(t *testing.T) {
 	t.Skip("Wildcard test is not passing for unknown reasons. Using the wildcard symbol produces no workspaces")
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },

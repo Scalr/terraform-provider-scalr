@@ -4,9 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"math/rand"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -15,7 +13,7 @@ import (
 
 func TestAccScalrWorkspace_basic(t *testing.T) {
 	workspace := &scalr.Workspace{}
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -55,7 +53,7 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 
 func TestAccScalrWorkspace_monorepo(t *testing.T) {
 	workspace := &scalr.Workspace{}
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -82,7 +80,7 @@ func TestAccScalrWorkspace_monorepo(t *testing.T) {
 
 func TestAccScalrWorkspace_renamed(t *testing.T) {
 	workspace := &scalr.Workspace{}
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -145,7 +143,7 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 }
 func TestAccScalrWorkspace_update(t *testing.T) {
 	workspace := &scalr.Workspace{}
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -213,7 +211,7 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 }
 
 func TestAccScalrWorkspace_import(t *testing.T) {
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

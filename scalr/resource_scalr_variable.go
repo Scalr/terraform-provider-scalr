@@ -25,7 +25,7 @@ func resourceScalrVariable() *schema.Resource {
 				old, new := d.GetChange("key")
 				sensitive := d.Get("sensitive")
 
-				if sensitive.(bool) && old.(string) != new.(string) {
+				if sensitive.(bool) && (old.(string) != "" && old.(string) != new.(string)) {
 					return fmt.Errorf("Error changing 'key' attribute for variable %s: immutable for sensitive variable", d.Id())
 				}
 				return nil

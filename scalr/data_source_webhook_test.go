@@ -2,15 +2,13 @@ package scalr
 
 import (
 	"fmt"
-	"math/rand"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
 func TestAccWebhookDataSource_basic(t *testing.T) {
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -39,12 +37,12 @@ resource scalr_environment test {
   name       = "test-env-%[1]d"
   account_id = "%s"
 }
-  
+
 resource scalr_workspace test {
   name           = "test-ws-%[1]d"
   environment_id = scalr_environment.test.id
 }
-  
+
 resource scalr_endpoint test {
   name           = "test endpoint-%[1]d"
   timeout        = 15
@@ -60,7 +58,7 @@ resource scalr_webhook test {
   endpoint_id  = scalr_endpoint.test.id
   workspace_id = scalr_workspace.test.id
 }
-  
+
   data scalr_webhook test {
   id = scalr_webhook.test.id
 }`, rInt, defaultAccount)
