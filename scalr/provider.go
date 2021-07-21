@@ -69,6 +69,7 @@ func Provider() terraform.ResourceProvider {
 			"scalr_endpoint":      dataSourceScalrEndpoint(),
 			"scalr_webhook":       dataSourceScalrWebhook(),
 			"scalr_environment":   dataSourceScalrEnvironment(),
+			"scalr_iam_role":      dataSourceScalrIamRole(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -77,6 +78,7 @@ func Provider() terraform.ResourceProvider {
 			"scalr_endpoint":    resourceScalrEndpoint(),
 			"scalr_webhook":     resourceScalrWebhook(),
 			"scalr_environment": resourceScalrEnvironment(),
+			"scalr_iam_role":    resourceScalrIamRole(),
 		},
 
 		ConfigureFunc: providerConfigure,

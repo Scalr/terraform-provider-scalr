@@ -4,8 +4,9 @@ PKG_NAME=scalr
 BUILD_ENV=CGO_ENABLED=0
 TAG=$(shell PAGER= git tag --points-at HEAD)
 BRANCH=$(subst /,-,$(shell git branch --show-current))
-VERSION=$(if $(TAG),$(TAG),$(BRANCH))
+VERSION=1.0.2
 USER_PLUGIN_DIR_LINUX=${HOME}/.terraform.d/plugins/scalr.io/scalr/scalr/$(VERSION)/linux_amd64
+USER_PLUGIN_DIR_DARWIN=${HOME}/.terraform.d/plugins/scalr.io/scalr/scalr/$(VERSION)/darwin_amd64
 BIN_NAME := terraform-provider-scalr_$(VERSION)
 ARGS=-ldflags='-X github.com/scalr/terraform-provider-scalr/version.ProviderVersion=$(TAG) -X github.com/scalr/terraform-provider-scalr/version.Branch=$(BRANCH)'
 
@@ -22,6 +23,11 @@ build-linux:
 install-linux-user: build-linux
 	@echo "Installing version $(VERSION) for linux"
 	mkdir -p $(USER_PLUGIN_DIR_LINUX); cp $(BIN_NAME) $(USER_PLUGIN_DIR_LINUX)
+
+install-macos-user: build
+	@echo "Installing version $(VERSION) for macos"
+	mkdir -p $(USER_PLUGIN_DIR_DARWIN); cp $(BIN_NAME) $(USER_PLUGIN_DIR_DARWIN)
+
 
 test:
 	echo $(TEST) | \
@@ -50,4 +56,3 @@ test-compile:
 	fi
 	go test -c $(TEST) $(TESTARGS)
 .PHONY: build build-linux test testacc vet fmt test-compile
-
