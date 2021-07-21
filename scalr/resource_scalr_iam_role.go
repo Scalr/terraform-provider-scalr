@@ -6,20 +6,9 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/schema"
 	scalr "github.com/scalr/go-scalr"
 )
-
-func interfaceToSortedStringSlice(s []interface{}) []string {
-	stringSlice := make([]string, 0)
-	for _, value := range s {
-		stringSlice = append(stringSlice, value.(string))
-	}
-	sort.Strings(stringSlice)
-	return stringSlice
-
-}
 
 func resourceScalrIamRole() *schema.Resource {
 	return &schema.Resource{
@@ -30,20 +19,6 @@ func resourceScalrIamRole() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
-		CustomizeDiff: customdiff.All(func(d *schema.ResourceDiff, meta interface{}) error {
-			// ignore ordering
-			old, new := d.GetChange("permissions")
-			log.Printf("[DEBUG] old: %+v, new: %+v", old, new)
-
-			oldStrings := interfaceToSortedStringSlice(old.([]interface{}))
-			newStrings := interfaceToSortedStringSlice(new.([]interface{}))
-
-			if reflect.DeepEqual(oldStrings, newStrings) {
-				d.SetNew("permissions", old)
-			}
-			return nil
-		}),
-
 		SchemaVersion: 0,
 		Schema: map[string]*schema.Schema{
 			"name": {
