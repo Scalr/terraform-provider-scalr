@@ -38,17 +38,12 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: "1.13"
-      - name: Environment settings
-        env:
-          API_BRANCH: ${{ contains(github.event.head_commit.message, '[API_BRANCH]') }}
-          DB_BRANCH: ${{ contains(github.event.head_commit.message, '[DB_BRANCH]') }}
-        run: |
-          echo "API_BRANCH=${API_BRANCH}" >> $GITHUB_ENV
-          echo "Set env variable from commit message: API_BRANCH=${API_BRANCH}"
-          echo "DB_BRANCH=${DB_BRANCH}" >> $GITHUB_ENV
-          echo "Set env variable from commit message: DB_BRANCH=${DB_BRANCH}"
-          echo BRANCH=${GITHUB_REF#refs/heads/} >> $GITHUB_ENV
-          echo "Set env variable: BRANCH=${GITHUB_REF#refs/heads/}"
+      - name: Set API_BRANCH
+        if: ${{ contains(github.event.head_commit.message, '[API_BRANCH]') }}
+        run: echo "API_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+      - name: Set DB_BRANCH
+        if: ${{ contains(github.event.head_commit.message, '[DB_BRANCH]') }}
+        run: echo "DB_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
       - name: Create container
         id: create
         uses: Scalr/gh-action-revizor@master
@@ -79,6 +74,18 @@ jobs:
     needs: [lint, unit-tests, acc-tests]
     runs-on: ubuntu-latest
     steps:
+      - name: Import GPG key
+        id: import_gpg
+        uses: Scalr/ghaction-import-gpg@v2.1.1
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -94,3 +101,11 @@ jobs:
           args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
+      - name: Upload provider to registry
+        env:
+          DOMAIN: ${{ secrets.DOMAIN }}
+          BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
+          GPG_KEY_ID: ${{ steps.import_gpg.outputs.fingerprint }}
+          GPG_PUB_KEY: ${{ steps.import_gpg.outputs.pubkey }}
+        run: bash scripts/upload.sh

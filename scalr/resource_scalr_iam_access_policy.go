@@ -14,14 +14,14 @@ type Subject string
 
 const (
 	User           Subject = "user"
-	Team                   = "team"
-	ServiceAccount         = "service_account"
+	Team           Subject = "team"
+	ServiceAccount Subject = "service_account"
 )
 
 const (
 	Workspace   Scope = "workspace"
-	Environment       = "environment"
-	Account           = "account"
+	Environment Scope = "environment"
+	Account     Scope = "account"
 )
 
 func (s Scope) IsValid() error {

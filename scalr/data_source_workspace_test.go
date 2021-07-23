@@ -2,15 +2,13 @@ package scalr
 
 import (
 	"fmt"
-	"math/rand"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
 func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -32,6 +30,14 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.email"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.username"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan.sh"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.post_plan", "./scripts/post-plan.sh"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.pre_apply", "./scripts/pre-apply.sh"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.post_apply", "./scripts/post-apply.sh"),
 				),
 			},
 		},
@@ -51,6 +57,12 @@ resource scalr_workspace test {
   auto_apply            = true
   terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
+  hooks {
+    pre_plan   = "./scripts/pre-plan.sh"
+    post_plan  = "./scripts/post-plan.sh"
+    pre_apply  = "./scripts/pre-apply.sh"
+    post_apply = "./scripts/post-apply.sh"
+  }
 }
 
 data scalr_workspace test {

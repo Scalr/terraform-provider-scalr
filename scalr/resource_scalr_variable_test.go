@@ -2,10 +2,8 @@ package scalr
 
 import (
 	"fmt"
-	"math/rand"
 	"regexp"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -26,7 +24,7 @@ resource scalr_workspace test {
 
 func TestAccScalrVariable_basic(t *testing.T) {
 	variable := &scalr.Variable{}
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -42,7 +40,26 @@ func TestAccScalrVariable_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "value", "test"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "category", "env"),
+						"scalr_variable.test", "category", "shell"),
+					resource.TestCheckResourceAttr(
+						"scalr_variable.test", "sensitive", "false"),
+				),
+			},
+
+			// Test creation of sensitive variable
+			{
+				PreConfig: func() { rInt++ },
+				Config:    testAccScalrVariableOnGlobalScopeSensitive(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrVariableExists("scalr_variable.test", variable),
+					resource.TestCheckResourceAttr(
+						"scalr_variable.test", "key", fmt.Sprintf("var_on_global_%d", rInt)),
+					resource.TestCheckResourceAttr(
+						"scalr_variable.test", "value", "test"),
+					resource.TestCheckResourceAttr(
+						"scalr_variable.test", "category", "shell"),
+					resource.TestCheckResourceAttr(
+						"scalr_variable.test", "sensitive", "true"),
 				),
 			},
 		},
@@ -50,7 +67,7 @@ func TestAccScalrVariable_basic(t *testing.T) {
 }
 
 func TestAccScalrVariable_defaults(t *testing.T) {
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -73,7 +90,7 @@ func TestAccScalrVariable_defaults(t *testing.T) {
 	})
 }
 func TestAccScalrVariable_scopes(t *testing.T) {
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 	variable := &scalr.Variable{}
 
 	resource.Test(t, resource.TestCase{
@@ -90,7 +107,7 @@ func TestAccScalrVariable_scopes(t *testing.T) {
 }
 
 func TestAccScalrVariable_notTerraformOnMultiscope(t *testing.T) {
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 	r := regexp.MustCompile(errVariableMultiOnlyEnv.Error())
 
 	resource.Test(t, resource.TestCase{
@@ -107,7 +124,7 @@ func TestAccScalrVariable_notTerraformOnMultiscope(t *testing.T) {
 }
 
 func TestAccScalrVariable_update(t *testing.T) {
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 	variable := &scalr.Variable{}
 
 	resource.Test(t, resource.TestCase{
@@ -126,7 +143,7 @@ func TestAccScalrVariable_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "value", "test"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "category", "env"),
+						"scalr_variable.test", "category", "shell"),
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "hcl", "false"),
 					resource.TestCheckResourceAttr(
@@ -192,7 +209,7 @@ func TestAccScalrVariable_update(t *testing.T) {
 }
 
 func TestAccScalrVariable_import(t *testing.T) {
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -287,7 +304,7 @@ func testAccCheckScalrVariableAttributes(
 			return fmt.Errorf("Bad value: %s", variable.Value)
 		}
 
-		if variable.Category != scalr.CategoryEnv {
+		if variable.Category != scalr.CategoryShell {
 			return fmt.Errorf("Bad category: %s", variable.Category)
 		}
 
@@ -359,7 +376,17 @@ func testAccScalrVariableOnGlobalScope(rInt int) string {
 resource scalr_variable test {
   key          = "var_on_global_%d"
   value        = "test"
-  category     = "env"
+  category     = "shell"
+}`, rInt)
+}
+
+func testAccScalrVariableOnGlobalScopeSensitive(rInt int) string {
+	return fmt.Sprintf(`
+resource scalr_variable test {
+  key          = "var_on_global_%d"
+  value        = "test"
+  category     = "shell"
+  sensitive    = true
 }`, rInt)
 }
 
@@ -378,7 +405,7 @@ resource scalr_workspace test {
 resource scalr_variable test {
   key            = "var_on_ws_%[1]d"
   value          = "test"
-  category       = "env"
+  category       = "shell"
   workspace_id   = scalr_workspace.test.id
 }`, rInt, defaultAccount)
 }
@@ -419,20 +446,20 @@ resource scalr_workspace test {
 resource scalr_variable on_global {
   key          = "var_on_global_%[1]d"
   value        = "test"
-  category     = "env"
+  category     = "shell"
 }
 
 resource scalr_variable on_account {
   key          = "var_on_acc_%[1]d"
   value        = "test"
-  category     = "env"
+  category     = "shell"
   account_id   = "%[2]s"
 }
 
 resource scalr_variable on_environment {
   key            = "var_on_env_%[1]d"
   value          = "test"
-  category       = "env"
+  category       = "shell"
   account_id     = "%[2]s"
   environment_id = scalr_environment.test.id
 }
@@ -440,7 +467,7 @@ resource scalr_variable on_environment {
 resource scalr_variable on_workspace {
   key            = "var_on_ws_%[1]d"
   value          = "test"
-  category       = "env"
+  category       = "shell"
   account_id     = "%[2]s"
   environment_id = scalr_environment.test.id
   workspace_id   = scalr_workspace.test.id

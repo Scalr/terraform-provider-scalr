@@ -1,0 +1,54 @@
+name: upstream
+
+on:
+  workflow_dispatch:
+    inputs:
+      upstream-sha:
+        description: "Upstream commit SHA"
+        required: true
+      api-branch:
+        description: "API Branch"
+        required: true
+      db-branch:
+        description: "DB Branch"
+        required: false
+        default: "master"
+
+jobs:
+  acc-tests:
+    runs-on: ubuntu-latest
+    name: acc-tests
+    env:
+      REVIZOR_URL: ${{ secrets.REVIZOR_URL }}
+      REVIZOR_TOKEN: ${{ secrets.REVIZOR_TOKEN }}
+      ORG_ADMIN_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
+      SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
+      API_BRANCH: ${{ github.event.inputs.api-branch }}
+      DB_BRANCH: ${{ github.event.inputs.db-branch }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: "1.13"
+      - name: Create container
+        id: create
+        uses: Scalr/gh-action-revizor@master
+        with:
+          command: create
+      - name: Run acceptance tests
+        env:
+          SCALR_HOSTNAME: ${{ steps.create.outputs.hostname }}
+        run: make testacc
+      - name: Delete container
+        id: delete
+        if: ${{ always() && steps.create.outputs.container_id }}
+        uses: Scalr/gh-action-revizor@master
+        with:
+          command: delete
+          container_id: ${{ steps.create.outputs.container_id }}
+      - name: Notify upstream about success
+        if: ${{ success() }}
+        run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=success
+      - name: Notify upstream about failure
+        if: ${{ failure() }}
+        run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=failure

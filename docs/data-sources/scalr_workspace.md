@@ -38,6 +38,14 @@ All arguments plus:
 * `working_directory` - A relative path that Terraform will execute within.
 * `vcs_repo` - If workspace is linked to VCS repository this block shows the details, otherwise `{}`
 * `created_by` - Details of the user that created the workspace.
+* `hooks` - List of the workspace's custom hooks.
+
+  The `hooks` block supports:
+
+  * `pre_plan` - Script or action configured to call before plan phase
+  * `post_plan` - Script or action configured to call after plan phase
+  * `pre_apply` - Script or action configured to call before apply phase
+  * `post_apply` - Script or action configured to call after apply phase
 
 The `vcs_repo` block contains:
 

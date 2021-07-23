@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-rc18] - 2021-07-22
+### Changed
+
+- `scalr_workspace`: make `working_directory` attribute non-computable, set default value to `""` ([#66](https://github.com/Scalr/terraform-provider-scalr/pull/66))
+
+### Fixed
+
+- `scalr_variable`: fix inability to create sensitive variable ([#68](https://github.com/Scalr/terraform-provider-scalr/pull/68))
+- `scalr_workspace`: fix error changing working directory of a workspace to empty: plan outputs to empty diff ([#66](https://github.com/Scalr/terraform-provider-scalr/pull/66))
+
+### Required
+
+- scalr server >= `8.0.1-beta.20210407`
+
+## [1.0.0-rc17] - 2021-07-08
+
+### Added
+
+- `scalr_workspace`: new attribute `hooks` ([#65](https://github.com/Scalr/terraform-provider-scalr/pull/65))
+- `data.scalr_workspace`: new attribute `hooks` ([#65](https://github.com/Scalr/terraform-provider-scalr/pull/65))
+
+### Changed
+
+- `scalr_variable`: new attribute value `shell` for `scalr_variable.category` in order to create shell variable. 
+`env` category value is deprecated. ([#59](https://github.com/Scalr/terraform-provider-scalr/pull/64))
+
+
+## [1.0.0-rc16] - 2021-05-25
+
+### Changed
+
+- `scalr_variable`: make `environment_id`, `workspace_id` and `account_id` attributes computable ([#60](https://github.com/Scalr/terraform-provider-scalr/pull/62))
+
+### Fixed
+
+- Error changing scope for variable `var-<id>`: scope is immutable attribute
+
+### Required
+
+- scalr server >= `8.0.1-beta.20210407`
+
 ## [1.0.0-rc15] - 2021-04-22
 
 ### Added
@@ -209,7 +250,10 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc15...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc18...HEAD
+[1.0.0-rc18]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc18
+[1.0.0-rc17]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc17
+[1.0.0-rc16]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc16
 [1.0.0-rc15]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc15
 [1.0.0-rc14]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc14
 [1.0.0-rc13]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc13
