@@ -8,6 +8,9 @@ import (
 )
 
 const defaultAccount = "acc-svrcncgh453bi8g"
+const testUser = "user-suh84u6vuvidtbg"     // test@scalr.com
+const readOnlyRole = "role-t67mjtmabulckto" // Reader
+const userRole = "role-t67mjtmauajto7g"     // Reader
 
 func testScalrClient(t *testing.T) *scalr.Client {
 	config := &scalr.Config{
