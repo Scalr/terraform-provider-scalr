@@ -8,22 +8,22 @@ import (
 	scalr "github.com/scalr/go-scalr"
 )
 
-func dataSourceScalrIamRole() *schema.Resource {
+func dataSourceScalrRole() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrIamRoleRead,
+		Read: dataSourceScalrRoleRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Computed: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
-				Computed: true,
+				Required: true,
 			},
 			"account_id": {
 				Type:     schema.TypeString,
-				Computed: true,
+				Required: true,
 			},
 
 			"is_system": {
@@ -45,24 +45,35 @@ func dataSourceScalrIamRole() *schema.Resource {
 	}
 }
 
-func dataSourceScalrIamRoleRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrRoleRead(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
-	id := d.Get("id").(string)
+	// required fields
+	name := d.Get("name").(string)
+	accountId := d.Get("account_id").(string)
 
-	log.Printf("[DEBUG] Read configuration of role: %s", id)
-	role, err := scalrClient.Roles.Read(ctx, id)
+	options := scalr.RoleListOptions{Name: name, Account: scalr.String(accountId)}
+	log.Printf("[DEBUG] Read configuration of role: %s/%s", accountId, name)
+	roles, err := scalrClient.Roles.List(ctx, options)
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
-			return fmt.Errorf("Could not find role with ID %s", id)
-		}
-		return fmt.Errorf("Error retrieving role: %v", err)
+		return fmt.Errorf("Error retrieving role: %s/%s", accountId, name)
 	}
 
+	// Unlikely situation, but still
+	if roles.TotalCount > 1 {
+		return fmt.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
+	}
+
+	if roles.TotalCount == 0 {
+		return fmt.Errorf("Could not find role %s/%s", accountId, name)
+	}
+
+	role := roles.Items[0]
+
 	// Update the config.
-	d.Set("name", role.Name)
+	d.Set("id", role.ID)
+	d.Set("is_system", role.IsSystem)
 	d.Set("description", role.Description)
-	d.Set("account_id", role.Account.ID)
 	d.SetId(role.ID)
 
 	if len(role.Permissions) != 0 {
@@ -73,7 +84,6 @@ func dataSourceScalrIamRoleRead(d *schema.ResourceData, meta interface{}) error 
 		}
 		d.Set("permissions", permissionNames)
 	}
-	d.Set("is_system", role.IsSystem)
 
 	return nil
 }

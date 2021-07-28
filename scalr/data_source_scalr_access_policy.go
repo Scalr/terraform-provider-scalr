@@ -8,9 +8,9 @@ import (
 	scalr "github.com/scalr/go-scalr"
 )
 
-func dataSourceScalrIamAccessPolicy() *schema.Resource {
+func dataSourceScalrAccessPolicy() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrIamAccessPolicyRead,
+		Read: dataSourceScalrAccessPolicyRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -64,7 +64,7 @@ func dataSourceScalrIamAccessPolicy() *schema.Resource {
 	}
 }
 
-func dataSourceScalrIamAccessPolicyRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrAccessPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Get("id").(string)
 

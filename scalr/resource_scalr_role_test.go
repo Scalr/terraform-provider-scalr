@@ -11,116 +11,116 @@ import (
 	scalr "github.com/scalr/go-scalr"
 )
 
-func TestAccScalrIamRole_basic(t *testing.T) {
+func TestAccScalrRole_basic(t *testing.T) {
 	role := &scalr.Role{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrIamRoleDestroy,
+		CheckDestroy: testAccCheckScalrRoleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrIamRoleBasic(),
+				Config: testAccScalrRoleBasic(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrIamRoleExists("scalr_iam_role.test", role),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "name", "role-test"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "description", "test basic"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "is_system", "false"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "permissions.0", "*:read"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "permissions.1", "*:update"),
+					testAccCheckScalrRoleExists("scalr_role.test", role),
+					resource.TestCheckResourceAttr("scalr_role.test", "name", "role-test"),
+					resource.TestCheckResourceAttr("scalr_role.test", "description", "test basic"),
+					resource.TestCheckResourceAttr("scalr_role.test", "is_system", "false"),
+					resource.TestCheckResourceAttr("scalr_role.test", "account_id", defaultAccount),
+					resource.TestCheckResourceAttr("scalr_role.test", "permissions.0", "*:read"),
+					resource.TestCheckResourceAttr("scalr_role.test", "permissions.1", "*:update"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccScalrIamRole_renamed(t *testing.T) {
+func TestAccScalrRole_renamed(t *testing.T) {
 	role := &scalr.Role{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrIamRoleDestroy,
+		CheckDestroy: testAccCheckScalrRoleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrIamRoleBasic(),
+				Config: testAccScalrRoleBasic(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrIamRoleExists("scalr_iam_role.test", role),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "name", "role-test"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "description", "test basic"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "is_system", "false"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "permissions.0", "*:read"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "permissions.1", "*:update"),
+					testAccCheckScalrRoleExists("scalr_role.test", role),
+					resource.TestCheckResourceAttr("scalr_role.test", "name", "role-test"),
+					resource.TestCheckResourceAttr("scalr_role.test", "description", "test basic"),
+					resource.TestCheckResourceAttr("scalr_role.test", "is_system", "false"),
+					resource.TestCheckResourceAttr("scalr_role.test", "account_id", defaultAccount),
+					resource.TestCheckResourceAttr("scalr_role.test", "permissions.0", "*:read"),
+					resource.TestCheckResourceAttr("scalr_role.test", "permissions.1", "*:update"),
 				),
 			},
 
 			{
-				PreConfig: testAccCheckScalrIamRoleRename(role),
-				Config:    testAccScalrIamRoleRenamed(),
+				PreConfig: testAccCheckScalrRoleRename(role),
+				Config:    testAccScalrRoleRenamed(),
 				PlanOnly:  true,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "name", "renamed-outside-of-terraform"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "description", "test basic"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "is_system", "false"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "permissions.0", "*:read"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "permissions.1", "*:update"),
+					resource.TestCheckResourceAttr("scalr_role.test", "name", "renamed-outside-of-terraform"),
+					resource.TestCheckResourceAttr("scalr_role.test", "description", "test basic"),
+					resource.TestCheckResourceAttr("scalr_role.test", "is_system", "false"),
+					resource.TestCheckResourceAttr("scalr_role.test", "account_id", defaultAccount),
+					resource.TestCheckResourceAttr("scalr_role.test", "permissions.0", "*:read"),
+					resource.TestCheckResourceAttr("scalr_role.test", "permissions.1", "*:update"),
 				),
 			},
 		},
 	})
 }
-func TestAccScalrIamRole_update(t *testing.T) {
+func TestAccScalrRole_update(t *testing.T) {
 	role := &scalr.Role{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrIamRoleDestroy,
+		CheckDestroy: testAccCheckScalrRoleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrIamRoleBasic(),
+				Config: testAccScalrRoleBasic(),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "name", "role-test"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "description", "test basic"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "is_system", "false"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "permissions.0", "*:read"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "permissions.1", "*:update"),
+					resource.TestCheckResourceAttr("scalr_role.test", "name", "role-test"),
+					resource.TestCheckResourceAttr("scalr_role.test", "description", "test basic"),
+					resource.TestCheckResourceAttr("scalr_role.test", "is_system", "false"),
+					resource.TestCheckResourceAttr("scalr_role.test", "account_id", defaultAccount),
+					resource.TestCheckResourceAttr("scalr_role.test", "permissions.0", "*:read"),
+					resource.TestCheckResourceAttr("scalr_role.test", "permissions.1", "*:update"),
 				),
 			},
 
 			{
-				Config: testAccScalrIamRoleUpdate(),
+				Config: testAccScalrRoleUpdate(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrIamRoleExists("scalr_iam_role.test", role),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "name", "role-updated"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "description", "updated"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "is_system", "false"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "permissions.0", "*:update"),
-					resource.TestCheckResourceAttr("scalr_iam_role.test", "permissions.1", "*:delete"),
+					testAccCheckScalrRoleExists("scalr_role.test", role),
+					resource.TestCheckResourceAttr("scalr_role.test", "name", "role-updated"),
+					resource.TestCheckResourceAttr("scalr_role.test", "description", "updated"),
+					resource.TestCheckResourceAttr("scalr_role.test", "is_system", "false"),
+					resource.TestCheckResourceAttr("scalr_role.test", "account_id", defaultAccount),
+					resource.TestCheckResourceAttr("scalr_role.test", "permissions.0", "*:update"),
+					resource.TestCheckResourceAttr("scalr_role.test", "permissions.1", "*:delete"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccScalrIamRole_import(t *testing.T) {
+func TestAccScalrRole_import(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrIamRoleDestroy,
+		CheckDestroy: testAccCheckScalrRoleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrIamRoleBasic(),
+				Config: testAccScalrRoleBasic(),
 			},
 
 			{
-				ResourceName:      "scalr_iam_role.test",
+				ResourceName:      "scalr_role.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -128,7 +128,7 @@ func TestAccScalrIamRole_import(t *testing.T) {
 	})
 }
 
-func testAccCheckScalrIamRoleExists(resId string, role *scalr.Role) resource.TestCheckFunc {
+func testAccCheckScalrRoleExists(resId string, role *scalr.Role) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
@@ -153,7 +153,7 @@ func testAccCheckScalrIamRoleExists(resId string, role *scalr.Role) resource.Tes
 	}
 }
 
-func testAccCheckScalrIamRoleRename(role *scalr.Role) func() {
+func testAccCheckScalrRoleRename(role *scalr.Role) func() {
 	return func() {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
@@ -178,11 +178,11 @@ func testAccCheckScalrIamRoleRename(role *scalr.Role) func() {
 	}
 }
 
-func testAccCheckScalrIamRoleDestroy(s *terraform.State) error {
+func testAccCheckScalrRoleDestroy(s *terraform.State) error {
 	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "scalr_iam_role" {
+		if rs.Type != "scalr_role" {
 			continue
 		}
 
@@ -199,9 +199,9 @@ func testAccCheckScalrIamRoleDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccScalrIamRoleBasic() string {
+func testAccScalrRoleBasic() string {
 	return fmt.Sprintf(`
-resource "scalr_iam_role" "test" {
+resource "scalr_role" "test" {
   name           = "role-test"
   description    = "test basic"
   account_id     = "%s"
@@ -212,9 +212,9 @@ resource "scalr_iam_role" "test" {
 }`, defaultAccount)
 }
 
-func testAccScalrIamRoleRenamed() string {
+func testAccScalrRoleRenamed() string {
 	return fmt.Sprintf(`
-resource "scalr_iam_role" "test" {
+resource "scalr_role" "test" {
   name           = "renamed-outside-of-terraform"
   description    = "test basic"
   account_id     = "%s"
@@ -225,9 +225,9 @@ resource "scalr_iam_role" "test" {
 }`, defaultAccount)
 }
 
-func testAccScalrIamRoleUpdate() string {
+func testAccScalrRoleUpdate() string {
 	return fmt.Sprintf(`
-resource "scalr_iam_role" "test" {
+resource "scalr_role" "test" {
   name           = "role-updated"
   account_id     = "%s"
   description    = "updated"

@@ -10,12 +10,12 @@ import (
 	scalr "github.com/scalr/go-scalr"
 )
 
-func resourceScalrIamRole() *schema.Resource {
+func resourceScalrRole() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrIamRoleCreate,
-		Read:   resourceScalrIamRoleRead,
-		Update: resourceScalrIamRoleUpdate,
-		Delete: resourceScalrIamRoleDelete,
+		Create: resourceScalrRoleCreate,
+		Read:   resourceScalrRoleRead,
+		Update: resourceScalrRoleUpdate,
+		Delete: resourceScalrRoleDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -52,7 +52,7 @@ func resourceScalrIamRole() *schema.Resource {
 	}
 }
 
-func resourceScalrIamRoleCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrRoleCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get required options
@@ -87,10 +87,10 @@ func resourceScalrIamRoleCreate(d *schema.ResourceData, meta interface{}) error 
 			"Error creating role %s for account %s: %v", name, accountID, err)
 	}
 	d.SetId(role.ID)
-	return resourceScalrIamRoleRead(d, meta)
+	return resourceScalrRoleRead(d, meta)
 }
 
-func resourceScalrIamRoleRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrRoleRead(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 	log.Printf("[DEBUG] Read configuration of role: %s", id)
@@ -139,7 +139,7 @@ func resourceScalrIamRoleRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceScalrIamRoleUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrRoleUpdate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
@@ -169,10 +169,10 @@ func resourceScalrIamRoleUpdate(d *schema.ResourceData, meta interface{}) error 
 		}
 	}
 
-	return resourceScalrIamRoleRead(d, meta)
+	return resourceScalrRoleRead(d, meta)
 }
 
-func resourceScalrIamRoleDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrRoleDelete(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 

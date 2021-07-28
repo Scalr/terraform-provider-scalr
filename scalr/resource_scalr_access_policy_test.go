@@ -14,33 +14,33 @@ import (
 	scalr "github.com/scalr/go-scalr"
 )
 
-func TestAccScalrIamAccessPolicy_basic(t *testing.T) {
+func TestAccScalrAccessPolicy_basic(t *testing.T) {
 	ap := &scalr.AccessPolicy{}
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrIamAccessPolicyDestroy,
+		CheckDestroy: testAccCheckScalrAccessPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrIamAccessPolicyBasic(rInt),
+				Config: testAccScalrAccessPolicyBasic(rInt),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrIamAccessPolicyExists("scalr_iam_access_policy.test", ap),
-					resource.TestCheckResourceAttrSet("scalr_iam_access_policy.test", "id"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "subject.0.type", "user"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "subject.0.id", testUser),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "is_system", "false"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "scope.0.type", "environment"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "role_ids.0", readOnlyRole),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "role_ids.#", "1"),
+					testAccCheckScalrAccessPolicyExists("scalr_access_policy.test", ap),
+					resource.TestCheckResourceAttrSet("scalr_access_policy.test", "id"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "subject.0.type", "user"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "subject.0.id", testUser),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "is_system", "false"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "scope.0.type", "environment"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "role_ids.0", readOnlyRole),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "role_ids.#", "1"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccScalrIamAccessPolicy_bad_scope(t *testing.T) {
+func TestAccScalrAccessPolicy_bad_scope(t *testing.T) {
 	rg, _ := regexp.Compile(`scope.0.type must be one of \[workspace, environment, account\], got: universe`)
 
 	resource.Test(t, resource.TestCase{
@@ -48,14 +48,14 @@ func TestAccScalrIamAccessPolicy_bad_scope(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccScalrIamAccessPolicyBadScope(),
+				Config:      testAccScalrAccessPolicyBadScope(),
 				ExpectError: rg,
 			},
 		},
 	})
 }
 
-func TestAccScalrIamAccessPolicy_bad_subject(t *testing.T) {
+func TestAccScalrAccessPolicy_bad_subject(t *testing.T) {
 	rg, _ := regexp.Compile(`subject.0.type must be one of \[user, team, service_account\], got: grandpa`)
 
 	resource.Test(t, resource.TestCase{
@@ -63,106 +63,106 @@ func TestAccScalrIamAccessPolicy_bad_subject(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccScalrIamAccessPolicyBadSubject(),
+				Config:      testAccScalrAccessPolicyBadSubject(),
 				ExpectError: rg,
 			},
 		},
 	})
 }
 
-func TestAccScalrIamAccessPolicy_changed_outside(t *testing.T) {
+func TestAccScalrAccessPolicy_changed_outside(t *testing.T) {
 	ap := &scalr.AccessPolicy{}
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrIamAccessPolicyDestroy,
+		CheckDestroy: testAccCheckScalrAccessPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrIamAccessPolicyBasic(rInt),
+				Config: testAccScalrAccessPolicyBasic(rInt),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrIamAccessPolicyExists("scalr_iam_access_policy.test", ap),
-					resource.TestCheckResourceAttrSet("scalr_iam_access_policy.test", "id"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "subject.0.type", "user"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "subject.0.id", testUser),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "is_system", "false"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "scope.0.type", "environment"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "role_ids.0", readOnlyRole),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "role_ids.#", "1"),
+					testAccCheckScalrAccessPolicyExists("scalr_access_policy.test", ap),
+					resource.TestCheckResourceAttrSet("scalr_access_policy.test", "id"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "subject.0.type", "user"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "subject.0.id", testUser),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "is_system", "false"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "scope.0.type", "environment"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "role_ids.0", readOnlyRole),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "role_ids.#", "1"),
 				),
 			},
 			{
-				PreConfig: testAccCheckScalrIamAccessPolicyChangedOutside(ap),
-				Config:    testAccScalrIamAccessPolicyChangedOutside(rInt),
+				PreConfig: testAccCheckScalrAccessPolicyChangedOutside(ap),
+				Config:    testAccScalrAccessPolicyChangedOutside(rInt),
 				PlanOnly:  true,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("scalr_iam_access_policy.test", "id"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "subject.0.type", "user"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "subject.0.id", testUser),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "is_system", "false"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "scope.0.type", "environment"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "role_ids.0", userRole),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "role_ids.#", "1"),
+					resource.TestCheckResourceAttrSet("scalr_access_policy.test", "id"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "subject.0.type", "user"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "subject.0.id", testUser),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "is_system", "false"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "scope.0.type", "environment"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "role_ids.0", userRole),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "role_ids.#", "1"),
 				),
 			},
 		},
 	})
 }
-func TestAccScalrIamAccessPolicy_update(t *testing.T) {
+func TestAccScalrAccessPolicy_update(t *testing.T) {
 	ap := &scalr.AccessPolicy{}
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrIamAccessPolicyDestroy,
+		CheckDestroy: testAccCheckScalrAccessPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrIamAccessPolicyBasic(rInt),
+				Config: testAccScalrAccessPolicyBasic(rInt),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("scalr_iam_access_policy.test", "id"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "subject.0.type", "user"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "subject.0.id", testUser),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "is_system", "false"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "scope.0.type", "environment"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "role_ids.0", readOnlyRole),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "role_ids.#", "1"),
+					resource.TestCheckResourceAttrSet("scalr_access_policy.test", "id"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "subject.0.type", "user"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "subject.0.id", testUser),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "is_system", "false"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "scope.0.type", "environment"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "role_ids.0", readOnlyRole),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "role_ids.#", "1"),
 				),
 			},
 
 			{
-				Config: testAccScalrIamAccessPolicyUpdate(rInt),
+				Config: testAccScalrAccessPolicyUpdate(rInt),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrIamAccessPolicyExists("scalr_iam_access_policy.test", ap),
-					resource.TestCheckResourceAttrSet("scalr_iam_access_policy.test", "id"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "subject.0.type", "user"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "subject.0.id", testUser),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "is_system", "false"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "scope.0.type", "environment"),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "role_ids.0", readOnlyRole),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "role_ids.1", userRole),
-					resource.TestCheckResourceAttr("scalr_iam_access_policy.test", "role_ids.#", "2"),
+					testAccCheckScalrAccessPolicyExists("scalr_access_policy.test", ap),
+					resource.TestCheckResourceAttrSet("scalr_access_policy.test", "id"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "subject.0.type", "user"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "subject.0.id", testUser),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "is_system", "false"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "scope.0.type", "environment"),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "role_ids.0", readOnlyRole),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "role_ids.1", userRole),
+					resource.TestCheckResourceAttr("scalr_access_policy.test", "role_ids.#", "2"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccScalrIamAccessPolicy_import(t *testing.T) {
+func TestAccScalrAccessPolicy_import(t *testing.T) {
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrIamAccessPolicyDestroy,
+		CheckDestroy: testAccCheckScalrAccessPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrIamAccessPolicyBasic(rInt),
+				Config: testAccScalrAccessPolicyBasic(rInt),
 			},
 
 			{
-				ResourceName:      "scalr_iam_access_policy.test",
+				ResourceName:      "scalr_access_policy.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -170,7 +170,7 @@ func TestAccScalrIamAccessPolicy_import(t *testing.T) {
 	})
 }
 
-func testAccCheckScalrIamAccessPolicyExists(resId string, ap *scalr.AccessPolicy) resource.TestCheckFunc {
+func testAccCheckScalrAccessPolicyExists(resId string, ap *scalr.AccessPolicy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
@@ -195,7 +195,7 @@ func testAccCheckScalrIamAccessPolicyExists(resId string, ap *scalr.AccessPolicy
 	}
 }
 
-func testAccCheckScalrIamAccessPolicyChangedOutside(ap *scalr.AccessPolicy) func() {
+func testAccCheckScalrAccessPolicyChangedOutside(ap *scalr.AccessPolicy) func() {
 	return func() {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
@@ -220,11 +220,11 @@ func testAccCheckScalrIamAccessPolicyChangedOutside(ap *scalr.AccessPolicy) func
 	}
 }
 
-func testAccCheckScalrIamAccessPolicyDestroy(s *terraform.State) error {
+func testAccCheckScalrAccessPolicyDestroy(s *terraform.State) error {
 	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "scalr_iam_access_policy" {
+		if rs.Type != "scalr_access_policy" {
 			continue
 		}
 
@@ -248,7 +248,7 @@ resource "scalr_environment" "test" {
 }
 
 
-resource "scalr_iam_access_policy" "test" {
+resource "scalr_access_policy" "test" {
   subject {
     type = "user"
     id = "%s"
@@ -262,9 +262,9 @@ resource "scalr_iam_access_policy" "test" {
   ]
 }`
 
-func testAccScalrIamAccessPolicyBadScope() string {
+func testAccScalrAccessPolicyBadScope() string {
 	return fmt.Sprintf(`
-resource "scalr_iam_access_policy" "test" {
+resource "scalr_access_policy" "test" {
   subject {
     type = "user"
     id = "%s"
@@ -281,9 +281,9 @@ resource "scalr_iam_access_policy" "test" {
 `, testUser, defaultAccount, readOnlyRole)
 }
 
-func testAccScalrIamAccessPolicyBadSubject() string {
+func testAccScalrAccessPolicyBadSubject() string {
 	return fmt.Sprintf(`
-resource "scalr_iam_access_policy" "test" {
+resource "scalr_access_policy" "test" {
   subject {
     type = "grandpa"
     id = "%s"
@@ -300,14 +300,14 @@ resource "scalr_iam_access_policy" "test" {
 `, testUser, defaultAccount, readOnlyRole)
 }
 
-func testAccScalrIamAccessPolicyBasic(rInt int) string {
+func testAccScalrAccessPolicyBasic(rInt int) string {
 	return fmt.Sprintf(iamPolicyTemplate, rInt, defaultAccount, testUser, readOnlyRole)
 }
 
-func testAccScalrIamAccessPolicyChangedOutside(rInt int) string {
+func testAccScalrAccessPolicyChangedOutside(rInt int) string {
 	return fmt.Sprintf(iamPolicyTemplate, rInt, defaultAccount, testUser, userRole)
 }
 
-func testAccScalrIamAccessPolicyUpdate(rInt int) string {
+func testAccScalrAccessPolicyUpdate(rInt int) string {
 	return fmt.Sprintf(iamPolicyTemplate, rInt, defaultAccount, testUser, fmt.Sprintf("%s\", \"%s", readOnlyRole, userRole))
 }

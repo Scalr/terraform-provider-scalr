@@ -40,12 +40,12 @@ func (s Subject) IsValid() error {
 	return errors.New("Invalid subject type")
 }
 
-func resourceScalrIamAccessPolicy() *schema.Resource {
+func resourceScalrAccessPolicy() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrIamAccessPolicyCreate,
-		Read:   resourceScalrIamAccessPolicyRead,
-		Update: resourceScalrIamAccessPolicyUpdate,
-		Delete: resourceScalrIamAccessPolicyDelete,
+		Create: resourceScalrAccessPolicyCreate,
+		Read:   resourceScalrAccessPolicyRead,
+		Update: resourceScalrAccessPolicyUpdate,
+		Delete: resourceScalrAccessPolicyDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -117,7 +117,7 @@ func resourceScalrIamAccessPolicy() *schema.Resource {
 	}
 }
 
-func resourceScalrIamAccessPolicyCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAccessPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	subject := d.Get("subject").([]interface{})[0].(map[string]interface{})
@@ -161,10 +161,10 @@ func resourceScalrIamAccessPolicyCreate(d *schema.ResourceData, meta interface{}
 			"Error creating access policy for %s %s on %s %s", subjectType, subjectId, scopeType, scopeId)
 	}
 	d.SetId(ap.ID)
-	return resourceScalrIamAccessPolicyRead(d, meta)
+	return resourceScalrAccessPolicyRead(d, meta)
 }
 
-func resourceScalrIamAccessPolicyRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAccessPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 
@@ -228,7 +228,7 @@ func resourceScalrIamAccessPolicyRead(d *schema.ResourceData, meta interface{}) 
 	return nil
 }
 
-func resourceScalrIamAccessPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAccessPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
@@ -250,10 +250,10 @@ func resourceScalrIamAccessPolicyUpdate(d *schema.ResourceData, meta interface{}
 		}
 	}
 
-	return resourceScalrIamAccessPolicyRead(d, meta)
+	return resourceScalrAccessPolicyRead(d, meta)
 }
 
-func resourceScalrIamAccessPolicyDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAccessPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 

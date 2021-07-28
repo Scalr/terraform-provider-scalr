@@ -7,27 +7,27 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccScalrIamAccessPolicyDataSource_basic(t *testing.T) {
+func TestAccScalrAccessPolicyDataSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrIamAccessPolicyDataSourceConfig(),
+				Config: testAccScalrAccessPolicyDataSourceConfig(),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.scalr_iam_access_policy.test", "id"),
-					resource.TestCheckResourceAttr("data.scalr_iam_access_policy.test", "subject.0.type", "user"),
-					resource.TestCheckResourceAttr("data.scalr_iam_access_policy.test", "subject.0.id", testUser),
-					resource.TestCheckResourceAttr("data.scalr_iam_access_policy.test", "is_system", "false"),
-					resource.TestCheckResourceAttr("data.scalr_iam_access_policy.test", "scope.0.type", "environment"),
-					resource.TestCheckResourceAttr("data.scalr_iam_access_policy.test", "role_ids.0", readOnlyRole),
-					resource.TestCheckResourceAttr("data.scalr_iam_access_policy.test", "role_ids.#", "1"),
+					resource.TestCheckResourceAttrSet("data.scalr_access_policy.test", "id"),
+					resource.TestCheckResourceAttr("data.scalr_access_policy.test", "subject.0.type", "user"),
+					resource.TestCheckResourceAttr("data.scalr_access_policy.test", "subject.0.id", testUser),
+					resource.TestCheckResourceAttr("data.scalr_access_policy.test", "is_system", "false"),
+					resource.TestCheckResourceAttr("data.scalr_access_policy.test", "scope.0.type", "environment"),
+					resource.TestCheckResourceAttr("data.scalr_access_policy.test", "role_ids.0", readOnlyRole),
+					resource.TestCheckResourceAttr("data.scalr_access_policy.test", "role_ids.#", "1"),
 				),
 			},
 		},
 	})
 }
-func testAccScalrIamAccessPolicyDataSourceConfig() string {
+func testAccScalrAccessPolicyDataSourceConfig() string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
   name = "test-access-policies-provider-data-source"
@@ -35,7 +35,7 @@ resource "scalr_environment" "test" {
 }
 
 
-resource "scalr_iam_access_policy" "test" {
+resource "scalr_access_policy" "test" {
   subject {
     type = "user"
     id = "%s"
@@ -49,7 +49,7 @@ resource "scalr_iam_access_policy" "test" {
   ]
 }
 
-data "scalr_iam_access_policy" "test" {
-   id = scalr_iam_access_policy.test.id
+data "scalr_access_policy" "test" {
+   id = scalr_access_policy.test.id
 }`, defaultAccount, testUser, readOnlyRole)
 }
