@@ -13,12 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `data.scalr_workspace`: added new attribute `has_active_state` ([#63](https://github.com/Scalr/terraform-provider-scalr/pull/63))
 
+## [1.0.0-rc18] - 2021-07-22
 ### Changed
+
 - `scalr_workspace`: make `working_directory` attribute non-computable, set default value to `""` ([#66](https://github.com/Scalr/terraform-provider-scalr/pull/66))
 
 ### Fixed
 
-- Error changing workspace's working directory to empty: plan outputs to empty diff
+- `scalr_variable`: fix inability to create sensitive variable ([#68](https://github.com/Scalr/terraform-provider-scalr/pull/68))
+- `scalr_workspace`: fix error changing working directory of a workspace to empty: plan outputs to empty diff ([#66](https://github.com/Scalr/terraform-provider-scalr/pull/66))
 
 ### Required
 
@@ -33,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `scalr_variable`: new attribute value `shell` for `scalr_variable.category` in order to create shell variable. 
+- `scalr_variable`: new attribute value `shell` for `scalr_variable.category` in order to create shell variable.
 `env` category value is deprecated. ([#59](https://github.com/Scalr/terraform-provider-scalr/pull/64))
 
 
@@ -253,7 +256,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc17...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc18...HEAD
+[1.0.0-rc18]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc18
 [1.0.0-rc17]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc17
 [1.0.0-rc16]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc16
 [1.0.0-rc15]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc15

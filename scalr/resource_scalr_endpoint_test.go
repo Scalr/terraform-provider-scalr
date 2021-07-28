@@ -2,15 +2,13 @@ package scalr
 
 import (
 	"fmt"
-	"math/rand"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
 func TestAccEndpoint_basic(t *testing.T) {
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 	secretKey := "stong_key_with_UPPERCASE_letter_at_leaast_1_number"
 
 	resource.Test(t, resource.TestCase{
@@ -39,7 +37,7 @@ func TestAccEndpoint_basic(t *testing.T) {
 }
 
 func TestAccEndpoint_update(t *testing.T) {
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
+	rInt := GetRandomInteger()
 	secretKey := "stong_key_with_UPPERCASE_letter_at_leaast_1_number"
 
 	resource.Test(t, resource.TestCase{
@@ -90,8 +88,8 @@ resource scalr_environment test {
 resource scalr_endpoint test {
   name         = "test endpoint-%[1]d"
   secret_key   = "%[3]s"
-  timeout      = 15               
-  max_attempts = 3                
+  timeout      = 15
+  max_attempts = 3
   url          = "https://example.com/endpoint"
   environment_id = scalr_environment.test.id
 }`, rInt, defaultAccount, secretKey)
@@ -107,8 +105,8 @@ resource scalr_environment test {
 resource scalr_endpoint test {
   name         = "test endpoint-%[1]d"
   secret_key   = "%[3]s"
-  timeout      = 10               
-  max_attempts = 5                
+  timeout      = 10
+  max_attempts = 5
   url          = "https://example.com/endpoint-updated"
   environment_id = scalr_environment.test.id
 }`, rInt, defaultAccount, secretKey)
