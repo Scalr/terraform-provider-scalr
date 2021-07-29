@@ -70,6 +70,12 @@ Remember to remove this link before committing:
 ```sh
 go mod edit -dropreplace github.com/scalr/go-scalr
 ```
+
+To update the go-scalr version:
+```sh
+go get github.com/scalr/go-scalr@develop
+```
+
 ### Testing
 #### Unit tests
 ```sh
