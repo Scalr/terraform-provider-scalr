@@ -41,7 +41,7 @@ You should have the `terraform-provider-scalr` binary in your current working di
 
 ### Running
 
-Tag current commit with some valid semantic version (`7.7.7` for example).
+Tag current commit with some valid semantic version (`7.7.7` for example) or use `VER` variable as an argument for `make`.
 Create a terraform configuration file (`main.tf`) with following content:
 ```
 provider scalr {}
@@ -56,7 +56,7 @@ terraform {
 }
 ```
 Export `SCALR_HOSTNAME` and `SCALR_TOKEN` environment variables.
-Execute `make install`. This will build the provider binary and install it to the user's provider directory (see `GNUMakefile`).
+Execute `VER=7.7.7 make install`. This will build the provider binary and install it to the user's provider directory (see `GNUMakefile`).
 The `terraform init` now will find the correct provider version.
 
 ### Using a local copy of go-scalr
