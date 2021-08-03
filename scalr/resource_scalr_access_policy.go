@@ -136,21 +136,21 @@ func resourceScalrAccessPolicyCreate(d *schema.ResourceData, meta interface{}) e
 	// Create a new options struct.
 	options := scalr.AccessPolicyCreateOptions{Roles: roles}
 
-	switch subjectType {
-	case "user":
+	switch Subject(subjectType) {
+	case User:
 		options.User = &scalr.User{ID: subjectId}
-	case "team":
+	case Team:
 		options.Team = &scalr.Team{ID: subjectId}
-	case "service_account":
+	case ServiceAccount:
 		options.ServiceAccount = &scalr.ServiceAccount{ID: subjectId}
 	}
 
-	switch scopeType {
-	case "workspace":
+	switch Scope(scopeType) {
+	case Workspace:
 		options.Workspace = &scalr.Workspace{ID: scopeId}
-	case "environment":
+	case Environment:
 		options.Environment = &scalr.Environment{ID: scopeId}
-	case "account":
+	case Account:
 		options.Account = &scalr.Account{ID: scopeId}
 	}
 
