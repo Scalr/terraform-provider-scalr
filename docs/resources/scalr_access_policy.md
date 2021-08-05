@@ -8,7 +8,7 @@ description: |-
 
 # scalr_access_policy Resource
 
-Manage the Scalr IAM access policies. Create, update and destroy
+Manage the Scalr IAM access policies. Create, update and destroy.
 
 ## Example Usage
 

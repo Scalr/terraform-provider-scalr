@@ -8,7 +8,7 @@ description: |-
 
 # scalr_role Resource
 
-Manage the Scalr IAM roles. Create, update and destroy
+Manage the Scalr IAM roles. Create, update and destroy.
 
 ## Example Usage
 
@@ -40,7 +40,7 @@ resource "scalr_role" "writer" {
 All arguments plus:
 
 * `id` - The ID of the role.
-* `is_system` - Boolean indicates if the role can be edited.
+* `is_system` - Boolean indicates if the role can be edited. System roles are maintained by Scalr and cannot be changed.
 
 ## Import
 
