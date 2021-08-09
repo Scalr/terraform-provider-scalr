@@ -38,7 +38,7 @@ All arguments plus:
 * `working_directory` - A relative path that Terraform will execute within.
 * `vcs_repo` - If workspace is linked to VCS repository this block shows the details, otherwise `{}`
 * `created_by` - Details of the user that created the workspace.
-* `has_active_state` - The presence of active state in workspace.
+* `has_resources` - The presence of active terraform resources in the current state version.
 * `hooks` - List of the workspace's custom hooks.
 
   The `hooks` block supports:

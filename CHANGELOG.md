@@ -9,9 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `scalr_workspace`: added new attribute `has_active_state` ([#63](https://github.com/Scalr/terraform-provider-scalr/pull/63))
+- `scalr_workspace`: added new attribute `has_resources` ([#63](https://github.com/Scalr/terraform-provider-scalr/pull/63))
+- `data.scalr_workspace`: added new attribute `has_resources` ([#63](https://github.com/Scalr/terraform-provider-scalr/pull/63))
 
-- `data.scalr_workspace`: added new attribute `has_active_state` ([#63](https://github.com/Scalr/terraform-provider-scalr/pull/63))
+### Fixed
+
+ - `scalr_environment`: fix unlinking cloud credentials ([#71](https://github.com/Scalr/terraform-provider-scalr/pull/71))
+
+### Required
+
+- scalr server >= `8.0.1-beta.20210407`
 
 ## [1.0.0-rc18] - 2021-07-22
 ### Changed

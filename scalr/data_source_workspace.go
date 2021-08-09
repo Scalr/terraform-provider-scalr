@@ -48,7 +48,7 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Computed: true,
 			},
 
-			"has_active_state": {
+			"has_resource": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
@@ -143,7 +143,7 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("operations", workspace.Operations)
 	d.Set("terraform_version", workspace.TerraformVersion)
 	d.Set("working_directory", workspace.WorkingDirectory)
-	d.Set("has_active_state", workspace.HasActiveState)
+	d.Set("has_resources", workspace.HasResources)
 
 	if workspace.VcsProvider != nil {
 		d.Set("vcs_provider_id", workspace.VcsProvider.ID)
