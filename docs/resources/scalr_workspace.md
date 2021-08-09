@@ -40,8 +40,7 @@ resource "scalr_workspace" "example" {
 * `vcs_provider_id` - (Optional) ID of vcs provider - required if vcs-repo present and vice versa, in the format `vcs-<RANDOM STRING>`
 * `vcs_repo` - (Optional) Settings for the workspace's VCS repository.
 
-    The `vcs_repo` block supports:
-
+    The `vcs_repo` block supports: 
     * `identifier` - (Required) A reference to your VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
     * `branch` - (Optional) The repository branch where Terraform will be run from. Default `master`.
     * `path` - (Optional) The repository sub-directory that Terraform will execute from. If omitted or submitted as an empty string, this defaults to the repository's root.
@@ -49,8 +48,7 @@ resource "scalr_workspace" "example" {
 
 * `hooks` - (Optional) Settings for the workspace's custom hooks.
 
-   The `hooks` block supports:
-
+   The `hooks` block supports: 
   * `pre_plan` - (Optional) Action that will be called before plan phase
   * `post_plan` - (Optional) Action that will be called after plan phase
   * `pre_apply` - (Optional) Action that will be called before apply phase

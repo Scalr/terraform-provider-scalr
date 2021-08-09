@@ -48,7 +48,7 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Computed: true,
 			},
 
-			"has_resource": {
+			"has_resources": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
