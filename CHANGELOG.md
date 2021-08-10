@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+ - `scalr_environment`: fix unlinking cloud credentials ([#71](https://github.com/Scalr/terraform-provider-scalr/pull/71))
+
+### Required
+
+- scalr server >= `8.0.1-beta.20210407`
+
+## [1.0.0-rc20] - 2021-08-12
+
 ### Changed
 
 - `scalr_workspace`: new attribute `vcs_repo.dry_runs_enabled` ([#70](https://github.com/Scalr/terraform-provider-scalr/pull/70))
@@ -15,14 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Required
 
 - scalr server >= `8.0.1-beta.20210810`
-
-### Fixed
-
- - `scalr_environment`: fix unlinking cloud credentials ([#71](https://github.com/Scalr/terraform-provider-scalr/pull/71))
-
-### Required
-
-- scalr server >= `8.0.1-beta.20210407`
 
 ## [1.0.0-rc18] - 2021-07-22
 ### Changed
