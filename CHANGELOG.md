@@ -9,8 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `scalr_workspace`: new attribute `vcs_repo.enable_dry_runs` ([#70](https://github.com/Scalr/terraform-provider-scalr/pull/70))
-- `data.scalr_workspace`: new attribute `vcs_repo.enable_dry_runs` ([#70](https://github.com/Scalr/terraform-provider-scalr/pull/70))
+- `scalr_workspace`: new attribute `vcs_repo.dry_runs_enabled` ([#70](https://github.com/Scalr/terraform-provider-scalr/pull/70))
+- `data.scalr_workspace`: new attribute `vcs_repo.dry_runs_enabled` ([#70](https://github.com/Scalr/terraform-provider-scalr/pull/70))
+
+### Required
+
+- scalr server >= `8.0.1-beta.20210810`
 
 ### Fixed
 
