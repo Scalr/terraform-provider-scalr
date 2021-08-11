@@ -134,6 +134,12 @@ func resourceScalrWorkspace() *schema.Resource {
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Optional: true,
 						},
+
+						"dry_runs_enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+						},
 					},
 				},
 			},
@@ -206,6 +212,7 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 			Identifier:      scalr.String(vcsRepo["identifier"].(string)),
 			Path:            scalr.String(vcsRepo["path"].(string)),
 			TriggerPrefixes: &triggerPrefixes,
+			DryRunsEnabled:  scalr.Bool(vcsRepo["dry_runs_enabled"].(bool)),
 		}
 
 		// Only set the branch if one is configured.
@@ -281,6 +288,7 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 			"identifier":       workspace.VCSRepo.Identifier,
 			"path":             workspace.VCSRepo.Path,
 			"trigger_prefixes": workspace.VCSRepo.TriggerPrefixes,
+			"dry_runs_enabled": workspace.VCSRepo.DryRunsEnabled,
 		})
 	}
 	d.Set("vcs_repo", vcsRepo)
@@ -342,6 +350,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 				Branch:          scalr.String(vcsRepo["branch"].(string)),
 				Path:            scalr.String(vcsRepo["path"].(string)),
 				TriggerPrefixes: &triggerPrefixes,
+				DryRunsEnabled:  scalr.Bool(vcsRepo["dry_runs_enabled"].(bool)),
 			}
 		}
 
