@@ -95,7 +95,6 @@ func resourceScalrRoleRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	log.Printf("[DEBUG] Read configuration of role: %s", id)
 	role, err := scalrClient.Roles.Read(ctx, id)
-	log.Printf("[DEBUG] role permissions: %+v", role.Permissions)
 	if err != nil {
 		if err == scalr.ErrResourceNotFound {
 			log.Printf("[DEBUG] Role %s not found", id)
@@ -104,6 +103,7 @@ func resourceScalrRoleRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		return fmt.Errorf("Error reading configuration of role %s: %v", id, err)
 	}
+	log.Printf("[DEBUG] role permissions: %+v", role.Permissions)
 
 	// Update the config.
 	d.Set("name", role.Name)

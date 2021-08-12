@@ -15,7 +15,7 @@ Extract the archive to get the provider binary.
 Follow the instructions on the [official documentation page](https://docs.scalr.com/en/latest/scalr-terraform-provider/index.html) to learn how to use it.
 ## Developing the provider
 ### Requirements
-- [Terraform](https://www.terraform.io/downloads.html) >= 0.12.x
+- [Terraform](https://www.terraform.io/downloads.html) >= 0.15.x
 - [Go](https://golang.org/doc/install) >= 1.13
 - [jq](https://stedolan.github.io/jq/) >= 1.0
 

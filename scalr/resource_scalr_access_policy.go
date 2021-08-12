@@ -158,7 +158,7 @@ func resourceScalrAccessPolicyCreate(d *schema.ResourceData, meta interface{}) e
 	ap, err := scalrClient.AccessPolicies.Create(ctx, options)
 	if err != nil {
 		return fmt.Errorf(
-			"Error creating access policy for %s %s on %s %s", subjectType, subjectId, scopeType, scopeId)
+			"Error creating access policy for %s %s on %s %s: %v", subjectType, subjectId, scopeType, scopeId, err)
 	}
 	d.SetId(ap.ID)
 	return resourceScalrAccessPolicyRead(d, meta)
