@@ -44,7 +44,7 @@ func TestAccScalrVariable_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "sensitive", "false"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "description", "Test variable"),
+						"scalr_variable.test", "description", "Test on global scope"),
 				),
 			},
 
@@ -63,7 +63,7 @@ func TestAccScalrVariable_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "sensitive", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "description", "Test variable"),
+						"scalr_variable.test", "description", "Test on global scope sensitive"),
 				),
 			},
 		},
@@ -89,7 +89,7 @@ func TestAccScalrVariable_defaults(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "final", "false"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "description", "Test variable"),
+						"scalr_variable.test", "description", "Test on global scope"),
 				),
 			},
 		},
@@ -159,7 +159,7 @@ func TestAccScalrVariable_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "sensitive", "false"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "description", "Test variable"),
+						"scalr_variable.test", "description", "Test update"),
 				),
 			},
 
@@ -330,10 +330,6 @@ func testAccCheckScalrVariableAttributes(
 		if variable.Sensitive != false {
 			return fmt.Errorf("Bad sensitive: %t", variable.Sensitive)
 		}
-
-		if variable.Description != "Test variable" {
-			return fmt.Errorf("Bad description: %s", variable.Description)
-		}
 		return nil
 	}
 }
@@ -359,9 +355,6 @@ func testAccCheckScalrVariableAttributesUpdate(
 
 		if variable.Final != true {
 			return fmt.Errorf("Bad final: %t", variable.Final)
-		}
-		if variable.Description != "updated" {
-			return fmt.Errorf("Bad description: %s", variable.Description)
 		}
 
 		return nil
@@ -395,7 +388,7 @@ resource scalr_variable test {
   key          = "var_on_global_%d"
   value        = "test"
   category     = "shell"
-  description  = "Test variable"
+  description  = "Test on global scope"
 }`, rInt)
 }
 
@@ -406,7 +399,7 @@ resource scalr_variable test {
   value        = "test"
   category     = "shell"
   sensitive    = true
-  description  = "Test variable"
+  description  = "Test on global scope sensitive"
 }`, rInt)
 }
 
@@ -427,7 +420,7 @@ resource scalr_variable test {
   value          = "test"
   category       = "shell"
   workspace_id   = scalr_workspace.test.id
-  description  = "Test variable"
+  description    = "Test update"
 }`, rInt, defaultAccount)
 }
 
@@ -449,7 +442,7 @@ resource scalr_variable test {
   category       = "terraform"
   account_id     = "%[2]s"
   environment_id = scalr_environment.test.id
-  description  = "Test variable"
+  description  = "Test not terraform variable"
 }`, rInt, defaultAccount)
 }
 
@@ -508,6 +501,7 @@ resource scalr_variable test {
   account_id     = "%[2]s"
   environment_id = scalr_environment.test.id
   workspace_id   = scalr_workspace.test.id
+  description    = "updated"
 }`, rInt, defaultAccount)
 }
 

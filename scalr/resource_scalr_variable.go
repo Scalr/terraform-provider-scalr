@@ -201,6 +201,7 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Create %s variable: %s", category, key)
+	log.Printf("[DEBUG] Description: %s", *options.Description)
 	variable, err := scalrClient.Variables.Create(ctx, options)
 	if err != nil {
 		return fmt.Errorf("Error creating %s variable %s: %v", category, key, err)
