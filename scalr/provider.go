@@ -77,6 +77,7 @@ func Provider() terraform.ResourceProvider {
 			"scalr_endpoint":    resourceScalrEndpoint(),
 			"scalr_webhook":     resourceScalrWebhook(),
 			"scalr_environment": resourceScalrEnvironment(),
+			"scalr_module":      resourceScalrModule(),
 		},
 
 		ConfigureFunc: providerConfigure,
