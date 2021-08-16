@@ -1,11 +1,13 @@
 TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
+PLATFORM?=$$(terraform -version -json | jq .platform -r)
 PKG_NAME=scalr
 BUILD_ENV=CGO_ENABLED=0
 TAG=$(shell PAGER= git tag --points-at HEAD)
 BRANCH=$(subst /,-,$(shell git branch --show-current))
-VERSION=$(if $(TAG),$(TAG),$(BRANCH))
+VERSION=$(if $(VER),$(VER),$(if $(TAG),$(TAG),$(BRANCH)))
 USER_PLUGIN_DIR_LINUX=${HOME}/.terraform.d/plugins/scalr.io/scalr/scalr/$(VERSION)/linux_amd64
+USER_PLUGIN_DIR=${HOME}/.terraform.d/plugins/scalr.io/scalr/scalr/$(VERSION)/$(PLATFORM)
 BIN_NAME := terraform-provider-scalr_$(VERSION)
 ARGS=-ldflags='-X github.com/scalr/terraform-provider-scalr/version.ProviderVersion=$(TAG) -X github.com/scalr/terraform-provider-scalr/version.Branch=$(BRANCH)'
 UPSTREAM_COMMIT_DESCRIPTION="Scalr terraform provider acceptance tests"
@@ -17,6 +19,10 @@ build:
 	@echo "Building version $(VERSION)"
 	$(BUILD_ENV) go build -o $(BIN_NAME) $(ARGS)
 
+install: build
+	@echo "Installing version $(VERSION) for $(PLATFORM)"
+	mkdir -p $(USER_PLUGIN_DIR); cp $(BIN_NAME) $(USER_PLUGIN_DIR)
+
 build-linux:
 	@echo "Building version $(VERSION) for linux"
 	env $(BUILD_ENV) GOOS=linux GOARCH=amd64 go build -o $(BIN_NAME) $(ARGS)
@@ -24,6 +30,7 @@ build-linux:
 install-linux-user: build-linux
 	@echo "Installing version $(VERSION) for linux"
 	mkdir -p $(USER_PLUGIN_DIR_LINUX); cp $(BIN_NAME) $(USER_PLUGIN_DIR_LINUX)
+
 
 test:
 	echo $(TEST) | \
@@ -59,4 +66,4 @@ test-compile:
 		exit 1; \
 	fi
 	go test -c $(TEST) $(TESTARGS)
-.PHONY: build build-linux test testacc vet fmt test-compile notify-upstream
+.PHONY: build build-linux install install-linux-user test testacc vet fmt test-compile notify-upstream
