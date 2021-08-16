@@ -82,7 +82,7 @@ func resourceScalrModuleCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	vcsRepo := d.Get("vcs_repo").([]interface{})[0].(map[string]interface{})
-	vcsOpt := &scalr.ModuleVCSRepoOptions{
+	vcsOpt := &scalr.ModuleVCSRepo{
 		Identifier: *scalr.String(vcsRepo["identifier"].(string)),
 	}
 	if path, ok := vcsRepo["path"].(string); ok && path != "" {
