@@ -86,21 +86,25 @@ func resourceScalrWorkspace() *schema.Resource {
 						"pre_plan": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Default:  "",
 						},
 
 						"post_plan": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Default:  "",
 						},
 
 						"pre_apply": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Default:  "",
 						},
 
 						"post_apply": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Default:  "",
 						},
 					},
 				},
@@ -326,7 +330,12 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 			Name:       scalr.String(d.Get("name").(string)),
 			AutoApply:  scalr.Bool(d.Get("auto_apply").(bool)),
 			Operations: scalr.Bool(d.Get("operations").(bool)),
-			Hooks:      &scalr.HooksOptions{},
+			Hooks: &scalr.HooksOptions{
+				PrePlan:   scalr.String(""),
+				PostPlan:  scalr.String(""),
+				PreApply:  scalr.String(""),
+				PostApply: scalr.String(""),
+			},
 		}
 
 		// Process all configured options.
@@ -362,13 +371,15 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 		// Get and assert the hooks
 		if v, ok := d.GetOk("hooks"); ok {
-			hooks := v.([]interface{})[0].(map[string]interface{})
+			if _, ok := v.([]interface{})[0].(map[string]interface{}); ok {
+				hooks := v.([]interface{})[0].(map[string]interface{})
 
-			options.Hooks = &scalr.HooksOptions{
-				PrePlan:   scalr.String(hooks["pre_plan"].(string)),
-				PostPlan:  scalr.String(hooks["post_plan"].(string)),
-				PreApply:  scalr.String(hooks["pre_apply"].(string)),
-				PostApply: scalr.String(hooks["post_apply"].(string)),
+				options.Hooks = &scalr.HooksOptions{
+					PrePlan:   scalr.String(hooks["pre_plan"].(string)),
+					PostPlan:  scalr.String(hooks["post_plan"].(string)),
+					PreApply:  scalr.String(hooks["pre_apply"].(string)),
+					PostApply: scalr.String(hooks["post_apply"].(string)),
+				}
 			}
 		}
 
