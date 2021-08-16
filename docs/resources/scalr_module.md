@@ -21,7 +21,6 @@ resource "scalr_module" "example" {
   vcs_provider_id = "vcs-xxxxxxxxx"
   vcs_repo {
       identifier          = "org/repo"
-      branch              = "dev"
       path                = "example/terraform-<provider>-<name>"
       tag_prefix          = "aws/"
   }
