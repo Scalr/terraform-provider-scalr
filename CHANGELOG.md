@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
  - `scalr_environment`: fix unlinking cloud credentials ([#71](https://github.com/Scalr/terraform-provider-scalr/pull/71))
+ - `scalr_environment`: fix removing hooks if it removed from template ([#72](https://github.com/Scalr/terraform-provider-scalr/pull/72)) 
 
 ### Required
 
