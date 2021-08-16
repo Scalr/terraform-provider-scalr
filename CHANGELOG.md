@@ -13,10 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **New resource:** `scalr_role` ([#69](https://github.com/Scalr/terraform-provider-scalr/pull/69))
 - **New resource:** `scalr_access_policy` ([#69](https://github.com/Scalr/terraform-provider-scalr/pull/69))
 
-### Changed
+### Added
 
-- `scalr_workspace`: new attribute `vcs_repo.dry_runs_enabled` ([#70](https://github.com/Scalr/terraform-provider-scalr/pull/70))
-- `data.scalr_workspace`: new attribute `vcs_repo.dry_runs_enabled` ([#70](https://github.com/Scalr/terraform-provider-scalr/pull/70))
+- `scalr_workspace`: added new attribute `has_resources` ([#63](https://github.com/Scalr/terraform-provider-scalr/pull/63))
+- `data.scalr_workspace`: added new attribute `has_resources` ([#63](https://github.com/Scalr/terraform-provider-scalr/pull/63))
+- `scalr_workspace`: added new attribute `vcs_repo.dry_runs_enabled` ([#70](https://github.com/Scalr/terraform-provider-scalr/pull/70))
+- `data.scalr_workspace`: added new attribute `vcs_repo.dry_runs_enabled` ([#70](https://github.com/Scalr/terraform-provider-scalr/pull/70))
 
 ### Fixed
 
