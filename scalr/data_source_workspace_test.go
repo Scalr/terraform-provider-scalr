@@ -27,6 +27,7 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.test", "working_directory", "terraform/test"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "environment_id"),
+					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "has_resources"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.email"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.username"),
