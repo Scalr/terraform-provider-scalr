@@ -47,7 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `scalr_variable`: new attribute value `shell` for `scalr_variable.category` in order to create shell variable.
+- `scalr_variable`: new attribute value `shell` for `scalr_variable.category` in order to create shell variable. 
 `env` category value is deprecated. ([#59](https://github.com/Scalr/terraform-provider-scalr/pull/64))
 
 
