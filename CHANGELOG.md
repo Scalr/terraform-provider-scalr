@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+
+- **New data source:** `scalr_role` ([#69](https://github.com/Scalr/terraform-provider-scalr/pull/69))
+- **New data source:** `scalr_access_policy` ([#69](https://github.com/Scalr/terraform-provider-scalr/pull/69))
+- **New resource:** `scalr_role` ([#69](https://github.com/Scalr/terraform-provider-scalr/pull/69))
+- **New resource:** `scalr_access_policy` ([#69](https://github.com/Scalr/terraform-provider-scalr/pull/69))
 
 ### Added
 
@@ -17,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
  - `scalr_environment`: fix unlinking cloud credentials ([#71](https://github.com/Scalr/terraform-provider-scalr/pull/71))
+ - `scalr_workspace`: fix removing hooks if it removed from template ([#72](https://github.com/Scalr/terraform-provider-scalr/pull/72)) 
 
 ### Required
 
@@ -46,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `scalr_variable`: new attribute value `shell` for `scalr_variable.category` in order to create shell variable. 
+- `scalr_variable`: new attribute value `shell` for `scalr_variable.category` in order to create shell variable.
 `env` category value is deprecated. ([#59](https://github.com/Scalr/terraform-provider-scalr/pull/64))
 
 
