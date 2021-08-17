@@ -1,6 +1,7 @@
 package scalr
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"sort"
@@ -186,7 +187,7 @@ func resourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Read endpoint with ID: %s", webhookID)
 	webhook, err := scalrClient.Webhooks.Read(ctx, webhookID)
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			return fmt.Errorf("Could not find webhook %s: %v", webhookID, err)
 		}
 		return fmt.Errorf("Error retrieving webhook: %v", err)
@@ -250,7 +251,7 @@ func resourceScalrWebhookDelete(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Delete webhook: %s", d.Id())
 	err := scalrClient.Webhooks.Delete(ctx, d.Id())
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			return nil
 		}
 		return fmt.Errorf("Error deleting webhook %s: %v", d.Id(), err)

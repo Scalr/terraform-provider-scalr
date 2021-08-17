@@ -41,7 +41,7 @@ func (m *mockWorkspaces) Create(ctx context.Context, options scalr.WorkspaceCrea
 func (m *mockWorkspaces) Read(ctx context.Context, environment string, workspace string) (*scalr.Workspace, error) {
 	w := m.workspaceNames[workspaceNamesKey{environment, workspace}]
 	if w == nil {
-		return nil, scalr.ErrResourceNotFound
+		return nil, scalr.ErrResourceNotFound{}
 	}
 
 	return w, nil

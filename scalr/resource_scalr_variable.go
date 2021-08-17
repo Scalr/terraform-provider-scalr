@@ -206,7 +206,7 @@ func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Read variable: %s", d.Id())
 	variable, err := scalrClient.Variables.Read(ctx, d.Id())
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			log.Printf("[DEBUG] Variable %s does no longer exist", d.Id())
 			d.SetId("")
 			return nil
@@ -273,7 +273,7 @@ func resourceScalrVariableDelete(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Delete variable: %s", d.Id())
 	err := scalrClient.Variables.Delete(ctx, d.Id())
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			return nil
 		}
 		return fmt.Errorf("Error deleting variable%s: %v", d.Id(), err)

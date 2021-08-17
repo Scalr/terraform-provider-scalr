@@ -1,11 +1,11 @@
 package scalr
 
 import (
+	"errors"
 	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform/helper/schema"
 	scalr "github.com/scalr/go-scalr"
+	"log"
 )
 
 func resourceScalrWorkspace() *schema.Resource {
@@ -260,7 +260,7 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Read configuration of workspace: %s", id)
 	workspace, err := scalrClient.Workspaces.ReadByID(ctx, id)
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			log.Printf("[DEBUG] Workspace %s no longer exists", id)
 			d.SetId("")
 			return nil
@@ -401,7 +401,7 @@ func resourceScalrWorkspaceDelete(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Delete workspace %s", id)
 	err := scalrClient.Workspaces.Delete(ctx, id)
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			return nil
 		}
 		return fmt.Errorf(
