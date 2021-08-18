@@ -158,3 +158,96 @@ func resourceScalrVariableStateUpgradeV1(rawState map[string]interface{}, meta i
 	rawState["category"] = varCategory
 	return rawState, nil
 }
+
+func resourceScalrVariableResourceV2() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"key": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+
+			"value": {
+				Type:      schema.TypeString,
+				Optional:  true,
+				Default:   "",
+				Sensitive: true,
+			},
+
+			"category": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+				ValidateFunc: validation.StringInSlice(
+					[]string{
+						string(scalr.CategoryEnv),
+						string(scalr.CategoryTerraform),
+						string(scalr.CategoryShell),
+					},
+					false,
+				),
+			},
+
+			"hcl": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
+			"sensitive": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"final": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
+			"force": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
+			"workspace_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"environment_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"account_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func resourceScalrVariableStateUpgradeV2(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	scalrClient := meta.(*scalr.Client)
+
+	varID := rawState["id"].(string)
+	//	var, err := scalrClient.variables.ReadByID(varID)
+	variable, err := scalrClient.Variables.Read(ctx, varID)
+	if err != nil {
+		return nil, fmt.Errorf("Error reading variable %s: %v", varID, err)
+	}
+
+	rawState["description"] = variable.Description
+	return rawState, nil
+}
