@@ -29,6 +29,18 @@ resource "scalr_variable" "example" {
 }
 ```
 
+Adding Complex Type Variable:
+
+ ```javascript
+ resource "scalr_variable" "example" {
+   key          = "xyz"
+   value        = jsonencode(["foo", "bar"])
+   hcl          = true
+   category     = "terraform"
+   workspace_id = scalr_workspace.example.id
+ }
+ ```
+
 ## Argument Reference
 
 * `key` - (Required) Key of the variable.
