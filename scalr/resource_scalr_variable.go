@@ -54,7 +54,7 @@ func resourceScalrVariable() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
-		SchemaVersion: 2,
+		SchemaVersion: 3,
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceScalrVariableResourceV0().CoreConfigSchema().ImpliedType(),
@@ -65,6 +65,12 @@ func resourceScalrVariable() *schema.Resource {
 				Type:    resourceScalrVariableResourceV1().CoreConfigSchema().ImpliedType(),
 				Upgrade: resourceScalrVariableStateUpgradeV1,
 				Version: 1,
+			},
+
+			{
+				Type:    resourceScalrVariableResourceV2().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceScalrVariableStateUpgradeV2,
+				Version: 2,
 			},
 		},
 
@@ -105,6 +111,10 @@ func resourceScalrVariable() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"final": {
@@ -151,6 +161,7 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 	options := scalr.VariableCreateOptions{
 		Key:          scalr.String(key),
 		Value:        scalr.String(d.Get("value").(string)),
+		Description:  scalr.String(d.Get("description").(string)),
 		Category:     scalr.Category(category),
 		HCL:          scalr.Bool(d.Get("hcl").(bool)),
 		Sensitive:    scalr.Bool(d.Get("sensitive").(bool)),
@@ -190,6 +201,7 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	log.Printf("[DEBUG] Create %s variable: %s", category, key)
+	log.Printf("[DEBUG] Description: %s", *options.Description)
 	variable, err := scalrClient.Variables.Create(ctx, options)
 	if err != nil {
 		return fmt.Errorf("Error creating %s variable %s: %v", category, key, err)
@@ -219,6 +231,7 @@ func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("category", string(variable.Category))
 	d.Set("hcl", variable.HCL)
 	d.Set("sensitive", variable.Sensitive)
+	d.Set("description", variable.Description)
 	d.Set("final", variable.Final)
 	_, exists := d.GetOk("force")
 	if !exists {
@@ -254,6 +267,7 @@ func resourceScalrVariableUpdate(d *schema.ResourceData, meta interface{}) error
 		Value:        scalr.String(d.Get("value").(string)),
 		HCL:          scalr.Bool(d.Get("hcl").(bool)),
 		Sensitive:    scalr.Bool(d.Get("sensitive").(bool)),
+		Description:  scalr.String(d.Get("description").(string)),
 		Final:        scalr.Bool(d.Get("final").(bool)),
 		QueryOptions: &scalr.VariableWriteQueryOptions{Force: scalr.Bool(d.Get("force").(bool))},
 	}
