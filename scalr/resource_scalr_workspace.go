@@ -50,10 +50,15 @@ func resourceScalrWorkspace() *schema.Resource {
 			},
 
 			"vcs_provider_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"module_version_id"},
 			},
-
+			"module_version_id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"vcs_provider_id", "vcs_repo"},
+			},
 			"auto_apply": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -116,10 +121,11 @@ func resourceScalrWorkspace() *schema.Resource {
 			},
 
 			"vcs_repo": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MinItems: 1,
-				MaxItems: 1,
+				Type:          schema.TypeList,
+				Optional:      true,
+				MinItems:      1,
+				MaxItems:      1,
+				ConflictsWith: []string{"module_version_id"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"identifier": {
@@ -202,6 +208,10 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		options.WorkingDirectory = scalr.String(workingDir.(string))
 	}
 
+	if v, ok := d.GetOk("module_version_id"); ok {
+		options.ModuleVersion = &scalr.ModuleVersion{ID: v.(string)}
+	}
+
 	if vcsProviderID, ok := d.GetOk("vcs_provider_id"); ok {
 		options.VcsProvider = &scalr.VcsProviderOptions{
 			ID: vcsProviderID.(string),
@@ -281,6 +291,12 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 		d.Set("vcs_provider_id", workspace.VcsProvider.ID)
 	}
 
+	var mv string
+	if workspace.ModuleVersion != nil {
+		mv = workspace.ModuleVersion.ID
+	}
+	d.Set("module_version_id", mv)
+
 	var createdBy []interface{}
 	if workspace.CreatedBy != nil {
 		createdBy = append(createdBy, map[string]interface{}{
@@ -324,7 +340,8 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("name") || d.HasChange("auto_apply") ||
 		d.HasChange("terraform_version") || d.HasChange("working_directory") || d.HasChange("vcs_repo") ||
-		d.HasChange("operations") || d.HasChange("vcs_provider_id") || d.HasChange("hooks") {
+		d.HasChange("operations") || d.HasChange("vcs_provider_id") || d.HasChange("hooks") ||
+		d.HasChange("module_version_id") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
 			Name:       scalr.String(d.Get("name").(string)),
@@ -383,6 +400,12 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 			}
 		}
 
+		if v, ok := d.GetOk("module_version_id"); ok {
+			options.ModuleVersion = &scalr.ModuleVersion{
+				ID: v.(string),
+			}
+		}
+
 		log.Printf("[DEBUG] Update workspace %s", id)
 		_, err := scalrClient.Workspaces.Update(ctx, id, options)
 		if err != nil {
@@ -404,8 +427,7 @@ func resourceScalrWorkspaceDelete(d *schema.ResourceData, meta interface{}) erro
 		if err == scalr.ErrResourceNotFound {
 			return nil
 		}
-		return fmt.Errorf(
-			"Error deleting workspace %s: %v", id, err)
+		return fmt.Errorf("Error deleting workspace %s: %v", id, err)
 	}
 
 	return nil
