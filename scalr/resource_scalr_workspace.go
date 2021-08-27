@@ -1,6 +1,7 @@
 package scalr
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -177,6 +178,20 @@ func resourceScalrWorkspace() *schema.Resource {
 	}
 }
 
+func parseTriggerPrefixDefinitions(vcsRepo map[string]interface{}) ([]string, error) {
+	var triggerPrefixes []string
+
+	for _, pref := range vcsRepo["trigger_prefixes"].([]interface{}) {
+		id, ok := pref.(string)
+		if !ok || id == "" {
+			return nil, errors.New("Got empty value for trigger prefix")
+		}
+		triggerPrefixes = append(triggerPrefixes, id)
+	}
+
+	return triggerPrefixes, nil
+}
+
 func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
@@ -211,10 +226,9 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 	// Get and assert the VCS repo configuration block.
 	if v, ok := d.GetOk("vcs_repo"); ok {
 		vcsRepo := v.([]interface{})[0].(map[string]interface{})
-		triggerPrefixes := make([]string, 0)
-
-		for _, pref := range vcsRepo["trigger_prefixes"].([]interface{}) {
-			triggerPrefixes = append(triggerPrefixes, pref.(string))
+		triggerPrefixes, err := parseTriggerPrefixDefinitions(vcsRepo)
+		if err != nil {
+			return err
 		}
 
 		options.VCSRepo = &scalr.VCSRepoOptions{
@@ -354,10 +368,9 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		// Get and assert the VCS repo configuration block.
 		if v, ok := d.GetOk("vcs_repo"); ok {
 			vcsRepo := v.([]interface{})[0].(map[string]interface{})
-			triggerPrefixes := make([]string, 0)
-
-			for _, pref := range vcsRepo["trigger_prefixes"].([]interface{}) {
-				triggerPrefixes = append(triggerPrefixes, pref.(string))
+			triggerPrefixes, err := parseTriggerPrefixDefinitions(vcsRepo)
+			if err != nil {
+				return err
 			}
 
 			options.VCSRepo = &scalr.VCSRepoOptions{

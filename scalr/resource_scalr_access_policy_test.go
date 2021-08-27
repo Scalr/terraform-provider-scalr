@@ -145,6 +145,11 @@ func TestAccScalrAccessPolicy_update(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_access_policy.test", "role_ids.#", "2"),
 				),
 			},
+
+			{
+				Config:      testAccScalrAccessPolicyEmptyRoleId(rInt),
+				ExpectError: regexp.MustCompile("Got empty value for role id"),
+			},
 		},
 	})
 }
@@ -302,6 +307,10 @@ resource "scalr_access_policy" "test" {
 
 func testAccScalrAccessPolicyBasic(rInt int) string {
 	return fmt.Sprintf(iamPolicyTemplate, rInt, defaultAccount, testUser, readOnlyRole)
+}
+
+func testAccScalrAccessPolicyEmptyRoleId(rInt int) string {
+	return fmt.Sprintf(iamPolicyTemplate, rInt, defaultAccount, testUser, "")
 }
 
 func testAccScalrAccessPolicyChangedOutside(rInt int) string {

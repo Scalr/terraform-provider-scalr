@@ -117,6 +117,19 @@ func resourceScalrAccessPolicy() *schema.Resource {
 	}
 }
 
+func parseRoleIdDefinitions(d *schema.ResourceData) ([]*scalr.Role, error) {
+	var roles []*scalr.Role
+	for _, roleId := range d.Get("role_ids").([]interface{}) {
+		id, ok := roleId.(string)
+		if !ok || id == "" {
+			return nil, errors.New("Got empty value for role id")
+		}
+		roles = append(roles, &scalr.Role{ID: roleId.(string)})
+	}
+
+	return roles, nil
+}
+
 func resourceScalrAccessPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
@@ -128,9 +141,9 @@ func resourceScalrAccessPolicyCreate(d *schema.ResourceData, meta interface{}) e
 	scopeType := scope["type"].(string)
 	scopeId := scope["id"].(string)
 
-	var roles []*scalr.Role
-	for _, roleId := range d.Get("role_ids").([]interface{}) {
-		roles = append(roles, &scalr.Role{ID: roleId.(string)})
+	roles, err := parseRoleIdDefinitions(d)
+	if err != nil {
+		return err
 	}
 
 	// Create a new options struct.
@@ -234,16 +247,16 @@ func resourceScalrAccessPolicyUpdate(d *schema.ResourceData, meta interface{}) e
 	id := d.Id()
 
 	if d.HasChange("role_ids") {
-		var roles []*scalr.Role
-		for _, roleId := range d.Get("role_ids").([]interface{}) {
-			roles = append(roles, &scalr.Role{ID: roleId.(string)})
+		roles, err := parseRoleIdDefinitions(d)
+		if err != nil {
+			return err
 		}
 
 		// Create a new options struct.
 		options := scalr.AccessPolicyUpdateOptions{Roles: roles}
 
 		log.Printf("[DEBUG] Update access policy %s", id)
-		_, err := scalrClient.AccessPolicies.Update(ctx, id, options)
+		_, err = scalrClient.AccessPolicies.Update(ctx, id, options)
 		if err != nil {
 			return fmt.Errorf(
 				"Error updating access policy %s: %v", id, err)
