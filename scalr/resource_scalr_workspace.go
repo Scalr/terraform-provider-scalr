@@ -1,7 +1,6 @@
 package scalr
 
 import (
-	"errors"
 	"fmt"
 	"log"
 
@@ -181,12 +180,14 @@ func resourceScalrWorkspace() *schema.Resource {
 func parseTriggerPrefixDefinitions(vcsRepo map[string]interface{}) ([]string, error) {
 	var triggerPrefixes []string
 
-	for _, pref := range vcsRepo["trigger_prefixes"].([]interface{}) {
-		id, ok := pref.(string)
-		if !ok || id == "" {
-			return nil, errors.New("Got empty value for trigger prefix")
-		}
-		triggerPrefixes = append(triggerPrefixes, id)
+	triggerPrefixIds := vcsRepo["trigger_prefixes"].([]interface{})
+	err := ValidateIDDefinitions(triggerPrefixIds)
+	if err != nil {
+		return nil, fmt.Errorf("Got error during parsing trigger prefixes: %s", err.Error())
+	}
+
+	for _, triggerPrefixId := range triggerPrefixIds {
+		triggerPrefixes = append(triggerPrefixes, triggerPrefixId.(string))
 	}
 
 	return triggerPrefixes, nil

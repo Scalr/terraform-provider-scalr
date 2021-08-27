@@ -119,11 +119,14 @@ func resourceScalrAccessPolicy() *schema.Resource {
 
 func parseRoleIdDefinitions(d *schema.ResourceData) ([]*scalr.Role, error) {
 	var roles []*scalr.Role
-	for _, roleId := range d.Get("role_ids").([]interface{}) {
-		id, ok := roleId.(string)
-		if !ok || id == "" {
-			return nil, errors.New("Got empty value for role id")
-		}
+
+	roleIds := d.Get("role_ids").([]interface{})
+	err := ValidateIDDefinitions(roleIds)
+	if err != nil {
+		return nil, fmt.Errorf("Got error during parsing role ids: %s", err.Error())
+	}
+
+	for _, roleId := range roleIds {
 		roles = append(roles, &scalr.Role{ID: roleId.(string)})
 	}
 

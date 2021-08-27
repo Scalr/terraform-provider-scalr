@@ -108,7 +108,7 @@ func TestAccScalrRole_update(t *testing.T) {
 
 			{
 				Config:      testAccScalrRoleUpdateEmptyPermission(),
-				ExpectError: regexp.MustCompile("Got empty value for permission"),
+				ExpectError: regexp.MustCompile("Got error during parsing permissions: 1-th value is empty"),
 			},
 		},
 	})
@@ -250,6 +250,9 @@ resource "scalr_role" "test" {
   name           = "role-updated"
   account_id     = "%s"
   description    = "updated"
-  permissions    = [""]
+  permissions    = [
+	  "*:update",
+	  ""
+  ]
 }`, defaultAccount)
 }

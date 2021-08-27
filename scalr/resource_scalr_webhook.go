@@ -1,7 +1,6 @@
 package scalr
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -123,18 +122,22 @@ func validateEventDefinitions(eventName string) error {
 }
 
 func parseEventDefinitions(d *schema.ResourceData) ([]*scalr.EventDefinition, error) {
-	events := d.Get("events").([]interface{})
 	var eventDefinitions []*scalr.EventDefinition
-	for _, eventID := range events {
-		id, ok := eventID.(string)
-		if !ok || id == "" {
-			return nil, errors.New("Got empty value for event")
-		}
+
+	eventIds := d.Get("events").([]interface{})
+	err := ValidateIDDefinitions(eventIds)
+	if err != nil {
+		return nil, fmt.Errorf("Got error during parsing events: %s", err.Error())
+	}
+
+	for _, eventID := range eventIds {
+		id := eventID.(string)
 		if err := validateEventDefinitions(id); err != nil {
 			return nil, err
 		}
 		eventDefinitions = append(eventDefinitions, &scalr.EventDefinition{ID: id})
 	}
+
 	return eventDefinitions, nil
 }
 

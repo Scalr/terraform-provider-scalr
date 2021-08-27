@@ -78,7 +78,7 @@ func TestAccEnvironment_update(t *testing.T) {
 			},
 			{
 				Config:      testAccEnvironmentUpdateConfigEmptyString(rInt),
-				ExpectError: regexp.MustCompile("Got empty value for cloud credential"),
+				ExpectError: regexp.MustCompile("Got error during parsing cloud credentials: 0-th value is empty"),
 			},
 		},
 	})

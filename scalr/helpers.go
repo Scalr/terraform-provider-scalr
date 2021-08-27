@@ -36,3 +36,13 @@ func GetEnvironmentByName(environmentName string, scalrClient *scalr.Client) (*s
 func GetRandomInteger() int {
 	return rand.Int()
 }
+
+func ValidateIDDefinitions(d []interface{}) error {
+	for i, id := range d {
+		id, ok := id.(string)
+		if !ok || id == "" {
+			return fmt.Errorf("%d-th value is empty", i)
+		}
+	}
+	return nil
+}

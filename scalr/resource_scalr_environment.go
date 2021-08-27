@@ -1,7 +1,6 @@
 package scalr
 
 import (
-	"errors"
 	"fmt"
 	"log"
 
@@ -76,12 +75,15 @@ func resourceScalrEnvironment() *schema.Resource {
 
 func parseCloudCredentialDefinitions(d *schema.ResourceData) ([]*scalr.CloudCredential, error) {
 	var cloudCredentials []*scalr.CloudCredential
-	for _, cloudCredsID := range d.Get("cloud_credentials").([]interface{}) {
-		id, ok := cloudCredsID.(string)
-		if !ok || id == "" {
-			return nil, errors.New("Got empty value for cloud credential")
-		}
-		cloudCredentials = append(cloudCredentials, &scalr.CloudCredential{ID: id})
+
+	cloudCredIds := d.Get("cloud_credentials").([]interface{})
+	err := ValidateIDDefinitions(cloudCredIds)
+	if err != nil {
+		return nil, fmt.Errorf("Got error during parsing cloud credentials: %s", err.Error())
+	}
+
+	for _, cloudCredID := range cloudCredIds {
+		cloudCredentials = append(cloudCredentials, &scalr.CloudCredential{ID: cloudCredID.(string)})
 	}
 
 	return cloudCredentials, nil
@@ -89,12 +91,15 @@ func parseCloudCredentialDefinitions(d *schema.ResourceData) ([]*scalr.CloudCred
 
 func parsePolicyGroupDefinitions(d *schema.ResourceData) ([]*scalr.PolicyGroup, error) {
 	var policyGroups []*scalr.PolicyGroup
-	for _, cloudCredsID := range d.Get("policy_groups").([]interface{}) {
-		id, ok := cloudCredsID.(string)
-		if !ok || id == "" {
-			return nil, errors.New("Got empty value for policy group")
-		}
-		policyGroups = append(policyGroups, &scalr.PolicyGroup{ID: id})
+
+	policyGroupIds := d.Get("policy_groups").([]interface{})
+	err := ValidateIDDefinitions(policyGroupIds)
+	if err != nil {
+		return nil, fmt.Errorf("Got error during parsing policy groups: %s", err.Error())
+	}
+
+	for _, policyGroupID := range policyGroupIds {
+		policyGroups = append(policyGroups, &scalr.PolicyGroup{ID: policyGroupID.(string)})
 	}
 
 	return policyGroups, nil

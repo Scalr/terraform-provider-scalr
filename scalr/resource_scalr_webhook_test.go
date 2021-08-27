@@ -67,7 +67,7 @@ func TestAccWebhook_update(t *testing.T) {
 			},
 			{
 				Config:      testAccWebhookConfigUpdateEmptyEvent(rInt),
-				ExpectError: regexp.MustCompile("Got empty value for event"),
+				ExpectError: regexp.MustCompile("Got error during parsing events: 0-th value is empty"),
 			},
 		},
 	})

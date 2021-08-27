@@ -1,7 +1,6 @@
 package scalr
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"reflect"
@@ -54,15 +53,16 @@ func resourceScalrRole() *schema.Resource {
 }
 
 func parsePermissionDefinitions(d *schema.ResourceData) ([]*scalr.Permission, error) {
-	permissionNames := d.Get("permissions").([]interface{})
 	var permissions []*scalr.Permission
 
-	for _, permID := range permissionNames {
-		id, ok := permID.(string)
-		if !ok || id == "" {
-			return nil, errors.New("Got empty value for permission")
-		}
-		permissions = append(permissions, &scalr.Permission{ID: id})
+	permissionIds := d.Get("permissions").([]interface{})
+	err := ValidateIDDefinitions(permissionIds)
+	if err != nil {
+		return nil, fmt.Errorf("Got error during parsing permissions: %s", err.Error())
+	}
+
+	for _, permID := range permissionIds {
+		permissions = append(permissions, &scalr.Permission{ID: permID.(string)})
 	}
 
 	return permissions, nil

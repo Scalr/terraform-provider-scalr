@@ -148,7 +148,7 @@ func TestAccScalrAccessPolicy_update(t *testing.T) {
 
 			{
 				Config:      testAccScalrAccessPolicyEmptyRoleId(rInt),
-				ExpectError: regexp.MustCompile("Got empty value for role id"),
+				ExpectError: regexp.MustCompile("Got error during parsing role ids: 0-th value is empty"),
 			},
 		},
 	})
