@@ -12,7 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scalr_environment`: fix empty strings handling in `cloud_credentials` and `policy_groups` attributes ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
 - `scalr_webhook`: fix empty strings handling in `events` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
 - `scalr_access_policy`: fix empty strings handling in `role_ids` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
-- `scalr_access_policy`: fix empty strings handling in `role_ids` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
 - `scalr_role`: fix empty strings handling in `permissions` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
 - `scalr_workspace`: fix empty strings handling in `vcs_repo.trigger_prefixes` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
 
