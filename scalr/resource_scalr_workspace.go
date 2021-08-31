@@ -142,6 +142,7 @@ func resourceScalrWorkspace() *schema.Resource {
 							Type:     schema.TypeList,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Optional: true,
+							Computed: true,
 						},
 
 						"dry_runs_enabled": {
@@ -178,10 +179,10 @@ func resourceScalrWorkspace() *schema.Resource {
 }
 
 func parseTriggerPrefixDefinitions(vcsRepo map[string]interface{}) ([]string, error) {
-	var triggerPrefixes []string
+	triggerPrefixes := make([]string, 0)
 
 	triggerPrefixIds := vcsRepo["trigger_prefixes"].([]interface{})
-	err := ValidateIDDefinitions(triggerPrefixIds)
+	err := ValidateIDsDefinitions(triggerPrefixIds)
 	if err != nil {
 		return nil, fmt.Errorf("Got error during parsing trigger prefixes: %s", err.Error())
 	}

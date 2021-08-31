@@ -77,7 +77,7 @@ func parseCloudCredentialDefinitions(d *schema.ResourceData) ([]*scalr.CloudCred
 	var cloudCredentials []*scalr.CloudCredential
 
 	cloudCredIds := d.Get("cloud_credentials").([]interface{})
-	err := ValidateIDDefinitions(cloudCredIds)
+	err := ValidateIDsDefinitions(cloudCredIds)
 	if err != nil {
 		return nil, fmt.Errorf("Got error during parsing cloud credentials: %s", err.Error())
 	}
@@ -93,7 +93,7 @@ func parsePolicyGroupDefinitions(d *schema.ResourceData) ([]*scalr.PolicyGroup, 
 	var policyGroups []*scalr.PolicyGroup
 
 	policyGroupIds := d.Get("policy_groups").([]interface{})
-	err := ValidateIDDefinitions(policyGroupIds)
+	err := ValidateIDsDefinitions(policyGroupIds)
 	if err != nil {
 		return nil, fmt.Errorf("Got error during parsing policy groups: %s", err.Error())
 	}

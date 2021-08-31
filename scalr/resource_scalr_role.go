@@ -56,7 +56,7 @@ func parsePermissionDefinitions(d *schema.ResourceData) ([]*scalr.Permission, er
 	var permissions []*scalr.Permission
 
 	permissionIds := d.Get("permissions").([]interface{})
-	err := ValidateIDDefinitions(permissionIds)
+	err := ValidateIDsDefinitions(permissionIds)
 	if err != nil {
 		return nil, fmt.Errorf("Got error during parsing permissions: %s", err.Error())
 	}

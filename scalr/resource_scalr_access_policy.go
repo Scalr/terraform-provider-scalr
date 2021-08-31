@@ -118,10 +118,10 @@ func resourceScalrAccessPolicy() *schema.Resource {
 }
 
 func parseRoleIdDefinitions(d *schema.ResourceData) ([]*scalr.Role, error) {
-	var roles []*scalr.Role
+	roles := make([]*scalr.Role, 0)
 
 	roleIds := d.Get("role_ids").([]interface{})
-	err := ValidateIDDefinitions(roleIds)
+	err := ValidateIDsDefinitions(roleIds)
 	if err != nil {
 		return nil, fmt.Errorf("Got error during parsing role ids: %s", err.Error())
 	}

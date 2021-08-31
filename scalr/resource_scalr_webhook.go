@@ -122,10 +122,10 @@ func validateEventDefinitions(eventName string) error {
 }
 
 func parseEventDefinitions(d *schema.ResourceData) ([]*scalr.EventDefinition, error) {
-	var eventDefinitions []*scalr.EventDefinition
+	eventDefinitions := make([]*scalr.EventDefinition, 0)
 
 	eventIds := d.Get("events").([]interface{})
-	err := ValidateIDDefinitions(eventIds)
+	err := ValidateIDsDefinitions(eventIds)
 	if err != nil {
 		return nil, fmt.Errorf("Got error during parsing events: %s", err.Error())
 	}
