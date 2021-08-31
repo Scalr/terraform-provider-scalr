@@ -37,7 +37,7 @@ func GetRandomInteger() int {
 	return rand.Int()
 }
 
-func ValidateIDDefinitions(d []interface{}) error {
+func ValidateIDsDefinitions(d []interface{}) error {
 	for i, id := range d {
 		id, ok := id.(string)
 		if !ok || id == "" {

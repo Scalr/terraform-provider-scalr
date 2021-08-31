@@ -53,10 +53,10 @@ func resourceScalrRole() *schema.Resource {
 }
 
 func parsePermissionDefinitions(d *schema.ResourceData) ([]*scalr.Permission, error) {
-	var permissions []*scalr.Permission
+	permissions := make([]*scalr.Permission, 0)
 
 	permissionIds := d.Get("permissions").([]interface{})
-	err := ValidateIDDefinitions(permissionIds)
+	err := ValidateIDsDefinitions(permissionIds)
 	if err != nil {
 		return nil, fmt.Errorf("Got error during parsing permissions: %s", err.Error())
 	}
