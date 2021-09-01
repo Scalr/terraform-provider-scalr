@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
- - `scalr_environment`: fix provider crash while reading environment without proper permissions
+ - `scalr_environment`: fix provider crash while reading environment without proper permissions ([#82](https://github.com/Scalr/terraform-provider-scalr/pull/82))
 
 ## [1.0.0-rc19] - 2021-08-19
 
