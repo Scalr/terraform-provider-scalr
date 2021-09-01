@@ -120,6 +120,7 @@ func resourceScalrEnvironmentRead(d *schema.ResourceData, meta interface{}) erro
 			d.SetId("")
 			return nil
 		}
+		return fmt.Errorf("Error reading environment %s: %v", environmentID, err)
 	}
 
 	// Update the configuration.
