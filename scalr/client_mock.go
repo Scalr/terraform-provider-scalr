@@ -62,7 +62,7 @@ func (m *mockVariables) Read(ctx context.Context, varID string) (*scalr.Variable
 	v := m.ids[varID]
 
 	if v == nil {
-		return nil, scalr.ErrResourceNotFound
+		return nil, scalr.ErrResourceNotFound{}
 	}
 
 	return v, nil
