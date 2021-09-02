@@ -33,20 +33,42 @@ func TestResourceScalrVariableStateUpgradeV0(t *testing.T) {
 	assertCorrectState(t, err, actual, expected)
 }
 
-func testResourceScalrVariableStateDataCategoryV1() map[string]interface{} {
+func testResourceScalrVariableStateDataCategoryV0() map[string]interface{} {
 	return map[string]interface{}{
 		"category": "env",
 	}
 }
 
-func testResourceScalrVariableStateDataV2() map[string]interface{} {
+func testResourceScalrVariableStateDataCategoryV1() map[string]interface{} {
 	return map[string]interface{}{
 		"category": "shell",
 	}
 }
 
 func TestResourceScalrVariableStateUpgradeV1(t *testing.T) {
-	expected := testResourceScalrVariableStateDataV2()
-	actual, err := resourceScalrVariableStateUpgradeV1(testResourceScalrVariableStateDataCategoryV1(), nil)
+	expected := testResourceScalrVariableStateDataCategoryV1()
+	actual, err := resourceScalrVariableStateUpgradeV1(testResourceScalrVariableStateDataCategoryV0(), nil)
 	assertCorrectState(t, err, actual, expected)
+}
+
+func testResourceScalrVariableStateDataDescriptionV1(varID string) map[string]interface{} {
+	return map[string]interface{}{
+		"id": varID,
+	}
+}
+
+func testResourceScalrVariableStateDataDescriptionV2(varID string) map[string]interface{} {
+	return map[string]interface{}{
+		"id":          varID,
+		"description": "",
+	}
+}
+
+func TestResourceScalrVariableStateUpgradeV2(t *testing.T) {
+	client := testScalrClient(t)
+	variable, _ := client.Variables.Create(context.Background(), scalr.VariableCreateOptions{ID: "var-123"})
+	expected := testResourceScalrVariableStateDataDescriptionV2(variable.ID)
+	actual, err := resourceScalrVariableStateUpgradeV2(testResourceScalrVariableStateDataDescriptionV1(variable.ID), client)
+	assertCorrectState(t, err, actual, expected)
+
 }
