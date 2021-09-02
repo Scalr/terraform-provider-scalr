@@ -43,7 +43,7 @@ func resourceScalrRole() *schema.Resource {
 
 			"permissions": {
 				Type:     schema.TypeList,
-				Optional: true,
+				Required: true,
 				MinItems: 1,
 				MaxItems: 128,
 				Elem:     &schema.Schema{Type: schema.TypeString},
