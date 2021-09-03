@@ -43,7 +43,7 @@ func resourceScalrRole() *schema.Resource {
 
 			"permissions": {
 				Type:     schema.TypeList,
-				Optional: true,
+				Required: true,
 				MinItems: 1,
 				MaxItems: 128,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -52,32 +52,42 @@ func resourceScalrRole() *schema.Resource {
 	}
 }
 
+func parsePermissionDefinitions(d *schema.ResourceData) ([]*scalr.Permission, error) {
+	permissions := make([]*scalr.Permission, 0)
+
+	permissionIds := d.Get("permissions").([]interface{})
+	err := ValidateIDsDefinitions(permissionIds)
+	if err != nil {
+		return nil, fmt.Errorf("Got error during parsing permissions: %s", err.Error())
+	}
+
+	for _, permID := range permissionIds {
+		permissions = append(permissions, &scalr.Permission{ID: permID.(string)})
+	}
+
+	return permissions, nil
+}
+
 func resourceScalrRoleCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get required options
 	name := d.Get("name").(string)
+	description := d.Get("description").(string)
 	accountID := d.Get("account_id").(string)
 
-	// Create a new options struct.
+	// Get optional attributes
+	permissions, err := parsePermissionDefinitions(d)
+	if err != nil {
+		return err
+	}
+
+	// Create a new options struct
 	options := scalr.RoleCreateOptions{
-		Name:    scalr.String(name),
-		Account: &scalr.Account{ID: accountID},
-	}
-
-	// Process all optional fields.
-	if value, ok := d.GetOk("permissions"); ok {
-		permissionNames := value.([]interface{})
-		permissions := make([]*scalr.Permission, 0)
-
-		for _, id := range permissionNames {
-			permissions = append(permissions, &scalr.Permission{ID: id.(string)})
-		}
-		options.Permissions = permissions
-	}
-
-	if description, ok := d.GetOk("description"); ok {
-		options.Description = scalr.String(description.(string))
+		Name:        scalr.String(name),
+		Account:     &scalr.Account{ID: accountID},
+		Description: scalr.String(description),
+		Permissions: permissions,
 	}
 
 	log.Printf("[DEBUG] Create role %s for account: %s", name, accountID)
@@ -145,24 +155,20 @@ func resourceScalrRoleUpdate(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 
 	if d.HasChange("name") || d.HasChange("description") || d.HasChange("permissions") {
-		// Create a new options struct.
+		permissions, err := parsePermissionDefinitions(d)
+		if err != nil {
+			return err
+		}
+
+		// Create a new options struct
 		options := scalr.RoleUpdateOptions{
 			Name:        scalr.String(d.Get("name").(string)),
 			Description: scalr.String(d.Get("description").(string)),
+			Permissions: permissions,
 		}
 
-		// Process all configured options.
-		if value, ok := d.GetOk("permissions"); ok {
-			permissionNames := value.([]interface{})
-			permissions := make([]*scalr.Permission, 0)
-
-			for _, id := range permissionNames {
-				permissions = append(permissions, &scalr.Permission{ID: id.(string)})
-			}
-			options.Permissions = permissions
-		}
 		log.Printf("[DEBUG] Update role %s", id)
-		_, err := scalrClient.Roles.Update(ctx, id, options)
+		scalrClient.Roles.Update(ctx, id, options)
 		if err != nil {
 			return fmt.Errorf(
 				"Error updating role %s: %v", id, err)

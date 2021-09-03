@@ -3,7 +3,6 @@ package scalr
 import (
 	"fmt"
 	"log"
-	"sort"
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -11,16 +10,12 @@ import (
 )
 
 var (
-	eventDefinitions = []string{
-		"run:completed",
-		"run:errored",
-		"run:needs_attention",
+	eventDefinitions = map[string]bool{
+		"run:completed":       true,
+		"run:errored":         true,
+		"run:needs_attention": true,
 	}
 )
-
-func init() {
-	sort.Strings(eventDefinitions)
-}
 
 func resourceScalrWebhook() *schema.Resource {
 	return &schema.Resource{
@@ -113,26 +108,36 @@ func getResourceScope(scalrClient *scalr.Client, workspaceID string, environment
 }
 
 func validateEventDefinitions(eventName string) error {
-	if sort.SearchStrings(eventDefinitions, eventName) < len(eventDefinitions) {
+	if val, ok := eventDefinitions[eventName]; ok && val {
 		return nil
 	}
+	i := 0
 	eventDefinitionsQuoted := make([]string, len(eventDefinitions))
-	for i, eventDefinition := range eventDefinitions {
+	for eventDefinition := range eventDefinitions {
 		eventDefinitionsQuoted[i] = fmt.Sprintf("'%s'", eventDefinition)
+		i++
 	}
 	return fmt.Errorf(
 		"Invalid value for events '%s'. Allowed values: %s", eventName, strings.Join(eventDefinitionsQuoted, ", "))
 }
 
 func parseEventDefinitions(d *schema.ResourceData) ([]*scalr.EventDefinition, error) {
-	events := d.Get("events").([]interface{})
-	var eventDefinitions []*scalr.EventDefinition
-	for _, eventID := range events {
-		if err := validateEventDefinitions(eventID.(string)); err != nil {
+	eventDefinitions := make([]*scalr.EventDefinition, 0)
+
+	eventIds := d.Get("events").([]interface{})
+	err := ValidateIDsDefinitions(eventIds)
+	if err != nil {
+		return nil, fmt.Errorf("Got error during parsing events: %s", err.Error())
+	}
+
+	for _, eventID := range eventIds {
+		id := eventID.(string)
+		if err := validateEventDefinitions(id); err != nil {
 			return nil, err
 		}
-		eventDefinitions = append(eventDefinitions, &scalr.EventDefinition{ID: eventID.(string)})
+		eventDefinitions = append(eventDefinitions, &scalr.EventDefinition{ID: id})
 	}
+
 	return eventDefinitions, nil
 }
 
@@ -221,7 +226,6 @@ func resourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error {
 func resourceScalrWebhookUpdate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
-	var err error
 	eventDefinitions, err := parseEventDefinitions(d)
 	if err != nil {
 		return err

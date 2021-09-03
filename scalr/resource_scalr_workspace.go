@@ -142,6 +142,7 @@ func resourceScalrWorkspace() *schema.Resource {
 							Type:     schema.TypeList,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Optional: true,
+							Computed: true,
 						},
 
 						"dry_runs_enabled": {
@@ -175,6 +176,22 @@ func resourceScalrWorkspace() *schema.Resource {
 			},
 		},
 	}
+}
+
+func parseTriggerPrefixDefinitions(vcsRepo map[string]interface{}) ([]string, error) {
+	triggerPrefixes := make([]string, 0)
+
+	triggerPrefixIds := vcsRepo["trigger_prefixes"].([]interface{})
+	err := ValidateIDsDefinitions(triggerPrefixIds)
+	if err != nil {
+		return nil, fmt.Errorf("Got error during parsing trigger prefixes: %s", err.Error())
+	}
+
+	for _, triggerPrefixId := range triggerPrefixIds {
+		triggerPrefixes = append(triggerPrefixes, triggerPrefixId.(string))
+	}
+
+	return triggerPrefixes, nil
 }
 
 func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) error {
@@ -211,10 +228,9 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 	// Get and assert the VCS repo configuration block.
 	if v, ok := d.GetOk("vcs_repo"); ok {
 		vcsRepo := v.([]interface{})[0].(map[string]interface{})
-		triggerPrefixes := make([]string, 0)
-
-		for _, pref := range vcsRepo["trigger_prefixes"].([]interface{}) {
-			triggerPrefixes = append(triggerPrefixes, pref.(string))
+		triggerPrefixes, err := parseTriggerPrefixDefinitions(vcsRepo)
+		if err != nil {
+			return err
 		}
 
 		options.VCSRepo = &scalr.VCSRepoOptions{
@@ -354,10 +370,9 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		// Get and assert the VCS repo configuration block.
 		if v, ok := d.GetOk("vcs_repo"); ok {
 			vcsRepo := v.([]interface{})[0].(map[string]interface{})
-			triggerPrefixes := make([]string, 0)
-
-			for _, pref := range vcsRepo["trigger_prefixes"].([]interface{}) {
-				triggerPrefixes = append(triggerPrefixes, pref.(string))
+			triggerPrefixes, err := parseTriggerPrefixDefinitions(vcsRepo)
+			if err != nil {
+				return err
 			}
 
 			options.VCSRepo = &scalr.VCSRepoOptions{

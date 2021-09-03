@@ -73,20 +73,50 @@ func resourceScalrEnvironment() *schema.Resource {
 	}
 }
 
+func parseCloudCredentialDefinitions(d *schema.ResourceData) ([]*scalr.CloudCredential, error) {
+	var cloudCredentials []*scalr.CloudCredential
+
+	cloudCredIds := d.Get("cloud_credentials").([]interface{})
+	err := ValidateIDsDefinitions(cloudCredIds)
+	if err != nil {
+		return nil, fmt.Errorf("Got error during parsing cloud credentials: %s", err.Error())
+	}
+
+	for _, cloudCredID := range cloudCredIds {
+		cloudCredentials = append(cloudCredentials, &scalr.CloudCredential{ID: cloudCredID.(string)})
+	}
+
+	return cloudCredentials, nil
+}
+
+func parsePolicyGroupDefinitions(d *schema.ResourceData) ([]*scalr.PolicyGroup, error) {
+	var policyGroups []*scalr.PolicyGroup
+
+	policyGroupIds := d.Get("policy_groups").([]interface{})
+	err := ValidateIDsDefinitions(policyGroupIds)
+	if err != nil {
+		return nil, fmt.Errorf("Got error during parsing policy groups: %s", err.Error())
+	}
+
+	for _, policyGroupID := range policyGroupIds {
+		policyGroups = append(policyGroups, &scalr.PolicyGroup{ID: policyGroupID.(string)})
+	}
+
+	return policyGroups, nil
+}
+
 func resourceScalrEnvironmentCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	name := d.Get("name").(string)
 	accountID := d.Get("account_id").(string)
-
-	var cloudCredentials []*scalr.CloudCredential
-	for _, cloudCredsID := range d.Get("cloud_credentials").([]interface{}) {
-		cloudCredentials = append(cloudCredentials, &scalr.CloudCredential{ID: cloudCredsID.(string)})
+	cloudCredentials, err := parseCloudCredentialDefinitions(d)
+	if err != nil {
+		return err
 	}
-
-	var policyGroups []*scalr.PolicyGroup
-	for _, policyGroupID := range d.Get("policy_groups").([]interface{}) {
-		policyGroups = append(policyGroups, &scalr.PolicyGroup{ID: policyGroupID.(string)})
+	policyGroups, err := parsePolicyGroupDefinitions(d)
+	if err != nil {
+		return err
 	}
 
 	options := scalr.EnvironmentCreateOptions{
@@ -161,13 +191,13 @@ func resourceScalrEnvironmentUpdate(d *schema.ResourceData, meta interface{}) er
 	scalrClient := meta.(*scalr.Client)
 
 	var err error
-	var cloudCredentials []*scalr.CloudCredential
-	for _, credsID := range d.Get("cloud_credentials").([]interface{}) {
-		cloudCredentials = append(cloudCredentials, &scalr.CloudCredential{ID: credsID.(string)})
+	cloudCredentials, err := parseCloudCredentialDefinitions(d)
+	if err != nil {
+		return err
 	}
-	var policyGroups []*scalr.PolicyGroup
-	for _, credsID := range d.Get("policy_groups").([]interface{}) {
-		policyGroups = append(policyGroups, &scalr.PolicyGroup{ID: credsID.(string)})
+	policyGroups, err := parsePolicyGroupDefinitions(d)
+	if err != nil {
+		return err
 	}
 
 	// Create a new options struct.
