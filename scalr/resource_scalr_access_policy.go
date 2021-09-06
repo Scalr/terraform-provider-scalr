@@ -188,7 +188,7 @@ func resourceScalrAccessPolicyRead(d *schema.ResourceData, meta interface{}) err
 	ap, err := scalrClient.AccessPolicies.Read(ctx, id)
 
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			log.Printf("[DEBUG] AccessPolicy %s not found", id)
 			d.SetId("")
 			return nil
@@ -276,7 +276,7 @@ func resourceScalrAccessPolicyDelete(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Delete access policy %s", id)
 	err := scalrClient.AccessPolicies.Delete(ctx, id)
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			return nil
 		}
 		return fmt.Errorf(
