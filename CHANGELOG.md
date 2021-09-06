@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scalr_access_policy`: fix empty strings handling in `role_ids` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
 - `scalr_role`: fix empty strings handling in `permissions` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
 - `scalr_workspace`: fix empty strings handling in `vcs_repo.trigger_prefixes` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
+- Added more detailed error messages for not found resources ([#77](https://github.com/Scalr/terraform-provider-scalr/pull/77))
 
 
 ## [1.0.0-rc19] - 2021-08-19
