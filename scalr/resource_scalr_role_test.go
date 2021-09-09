@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -103,6 +104,11 @@ func TestAccScalrRole_update(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_role.test", "permissions.0", "*:update"),
 					resource.TestCheckResourceAttr("scalr_role.test", "permissions.1", "*:delete"),
 				),
+			},
+
+			{
+				Config:      testAccScalrRoleUpdateEmptyPermission(),
+				ExpectError: regexp.MustCompile("Got error during parsing permissions: 1-th value is empty"),
 			},
 		},
 	})
@@ -234,6 +240,19 @@ resource "scalr_role" "test" {
   permissions    = [
 	 "*:update",
 	 "*:delete"
+  ]
+}`, defaultAccount)
+}
+
+func testAccScalrRoleUpdateEmptyPermission() string {
+	return fmt.Sprintf(`
+resource "scalr_role" "test" {
+  name           = "role-updated"
+  account_id     = "%s"
+  description    = "updated"
+  permissions    = [
+	  "*:update",
+	  ""
   ]
 }`, defaultAccount)
 }

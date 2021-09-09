@@ -117,6 +117,22 @@ func resourceScalrAccessPolicy() *schema.Resource {
 	}
 }
 
+func parseRoleIdDefinitions(d *schema.ResourceData) ([]*scalr.Role, error) {
+	roles := make([]*scalr.Role, 0)
+
+	roleIds := d.Get("role_ids").([]interface{})
+	err := ValidateIDsDefinitions(roleIds)
+	if err != nil {
+		return nil, fmt.Errorf("Got error during parsing role ids: %s", err.Error())
+	}
+
+	for _, roleId := range roleIds {
+		roles = append(roles, &scalr.Role{ID: roleId.(string)})
+	}
+
+	return roles, nil
+}
+
 func resourceScalrAccessPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
@@ -128,9 +144,9 @@ func resourceScalrAccessPolicyCreate(d *schema.ResourceData, meta interface{}) e
 	scopeType := scope["type"].(string)
 	scopeId := scope["id"].(string)
 
-	var roles []*scalr.Role
-	for _, roleId := range d.Get("role_ids").([]interface{}) {
-		roles = append(roles, &scalr.Role{ID: roleId.(string)})
+	roles, err := parseRoleIdDefinitions(d)
+	if err != nil {
+		return err
 	}
 
 	// Create a new options struct.
@@ -172,7 +188,7 @@ func resourceScalrAccessPolicyRead(d *schema.ResourceData, meta interface{}) err
 	ap, err := scalrClient.AccessPolicies.Read(ctx, id)
 
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			log.Printf("[DEBUG] AccessPolicy %s not found", id)
 			d.SetId("")
 			return nil
@@ -234,16 +250,16 @@ func resourceScalrAccessPolicyUpdate(d *schema.ResourceData, meta interface{}) e
 	id := d.Id()
 
 	if d.HasChange("role_ids") {
-		var roles []*scalr.Role
-		for _, roleId := range d.Get("role_ids").([]interface{}) {
-			roles = append(roles, &scalr.Role{ID: roleId.(string)})
+		roles, err := parseRoleIdDefinitions(d)
+		if err != nil {
+			return err
 		}
 
 		// Create a new options struct.
 		options := scalr.AccessPolicyUpdateOptions{Roles: roles}
 
 		log.Printf("[DEBUG] Update access policy %s", id)
-		_, err := scalrClient.AccessPolicies.Update(ctx, id, options)
+		_, err = scalrClient.AccessPolicies.Update(ctx, id, options)
 		if err != nil {
 			return fmt.Errorf(
 				"Error updating access policy %s: %v", id, err)
@@ -260,7 +276,7 @@ func resourceScalrAccessPolicyDelete(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Delete access policy %s", id)
 	err := scalrClient.AccessPolicies.Delete(ctx, id)
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			return nil
 		}
 		return fmt.Errorf(

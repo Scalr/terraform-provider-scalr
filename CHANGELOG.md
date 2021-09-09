@@ -9,8 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
- - `data.scalr_access_policy`: return error if access policy is not found ([#83](https://github.com/Scalr/terraform-provider-scalr/pull/83))
- - `data.scalr_environment`: return error if environment is not found ([#83](https://github.com/Scalr/terraform-provider-scalr/pull/83))
+- `data.scalr_access_policy`: return error if access policy is not found ([#83](https://github.com/Scalr/terraform-provider-scalr/pull/83))
+- `data.scalr_environment`: return error if environment is not found ([#83](https://github.com/Scalr/terraform-provider-scalr/pull/83))
+- `scalr_environment`: fix empty strings handling in `cloud_credentials` and `policy_groups` attributes ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
+- `scalr_webhook`: fix empty strings handling in `events` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
+- `scalr_access_policy`: fix empty strings handling in `role_ids` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
+- `scalr_role`: fix empty strings handling in `permissions` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
+- `scalr_workspace`: fix empty strings handling in `vcs_repo.trigger_prefixes` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
+
 
 ## [1.0.0-rc19] - 2021-08-19
 
@@ -33,7 +39,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - `scalr_environment`: fix unlinking cloud credentials ([#71](https://github.com/Scalr/terraform-provider-scalr/pull/71))
  - `scalr_workspace`: fix removing hooks if it removed from template ([#72](https://github.com/Scalr/terraform-provider-scalr/pull/72))
-
 
 ### Required
 

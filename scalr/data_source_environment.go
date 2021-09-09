@@ -1,6 +1,7 @@
 package scalr
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -74,7 +75,7 @@ func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 
 	environment, err := scalrClient.Environments.Read(ctx, envID)
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			return fmt.Errorf("Environment %s not found", envID)
 		}
 		return fmt.Errorf("Error retrieving environment: %v", err)
