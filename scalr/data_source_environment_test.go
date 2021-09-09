@@ -31,7 +31,7 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 			},
 			{
 				Config:      testAccEnvironmentDataSourceNotFoundConfig(),
-				ExpectError: regexp.MustCompile("Environment env-123 not found"),
+				ExpectError: regexp.MustCompile("Environment with ID 'env-123' not found or user unauthorized"),
 				PlanOnly:    true,
 			},
 		},
