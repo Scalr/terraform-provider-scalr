@@ -1,6 +1,7 @@
 package scalr
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -115,7 +116,7 @@ func resourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Read endpoint with ID: %s", endpointID)
 	endpoint, err := scalrClient.Endpoints.Read(ctx, endpointID)
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			d.SetId("")
 			return nil
 		}
@@ -169,7 +170,7 @@ func resourceScalrEndpointDelete(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Delete endpoint: %s", d.Id())
 	err := scalrClient.Endpoints.Delete(ctx, d.Id())
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			return nil
 		}
 		return fmt.Errorf("Error deleting endpoint%s: %v", d.Id(), err)
