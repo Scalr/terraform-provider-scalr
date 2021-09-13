@@ -1,11 +1,11 @@
 package scalr
 
 import (
+	"errors"
 	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform/helper/schema"
 	scalr "github.com/scalr/go-scalr"
+	"log"
 )
 
 func resourceScalrWorkspace() *schema.Resource {
@@ -148,6 +148,7 @@ func resourceScalrWorkspace() *schema.Resource {
 							Type:     schema.TypeList,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Optional: true,
+							Computed: true,
 						},
 
 						"dry_runs_enabled": {
@@ -181,6 +182,22 @@ func resourceScalrWorkspace() *schema.Resource {
 			},
 		},
 	}
+}
+
+func parseTriggerPrefixDefinitions(vcsRepo map[string]interface{}) ([]string, error) {
+	triggerPrefixes := make([]string, 0)
+
+	triggerPrefixIds := vcsRepo["trigger_prefixes"].([]interface{})
+	err := ValidateIDsDefinitions(triggerPrefixIds)
+	if err != nil {
+		return nil, fmt.Errorf("Got error during parsing trigger prefixes: %s", err.Error())
+	}
+
+	for _, triggerPrefixId := range triggerPrefixIds {
+		triggerPrefixes = append(triggerPrefixes, triggerPrefixId.(string))
+	}
+
+	return triggerPrefixes, nil
 }
 
 func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) error {
@@ -221,10 +238,9 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 	// Get and assert the VCS repo configuration block.
 	if v, ok := d.GetOk("vcs_repo"); ok {
 		vcsRepo := v.([]interface{})[0].(map[string]interface{})
-		triggerPrefixes := make([]string, 0)
-
-		for _, pref := range vcsRepo["trigger_prefixes"].([]interface{}) {
-			triggerPrefixes = append(triggerPrefixes, pref.(string))
+		triggerPrefixes, err := parseTriggerPrefixDefinitions(vcsRepo)
+		if err != nil {
+			return err
 		}
 
 		options.VCSRepo = &scalr.VCSRepoOptions{
@@ -270,7 +286,7 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Read configuration of workspace: %s", id)
 	workspace, err := scalrClient.Workspaces.ReadByID(ctx, id)
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			log.Printf("[DEBUG] Workspace %s no longer exists", id)
 			d.SetId("")
 			return nil
@@ -371,10 +387,9 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		// Get and assert the VCS repo configuration block.
 		if v, ok := d.GetOk("vcs_repo"); ok {
 			vcsRepo := v.([]interface{})[0].(map[string]interface{})
-			triggerPrefixes := make([]string, 0)
-
-			for _, pref := range vcsRepo["trigger_prefixes"].([]interface{}) {
-				triggerPrefixes = append(triggerPrefixes, pref.(string))
+			triggerPrefixes, err := parseTriggerPrefixDefinitions(vcsRepo)
+			if err != nil {
+				return err
 			}
 
 			options.VCSRepo = &scalr.VCSRepoOptions{
@@ -424,7 +439,7 @@ func resourceScalrWorkspaceDelete(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Delete workspace %s", id)
 	err := scalrClient.Workspaces.Delete(ctx, id)
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			return nil
 		}
 		return fmt.Errorf("Error deleting workspace %s: %v", id, err)

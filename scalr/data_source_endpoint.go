@@ -1,6 +1,7 @@
 package scalr
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -63,7 +64,7 @@ func dataSourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Read endpoint with ID: %s", endpointID)
 	endpoint, err := scalrClient.Endpoints.Read(ctx, endpointID)
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			return fmt.Errorf("Could not find endpoint %s: %v", endpointID, err)
 		}
 		return fmt.Errorf("Error retrieving endpoint: %v", err)

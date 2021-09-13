@@ -1,6 +1,7 @@
 package scalr
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -140,7 +141,7 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Read configuration of workspace: %s", name)
 	workspace, err := scalrClient.Workspaces.Read(ctx, environmentID, name)
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			return fmt.Errorf("Could not find workspace %s/%s", environmentID, name)
 		}
 		return fmt.Errorf("Error retrieving workspace: %v", err)
