@@ -34,7 +34,7 @@ func dataSourceModuleVersionRead(d *schema.ResourceData, meta interface{}) error
 	source := d.Get("source").(string)
 	module, err := scalrClient.Modules.ReadBySource(ctx, source)
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			return fmt.Errorf("Could not find module with source %s", source)
 		}
 		return fmt.Errorf("Error retrieving module: %v", err)
@@ -54,7 +54,7 @@ func dataSourceModuleVersionRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if err != nil {
-		if err == scalr.ErrResourceNotFound {
+		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			return fmt.Errorf("Could not find module with source %s  and version %s", source, version)
 		}
 		return fmt.Errorf("Error retrieving module version: %v", err)
