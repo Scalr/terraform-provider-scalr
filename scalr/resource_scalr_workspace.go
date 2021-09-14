@@ -3,9 +3,10 @@ package scalr
 import (
 	"errors"
 	"fmt"
+	"log"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	scalr "github.com/scalr/go-scalr"
-	"log"
 )
 
 func resourceScalrWorkspace() *schema.Resource {
@@ -50,6 +51,10 @@ func resourceScalrWorkspace() *schema.Resource {
 			},
 
 			"vcs_provider_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"agent_pool_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -225,6 +230,12 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
+	if agentPoolID, ok := d.GetOk("agent_pool_id"); ok {
+		options.AgentPool = &scalr.AgentPool{
+			ID: agentPoolID.(string),
+		}
+	}
+
 	// Get and assert the VCS repo configuration block.
 	if v, ok := d.GetOk("vcs_repo"); ok {
 		vcsRepo := v.([]interface{})[0].(map[string]interface{})
@@ -297,6 +308,10 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 		d.Set("vcs_provider_id", workspace.VcsProvider.ID)
 	}
 
+	if workspace.AgentPool != nil {
+		d.Set("agent_pool_id", workspace.AgentPool.ID)
+	}
+
 	var createdBy []interface{}
 	if workspace.CreatedBy != nil {
 		createdBy = append(createdBy, map[string]interface{}{
@@ -340,7 +355,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("name") || d.HasChange("auto_apply") ||
 		d.HasChange("terraform_version") || d.HasChange("working_directory") || d.HasChange("vcs_repo") ||
-		d.HasChange("operations") || d.HasChange("vcs_provider_id") || d.HasChange("hooks") {
+		d.HasChange("operations") || d.HasChange("vcs_provider_id") || d.HasChange("agent_pool_id") || d.HasChange("hooks") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
 			Name:       scalr.String(d.Get("name").(string)),
@@ -364,6 +379,12 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		if vcsProviderId, ok := d.GetOk("vcs_provider_id"); ok {
 			options.VcsProvider = &scalr.VcsProviderOptions{
 				ID: vcsProviderId.(string),
+			}
+		}
+
+		if agentPoolID, ok := d.GetOk("agent_pool_id"); ok {
+			options.AgentPool = &scalr.AgentPool{
+				ID: agentPoolID.(string),
 			}
 		}
 
