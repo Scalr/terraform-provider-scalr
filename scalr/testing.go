@@ -1,6 +1,7 @@
 package scalr
 
 import (
+	"os"
 	"reflect"
 	"testing"
 
@@ -37,4 +38,9 @@ func assertCorrectState(t *testing.T, err error, actual, expected map[string]int
 	if !reflect.DeepEqual(expected, actual) {
 		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", expected, actual)
 	}
+}
+
+// isAccTest returns true if executed while running acceptance tests
+func isAccTest() bool {
+	return os.Getenv("TF_ACC") == "1"
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -13,8 +14,12 @@ import (
 
 func TestAccScalrAgentPoolToken_basic(t *testing.T) {
 	token := &scalr.AgentPoolToken{}
-	pool := createPool(t)
-	defer deletePool(t, pool)
+
+	var pool scalr.AgentPool
+	if isAccTest() {
+		pool = createPool(t)
+		defer deletePool(t, pool)
+	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -35,8 +40,11 @@ func TestAccScalrAgentPoolToken_basic(t *testing.T) {
 
 func TestAccScalrAgentPoolToken_changed_outside(t *testing.T) {
 
-	pool := createPool(t)
-	defer deletePool(t, pool)
+	var pool scalr.AgentPool
+	if isAccTest() {
+		pool = createPool(t)
+		defer deletePool(t, pool)
+	}
 	token := &scalr.AgentPoolToken{}
 
 	resource.Test(t, resource.TestCase{
@@ -66,8 +74,11 @@ func TestAccScalrAgentPoolToken_changed_outside(t *testing.T) {
 	})
 }
 func TestAccScalrAgentPoolToken_update(t *testing.T) {
-	pool := createPool(t)
-	defer deletePool(t, pool)
+	var pool scalr.AgentPool
+	if isAccTest() {
+		pool = createPool(t)
+		defer deletePool(t, pool)
+	}
 	token := &scalr.AgentPoolToken{}
 
 	resource.Test(t, resource.TestCase{
@@ -145,10 +156,15 @@ func testAccCheckScalrAgentPoolTokenChangedOutside(pool scalr.AgentPool, token *
 	}
 }
 
-func deletePool(t *testing.T, pool scalr.AgentPool) {
+func createScalrClient() (*scalr.Client, error) {
 	config := scalr.DefaultConfig()
+	config.Address = fmt.Sprintf("https://%s", os.Getenv("SCALR_HOSTNAME"))
 	scalrClient, err := scalr.NewClient(config)
+	return scalrClient, err
+}
 
+func deletePool(t *testing.T, pool scalr.AgentPool) {
+	scalrClient, err := createScalrClient()
 	if err != nil {
 		t.Fatalf("Unable to create a Scalr client: %s", err)
 	}
@@ -162,9 +178,7 @@ func deletePool(t *testing.T, pool scalr.AgentPool) {
 func createPool(t *testing.T) scalr.AgentPool {
 	name := fmt.Sprintf("provider-test-pool-%d", GetRandomInteger())
 
-	config := scalr.DefaultConfig()
-	scalrClient, err := scalr.NewClient(config)
-
+	scalrClient, err := createScalrClient()
 	if err != nil {
 		t.Fatalf("Unable to create a Scalr client: %s", err)
 	}
