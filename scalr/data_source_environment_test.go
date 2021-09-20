@@ -2,6 +2,7 @@ package scalr
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -28,6 +29,11 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.username"),
 				),
 			},
+			{
+				Config:      testAccEnvironmentDataSourceNotFoundConfig(),
+				ExpectError: regexp.MustCompile("Environment with ID 'env-123' not found or user unauthorized"),
+				PlanOnly:    true,
+			},
 		},
 	})
 }
@@ -42,4 +48,11 @@ resource "scalr_environment" "test" {
 data "scalr_environment" "test" {
   id         = scalr_environment.test.id
 }`, rInt, defaultAccount)
+}
+
+func testAccEnvironmentDataSourceNotFoundConfig() string {
+	return `
+data "scalr_environment" "test" {
+  id = "env-123"
+}`
 }

@@ -76,10 +76,7 @@ func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 	environment, err := scalrClient.Environments.Read(ctx, envID)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound{}) {
-			// If the resource isn't available, the function should set the ID
-			// to an empty string so Terraform "destroys" the resource in state.
-			d.SetId("")
-			return nil
+			return fmt.Errorf("Environment %s not found", envID)
 		}
 		return fmt.Errorf("Error retrieving environment: %v", err)
 	}
