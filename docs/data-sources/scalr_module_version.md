@@ -29,4 +29,4 @@ The following arguments are supported:
 
 All arguments plus:
 
-* `id` - The ID of the module version.
+* `id` - The identifier of а module version. Example: `modver-xxxx`
