@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -154,13 +153,6 @@ func testAccCheckScalrAgentPoolTokenChangedOutside(pool scalr.AgentPool, token *
 			log.Fatalf("Failed to update the agent pool outside of terraform: %v", err)
 		}
 	}
-}
-
-func createScalrClient() (*scalr.Client, error) {
-	config := scalr.DefaultConfig()
-	config.Address = fmt.Sprintf("https://%s", os.Getenv("SCALR_HOSTNAME"))
-	scalrClient, err := scalr.NewClient(config)
-	return scalrClient, err
 }
 
 func deletePool(t *testing.T, pool scalr.AgentPool) {
