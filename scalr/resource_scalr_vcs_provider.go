@@ -97,7 +97,7 @@ func resourceScalrVcsProviderRead(d *schema.ResourceData, meta interface{}) erro
 	scalrClient := meta.(*scalr.Client)
 	providerID := d.Id()
 
-	log.Printf("[DEBUG] Read provider with ID: %s", providerID)
+	log.Printf("[DEBUG] Read vcs provider with ID: %s", providerID)
 	provider, err := scalrClient.VcsProviders.Read(ctx, providerID)
 	if err != nil {
 		return fmt.Errorf("Error retrieving vcs provider: %v", err)
