@@ -81,6 +81,7 @@ func Provider() terraform.ResourceProvider {
 			"scalr_environment":   resourceScalrEnvironment(),
 			"scalr_role":          resourceScalrRole(),
 			"scalr_access_policy": resourceScalrAccessPolicy(),
+			"scalr_vcs_provider":  resourceScalrVcsProvider(),
 		},
 
 		ConfigureFunc: providerConfigure,
