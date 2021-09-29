@@ -230,7 +230,7 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if vcsProviderID, ok := d.GetOk("vcs_provider_id"); ok {
-		options.VcsProvider = &scalr.VcsProviderOptions{
+		options.VcsProvider = &scalr.VcsProvider{
 			ID: vcsProviderID.(string),
 		}
 	}
@@ -379,7 +379,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		options.WorkingDirectory = scalr.String(d.Get("working_directory").(string))
 
 		if vcsProviderId, ok := d.GetOk("vcs_provider_id"); ok {
-			options.VcsProvider = &scalr.VcsProviderOptions{
+			options.VcsProvider = &scalr.VcsProvider{
 				ID: vcsProviderId.(string),
 			}
 		}

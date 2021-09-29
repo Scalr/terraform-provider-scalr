@@ -1,6 +1,8 @@
 package scalr
 
 import (
+	"fmt"
+	"os"
 	"strings"
 	"testing"
 
@@ -12,6 +14,9 @@ import (
 
 var testAccProviders map[string]terraform.ResourceProvider
 var testAccProvider *schema.Provider
+var noInstanceIdErr = fmt.Errorf("No instance ID is set")
+
+var GITHUB_TOKEN = os.Getenv("GITHUB_TOKEN")
 
 func init() {
 	testAccProvider = Provider().(*schema.Provider)

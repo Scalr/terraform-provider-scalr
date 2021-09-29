@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **New data source:** `scalr_module_version` ([#76](https://github.com/Scalr/terraform-provider-scalr/pull/76))
 - **New resource:** `scalr_module` ([#76](https://github.com/Scalr/terraform-provider-scalr/pull/76))
+- **New resource:** `scalr_vcs_provider` ([#88](https://github.com/Scalr/terraform-provider-scalr/pull/88))
 
 ### Changed
 - `scalr_workspace`: new attribute `module_version_id` ([#76](https://github.com/Scalr/terraform-provider-scalr/pull/76))
