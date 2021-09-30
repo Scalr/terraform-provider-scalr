@@ -22,7 +22,6 @@ data "scalr_vcs_provider" "example" {
 
 The following arguments are supported:
 
-* `id` - (Optional) Identifier of the vcs provider, in the format `vcs-<RANDOM STRING>`. 
 * `vcs_type` - (Optional) Type of the vcs provider. For example, `github`.
 * `name` - (Optional) Name of the vcs provider.
 * `environment` - (Optional) ID of the environment the vcs provider has to be linked to, in the format `env-<RANDOM STRING>`.
@@ -32,4 +31,5 @@ The following arguments are supported:
 
 All arguments plus:
 
+* `id` - Identifier of the vcs provider, in the format `vcs-<RANDOM STRING>`.
 * `environments` - List of the identifiers of environments the vsc provider is linked to.
