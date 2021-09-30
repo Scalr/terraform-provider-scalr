@@ -45,24 +45,20 @@ func dataSourceScalrVcsProviderRead(d *schema.ResourceData, meta interface{}) er
 	scalrClient := meta.(*scalr.Client)
 	options := scalr.VcsProvidersListOptions{}
 
-	name := d.Get("name").(string)
-	if name != "" {
-		options.Query = &name
+	if name, ok := d.GetOk("name"); ok {
+		options.Query = scalr.String(name.(string))
 	}
 
-	accountId := d.Get("account").(string)
-	if name != "" {
-		options.Account = &accountId
+	if accountId, ok := d.GetOk("account"); ok {
+		options.Account = scalr.String(accountId.(string))
 	}
 
-	envId := d.Get("environment").(string)
-	if envId != "" {
-		options.Environment = &envId
+	if envId, ok := d.GetOk("environment"); ok {
+		options.Environment = scalr.String(envId.(string))
 	}
 
-	vcsType := d.Get("vcs_type").(string)
-	if vcsType != "" {
-		vcsType := scalr.VcsType(vcsType)
+	if vcsType, ok := d.GetOk("vcs_type"); ok {
+		vcsType := scalr.VcsType(vcsType.(string))
 		options.VcsType = &vcsType
 	}
 
@@ -82,7 +78,7 @@ func dataSourceScalrVcsProviderRead(d *schema.ResourceData, meta interface{}) er
 
 	vcsProvider := vcsProviders.Items[0]
 
-	envIds := make([]string, 0)
+	envIds := []string{}
 	for _, env := range vcsProvider.Environments {
 		envIds = append(envIds, env.ID)
 	}
