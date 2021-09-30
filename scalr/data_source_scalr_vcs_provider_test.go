@@ -40,7 +40,6 @@ resource scalr_vcs_provider test {
 }
 
 data scalr_vcs_provider test {
-  id       = scalr_vcs_provider.test.id
   name     = scalr_vcs_provider.test.name
   vcs_type = scalr_vcs_provider.test.vcs_type
   account  = scalr_environment.test.account
