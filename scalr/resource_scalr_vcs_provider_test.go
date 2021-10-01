@@ -93,9 +93,10 @@ func TestAccScalrVcsProvider_import(t *testing.T) {
 				Config: testAccScalrVcsProviderConfig(),
 			},
 			{
-				ResourceName:      "scalr_vcs_provider.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "scalr_vcs_provider.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"token"},
 			},
 		},
 	})
