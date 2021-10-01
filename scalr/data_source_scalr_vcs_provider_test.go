@@ -44,18 +44,18 @@ func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: fmt.Sprintf(`
+				Config: `
 				data scalr_vcs_provider test {
 				  vcs_type = "github"
-				}`),
+				}`,
 				ExpectError: regexp.MustCompile("Your query returned more than one result. Please try a more specific search criteria"),
 				PlanOnly:    true,
 			},
 			{
-				Config: fmt.Sprintf(`
+				Config: `
 				data scalr_vcs_provider test {
 				  name = "not-existing-vcs"
-				}`),
+				}`,
 				ExpectError: regexp.MustCompile("Could not find vcs provider matching you query"),
 				PlanOnly:    true,
 			},
