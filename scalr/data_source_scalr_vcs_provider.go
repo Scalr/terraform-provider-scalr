@@ -24,12 +24,17 @@ func dataSourceScalrVcsProvider() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
-			"account": {
+			"url": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+			},
+			"account_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"environment": {
+			"environment_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -49,11 +54,11 @@ func dataSourceScalrVcsProviderRead(d *schema.ResourceData, meta interface{}) er
 		options.Query = scalr.String(name.(string))
 	}
 
-	if accountId, ok := d.GetOk("account"); ok {
+	if accountId, ok := d.GetOk("account_id"); ok {
 		options.Account = scalr.String(accountId.(string))
 	}
 
-	if envId, ok := d.GetOk("environment"); ok {
+	if envId, ok := d.GetOk("environment_id"); ok {
 		options.Environment = scalr.String(envId.(string))
 	}
 
@@ -86,7 +91,8 @@ func dataSourceScalrVcsProviderRead(d *schema.ResourceData, meta interface{}) er
 	// Update the configuration.
 	d.Set("vcs_type", vcsProvider.VcsType)
 	d.Set("name", vcsProvider.Name)
-	d.Set("account", vcsProvider.Account.ID)
+	d.Set("url", vcsProvider.Url)
+	d.Set("account_id", vcsProvider.Account.ID)
 	d.Set("environments", envIds)
 	d.SetId(vcsProvider.ID)
 

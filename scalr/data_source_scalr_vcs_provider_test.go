@@ -24,7 +24,9 @@ func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"data.scalr_vcs_provider.test", "vcs_type", "github"),
 					resource.TestCheckResourceAttr(
-						"data.scalr_vcs_provider.test", "account", defaultAccount),
+						"data.scalr_vcs_provider.test", "url", "https://github.com"),
+					resource.TestCheckResourceAttr(
+						"data.scalr_vcs_provider.test", "account_id", defaultAccount),
 				),
 			},
 			{
@@ -36,7 +38,9 @@ func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"data.scalr_vcs_provider.test", "vcs_type", "github"),
 					resource.TestCheckResourceAttr(
-						"data.scalr_vcs_provider.test", "account", defaultAccount),
+						"data.scalr_vcs_provider.test", "url", "https://github.com"),
+					resource.TestCheckResourceAttr(
+						"data.scalr_vcs_provider.test", "account_id", defaultAccount),
 				),
 			},
 			{
@@ -71,7 +75,7 @@ resource scalr_vcs_provider test {
 data scalr_vcs_provider test {
   name     = scalr_vcs_provider.test.name
   vcs_type = scalr_vcs_provider.test.vcs_type
-  account  = scalr_vcs_provider.test.account_id
+  account_id  = scalr_vcs_provider.test.account_id
 }`, rInt, token, defaultAccount)
 }
 
