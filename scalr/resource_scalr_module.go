@@ -95,7 +95,7 @@ func resourceScalrModuleCreate(d *schema.ResourceData, meta interface{}) error {
 
 	opt := scalr.ModuleCreateOptions{
 		VCSRepo:     vcsOpt,
-		VcsProvider: &scalr.VcsProviderOptions{ID: d.Get("vcs_provider_id").(string)},
+		VcsProvider: &scalr.VcsProvider{ID: d.Get("vcs_provider_id").(string)},
 	}
 
 	if accID, ok := d.GetOk("account_id"); ok {
