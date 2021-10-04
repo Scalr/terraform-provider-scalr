@@ -10,18 +10,11 @@ import (
 	"github.com/scalr/go-scalr"
 )
 
-func vcsProviderPreCheck(t *testing.T) {
-	testAccPreCheck(t)
-	if GITHUB_TOKEN == "" {
-		t.Skip("Please set GITHUB_TOKEN to run this test")
-	}
-}
-
 func TestAccVcsProvider_basic(t *testing.T) {
 	provider := &scalr.VcsProvider{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { vcsProviderPreCheck(t) },
+		PreCheck:     func() { vcsAccGithubTokenPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckScalrVcsProviderDestroy,
 		Steps: []resource.TestStep{
@@ -60,7 +53,7 @@ func TestAccVcsProvider_basic(t *testing.T) {
 func TestAccVcsProvider_globalScope(t *testing.T) {
 	provider := &scalr.VcsProvider{}
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { vcsProviderPreCheck(t) },
+		PreCheck:     func() { vcsAccGithubTokenPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckScalrVcsProviderDestroy,
 		Steps: []resource.TestStep{
@@ -85,7 +78,7 @@ func TestAccVcsProvider_globalScope(t *testing.T) {
 
 func TestAccScalrVcsProvider_import(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { vcsProviderPreCheck(t) },
+		PreCheck:     func() { vcsAccGithubTokenPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckScalrVcsProviderDestroy,
 		Steps: []resource.TestStep{

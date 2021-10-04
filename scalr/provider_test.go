@@ -101,3 +101,10 @@ func testAccPreCheck(t *testing.T) {
 		t.Fatalf("err: %s", err)
 	}
 }
+
+func vcsAccGithubTokenPreCheck(t *testing.T) {
+	testAccPreCheck(t)
+	if GITHUB_TOKEN == "" {
+		t.Skip("Please set GITHUB_TOKEN to run this test")
+	}
+}
