@@ -12,7 +12,7 @@ func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { vcsAccGithubTokenPreCheck(t) },
+		PreCheck:  func() { testVcsAccGithubTokenPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{

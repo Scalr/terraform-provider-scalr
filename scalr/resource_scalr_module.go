@@ -103,6 +103,10 @@ func resourceScalrModuleCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if envID, ok := d.GetOk("environment_id"); ok {
+		if opt.Account == nil {
+			return fmt.Errorf("The attribute account_id is required with environment_id attribute")
+		}
+
 		opt.Environment = &scalr.Environment{ID: envID.(string)}
 	}
 
