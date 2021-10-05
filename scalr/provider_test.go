@@ -102,7 +102,7 @@ func testAccPreCheck(t *testing.T) {
 	}
 }
 
-func vcsAccGithubTokenPreCheck(t *testing.T) {
+func testVcsAccGithubTokenPreCheck(t *testing.T) {
 	testAccPreCheck(t)
 	if GITHUB_TOKEN == "" {
 		t.Skip("Please set GITHUB_TOKEN to run this test")

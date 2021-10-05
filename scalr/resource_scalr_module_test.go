@@ -2,6 +2,7 @@ package scalr
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -11,37 +12,56 @@ import (
 
 func TestAccScalrModule_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testVcsAccGithubTokenPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckScalrModuleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrModuleAllScopes(),
+				Config: testAccScalrModulesOnAllScopes(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrModuleExists("scalr_module.test-global", &scalr.Module{}),
-					resource.TestCheckResourceAttr("scalr_module.test-global", "vcs_repo.0.identifier", "Scalr/terraform-scalr-revizor"),
+					testAccCheckScalrModuleExists("scalr_module.test", &scalr.Module{}),
+					resource.TestCheckResourceAttr("scalr_module.test", "account_id", defaultAccount),
+					resource.TestCheckResourceAttrSet("scalr_module.test", "environment_id"),
+					resource.TestCheckResourceAttr("scalr_module.test", "vcs_repo.0.identifier", "Scalr/terraform-scalr-revizor"),
+
 					testAccCheckScalrModuleExists("scalr_module.test-account", &scalr.Module{}),
 					resource.TestCheckResourceAttr("scalr_module.test-account", "account_id", defaultAccount),
 					resource.TestCheckResourceAttr("scalr_module.test-account", "vcs_repo.0.identifier", "Scalr/terraform-scalr-revizor"),
-					testAccCheckScalrModuleExists("scalr_module.test-environment", &scalr.Module{}),
-					resource.TestCheckResourceAttr("scalr_module.test-environment", "account_id", defaultAccount),
-					resource.TestCheckResourceAttrSet("scalr_module.test-environment", "environment_id"),
-					resource.TestCheckResourceAttr("scalr_module.test-environment", "vcs_repo.0.identifier", "Scalr/terraform-scalr-revizor"),
+
+					testAccCheckScalrModuleExists("scalr_module.test-global", &scalr.Module{}),
+					resource.TestCheckResourceAttr("scalr_module.test-global", "vcs_repo.0.identifier", "Scalr/terraform-scalr-revizor"),
 				),
 			},
 			{
-				Config: testAccScalrModuleInvalidVcsRepo(),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrModuleExists("scalr_module.test-global", &scalr.Module{}),
-				),
+				Config: `
+				resource "scalr_module" "test-not-valid" {
+				  vcs_repo {
+					identifier = "Scalr/terraform-scalr-revizor"
+				  }
+				  vcs_provider_id = "vcs-xxxxx"
+				}
+				`,
+				ExpectError: regexp.MustCompile("VcsProvider with ID 'vcs-xxxxx' not found or user unauthorized"),
+			},
+			{
+				Config: `
+				resource "scalr_module" "test-not-valid" {
+				  vcs_repo {
+					identifier = "Scalr/terraform-scalr-revizor"
+				  }
+				  vcs_provider_id = "vcs-xxxxx"
+				  environment_id ="env-test"	
+				}
+				`,
+				ExpectError: regexp.MustCompile("The attribute account_id is required"),
 			},
 		},
 	})
 }
 
-func TestAccScalrVcsModule_import(t *testing.T) {
+func TestAccScalrModule_import(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { vcsProviderPreCheck(t) },
+		PreCheck:     func() { testVcsAccGithubTokenPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckScalrModuleDestroy,
 		Steps: []resource.TestStep{
@@ -106,74 +126,61 @@ func testAccCheckScalrModuleDestroy(s *terraform.State) error {
 func testAccScalrModule() string {
 	return fmt.Sprintf(`
 	resource scalr_vcs_provider test {
-  name       = "test-github-provider-import"
-  vcs_type   = "%s"
-  token      = "%s"
+	  name       = "test-github-provider-import"
+	  vcs_type   = "%s"
+	  token      = "%s"
+	}
+	
+	resource "scalr_module" "test" {
+	  vcs_repo {
+		identifier = "Scalr/terraform-scalr-revizor"
+	  }
+	  vcs_provider_id = scalr_vcs_provider.test.id
 }
-
-resource "scalr_module" "test" {
-  name           = "test-scalr-import-module"
-  vcs_repo {
-	identifier = "Scalr/terraform-scalr-revizor"
-  }
-  vcs_provider_id = scalr_vcs_provider.test.id
-}
-
 `, string(scalr.Github), GITHUB_TOKEN)
 }
 
-func testAccScalrModuleInvalidVcsRepo() string {
-	return `
-resource "scalr_module" "test" {
-  name           = "test-scalr-import-module"
-  vcs_repo {
-	identifier = "Scalr/terraform-scalr-revizor"
-  }
-  vcs_provider_id = vcs-xxxxx
-}
-`
-}
-
-func testAccScalrModuleAllScopes() string {
+func testAccScalrModulesOnAllScopes() string {
 	rInd := GetRandomInteger()
 
 	return fmt.Sprintf(`
-resource scalr_vcs_provider test {
-  name       = "test-github-provider-all-scopes-%d"
-  vcs_type   = "%s"
-  token      = "%s"
-}
-
-locals {
-	account_id = "%s"
-}
-
-resource scalr_environment test {
-  name       = "test-env-for-module-%d"
-  account_id = local.account_id
-}
-
-resource "scalr_module" "test-global" {
-  vcs_repo {
-	identifier = "Scalr/terraform-scalr-revizor"
-  }
-  vcs_provider_id = scalr_vcs_provider.test.id
-}
-
-resource "scalr_module" "test-account" {
-  account_id     = local.account_id
-  vcs_repo {
-	identifier = "Scalr/terraform-scalr-revizor"
-  }
-  vcs_provider_id = scalr_vcs_provider.test.id
-}
-
-resource "scalr_module" "test-environment" {
-  environment_id = scalr_environment.test.id
-  vcs_repo {
-	identifier = "Scalr/terraform-scalr-revizor"
-  }
-  vcs_provider_id = scalr_vcs_provider.test.id
-}
-`, rInd, string(scalr.Github), GITHUB_TOKEN, defaultAccount, rInd)
+		resource scalr_vcs_provider test {
+		  name       = "test-github-provider-all-scopes-%[1]d"
+		  vcs_type   = "%s"
+		  token      = "%s"
+		}
+		
+		locals {
+			account_id = "%s"
+		}
+		
+		resource "scalr_module" "test-global" {
+		  vcs_repo {
+			identifier = "Scalr/terraform-scalr-revizor"
+		  }
+		  vcs_provider_id = scalr_vcs_provider.test.id
+		}
+		
+		resource "scalr_module" "test-account" {
+		  account_id = local.account_id
+		  vcs_repo {
+			identifier = "Scalr/terraform-scalr-revizor"
+		  }
+		  vcs_provider_id = scalr_vcs_provider.test.id
+		}
+		
+		resource scalr_environment test {
+		  name       = "test-env-for-module-%[1]d"
+		  account_id = local.account_id
+		}
+		
+		resource "scalr_module" "test" {
+		  environment_id = scalr_environment.test.id
+		  account_id = local.account_id	
+		  vcs_repo {
+			identifier = "Scalr/terraform-scalr-revizor"
+		  }
+		  vcs_provider_id = scalr_vcs_provider.test.id
+		}
+`, rInd, string(scalr.Github), GITHUB_TOKEN, defaultAccount)
 }
