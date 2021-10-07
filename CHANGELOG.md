@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **New resource:** `scalr_module` ([#76](https://github.com/Scalr/terraform-provider-scalr/pull/76))
 
 ### Changed
+- `scalr_workspace.vcs_repo`: change attribute `path` ([#92](https://github.com/Scalr/terraform-provider-scalr/pull/92))
 - `scalr_workspace`: new attribute `module_version_id` ([#76](https://github.com/Scalr/terraform-provider-scalr/pull/76))
 
 ### Fixed
