@@ -142,7 +142,7 @@ func resourceScalrWorkspace() *schema.Resource {
 							Type:       schema.TypeString,
 							Default:    "",
 							Optional:   true,
-							Deprecated: "Configuration version root is deprecated. Use working directory and trigger prefixes instead.",
+							Deprecated: "Vcs_repo.path is deprecated. Use working_directory and trigger_prefixes instead.",
 						},
 
 						"trigger_prefixes": {
