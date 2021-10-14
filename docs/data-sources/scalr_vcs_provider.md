@@ -14,7 +14,8 @@ This data source is used to retrieve details of a vcs_provider.
 
 ```hcl
 data "scalr_vcs_provider" "example" {
-  id = "vcs-xxxxxxxxx"
+  name = "example"
+  account_id="acc-xxx"
 }
 ```
 
