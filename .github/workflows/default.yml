@@ -34,7 +34,7 @@ jobs:
       REVIZOR_TOKEN: ${{ secrets.REVIZOR_TOKEN }}
       SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
     permissions:
-      repository-projects: read
+      repository-projects: write
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
