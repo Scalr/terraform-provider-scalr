@@ -35,7 +35,6 @@ jobs:
       SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
     permissions:
       repository-projects: read
-      repository-hooks: write
       statuses: write
     steps:
       - uses: actions/checkout@v2
