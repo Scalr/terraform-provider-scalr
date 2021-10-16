@@ -33,7 +33,10 @@ jobs:
       REVIZOR_URL: ${{ secrets.REVIZOR_URL }}
       REVIZOR_TOKEN: ${{ secrets.REVIZOR_TOKEN }}
       SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
-    permissions: read-all
+    permissions:
+      repository-projects: read
+      repository-hooks: write
+      statuses: write
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
