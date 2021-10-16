@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **New resource:** `scalr_vcs_provider` ([#88](https://github.com/Scalr/terraform-provider-scalr/pull/88))
+- **New data source:** `scalr_vcs_provider` ([#89](https://github.com/Scalr/terraform-provider-scalr/pull/89))
+
+
 ## [1.0.0-rc21] - 2021-10-01
 
 ### Added
