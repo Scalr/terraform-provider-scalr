@@ -25,8 +25,6 @@ jobs:
       SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
       API_BRANCH: ${{ github.event.inputs.api-branch }}
       DB_BRANCH: ${{ github.event.inputs.db-branch }}
-    permissions:
-      repository-projects: write
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
