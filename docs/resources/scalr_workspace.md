@@ -38,6 +38,7 @@ resource "scalr_workspace" "example" {
 * `terraform_version` - (Optional) The version of Terraform to use for this workspace. Defaults to the latest available version.
 * `working_directory` - (Optional) A relative path that Terraform will be run in. Defaults to the root of the repository `""`.
 * `module_version_id` - (Optional) The identifier of a module version in the format `modver-<RANDOM STRING>`. This attribute conflicts with `vcs_provider_id` and `vcs_repo` attributes.
+* `agent_pool_id` - (Optional) The identifier of an agent pool in the format `apool-<RANDOM STRING>`.
 * `vcs_provider_id` - (Optional) ID of vcs provider - required if vcs-repo present and vice versa, in the format `vcs-<RANDOM STRING>`
 * `vcs_repo` - (Optional) Settings for the workspace's VCS repository.
 
