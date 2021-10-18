@@ -25,7 +25,6 @@ The following arguments are supported:
 
 * `name` - (Required) Name of the workspace.
 * `environment_id` - (Required) ID of the environment, in the format `env-<RANDOM STRING>`.
-* `vcs_provider_id` - (Optional) ID of vcs provider, in the format `vcs-<RANDOM STRING>`.
 
 ## Attribute Reference
 
@@ -36,6 +35,8 @@ All arguments plus:
 * `operations` - Boolean indicates if the workspace is being used for remote execution.
 * `terraform_version` - The version of Terraform used for this workspace.
 * `working_directory` - A relative path that Terraform will execute within.
+* `module_version_id` - The identifier of a module version in the format `modver-<RANDOM STRING>`.
+* `vcs_provider_id` - The identifier of a VCS provider in the format `vcs-<RANDOM STRING>`.
 * `vcs_repo` - If workspace is linked to VCS repository this block shows the details, otherwise `{}`
 * `created_by` - Details of the user that created the workspace.
 * `has_resources` - The presence of active terraform resources in the current state version.

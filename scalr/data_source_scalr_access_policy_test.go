@@ -2,6 +2,7 @@ package scalr
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -23,6 +24,11 @@ func TestAccScalrAccessPolicyDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.scalr_access_policy.test", "role_ids.0", readOnlyRole),
 					resource.TestCheckResourceAttr("data.scalr_access_policy.test", "role_ids.#", "1"),
 				),
+			},
+			{
+				Config:      testAccAccessPolicyDataSourceNotFoundConfig(),
+				ExpectError: regexp.MustCompile("IamAccessPolicy with ID 'ap-123' not found or user unauthorized"),
+				PlanOnly:    true,
 			},
 		},
 	})
@@ -52,4 +58,11 @@ resource "scalr_access_policy" "test" {
 data "scalr_access_policy" "test" {
    id = scalr_access_policy.test.id
 }`, defaultAccount, testUser, readOnlyRole)
+}
+
+func testAccAccessPolicyDataSourceNotFoundConfig() string {
+	return `
+data "scalr_access_policy" "test" {
+  id = "ap-123"
+}`
 }

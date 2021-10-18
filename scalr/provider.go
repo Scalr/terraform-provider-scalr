@@ -63,15 +63,17 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"scalr_agent_pool":    dataSourceScalrAgentPool(),
-			"scalr_workspace":     dataSourceScalrWorkspace(),
-			"scalr_workspace_ids": dataSourceScalrWorkspaceIDs(),
-			"scalr_current_run":   dataSourceScalrCurrentRun(),
-			"scalr_endpoint":      dataSourceScalrEndpoint(),
-			"scalr_webhook":       dataSourceScalrWebhook(),
-			"scalr_environment":   dataSourceScalrEnvironment(),
-			"scalr_role":          dataSourceScalrRole(),
-			"scalr_access_policy": dataSourceScalrAccessPolicy(),
+			"scalr_agent_pool":     dataSourceScalrAgentPool(),
+			"scalr_workspace":      dataSourceScalrWorkspace(),
+			"scalr_workspace_ids":  dataSourceScalrWorkspaceIDs(),
+			"scalr_current_run":    dataSourceScalrCurrentRun(),
+			"scalr_endpoint":       dataSourceScalrEndpoint(),
+			"scalr_webhook":        dataSourceScalrWebhook(),
+			"scalr_environment":    dataSourceScalrEnvironment(),
+			"scalr_role":           dataSourceScalrRole(),
+			"scalr_access_policy":  dataSourceScalrAccessPolicy(),
+			"scalr_module_version": dataSourceModuleVersion(),
+			"scalr_vcs_provider":   dataSourceScalrVcsProvider(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -82,8 +84,10 @@ func Provider() terraform.ResourceProvider {
 			"scalr_endpoint":         resourceScalrEndpoint(),
 			"scalr_webhook":          resourceScalrWebhook(),
 			"scalr_environment":      resourceScalrEnvironment(),
+			"scalr_module":           resourceScalrModule(),
 			"scalr_role":             resourceScalrRole(),
 			"scalr_access_policy":    resourceScalrAccessPolicy(),
+			"scalr_vcs_provider":     resourceScalrVcsProvider(),
 		},
 
 		ConfigureFunc: providerConfigure,
