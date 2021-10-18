@@ -33,12 +33,12 @@ func dataSourceScalrPolicyGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"vcs": {
+			"vcs_repo": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"repository_id": {
+						"identifier": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -49,34 +49,6 @@ func dataSourceScalrPolicyGroup() *schema.Resource {
 						"path": {
 							Type:     schema.TypeString,
 							Computed: true,
-						},
-						"commit": {
-							Type:     schema.TypeList,
-							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"sha": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"message": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"author": {
-										Type:     schema.TypeMap,
-										Computed: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"username": {
-													Type:     schema.TypeString,
-													Computed: true,
-												},
-											},
-										},
-									},
-								},
-							},
 						},
 					},
 				},
@@ -112,16 +84,12 @@ func dataSourceScalrPolicyGroup() *schema.Resource {
 			"environments": {
 				Type:     schema.TypeList,
 				Computed: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"workspaces": {
 				Type:     schema.TypeList,
 				Computed: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -137,7 +105,7 @@ func dataSourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) er
 	options := scalr.PolicyGroupListOptions{
 		Account: accountID,
 		Name:    name,
-		Include: "vcs-revision,policies,environments,workspaces",
+		Include: "policies,environments,workspaces",
 	}
 	log.Printf("[DEBUG] Read configuration of policy group: %s/%s", accountID, name)
 
@@ -161,34 +129,19 @@ func dataSourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) er
 		d.Set("vcs_provider_id", pg.VcsProvider.ID)
 	}
 
+	var vcsRepo []interface{}
 	if pg.VCSRepo != nil {
-		log.Printf("[DEBUG] Read vcs revision attributes of policy group: %s", pg.ID)
-		var vcsConfig []map[string]interface{}
-
-		vcs := map[string]interface{}{
-			"repository_id": pg.VCSRepo.Identifier,
-			"branch":        pg.VCSRepo.Branch,
-			"path":          pg.VCSRepo.Path,
-			"commit":        []map[string]interface{}{},
+		vcsConfig := map[string]interface{}{
+			"identifier": pg.VCSRepo.Identifier,
+			"branch":     pg.VCSRepo.Branch,
+			"path":       pg.VCSRepo.Path,
 		}
-
-		if pg.VcsRevision != nil {
-			vcs["commit"] = []map[string]interface{}{
-				{
-					"sha":     pg.VcsRevision.CommitSha,
-					"message": pg.VcsRevision.CommitMessage,
-					"author": map[string]interface{}{
-						"username": pg.VcsRevision.SenderUsername,
-					},
-				},
-			}
-		}
-
-		d.Set("vcs", append(vcsConfig, vcs))
+		vcsRepo = append(vcsRepo, vcsConfig)
 	}
+	d.Set("vcs_repo", vcsRepo)
 
+	var policies []map[string]interface{}
 	if len(pg.Policies) != 0 {
-		var policies []map[string]interface{}
 		for _, policy := range pg.Policies {
 			policies = append(policies, map[string]interface{}{
 				"name":           policy.Name,
@@ -196,24 +149,24 @@ func dataSourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) er
 				"enforced_level": policy.EnforcementLevel,
 			})
 		}
-		d.Set("policies", policies)
 	}
+	d.Set("policies", policies)
 
+	var envs []string
 	if len(pg.Environments) != 0 {
-		var envs []string
 		for _, env := range pg.Environments {
 			envs = append(envs, env.ID)
 		}
-		d.Set("environments", envs)
 	}
+	d.Set("environments", envs)
 
+	var wss []string
 	if len(pg.Workspaces) != 0 {
-		var wss []string
 		for _, ws := range pg.Workspaces {
 			wss = append(wss, ws.ID)
 		}
-		d.Set("workspaces", wss)
 	}
+	d.Set("workspaces", wss)
 
 	d.SetId(pg.ID)
 
