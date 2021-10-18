@@ -72,6 +72,7 @@ func Provider() terraform.ResourceProvider {
 			"scalr_role":           dataSourceScalrRole(),
 			"scalr_access_policy":  dataSourceScalrAccessPolicy(),
 			"scalr_module_version": dataSourceModuleVersion(),
+			"scalr_policy_group":   dataSourceScalrPolicyGroup(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
