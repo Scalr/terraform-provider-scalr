@@ -89,6 +89,40 @@ func dataSourceScalrPolicyGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"policies": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"enabled": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"enforced_level": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+			"environments": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"workspaces": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
@@ -100,7 +134,11 @@ func dataSourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) er
 	name := d.Get("name").(string)
 	accountID := d.Get("account_id").(string)
 
-	options := scalr.PolicyGroupListOptions{Account: accountID, Name: name, Include: "vcs-revision"}
+	options := scalr.PolicyGroupListOptions{
+		Account: accountID,
+		Name:    name,
+		Include: "vcs-revision,policies,environments,workspaces",
+	}
 	log.Printf("[DEBUG] Read configuration of policy group: %s/%s", accountID, name)
 
 	pgl, err := scalrClient.PolicyGroups.List(ctx, options)
@@ -147,6 +185,34 @@ func dataSourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) er
 		}
 
 		d.Set("vcs", append(vcsConfig, vcs))
+	}
+
+	if len(pg.Policies) != 0 {
+		var policies []map[string]interface{}
+		for _, policy := range pg.Policies {
+			policies = append(policies, map[string]interface{}{
+				"name":           policy.Name,
+				"enabled":        policy.Enabled,
+				"enforced_level": policy.EnforcementLevel,
+			})
+		}
+		d.Set("policies", policies)
+	}
+
+	if len(pg.Environments) != 0 {
+		var envs []string
+		for _, env := range pg.Environments {
+			envs = append(envs, env.ID)
+		}
+		d.Set("environments", envs)
+	}
+
+	if len(pg.Workspaces) != 0 {
+		var wss []string
+		for _, ws := range pg.Workspaces {
+			wss = append(wss, ws.ID)
+		}
+		d.Set("workspaces", wss)
 	}
 
 	d.SetId(pg.ID)

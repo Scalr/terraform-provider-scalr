@@ -3,9 +3,10 @@ package scalr
 import (
 	"errors"
 	"fmt"
+	"log"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	scalr "github.com/scalr/go-scalr"
-	"log"
 )
 
 func resourceScalrWorkspace() *schema.Resource {
@@ -230,7 +231,7 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if vcsProviderID, ok := d.GetOk("vcs_provider_id"); ok {
-		options.VcsProvider = &scalr.VcsProviderOptions{
+		options.VcsProvider = &scalr.VcsProvider{
 			ID: vcsProviderID.(string),
 		}
 	}
@@ -379,7 +380,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		options.WorkingDirectory = scalr.String(d.Get("working_directory").(string))
 
 		if vcsProviderId, ok := d.GetOk("vcs_provider_id"); ok {
-			options.VcsProvider = &scalr.VcsProviderOptions{
+			options.VcsProvider = &scalr.VcsProvider{
 				ID: vcsProviderId.(string),
 			}
 		}
