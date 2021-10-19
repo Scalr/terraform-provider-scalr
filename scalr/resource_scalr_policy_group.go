@@ -254,8 +254,7 @@ func resourceScalrPolicyGroupDelete(d *schema.ResourceData, meta interface{}) er
 			log.Printf("[DEBUG] Policy group %s not found", id)
 			return nil
 		}
-		return fmt.Errorf(
-			"error deleting policy group %s: %v", id, err)
+		return fmt.Errorf("error deleting policy group %s: %v", id, err)
 	}
 
 	return nil
