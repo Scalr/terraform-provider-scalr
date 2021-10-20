@@ -113,7 +113,7 @@ func resourceScalrPolicyGroupCreate(d *schema.ResourceData, meta interface{}) er
 	vcsRepo := d.Get("vcs_repo").([]interface{})[0].(map[string]interface{})
 
 	vcsOpt := &scalr.PolicyGroupVCSRepoOptions{
-		Identifier: vcsRepo["identifier"].(string),
+		Identifier: scalr.String(vcsRepo["identifier"].(string)),
 	}
 	if branch, ok := vcsRepo["branch"].(string); ok && branch != "" {
 		vcsOpt.Branch = scalr.String(branch)
@@ -215,7 +215,7 @@ func resourceScalrPolicyGroupUpdate(d *schema.ResourceData, meta interface{}) er
 		vcsRepo := d.Get("vcs_repo").([]interface{})[0].(map[string]interface{})
 
 		vcsOpt := &scalr.PolicyGroupVCSRepoOptions{
-			Identifier: vcsRepo["identifier"].(string),
+			Identifier: scalr.String(vcsRepo["identifier"].(string)),
 		}
 		if branch, ok := vcsRepo["branch"].(string); ok && branch != "" {
 			vcsOpt.Branch = scalr.String(branch)
