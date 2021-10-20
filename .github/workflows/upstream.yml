@@ -38,6 +38,7 @@ jobs:
       - name: Run acceptance tests
         env:
           SCALR_HOSTNAME: ${{ steps.create.outputs.hostname }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: make testacc
       - name: Delete container
         id: delete
