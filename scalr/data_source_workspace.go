@@ -33,6 +33,10 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Optional: true,
 			},
 
+			"agent_pool_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"auto_apply": {
 				Type:     schema.TypeBool,
 				Computed: true,
