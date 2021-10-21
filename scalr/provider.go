@@ -64,6 +64,7 @@ func Provider() terraform.ResourceProvider {
 
 		DataSourcesMap: map[string]*schema.Resource{
 			"scalr_access_policy":  dataSourceScalrAccessPolicy(),
+			"scalr_agent_pool":     dataSourceScalrAgentPool(),
 			"scalr_current_run":    dataSourceScalrCurrentRun(),
 			"scalr_endpoint":       dataSourceScalrEndpoint(),
 			"scalr_environment":    dataSourceScalrEnvironment(),
@@ -78,6 +79,8 @@ func Provider() terraform.ResourceProvider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"scalr_access_policy":        resourceScalrAccessPolicy(),
+			"scalr_agent_pool":           resourceScalrAgentPool(),
+			"scalr_agent_pool_token":     resourceScalrAgentPoolToken(),
 			"scalr_endpoint":             resourceScalrEndpoint(),
 			"scalr_environment":          resourceScalrEnvironment(),
 			"scalr_module":               resourceScalrModule(),
