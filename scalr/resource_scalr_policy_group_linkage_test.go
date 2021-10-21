@@ -69,6 +69,9 @@ func testAccCheckPolicyGroupLinkedResources(pg *scalr.PolicyGroup, env *scalr.En
 			"policy_group_id",
 			pg.ID,
 		)(s)
+		if err != nil {
+			return err
+		}
 		err = resource.TestCheckResourceAttr(
 			"scalr_policy_group_linkage.test",
 			"environment_id",
