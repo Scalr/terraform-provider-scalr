@@ -7,15 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-rc22] - 2021-10-22
+
 ### Added
 
-- **New data source:** `scalr_agent_pool` ([#85](https://github.com/Scalr/terraform-provider-scalr/pull/85))
 - **New resource:** `scalr_agent_pool` ([#85](https://github.com/Scalr/terraform-provider-scalr/pull/85))
+- **New data source:** `scalr_agent_pool` ([#85](https://github.com/Scalr/terraform-provider-scalr/pull/85))
 - **New resource:** `scalr_agent_pool_token` ([#85](https://github.com/Scalr/terraform-provider-scalr/pull/85))
 - `scalr_workspace`: added new attribute `agent_pool_id` ([#85](https://github.com/Scalr/terraform-provider-scalr/pull/85))
 - **New resource:** `scalr_vcs_provider` ([#88](https://github.com/Scalr/terraform-provider-scalr/pull/88))
 - **New data source:** `scalr_vcs_provider` ([#89](https://github.com/Scalr/terraform-provider-scalr/pull/89))
 
+### Required
+
+- scalr-server >= `8.1.0`
 
 ## [1.0.0-rc21] - 2021-10-01
 
@@ -33,6 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `data.scalr_environment`: return error if environment is not found ([#83](https://github.com/Scalr/terraform-provider-scalr/pull/83))
 - `scalr_environment`: fixed crash while reading environment without proper permissions ([#82](https://github.com/Scalr/terraform-provider-scalr/pull/82))
 
+### Required
+
+- scalr-server >= `8.0.1-beta.20210930`
 
 ## [1.0.0-rc20] - 2021-09-10
 
@@ -43,6 +51,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scalr_access_policy`: fixed handling of empty strings in `role_ids` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
 - `scalr_role`: fixed handling of empty strings in `permissions` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
 - `scalr_workspace`: fixed handling of empty strings in `vcs_repo.trigger_prefixes` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
+
+### Required
+
+- scalr server >= `8.0.1-beta.20210810`
 
 ## [1.0.0-rc19] - 2021-08-19
 
@@ -314,7 +326,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc21...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc22...HEAD
+[1.0.0-rc22]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc22
 [1.0.0-rc21]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc21
 [1.0.0-rc20]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc20
 [1.0.0-rc19]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc19
