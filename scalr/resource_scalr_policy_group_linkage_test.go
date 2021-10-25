@@ -31,7 +31,16 @@ func TestAccPolicyGroupLinkage_basic(t *testing.T) {
 						policyGroup,
 						environment,
 					),
-					testAccCheckPolicyGroupLinkedResources(policyGroup, environment),
+					resource.TestCheckResourceAttrPtr(
+						"scalr_policy_group_linkage.test",
+						"policy_group_id",
+						&policyGroup.ID,
+					),
+					resource.TestCheckResourceAttrPtr(
+						"scalr_policy_group_linkage.test",
+						"environment_id",
+						&environment.ID,
+					),
 				),
 			},
 		},
@@ -60,25 +69,6 @@ func TestAccPolicyGroupLinkage_import(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckPolicyGroupLinkedResources(pg *scalr.PolicyGroup, env *scalr.Environment) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		err := resource.TestCheckResourceAttr(
-			"scalr_policy_group_linkage.test",
-			"policy_group_id",
-			pg.ID,
-		)(s)
-		if err != nil {
-			return err
-		}
-		err = resource.TestCheckResourceAttr(
-			"scalr_policy_group_linkage.test",
-			"environment_id",
-			env.ID,
-		)(s)
-		return err
-	}
 }
 
 func testAccCheckPolicyGroupLinkageExists(
