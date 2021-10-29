@@ -28,7 +28,7 @@ All arguments plus:
 
 * `id` - The ID of the user.
 * `status` - Shows status of the user.
-* `username` - Users username.
-* `full_name` - Users full name.
+* `username` - User's username.
+* `full_name` - User's full name.
 * `identity_providers` - List of identity provider ids this user belongs to.
 * `teams` - List of team ids this user belongs to.
