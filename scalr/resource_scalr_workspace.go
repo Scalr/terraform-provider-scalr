@@ -145,9 +145,10 @@ func resourceScalrWorkspace() *schema.Resource {
 						},
 
 						"path": {
-							Type:     schema.TypeString,
-							Default:  "",
-							Optional: true,
+							Type:       schema.TypeString,
+							Default:    "",
+							Optional:   true,
+							Deprecated: "The attribute `vcs-repo.path` is deprecated. Use working-directory and trigger-prefixes instead.",
 						},
 
 						"trigger_prefixes": {
