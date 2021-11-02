@@ -13,12 +13,12 @@ import (
 
 	version "github.com/hashicorp/go-version"
 	"github.com/hashicorp/hcl"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/logging"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	svchost "github.com/hashicorp/terraform-svchost"
 	"github.com/hashicorp/terraform-svchost/auth"
 	"github.com/hashicorp/terraform-svchost/disco"
-	"github.com/hashicorp/terraform/helper/logging"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
 	scalr "github.com/scalr/go-scalr"
 	providerVersion "github.com/scalr/terraform-provider-scalr/version"
 )
@@ -68,6 +68,8 @@ func Provider() terraform.ResourceProvider {
 			"scalr_current_run":    dataSourceScalrCurrentRun(),
 			"scalr_endpoint":       dataSourceScalrEndpoint(),
 			"scalr_environment":    dataSourceScalrEnvironment(),
+			"scalr_iam_team":       dataSourceScalrIamTeam(),
+			"scalr_iam_user":       dataSourceScalrIamUser(),
 			"scalr_module_version": dataSourceModuleVersion(),
 			"scalr_policy_group":   dataSourceScalrPolicyGroup(),
 			"scalr_role":           dataSourceScalrRole(),
@@ -83,6 +85,7 @@ func Provider() terraform.ResourceProvider {
 			"scalr_agent_pool_token":     resourceScalrAgentPoolToken(),
 			"scalr_endpoint":             resourceScalrEndpoint(),
 			"scalr_environment":          resourceScalrEnvironment(),
+			"scalr_iam_team":             resourceScalrIamTeam(),
 			"scalr_module":               resourceScalrModule(),
 			"scalr_policy_group":         resourceScalrPolicyGroup(),
 			"scalr_policy_group_linkage": resourceScalrPolicyGroupLinkage(),

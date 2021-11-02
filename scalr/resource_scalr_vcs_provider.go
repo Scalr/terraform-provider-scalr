@@ -3,10 +3,11 @@ package scalr
 import (
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
-	"github.com/scalr/go-scalr"
 	"log"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrVcsProvider() *schema.Resource {
