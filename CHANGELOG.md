@@ -14,16 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **New resource:** `scalr_iam_team` ([#96](https://github.com/Scalr/terraform-provider-scalr/pull/96))
 - **New data source:** `scalr_iam_team` ([#96](https://github.com/Scalr/terraform-provider-scalr/pull/96))
 - **New data source:** `scalr_iam_user` ([#96](https://github.com/Scalr/terraform-provider-scalr/pull/96))
-
-### Required
-
-- scalr-server >= `8.2.0`
-
-### Added
-
-- **New data source:** `scalr_policy_group` ([#94](https://github.com/Scalr/terraform-provider-scalr/pull/94))
 - **New resource:** `scalr_policy_group` ([#94](https://github.com/Scalr/terraform-provider-scalr/pull/94))
 - **New resource:** `scalr_policy_group_linkage` ([#94](https://github.com/Scalr/terraform-provider-scalr/pull/94))
+- **New data source:** `scalr_policy_group` ([#94](https://github.com/Scalr/terraform-provider-scalr/pull/94))
 
 ### Required
 
