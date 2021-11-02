@@ -10,7 +10,8 @@ import (
 )
 
 const defaultAccount = "acc-svrcncgh453bi8g"
-const testUser = "user-suh84u6vuvidtbg"     // test@scalr.com
+const testUser = "user-suh84u6vuvidtbg" // test@scalr.com
+const testUserEmail = "test@scalr.com"
 const readOnlyRole = "role-t67mjtmabulckto" // Reader
 const userRole = "role-t67mjtmauajto7g"     // User
 
