@@ -28,34 +28,33 @@ resource "scalr_policy_group" "example" {
 
 ## Argument Reference
 
-* `name` - (Required) Name of the policy group.
-* `account_id` - (Required) ID of the account, in the format `acc-<RANDOM STRING>`.
-* `vcs_provider_id` - (Required) ID of a VCS provider, in the format `vcs-<RANDOM STRING>`.
-* `vcs_repo` - (Required) Settings for the policy group's VCS repository.
+* `name` - (Required) The name of a policy group.
+* `account_id` - (Required) The identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.
+* `vcs_provider_id` - (Required) The identifier of a VCS provider, in the format `vcs-<RANDOM STRING>`.
+* `vcs_repo` - (Required) Object. The VCS meta-data to create the policy from:
 
-    The `vcs_repo` block supports:
     * `identifier` - (Required) The reference to the VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
-    * `branch` - (Optional) Branch of a repository the policy group is associated with. If omitted, the repository default branch will be used.
+    * `branch` - (Optional) The branch of a repository the policy group is associated with. If omitted, the repository default branch will be used.
     * `path` - (Optional) The sub-directory of the VCS repository where OPA policies are stored. If omitted or submitted as an empty string, this defaults to the repository's root.
 
-* `opa_version` - (Optional) The version of Open Policy Agent to use for the policy evaluation. If omitted, the system default version is assigned.
+* `opa_version` - (Optional) The version of Open Policy Agent to run policies against. If omitted, the system default version is assigned.
 
 ## Attribute Reference
 
 All arguments plus:
 
-* `id` - The ID of the policy group.
-* `status` - Policy group current status.
-* `error_message` - The error description when the group's status is `errored`.
-* `policies` - List of OPA policies this group contains.
-* `environments` - List of environments this policy group is linked to.
-* `workspaces` - List of workspaces affected by this policy group.
+* `id` - An identifier of the policy group.
+* `status` - A system status of the Policy group.
+* `error_message` - A detailed error if Scalr failed to process the policy group.
+* `policies` - A list of the OPA policies the group verifies each run.
+* `environments` - A list of the environments the policy group is linked to.
+* `workspaces` - A list of the workspaces the this policy group verify runs for.
 
 The `policies` list contains definitions of OPA policies in the following form:
 
-* `name` - The name of the policy.
-* `enabled` - If set to `false`, the policy will not be evaluated during a run.
-* `enforced_level` - The policy's enforcement level.
+* `name` - A name of the policy.
+* `enabled` - If set to `false`, the policy will not be verified during a run.
+* `enforced_level` - An enforcement level of the policy.
 
 ## Import
 

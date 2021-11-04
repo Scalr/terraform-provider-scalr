@@ -8,7 +8,7 @@ description: |-
 
 # scalr_policy_group Data Source
 
-This data source is used to retrieve details of a policy group by name and account_id.
+Retrieves the details of a policy group by the name and account_id.
 
 ## Example Usage
 
@@ -21,31 +21,31 @@ data "scalr_policy_group" "example" {
 
 ## Argument Reference
 
-* `name` - (Required) Name of the policy group.
-* `account_id` - (Required) ID of the account, in the format `acc-<RANDOM STRING>`.
+* `name` - (Required) The name of a policy group.
+* `account_id` - (Required) The identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.
 
 ## Attribute Reference
 
 All arguments plus:
 
-* `id` - The ID of the policy group.
-* `status` - Policy group current status.
-* `error_message` - The error description when the group's status is `errored`.
-* `opa_version` -  The version of Open Policy Agent to use for the policy evaluation.
-* `vcs_provider_id` - The identifier of a VCS provider in the format `vcs-<RANDOM STRING>`.
-* `vcs_repo` - Contains details of the VCS configuration of the policy group.
-* `policies` - List of OPA policies this group contains.
-* `environments` - List of environments this policy group is linked to.
-* `workspaces` - List of workspaces affected by this policy group.
+* `id` - An identifier of the policy group.
+* `status` - A system status of the policy group.
+* `error_message` - An error details if Scalr failed to process the policy group.
+* `opa_version` -  A version of Open Policy Agent the policy group verify run on. 
+* `vcs_provider_id` - An identifier of a VCS provider the policy group is create from. In the format `vcs-<RANDOM STRING>`.
+* `vcs_repo` - Contains VCS-related meta-data the policy group is created from.
+* `policies` - A list of the OPA policies the policy group verifies each run.
+* `environments` - A list of the environments the policy group is linked to.
+* `workspaces` - A list of the workspaces the this policy group verify runs for.
 
-The `vcs_repo` block contains:
+The `vcs_repo` object contains:
 
-* `identifier` - The reference to the VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
-* `branch` - Branch of a repository the policy group is associated with.
-* `path` - The sub-directory of the VCS repository where OPA policies are stored.
+* `identifier` - A reference to the VCS repository in the format `:org/:repo`, it stands for the organization and repository.
+* `branch` - A branch of a repository the policy group is associated with.
+* `path` - A sub-directory of a VCS repository where OPA policies are stored.
 
-The `policies` list contains definitions of OPA policies in the following form:
+A `policies` list contains definitions of OPA policies in the following form:
 
-* `name` - The name of the policy.
-* `enabled` - If set to `false`, the policy will not be evaluated during a run.
-* `enforced_level` - The policy's enforcement level.
+* `name` - A name of a policy.
+* `enabled` - If set to `false`, the policy will not be verified on a run.
+* `enforced_level` - An enforcement level of a policy.
