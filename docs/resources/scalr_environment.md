@@ -21,7 +21,6 @@ resource "scalr_environment" "test" {
   cost_estimation_enabled = true
   cloud_credentials = ["cred-xxxxx", "cred-yyyyy"]
   policy_groups = ["pgrp-xxxxx", "pgrp-yyyyy"]
-
 }
 ```
 

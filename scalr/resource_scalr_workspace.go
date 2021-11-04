@@ -256,7 +256,7 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 			return err
 		}
 
-		options.VCSRepo = &scalr.VCSRepoOptions{
+		options.VCSRepo = &scalr.WorkspaceVCSRepoOptions{
 			Identifier:      scalr.String(vcsRepo["identifier"].(string)),
 			Path:            scalr.String(vcsRepo["path"].(string)),
 			TriggerPrefixes: &triggerPrefixes,
@@ -416,7 +416,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 				return err
 			}
 
-			options.VCSRepo = &scalr.VCSRepoOptions{
+			options.VCSRepo = &scalr.WorkspaceVCSRepoOptions{
 				Identifier:      scalr.String(vcsRepo["identifier"].(string)),
 				Branch:          scalr.String(vcsRepo["branch"].(string)),
 				Path:            scalr.String(vcsRepo["path"].(string)),
