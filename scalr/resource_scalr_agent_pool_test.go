@@ -24,7 +24,9 @@ func TestAccScalrAgentPool_basic(t *testing.T) {
 				Config: testAccScalrAgentPoolBasic(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrAgentPoolExists("scalr_agent_pool.test", pool),
-					resource.TestCheckResourceAttr("scalr_agent_pool.test", "name", "agent_pool-test"),
+					resource.TestCheckResourceAttr(
+						"scalr_agent_pool.test", "name", fmt.Sprintf("agent_pool-test-%d", rInt),
+					),
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "account_id", defaultAccount),
 				),
 			},
@@ -45,7 +47,9 @@ func TestAccScalrAgentPool_renamed(t *testing.T) {
 				Config: testAccScalrAgentPoolBasic(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrAgentPoolExists("scalr_agent_pool.test", pool),
-					resource.TestCheckResourceAttr("scalr_agent_pool.test", "name", "agent_pool-test"),
+					resource.TestCheckResourceAttr(
+						"scalr_agent_pool.test", "name", fmt.Sprintf("agent_pool-test-%d", rInt),
+					),
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "account_id", defaultAccount),
 				),
 			},
@@ -74,7 +78,9 @@ func TestAccScalrAgentPool_update(t *testing.T) {
 			{
 				Config: testAccScalrAgentPoolBasic(rInt),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("scalr_agent_pool.test", "name", "agent_pool-test"),
+					resource.TestCheckResourceAttr(
+						"scalr_agent_pool.test", "name", fmt.Sprintf("agent_pool-test-%d", rInt),
+					),
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "account_id", defaultAccount),
 				),
 			},
@@ -191,10 +197,10 @@ resource "scalr_environment" "test" {
 }
 
 resource "scalr_agent_pool" "test" {
-  name           = "agent_pool-test"
+  name           = "agent_pool-test-%d"
   account_id     = "%s"
   environment_id = scalr_environment.test.id
-}`, rInt, defaultAccount, defaultAccount)
+}`, rInt, defaultAccount, rInt, defaultAccount)
 }
 
 func testAccScalrAgentPoolRenamed(rInt int) string {

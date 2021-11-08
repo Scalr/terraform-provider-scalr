@@ -17,7 +17,7 @@ func TestAccScalrAgentPoolDataSource_basic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckEqualID("data.scalr_agent_pool.test", "scalr_agent_pool.test"),
 					resource.TestCheckResourceAttrSet("data.scalr_agent_pool.test", "id"),
-					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "name", "agent_pool-test"),
+					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "name", "ds-agent_pool-test-acc"),
 					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "account_id", defaultAccount),
 				),
 			},
@@ -34,7 +34,7 @@ func TestAccScalrAgentPoolDataSource_basic_env(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckEqualID("data.scalr_agent_pool.test", "scalr_agent_pool.test"),
 					resource.TestCheckResourceAttrSet("data.scalr_agent_pool.test", "id"),
-					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "name", "agent_pool-test"),
+					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "name", "agent_pool-test-env-ds"),
 					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "account_id", defaultAccount),
 				),
 			},
@@ -45,7 +45,7 @@ func TestAccScalrAgentPoolDataSource_basic_env(t *testing.T) {
 func testAccScalrAgentPoolAccountDataSourceConfig() string {
 	return fmt.Sprintf(`
 resource "scalr_agent_pool" "test" {
-  name             = "agent_pool-test"
+  name             = "ds-agent_pool-test-acc"
   account_id       = "%s"
 }
 
@@ -63,7 +63,7 @@ resource "scalr_environment" "test" {
 
 }
 resource "scalr_agent_pool" "test" {
-  name             = "agent_pool-test"
+  name             = "agent_pool-test-env-ds"
   account_id       = "%s"
   environment_id = scalr_environment.test.id
 }
