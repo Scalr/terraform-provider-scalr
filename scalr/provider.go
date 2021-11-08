@@ -13,12 +13,12 @@ import (
 
 	version "github.com/hashicorp/go-version"
 	"github.com/hashicorp/hcl"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/logging"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	svchost "github.com/hashicorp/terraform-svchost"
 	"github.com/hashicorp/terraform-svchost/auth"
 	"github.com/hashicorp/terraform-svchost/disco"
-	"github.com/hashicorp/terraform/helper/logging"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
 	scalr "github.com/scalr/go-scalr"
 	providerVersion "github.com/scalr/terraform-provider-scalr/version"
 )
@@ -63,26 +63,37 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"scalr_workspace":      dataSourceScalrWorkspace(),
-			"scalr_workspace_ids":  dataSourceScalrWorkspaceIDs(),
+			"scalr_access_policy":  dataSourceScalrAccessPolicy(),
+			"scalr_agent_pool":     dataSourceScalrAgentPool(),
 			"scalr_current_run":    dataSourceScalrCurrentRun(),
 			"scalr_endpoint":       dataSourceScalrEndpoint(),
-			"scalr_webhook":        dataSourceScalrWebhook(),
 			"scalr_environment":    dataSourceScalrEnvironment(),
-			"scalr_role":           dataSourceScalrRole(),
-			"scalr_access_policy":  dataSourceScalrAccessPolicy(),
+			"scalr_iam_team":       dataSourceScalrIamTeam(),
+			"scalr_iam_user":       dataSourceScalrIamUser(),
 			"scalr_module_version": dataSourceModuleVersion(),
+			"scalr_policy_group":   dataSourceScalrPolicyGroup(),
+			"scalr_role":           dataSourceScalrRole(),
+			"scalr_vcs_provider":   dataSourceScalrVcsProvider(),
+			"scalr_webhook":        dataSourceScalrWebhook(),
+			"scalr_workspace":      dataSourceScalrWorkspace(),
+			"scalr_workspace_ids":  dataSourceScalrWorkspaceIDs(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"scalr_workspace":     resourceScalrWorkspace(),
-			"scalr_variable":      resourceScalrVariable(),
-			"scalr_endpoint":      resourceScalrEndpoint(),
-			"scalr_webhook":       resourceScalrWebhook(),
-			"scalr_environment":   resourceScalrEnvironment(),
-			"scalr_module":        resourceScalrModule(),
-			"scalr_role":          resourceScalrRole(),
-			"scalr_access_policy": resourceScalrAccessPolicy(),
+			"scalr_access_policy":        resourceScalrAccessPolicy(),
+			"scalr_agent_pool":           resourceScalrAgentPool(),
+			"scalr_agent_pool_token":     resourceScalrAgentPoolToken(),
+			"scalr_endpoint":             resourceScalrEndpoint(),
+			"scalr_environment":          resourceScalrEnvironment(),
+			"scalr_iam_team":             resourceScalrIamTeam(),
+			"scalr_module":               resourceScalrModule(),
+			"scalr_policy_group":         resourceScalrPolicyGroup(),
+			"scalr_policy_group_linkage": resourceScalrPolicyGroupLinkage(),
+			"scalr_role":                 resourceScalrRole(),
+			"scalr_variable":             resourceScalrVariable(),
+			"scalr_vcs_provider":         resourceScalrVcsProvider(),
+			"scalr_webhook":              resourceScalrWebhook(),
+			"scalr_workspace":            resourceScalrWorkspace(),
 		},
 
 		ConfigureFunc: providerConfigure,

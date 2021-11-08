@@ -1,17 +1,22 @@
 package scalr
 
 import (
+	"fmt"
+	"os"
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/hashicorp/terraform-svchost/disco"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
 	"github.com/scalr/terraform-provider-scalr/version"
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
 var testAccProvider *schema.Provider
+var noInstanceIdErr = fmt.Errorf("No instance ID is set")
+
+var GITHUB_TOKEN = os.Getenv("GITHUB_TOKEN")
 
 func init() {
 	testAccProvider = Provider().(*schema.Provider)
@@ -94,5 +99,12 @@ func testAccPreCheck(t *testing.T) {
 	// The credentials must be provided by the CLI config file for testing.
 	if err := Provider().Configure(&terraform.ResourceConfig{}); err != nil {
 		t.Fatalf("err: %s", err)
+	}
+}
+
+func testVcsAccGithubTokenPreCheck(t *testing.T) {
+	testAccPreCheck(t)
+	if GITHUB_TOKEN == "" {
+		t.Skip("Please set GITHUB_TOKEN to run this test")
 	}
 }
