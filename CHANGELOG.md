@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-rc24] - 2021-11-12
+- `data.scalr_webhook`: fixed broken webhook enabled filter ([#93](https://github.com/Scalr/terraform-provider-scalr/pull/93))
+
 ## [1.0.0-rc23] - 2021-11-05
 
 - `scalr_workspace`: attribute `vcs_repo.path` has been deprecated ([#92](https://github.com/Scalr/terraform-provider-scalr/pull/92))
@@ -65,7 +68,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `data.scalr_webhook`: fixed broken webhook enabled filter ([#93](https://github.com/Scalr/terraform-provider-scalr/pull/93))
 - `scalr_environment`: fixed handling of empty strings in `cloud_credentials` and `policy_groups` attributes ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
 - `scalr_webhook`: fixed handling of empty strings in `events` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
 - `scalr_access_policy`: fixed handling of empty strings in `role_ids` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
@@ -346,7 +348,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc23...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc24...HEAD
+[1.0.0-rc24]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc24
 [1.0.0-rc23]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc23
 [1.0.0-rc22]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc22
 [1.0.0-rc21]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc21
