@@ -24,7 +24,7 @@ data "scalr_role" "example" {
 The following arguments are supported:
 
 * `name` - (Required) Name of the role.
-* `account_id` - (Required) ID of the account, in the format `acc-<RANDOM STRING>`.
+* `account_id` - (Optional) ID of the account, in the format `acc-<RANDOM STRING>`.
 
 ## Attribute Reference
 

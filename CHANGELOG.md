@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `data.scalr_role`: argument `account_id` is now optional ([#97](https://github.com/Scalr/terraform-provider-scalr/pull/97))
+
 ## [1.0.0-rc24] - 2021-11-12
+
 - `data.scalr_webhook`: fixed broken webhook enabled filter ([#93](https://github.com/Scalr/terraform-provider-scalr/pull/93))
 
 ## [1.0.0-rc23] - 2021-11-05
