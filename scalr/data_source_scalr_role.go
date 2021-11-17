@@ -53,11 +53,9 @@ func dataSourceScalrRoleRead(d *schema.ResourceData, meta interface{}) error {
 
 	options := scalr.RoleListOptions{Name: name}
 
-	var accountId interface{}
+	var accountId interface{} = "global"
 	if accountId, ok := d.GetOk("account_id"); ok {
 		options.Account = scalr.String(accountId.(string))
-	} else {
-		accountId = "global"
 	}
 
 	log.Printf("[DEBUG] Read configuration of role: %s/%s", accountId, name)
