@@ -24,6 +24,12 @@ func TestAccScalrRoleDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.scalr_role.test", "account_id", defaultAccount),
 					resource.TestCheckResourceAttr("data.scalr_role.test", "permissions.0", "*:read"),
 					resource.TestCheckResourceAttr("data.scalr_role.test", "permissions.1", "roles:update"),
+
+					resource.TestCheckResourceAttr("data.scalr_role.user", "id", userRole),
+					resource.TestCheckResourceAttr("data.scalr_role.user", "name", "user"),
+					resource.TestCheckResourceAttrSet("data.scalr_role.user", "description"),
+					resource.TestCheckResourceAttr("data.scalr_role.user", "is_system", "true"),
+					resource.TestCheckNoResourceAttr("data.scalr_role.user", "account_id"),
 				),
 			},
 		},
@@ -62,7 +68,12 @@ resource "scalr_role" "test" {
 }
 
 data "scalr_role" "test" {
-	name = scalr_role.test.name
-	account_id = scalr_role.test.account_id
-}`, defaultAccount)
+  name       = scalr_role.test.name
+  account_id = scalr_role.test.account_id
+}
+
+data "scalr_role" "user" {
+    name = "user"
+}
+`, defaultAccount)
 }

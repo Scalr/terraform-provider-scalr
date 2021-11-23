@@ -23,7 +23,7 @@ func dataSourceScalrRole() *schema.Resource {
 			},
 			"account_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 
 			"is_system": {
@@ -50,9 +50,14 @@ func dataSourceScalrRoleRead(d *schema.ResourceData, meta interface{}) error {
 
 	// required fields
 	name := d.Get("name").(string)
-	accountId := d.Get("account_id").(string)
 
-	options := scalr.RoleListOptions{Name: name, Account: scalr.String(accountId)}
+	options := scalr.RoleListOptions{Name: name}
+
+	var accountId interface{} = "global"
+	if accountId, ok := d.GetOk("account_id"); ok {
+		options.Account = scalr.String(accountId.(string))
+	}
+
 	log.Printf("[DEBUG] Read configuration of role: %s/%s", accountId, name)
 	roles, err := scalrClient.Roles.List(ctx, options)
 	if err != nil {
