@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `data.scalr_role`: argument `account_id` is now optional ([#97](https://github.com/Scalr/terraform-provider-scalr/pull/97))
+- `data.scalr_role`: argument `account_id` is optional now ([#97](https://github.com/Scalr/terraform-provider-scalr/pull/97))
 
 ## [1.0.0-rc24] - 2021-11-12
 
