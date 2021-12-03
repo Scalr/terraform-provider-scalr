@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	scalr "github.com/scalr/go-scalr"
 )
 
@@ -169,7 +169,7 @@ func resourceScalrRoleUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		log.Printf("[DEBUG] Update role %s", id)
-		scalrClient.Roles.Update(ctx, id, options)
+		_, err = scalrClient.Roles.Update(ctx, id, options)
 		if err != nil {
 			return fmt.Errorf(
 				"Error updating role %s: %v", id, err)

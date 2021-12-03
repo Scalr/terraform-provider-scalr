@@ -3,9 +3,10 @@ package scalr
 import (
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	scalr "github.com/scalr/go-scalr"
 	"log"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func resourceScalrWorkspace() *schema.Resource {
@@ -59,6 +60,11 @@ func resourceScalrWorkspace() *schema.Resource {
 				Optional:      true,
 				ConflictsWith: []string{"vcs_provider_id", "vcs_repo"},
 			},
+			"agent_pool_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"auto_apply": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -139,9 +145,10 @@ func resourceScalrWorkspace() *schema.Resource {
 						},
 
 						"path": {
-							Type:     schema.TypeString,
-							Default:  "",
-							Optional: true,
+							Type:       schema.TypeString,
+							Default:    "",
+							Optional:   true,
+							Deprecated: "The attribute `vcs-repo.path` is deprecated. Use working-directory and trigger-prefixes instead.",
 						},
 
 						"trigger_prefixes": {
@@ -230,8 +237,14 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if vcsProviderID, ok := d.GetOk("vcs_provider_id"); ok {
-		options.VcsProvider = &scalr.VcsProviderOptions{
+		options.VcsProvider = &scalr.VcsProvider{
 			ID: vcsProviderID.(string),
+		}
+	}
+
+	if agentPoolID, ok := d.GetOk("agent_pool_id"); ok {
+		options.AgentPool = &scalr.AgentPool{
+			ID: agentPoolID.(string),
 		}
 	}
 
@@ -243,7 +256,7 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 			return err
 		}
 
-		options.VCSRepo = &scalr.VCSRepoOptions{
+		options.VCSRepo = &scalr.WorkspaceVCSRepoOptions{
 			Identifier:      scalr.String(vcsRepo["identifier"].(string)),
 			Path:            scalr.String(vcsRepo["path"].(string)),
 			TriggerPrefixes: &triggerPrefixes,
@@ -307,6 +320,10 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 		d.Set("vcs_provider_id", workspace.VcsProvider.ID)
 	}
 
+	if workspace.AgentPool != nil {
+		d.Set("agent_pool_id", workspace.AgentPool.ID)
+	}
+
 	var mv string
 	if workspace.ModuleVersion != nil {
 		mv = workspace.ModuleVersion.ID
@@ -355,9 +372,10 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 	id := d.Id()
 
 	if d.HasChange("name") || d.HasChange("auto_apply") ||
-		d.HasChange("terraform_version") || d.HasChange("working_directory") || d.HasChange("vcs_repo") ||
-		d.HasChange("operations") || d.HasChange("vcs_provider_id") || d.HasChange("hooks") ||
-		d.HasChange("module_version_id") {
+		d.HasChange("terraform_version") || d.HasChange("working_directory") ||
+		d.HasChange("vcs_repo") || d.HasChange("operations") ||
+		d.HasChange("vcs_provider_id") || d.HasChange("agent_pool_id") ||
+		d.HasChange("hooks") || d.HasChange("module_version_id") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
 			Name:       scalr.String(d.Get("name").(string)),
@@ -379,8 +397,14 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		options.WorkingDirectory = scalr.String(d.Get("working_directory").(string))
 
 		if vcsProviderId, ok := d.GetOk("vcs_provider_id"); ok {
-			options.VcsProvider = &scalr.VcsProviderOptions{
+			options.VcsProvider = &scalr.VcsProvider{
 				ID: vcsProviderId.(string),
+			}
+		}
+
+		if agentPoolID, ok := d.GetOk("agent_pool_id"); ok {
+			options.AgentPool = &scalr.AgentPool{
+				ID: agentPoolID.(string),
 			}
 		}
 
@@ -392,7 +416,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 				return err
 			}
 
-			options.VCSRepo = &scalr.VCSRepoOptions{
+			options.VCSRepo = &scalr.WorkspaceVCSRepoOptions{
 				Identifier:      scalr.String(vcsRepo["identifier"].(string)),
 				Branch:          scalr.String(vcsRepo["branch"].(string)),
 				Path:            scalr.String(vcsRepo["path"].(string)),

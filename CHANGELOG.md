@@ -7,13 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-rc25] - 2021-11-24
+### Changed
+
+- `data.scalr_role`: argument `account_id` is optional now ([#97](https://github.com/Scalr/terraform-provider-scalr/pull/97))
+
+## [1.0.0-rc24] - 2021-11-12
+
+- `data.scalr_webhook`: fixed broken webhook enabled filter ([#93](https://github.com/Scalr/terraform-provider-scalr/pull/93))
+
+## [1.0.0-rc23] - 2021-11-05
+
+- `scalr_workspace`: attribute `vcs_repo.path` has been deprecated ([#92](https://github.com/Scalr/terraform-provider-scalr/pull/92))
+
+### Added
+
+- **New resource:** `scalr_iam_team` ([#96](https://github.com/Scalr/terraform-provider-scalr/pull/96))
+- **New data source:** `scalr_iam_team` ([#96](https://github.com/Scalr/terraform-provider-scalr/pull/96))
+- **New data source:** `scalr_iam_user` ([#96](https://github.com/Scalr/terraform-provider-scalr/pull/96))
+- **New resource:** `scalr_policy_group` ([#94](https://github.com/Scalr/terraform-provider-scalr/pull/94))
+- **New resource:** `scalr_policy_group_linkage` ([#94](https://github.com/Scalr/terraform-provider-scalr/pull/94))
+- **New data source:** `scalr_policy_group` ([#94](https://github.com/Scalr/terraform-provider-scalr/pull/94))
+
+### Required
+
+- scalr-server >= `8.3.0`
+
+## [1.0.0-rc22] - 2021-10-22
+
+### Added
+
+- **New resource:** `scalr_agent_pool` ([#85](https://github.com/Scalr/terraform-provider-scalr/pull/85))
+- **New data source:** `scalr_agent_pool` ([#85](https://github.com/Scalr/terraform-provider-scalr/pull/85))
+- **New resource:** `scalr_agent_pool_token` ([#85](https://github.com/Scalr/terraform-provider-scalr/pull/85))
+- `scalr_workspace`: added new attribute `agent_pool_id` ([#85](https://github.com/Scalr/terraform-provider-scalr/pull/85))
+- **New resource:** `scalr_vcs_provider` ([#88](https://github.com/Scalr/terraform-provider-scalr/pull/88))
+- **New data source:** `scalr_vcs_provider` ([#89](https://github.com/Scalr/terraform-provider-scalr/pull/89))
+
+### Required
+
+- scalr-server >= `8.1.0`
+
 ## [1.0.0-rc21] - 2021-10-01
 
 ### Added
+
 - **New data source:** `scalr_module_version` ([#76](https://github.com/Scalr/terraform-provider-scalr/pull/76))
 - **New resource:** `scalr_module` ([#76](https://github.com/Scalr/terraform-provider-scalr/pull/76))
 
 ### Changed
+
 - `scalr_workspace`: new attribute `module_version_id` ([#76](https://github.com/Scalr/terraform-provider-scalr/pull/76))
 
 ### Fixed
@@ -23,6 +66,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `data.scalr_environment`: return error if environment is not found ([#83](https://github.com/Scalr/terraform-provider-scalr/pull/83))
 - `scalr_environment`: fixed crash while reading environment without proper permissions ([#82](https://github.com/Scalr/terraform-provider-scalr/pull/82))
 
+### Required
+
+- scalr-server >= `8.0.1-beta.20210930`
 
 ## [1.0.0-rc20] - 2021-09-10
 
@@ -33,6 +79,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scalr_access_policy`: fixed handling of empty strings in `role_ids` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
 - `scalr_role`: fixed handling of empty strings in `permissions` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
 - `scalr_workspace`: fixed handling of empty strings in `vcs_repo.trigger_prefixes` attribute ([#81](https://github.com/Scalr/terraform-provider-scalr/pull/81))
+
+### Required
+
+- scalr server >= `8.0.1-beta.20210810`
 
 ## [1.0.0-rc19] - 2021-08-19
 
@@ -304,7 +354,11 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc21...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc25...HEAD
+[1.0.0-rc25]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc25
+[1.0.0-rc24]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc24
+[1.0.0-rc23]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc23
+[1.0.0-rc22]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc22
 [1.0.0-rc21]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc21
 [1.0.0-rc20]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc20
 [1.0.0-rc19]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc19

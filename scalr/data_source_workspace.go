@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	scalr "github.com/scalr/go-scalr"
 )
 
@@ -33,6 +33,10 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Optional: true,
 			},
 
+			"agent_pool_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"auto_apply": {
 				Type:     schema.TypeBool,
 				Computed: true,

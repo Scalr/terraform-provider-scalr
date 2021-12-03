@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/scalr/go-scalr"
 )
 
@@ -95,7 +95,7 @@ func resourceScalrModuleCreate(d *schema.ResourceData, meta interface{}) error {
 
 	opt := scalr.ModuleCreateOptions{
 		VCSRepo:     vcsOpt,
-		VcsProvider: &scalr.VcsProviderOptions{ID: d.Get("vcs_provider_id").(string)},
+		VcsProvider: &scalr.VcsProvider{ID: d.Get("vcs_provider_id").(string)},
 	}
 
 	if accID, ok := d.GetOk("account_id"); ok {
@@ -103,6 +103,10 @@ func resourceScalrModuleCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if envID, ok := d.GetOk("environment_id"); ok {
+		if opt.Account == nil {
+			return fmt.Errorf("The attribute account_id is required with environment_id attribute")
+		}
+
 		opt.Environment = &scalr.Environment{ID: envID.(string)}
 	}
 
