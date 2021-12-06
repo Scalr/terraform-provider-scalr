@@ -180,7 +180,6 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 	if workspace.VCSRepo != nil {
 		vcsConfig := map[string]interface{}{
 			"identifier":       workspace.VCSRepo.Identifier,
-			"path":             workspace.VCSRepo.Path,
 			"dry_runs_enabled": workspace.VCSRepo.DryRunsEnabled,
 		}
 		vcsRepo = append(vcsRepo, vcsConfig)

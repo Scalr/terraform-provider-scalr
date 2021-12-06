@@ -258,7 +258,6 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 
 		options.VCSRepo = &scalr.WorkspaceVCSRepoOptions{
 			Identifier:      scalr.String(vcsRepo["identifier"].(string)),
-			Path:            scalr.String(vcsRepo["path"].(string)),
 			TriggerPrefixes: &triggerPrefixes,
 			DryRunsEnabled:  scalr.Bool(vcsRepo["dry_runs_enabled"].(bool)),
 		}
@@ -345,7 +344,6 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 		vcsRepo = append(vcsRepo, map[string]interface{}{
 			"branch":           workspace.VCSRepo.Branch,
 			"identifier":       workspace.VCSRepo.Identifier,
-			"path":             workspace.VCSRepo.Path,
 			"trigger_prefixes": workspace.VCSRepo.TriggerPrefixes,
 			"dry_runs_enabled": workspace.VCSRepo.DryRunsEnabled,
 		})
@@ -419,7 +417,6 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 			options.VCSRepo = &scalr.WorkspaceVCSRepoOptions{
 				Identifier:      scalr.String(vcsRepo["identifier"].(string)),
 				Branch:          scalr.String(vcsRepo["branch"].(string)),
-				Path:            scalr.String(vcsRepo["path"].(string)),
 				TriggerPrefixes: &triggerPrefixes,
 				DryRunsEnabled:  scalr.Bool(vcsRepo["dry_runs_enabled"].(bool)),
 			}

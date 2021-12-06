@@ -45,7 +45,6 @@ resource "scalr_workspace" "example" {
     The `vcs_repo` block supports: 
     * `identifier` - (Required) A reference to your VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
     * `branch` - (Optional) The repository branch where Terraform will be run from. Default `master`.
-    * `path` - (Optional) The repository sub-directory that Terraform will execute from. If omitted or submitted as an empty string, this defaults to the repository's root.
     * `trigger_prefixes` - (Optional) List of paths (relative to `path`), whose changes will trigger a run for the workspace using this binding when the CV is created. If omitted or submitted as an empty list, any change in `path` will trigger a new run.
     * `dry_runs_enabled` - (Optional) Set (true/false) to configure the VCS driven dry runs should run when pull request to configuration versions branch created. Default `true`
 
