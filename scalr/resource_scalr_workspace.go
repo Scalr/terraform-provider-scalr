@@ -19,7 +19,7 @@ func resourceScalrWorkspace() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
-		SchemaVersion: 3,
+		SchemaVersion: 4,
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceScalrWorkspaceResourceV0().CoreConfigSchema().ImpliedType(),
@@ -35,6 +35,11 @@ func resourceScalrWorkspace() *schema.Resource {
 				Type:    resourceScalrWorkspaceResourceV2().CoreConfigSchema().ImpliedType(),
 				Upgrade: resourceScalrWorkspaceStateUpgradeV2,
 				Version: 2,
+			},
+			{
+				Type:    resourceScalrWorkspaceResourceV3().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceScalrWorkspaceStateUpgradeV3,
+				Version: 3,
 			},
 		},
 
@@ -138,19 +143,10 @@ func resourceScalrWorkspace() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-
 						"branch": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-
-						"path": {
-							Type:       schema.TypeString,
-							Default:    "",
-							Optional:   true,
-							Deprecated: "The attribute `vcs-repo.path` is deprecated. Use working-directory and trigger-prefixes instead.",
-						},
-
 						"trigger_prefixes": {
 							Type:     schema.TypeList,
 							Elem:     &schema.Schema{Type: schema.TypeString},
@@ -342,8 +338,8 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	var vcsRepo []interface{}
 	if workspace.VCSRepo != nil {
 		vcsRepo = append(vcsRepo, map[string]interface{}{
-			"branch":           workspace.VCSRepo.Branch,
 			"identifier":       workspace.VCSRepo.Identifier,
+			"branch":           workspace.VCSRepo.Branch,
 			"trigger_prefixes": workspace.VCSRepo.TriggerPrefixes,
 			"dry_runs_enabled": workspace.VCSRepo.DryRunsEnabled,
 		})

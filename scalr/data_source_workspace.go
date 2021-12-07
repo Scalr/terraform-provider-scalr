@@ -89,7 +89,6 @@ func dataSourceScalrWorkspace() *schema.Resource {
 					},
 				},
 			},
-
 			"vcs_repo": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -99,12 +98,18 @@ func dataSourceScalrWorkspace() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"path": {
+						"branch": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"dry_runs_enabled": {
 							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"trigger_prefixes": {
+							Type:     schema.TypeList,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Optional: true,
 							Computed: true,
 						},
 					},
@@ -180,7 +185,9 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 	if workspace.VCSRepo != nil {
 		vcsConfig := map[string]interface{}{
 			"identifier":       workspace.VCSRepo.Identifier,
+			"branch":           workspace.VCSRepo.Branch,
 			"dry_runs_enabled": workspace.VCSRepo.DryRunsEnabled,
+			"trigger_prefixes": workspace.VCSRepo.TriggerPrefixes,
 		}
 		vcsRepo = append(vcsRepo, vcsConfig)
 	}

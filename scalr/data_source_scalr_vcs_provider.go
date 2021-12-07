@@ -90,11 +90,13 @@ func dataSourceScalrVcsProviderRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// Update the configuration.
+	if vcsProvider.Account != nil {
+		d.Set("account_id", vcsProvider.Account.ID)
+	}
+	d.Set("environments", envIds)
 	d.Set("vcs_type", vcsProvider.VcsType)
 	d.Set("name", vcsProvider.Name)
 	d.Set("url", vcsProvider.Url)
-	d.Set("account_id", vcsProvider.Account.ID)
-	d.Set("environments", envIds)
 	d.SetId(vcsProvider.ID)
 
 	return nil

@@ -80,3 +80,90 @@ func TestResourceScalrWorkspaceStateUpgradeV2(t *testing.T) {
 	actual, err := resourceScalrWorkspaceStateUpgradeV2(testResourceScalrWorkspaceStateDataV2(), nil)
 	assertCorrectState(t, err, actual, expected)
 }
+
+func TestResourceScalrWorkspaceStateUpgradeV3(t *testing.T) {
+	parameters := []struct {
+		actual   map[string]interface{}
+		expected map[string]interface{}
+	}{
+		{
+			actual: map[string]interface{}{
+				"id":                "ws-123",
+				"working_directory": "",
+				"vcs_repo": []interface{}{
+					map[string]interface{}{
+						"identifier":       "test/scalr",
+						"branch":           "main",
+						"path":             "workspace",
+						"trigger_prefixes": []interface{}{},
+					},
+				},
+			},
+			expected: map[string]interface{}{
+				"id":                "ws-123",
+				"working_directory": "workspace",
+				"vcs_repo": []interface{}{
+					map[string]interface{}{
+						"identifier":       "test/scalr",
+						"branch":           "main",
+						"trigger_prefixes": []interface{}{"workspace"},
+					},
+				},
+			},
+		},
+		{
+			actual: map[string]interface{}{
+				"id":                "ws-123",
+				"working_directory": "foo",
+				"vcs_repo": []interface{}{
+					map[string]interface{}{
+						"identifier":       "test/scalr",
+						"branch":           "main",
+						"path":             "workspace",
+						"trigger_prefixes": []interface{}{},
+					},
+				},
+			},
+			expected: map[string]interface{}{
+				"id":                "ws-123",
+				"working_directory": "workspace/foo",
+				"vcs_repo": []interface{}{
+					map[string]interface{}{
+						"identifier":       "test/scalr",
+						"branch":           "main",
+						"trigger_prefixes": []interface{}{"workspace", "workspace/foo"},
+					},
+				},
+			},
+		},
+		{
+			actual: map[string]interface{}{
+				"id":                "ws-123",
+				"working_directory": "",
+				"vcs_repo": []interface{}{
+					map[string]interface{}{
+						"identifier":       "test/scalr",
+						"branch":           "main",
+						"path":             "workspace",
+						"trigger_prefixes": []interface{}{"foo", "bar"},
+					},
+				},
+			},
+			expected: map[string]interface{}{
+				"id":                "ws-123",
+				"working_directory": "workspace",
+				"vcs_repo": []interface{}{
+					map[string]interface{}{
+						"identifier":       "test/scalr",
+						"branch":           "main",
+						"trigger_prefixes": []interface{}{"workspace/foo", "workspace/bar"},
+					},
+				},
+			},
+		},
+	}
+	for _, data := range parameters {
+		actual, err := resourceScalrWorkspaceStateUpgradeV3(data.actual, nil)
+		assertCorrectState(t, err, actual, data.expected)
+	}
+}

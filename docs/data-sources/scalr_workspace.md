@@ -52,6 +52,8 @@ All arguments plus:
 The `vcs_repo` block contains:
 
 * `identifier` - * The reference to the VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
+* `branch` - The repository branch where Terraform will be run from.
+* `trigger_prefixes` - List of paths, whose changes will trigger a run for the workspace using this binding when the CV is created. If omitted or submitted as an empty list, any change in path will trigger a new run.
 * `dry_runs_enabled` - Boolean indicates the VCS driven dry runs should run when pull request to configuration versions branch created.
 
 The `created_by` block contains:
