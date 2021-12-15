@@ -320,7 +320,8 @@ func testAccCheckScalrWorkspaceRename(environmentName, workspaceName string) fun
 		var environmentID *string
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
-		envl, err := scalrClient.Environments.List(ctx)
+		listOptions := scalr.EnvironmentListOptions{}
+		envl, err := scalrClient.Environments.List(ctx, listOptions)
 		if err != nil {
 			log.Fatalf("Error retrieving environments: %v", err)
 		}

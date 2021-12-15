@@ -15,10 +15,13 @@ func dataSourceScalrEnvironment() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
+				// Required: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 			"cost_estimation_enabled": {
@@ -51,6 +54,7 @@ func dataSourceScalrEnvironment() *schema.Resource {
 			},
 			"account_id": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 			"cloud_credentials": {
@@ -70,10 +74,32 @@ func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	envID := d.Get("id").(string)
+	environmentName := d.Get("name").(string)
 
-	log.Printf("[DEBUG] Read configuration of environment: %s", envID)
+	if envID == "" && environmentName == "" {
+		return fmt.Errorf("At least one argument 'id' or 'name' is required, but no definitions was found")
+	}
 
-	environment, err := scalrClient.Environments.Read(ctx, envID)
+	accountID := d.Get("account_id").(string)
+
+	var environment *scalr.Environment
+	var err error
+
+	if envID != "" {
+		log.Printf("[DEBUG] Read configuration of environment: %s", envID)
+		environment, err = scalrClient.Environments.Read(ctx, envID)
+	} else {
+		log.Printf("[DEBUG] Read configuration of environment: %s", environmentName)
+		options := scalr.EnvironmentListOptions{
+			Name:    &environmentName,
+			Include: scalr.String("created-by"),
+		}
+		if accountID != "" {
+			options.Account = &accountID
+		}
+		environment, err = GetEnvironmentByName(options, scalrClient)
+	}
+
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound{}) {
 			return fmt.Errorf("Environment %s not found", envID)
@@ -85,6 +111,11 @@ func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("account_id", environment.Account.ID)
 	d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)
 	d.Set("status", environment.Status)
+	if envID != "" {
+		d.SetId(envID)
+	} else {
+		d.SetId(environment.ID)
+	}
 
 	var createdBy []interface{}
 	if environment.CreatedBy != nil {
@@ -109,8 +140,6 @@ func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	d.Set("policy_groups", policyGroups)
-
-	d.SetId(envID)
 
 	return nil
 }

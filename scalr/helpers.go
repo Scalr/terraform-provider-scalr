@@ -12,25 +12,21 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func GetEnvironmentByName(environmentName string, scalrClient *scalr.Client) (*scalr.Environment, error) {
-	var environment *scalr.Environment
-
-	envl, err := scalrClient.Environments.List(ctx)
+func GetEnvironmentByName(options scalr.EnvironmentListOptions, scalrClient *scalr.Client) (*scalr.Environment, error) {
+	envl, err := scalrClient.Environments.List(ctx, options)
 	if err != nil {
 		return nil, fmt.Errorf("Error retrieving environments: %v", err)
 	}
 
-	for _, env := range envl.Items {
-		if env.Name == environmentName {
-			environment = env
-			break
-		}
+	switch numberOfEnvironments := len(envl.Items); {
+	case numberOfEnvironments == 0:
+		return nil, fmt.Errorf("Environment with name '%s' not found or user unauthorized", *options.Name)
+	case numberOfEnvironments > 1:
+		// todo: update the error message.
+		return nil, fmt.Errorf("Find more than one environment with name: %v, specify account id to be more specific", options.Name)
+	default:
+		return envl.Items[0], nil
 	}
-	if environment == nil {
-		return nil, fmt.Errorf("Could not find environment with name: %s", environmentName)
-	}
-
-	return environment, nil
 }
 
 func GetRandomInteger() int {
