@@ -59,7 +59,7 @@ func waitForModuleVersions(environmentName string) func() {
 	return func() {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
-		options := scalr.EnvironmentListOptions{
+		options := GetEnvironmentByNameOptions{
 			Name: &environmentName,
 		}
 

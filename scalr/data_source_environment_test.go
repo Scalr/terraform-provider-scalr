@@ -3,6 +3,7 @@ package scalr
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -10,6 +11,8 @@ import (
 
 func TestAccEnvironmentDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
+
+	cuttedRInt := strconv.Itoa(rInt)[:len(strconv.Itoa(rInt))-2]
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -44,6 +47,11 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 			{
 				Config:      testAccEnvironmentDataSourceNotFoundConfig(),
 				ExpectError: regexp.MustCompile("Environment with ID 'env-123' not found or user unauthorized"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      testAccEnvironmentDataSourceNotFoundAlmostTheSameNameConfig(rInt, cuttedRInt),
+				ExpectError: regexp.MustCompile(fmt.Sprintf("Environment with name 'test-env-%s' not found", cuttedRInt)),
 				PlanOnly:    true,
 			},
 			{
@@ -101,4 +109,16 @@ data "scalr_environment" "test" {
 
 func testAccEnvironmentNoNameNitherIdSetConfig() string {
 	return `data "scalr_environment" "test" {}`
+}
+
+func testAccEnvironmentDataSourceNotFoundAlmostTheSameNameConfig(rInt int, cuttedRInt string) string {
+	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name       = "test-env-%d"
+  account_id = "%s"
+}
+
+data "scalr_environment" "test" {
+  name         = "test-env-%s"
+}`, rInt, defaultAccount, cuttedRInt)
 }

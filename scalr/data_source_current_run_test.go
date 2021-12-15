@@ -47,7 +47,7 @@ func launchRun(environmentName, workspaceName string) func() {
 	return func() {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
-		options := scalr.EnvironmentListOptions{
+		options := GetEnvironmentByNameOptions{
 			Name: &environmentName,
 		}
 		env, err := GetEnvironmentByName(options, scalrClient)

@@ -90,7 +90,7 @@ func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 		environment, err = scalrClient.Environments.Read(ctx, envID)
 	} else {
 		log.Printf("[DEBUG] Read configuration of environment: %s", environmentName)
-		options := scalr.EnvironmentListOptions{
+		options := GetEnvironmentByNameOptions{
 			Name:    &environmentName,
 			Include: scalr.String("created-by"),
 		}

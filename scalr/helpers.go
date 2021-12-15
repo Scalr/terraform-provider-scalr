@@ -12,20 +12,46 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func GetEnvironmentByName(options scalr.EnvironmentListOptions, scalrClient *scalr.Client) (*scalr.Environment, error) {
-	envl, err := scalrClient.Environments.List(ctx, options)
+type GetEnvironmentByNameOptions struct {
+	Name    *string
+	Account *string `json:",omitempty"`
+	Include *string `json:",omitempty"`
+}
+
+func GetEnvironmentByName(options GetEnvironmentByNameOptions, scalrClient *scalr.Client) (*scalr.Environment, error) {
+	listOptions := scalr.EnvironmentListOptions{
+		Name:    options.Name,
+		Account: options.Account,
+		Include: options.Include,
+	}
+	envl, err := scalrClient.Environments.List(ctx, listOptions)
 	if err != nil {
 		return nil, fmt.Errorf("Error retrieving environments: %v", err)
 	}
 
-	switch numberOfEnvironments := len(envl.Items); {
-	case numberOfEnvironments == 0:
+	if len(envl.Items) == 0 {
 		return nil, fmt.Errorf("Environment with name '%s' not found or user unauthorized", *options.Name)
-	case numberOfEnvironments > 1:
+	}
+
+	var matchedEnvironments []*scalr.Environment
+
+	// filter in endpoint search environments that contains quering string, this is why we need to do exeact match on our side.
+	for _, env := range envl.Items {
+		if env.Name == *options.Name {
+			matchedEnvironments = append(matchedEnvironments, env)
+		}
+	}
+
+	switch numberOfMatch := len(matchedEnvironments); {
+	case numberOfMatch == 0:
+		return nil, fmt.Errorf("Environment with name '%s' not found", *options.Name)
+
+	case numberOfMatch > 1:
 		// todo: update the error message.
-		return nil, fmt.Errorf("Find more than one environment with name: %v, specify account id to be more specific", options.Name)
+		return nil, fmt.Errorf("Find more than one environment with name: %v, specify account id to include only environments for specific account", options.Name)
 	default:
-		return envl.Items[0], nil
+		return matchedEnvironments[0], nil
+
 	}
 }
 
