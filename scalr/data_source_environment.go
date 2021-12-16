@@ -17,7 +17,6 @@ func dataSourceScalrEnvironment() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				// Required: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -111,11 +110,6 @@ func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("account_id", environment.Account.ID)
 	d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)
 	d.Set("status", environment.Status)
-	if envID != "" {
-		d.SetId(envID)
-	} else {
-		d.SetId(environment.ID)
-	}
 
 	var createdBy []interface{}
 	if environment.CreatedBy != nil {
@@ -141,5 +135,6 @@ func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.Set("policy_groups", policyGroups)
 
+	d.SetId(environment.ID)
 	return nil
 }
