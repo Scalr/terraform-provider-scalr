@@ -14,8 +14,8 @@ func init() {
 
 type GetEnvironmentByNameOptions struct {
 	Name    *string
-	Account *string `json:",omitempty"`
-	Include *string `json:",omitempty"`
+	Account *string
+	Include *string
 }
 
 func GetEnvironmentByName(options GetEnvironmentByNameOptions, scalrClient *scalr.Client) (*scalr.Environment, error) {
