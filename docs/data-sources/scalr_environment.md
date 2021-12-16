@@ -20,17 +20,19 @@ data "scalr_environment" "test" {
 
 ## Arguments
 
-* `id` - (Required) The environment ID, in the format `env-<RANDOM STRING>`.
+* `id` - (Optional) The environment ID, in the format `env-<RANDOM STRING>`.
+* `name` - (Optional) Name of the environment.
+* `account_id` - (Optional) ID of the environment account, in the format `acc-<RANDOM STRING>`
+
+Arguments `id` and `name` are booth optional, but you need to specify at leas one of them to obtain scalr_environment.
 
 ## Attributes
 
 All arguments plus:
 
-* `name` - Name of the environment.
 * `created_by` - Details of the user that created the environment.
 * `cost_estimation_enabled` - Boolean indicates if cost estimation is enabled for the environment.
 * `status` - Shows status of the environment. 
-* `account_id` - ID of the environment account, in the format `acc-<RANDOM STRING>`
 * `cloud_credentials` - List of the environment cloud-credentials IDs, in the format `cred-<RANDOM STRING>`.
 * `policy_groups` - List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.
 
