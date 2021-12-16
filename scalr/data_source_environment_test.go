@@ -11,8 +11,14 @@ import (
 
 func TestAccEnvironmentDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
+	for {
+		if rInt >= 100 {
+			break
+		}
+		rInt = GetRandomInteger()
+	}
 
-	cuttedRInt := strconv.Itoa(rInt)[:len(strconv.Itoa(rInt))-2]
+	cuttedRInt := strconv.Itoa(rInt)[:len(strconv.Itoa(rInt))-1]
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -32,7 +38,7 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccEnvironmentDataSourceAccesByNmaeConfig(rInt),
+				Config: testAccEnvironmentDataSourceAccessByNameConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "name", fmt.Sprintf("test-env-%d", rInt)),
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "status", "Active"),
@@ -60,7 +66,7 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 				PlanOnly:    true,
 			},
 			{
-				Config:      testAccEnvironmentNoNameNitherIdSetConfig(),
+				Config:      testAccEnvironmentNeitherNameNorIdSetConfig(),
 				ExpectError: regexp.MustCompile("At least one argument 'id' or 'name' is required, but no definitions was found"),
 				PlanOnly:    true,
 			},
@@ -80,7 +86,7 @@ data "scalr_environment" "test" {
 }`, rInt, defaultAccount)
 }
 
-func testAccEnvironmentDataSourceAccesByNmaeConfig(rInt int) string {
+func testAccEnvironmentDataSourceAccessByNameConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
   name       = "test-env-%d"
@@ -107,7 +113,7 @@ data "scalr_environment" "test" {
 }`
 }
 
-func testAccEnvironmentNoNameNitherIdSetConfig() string {
+func testAccEnvironmentNeitherNameNorIdSetConfig() string {
 	return `data "scalr_environment" "test" {}`
 }
 

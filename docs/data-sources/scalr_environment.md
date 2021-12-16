@@ -24,7 +24,7 @@ data "scalr_environment" "test" {
 * `name` - (Optional) Name of the environment.
 * `account_id` - (Optional) ID of the environment account, in the format `acc-<RANDOM STRING>`
 
-Arguments `id` and `name` are booth optional, but you need to specify at leas one of them to obtain scalr_environment.
+Arguments `id` and `name` are both optional, specify at least one of them to obtain `scalr_environment`.
 
 ## Attributes
 
