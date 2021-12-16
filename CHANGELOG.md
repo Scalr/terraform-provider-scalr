@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - `data.scalr_environment`: allow to obtain scalr_environment by name ([#101](https://github.com/Scalr/terraform-provider-scalr/pull/101))
-- ``data.scalr_environment`: `id` become optional  ([#101](https://github.com/Scalr/terraform-provider-scalr/pull/101))
+- `data.scalr_environment`: `id` become optional  ([#101](https://github.com/Scalr/terraform-provider-scalr/pull/101))
 - `data.scalr_environment`: added new optional attribute `name` ([#101](https://github.com/Scalr/terraform-provider-scalr/pull/101))
 - `data.scalr_environment`: added new optional attribute `account_id` ([#101](https://github.com/Scalr/terraform-provider-scalr/pull/101))
 
