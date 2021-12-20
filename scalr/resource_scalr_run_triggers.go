@@ -41,11 +41,11 @@ func resourceScalrRunTriggerCreate(d *schema.ResourceData, meta interface{}) err
 		Upstream:   &scalr.Upstream{ID: upstreamID},
 	}
 
-	log.Printf("[DEBUG] Create run trigger downstream %s and upstream %s", downstreamID, upstreamID)
+	log.Printf("[DEBUG] Create run trigger with downstream %s and upstream %s", downstreamID, upstreamID)
 	runTrigger, err := scalrClient.RunTriggers.Create(ctx, createOptions)
 	if err != nil {
 		return fmt.Errorf(
-			"Error creating run trigger downstream %s and upstream %s: %v", downstreamID, upstreamID, err)
+			"Error creating run trigger with downstream %s and upstream %s: %v", downstreamID, upstreamID, err)
 	}
 	d.SetId(runTrigger.ID)
 	return resourceScalrRunTriggerRead(d, meta)
