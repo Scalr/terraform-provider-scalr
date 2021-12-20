@@ -113,6 +113,7 @@ func testAccCheckRunTriggerAttributes(runTrigger *scalr.RunTrigger, environmentN
 		if err != nil {
 			return fmt.Errorf("Error retreiving workspace downstream-test for environment %s, %v", environmentName, err)
 		}
+
 		if downstream.ID != downstreamID {
 			return fmt.Errorf("Wrong downstream workspace ID: %v", downstream.ID)
 		}
