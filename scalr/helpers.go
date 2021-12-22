@@ -47,7 +47,7 @@ func GetEnvironmentByName(options GetEnvironmentByNameOptions, scalrClient *scal
 		return nil, fmt.Errorf("Environment with name '%s' not found", *options.Name)
 
 	case numberOfMatch > 1:
-		return nil, fmt.Errorf("Find more than one environment with name: %s, specify `account_id` to search only for environments in specific account", options.Name)
+		return nil, fmt.Errorf("Find more than one environment with name: %s, specify `account_id` to search only for environments in specific account", *options.Name)
 
 	default:
 		return matchedEnvironments[0], nil
