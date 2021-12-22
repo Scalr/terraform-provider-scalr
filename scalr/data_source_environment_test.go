@@ -70,6 +70,11 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 				ExpectError: regexp.MustCompile("At least one argument 'id' or 'name' is required, but no definitions was found"),
 				PlanOnly:    true,
 			},
+			{
+				Config:      testAccEnvironmentBothNameAndIdSetConfig(),
+				ExpectError: regexp.MustCompile("Attributes 'name' and 'id' can not be set at the same time"),
+				PlanOnly:    true,
+			},
 		},
 	})
 }
@@ -115,6 +120,13 @@ data "scalr_environment" "test" {
 
 func testAccEnvironmentNeitherNameNorIdSetConfig() string {
 	return `data "scalr_environment" "test" {}`
+}
+
+func testAccEnvironmentBothNameAndIdSetConfig() string {
+	return `data "scalr_environment" "test" {
+		id = "foo"
+		name = "bar"
+	}`
 }
 
 func testAccEnvironmentDataSourceNotFoundAlmostTheSameNameConfig(rInt int, cuttedRInt string) string {

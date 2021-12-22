@@ -79,6 +79,10 @@ func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("At least one argument 'id' or 'name' is required, but no definitions was found")
 	}
 
+	if envID != "" && environmentName != "" {
+		return fmt.Errorf("Attributes 'name' and 'id' can not be set at the same time")
+	}
+
 	accountID := d.Get("account_id").(string)
 
 	var environment *scalr.Environment
