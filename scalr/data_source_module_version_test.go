@@ -59,7 +59,11 @@ func waitForModuleVersions(environmentName string) func() {
 	return func() {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
-		env, err := GetEnvironmentByName(environmentName, scalrClient)
+		options := GetEnvironmentByNameOptions{
+			Name: &environmentName,
+		}
+
+		env, err := GetEnvironmentByName(options, scalrClient)
 		if err != nil {
 			log.Fatalf("Got error during environment fetching: %v", err)
 			return
