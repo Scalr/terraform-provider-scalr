@@ -49,7 +49,7 @@ provider scalr {}
 terraform {
     required_providers {
         scalr = {
-            source = "scalr.io/scalr/scalr"  // not registry.scalr.io
+            source = "registry.scalr.io/scalr/scalr"
             version = "7.7.7"
         }
     }
