@@ -94,6 +94,7 @@ func Provider() terraform.ResourceProvider {
 			"scalr_vcs_provider":         resourceScalrVcsProvider(),
 			"scalr_webhook":              resourceScalrWebhook(),
 			"scalr_workspace":            resourceScalrWorkspace(),
+			"scalr_run_trigger":          resourceScalrRunTrigger(),
 		},
 
 		ConfigureFunc: providerConfigure,
