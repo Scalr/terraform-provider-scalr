@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `data.scalr_environment`: added new optional attribute `account_id` ([#101](https://github.com/Scalr/terraform-provider-scalr/pull/101))
 
 ### Fixed
-create vcs_provider with bitbucket_enterprise vcs_type ([#104](https://github.com/Scalr/terraform-provider-scalr/pull/104))
+- create vcs_provider with bitbucket_enterprise vcs_type ([#104](https://github.com/Scalr/terraform-provider-scalr/pull/104))
 
 ## [1.0.0-rc25] - 2021-11-24
 ### Changed
