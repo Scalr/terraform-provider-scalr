@@ -14,7 +14,9 @@ This data source is used to retrieve details of a an environment.
 
 ```hcl
 data "scalr_environment" "test" {
-  id = "env-xxxxxxxxxx"
+  id = "env-xxxxxxxxxx" # optional, conflicts with filter by name
+  account_id = "acc-xxxxxxxx" # mandatory if user has access to few accounts and environment name is not unique
+  name = "environment-name"  # optional, conflicts with filter by id
 }
 ```
 
