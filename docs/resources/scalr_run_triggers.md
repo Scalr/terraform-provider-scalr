@@ -49,7 +49,7 @@ All arguments plus:
 
 ## Import
 
-To import vcs provider use vcs provider ID as the import ID. For example:
+To import existing run trigger use its identifier. For example:
 ```shell
 terraform import scalr_run_trigger.set_downstream rt-xxxxxxxxxx
 ```
