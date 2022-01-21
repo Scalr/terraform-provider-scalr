@@ -12,10 +12,20 @@ This data source is used to retrieve details of a single role by name and accoun
 
 ## Example Usage
 
+To retrieve a custom role, an account id and the role name is required, for example: 
+
 ```hcl
 data "scalr_role" "example" {
   name           = "WorkspaceAdmin"
   account_id     = "acc-xxxxxxxxx"
+}
+```
+
+To retrieve system-managed roles an account id has to be omitted, for example:
+
+```hcl
+data "scalr_role" "example" {
+  name           = "user"
 }
 ```
 
