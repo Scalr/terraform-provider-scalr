@@ -3,10 +3,10 @@ layout: "scalr"
 page_title: "Scalr: scalr_run_trigger"
 sidebar_current: "docs-resource-scalr-run-trigger"
 description: |-
-  Manages vcs provider.
+  Manages workspace run triggers.
 ---
 
-# scalr_vcs_provider Resource
+# scalr_run_trigger Resource
 
 Run triggers are a way to chain workspaces together. 
 The use case for this is that you might have one or more upstream workspaces that need to automatically kick off a downstream workspace based on a successful run in the upstream workspace. 
