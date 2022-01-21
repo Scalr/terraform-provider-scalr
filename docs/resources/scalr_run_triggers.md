@@ -30,22 +30,22 @@ data "scalr_workspace" "upstream" {
 }
 
 resource "scalr_run_trigger" "set_downstream" {
-   downstream_id  = data.scalr_workspace.downstream.id # run automatically queued in this workspace once the run in upstream workspace is applied
+   downstream_id  = data.scalr_workspace.downstream.id # run automatically triggered in this workspace once the run in the upstream workspace is applied
    upstream_id = data.scalr_workspace.upstream.id
 }
 ```
 
 ## Argument Reference
 
-* `downstream_id` - (Required) The identifier of the workspace in which new runs will be created.
-* `upstream_id` (Required) The identifier of the upstream workspace to track new runs.
+* `downstream_id` - (Required) The identifier of the workspace in which new runs will be triggered.
+* `upstream_id` (Required) The identifier of the upstream workspace.
 
 
 ## Attribute Reference
 
 All arguments plus:
 
-* `id` - The identifier of created trigger
+* `id` - The identifier of the created trigger
 
 ## Import
 
