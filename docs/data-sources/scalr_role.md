@@ -12,7 +12,7 @@ This data source is used to retrieve details of a single role by name and accoun
 
 ## Example Usage
 
-To retrieve an account manage role an account id and the role name is required, for example: 
+To retrieve a custom role, an account id and the role name is required, for example: 
 
 ```hcl
 data "scalr_role" "example" {
