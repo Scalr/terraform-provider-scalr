@@ -20,7 +20,14 @@ func resourceScalrRole() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
-		SchemaVersion: 0,
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceScalrRoleResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceScalrRoleStateUpgradeV0,
+				Version: 0,
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
