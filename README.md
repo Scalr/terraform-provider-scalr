@@ -33,7 +33,7 @@ Enter the provider directory and build the provider:
 $ cd $GOPATH/src/github.com/Scalr/terraform-provider-scalr
 $ make build
 ```
-If you are on Mac OS and wish to cross-compile the provider for GNU/Linux you can use `make build-linux` instead.
+If you are on macOS and wish to cross-compile the provider for GNU/Linux you can use `make build-linux` instead.
 Note that the behaviour of the linker [has changed in Go 1.15](https://golang.org/doc/go1.15#linker).
 If you are not using the makefile to build you will need to update your build flags to match it.
 

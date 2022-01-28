@@ -8,7 +8,7 @@ description: |-
 
 # scalr_environment Data Source
 
-This data source is used to retrieve details of a an environment.
+This data source is used to retrieve details of an environment.
 
 ## Example Usage
 

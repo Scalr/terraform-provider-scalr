@@ -30,7 +30,7 @@ The following arguments are supported:
 
 All arguments plus:
 
-* `id` - The workspace's ID, in the format `ws-<RANDOM STRING>`.
+* `id` - The workspace ID, in the format `ws-<RANDOM STRING>`.
 * `auto_apply` - Boolean indicates if `terrafrom apply` will be automatically run when `terraform plan` ends without error.
 * `operations` - Boolean indicates if the workspace is being used for remote execution.
 * `terraform_version` - The version of Terraform used for this workspace.
