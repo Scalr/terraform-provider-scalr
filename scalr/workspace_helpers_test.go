@@ -13,12 +13,12 @@ func TestFetchWorkspaceID(t *testing.T) {
 		want string
 		err  bool
 	}{
-		"non exisiting environment": {
+		"non existing environment": {
 			"not-an-env/workspace",
 			"",
 			true,
 		},
-		"non exisiting workspace": {
+		"non existing workspace": {
 			"hashicorp/not-a-workspace",
 			"",
 			true,

@@ -8,7 +8,7 @@ Get information on a team.
 
 # scalr_iam_team Data Source
 
-Retrieves the details of a team by a the name and account_id.
+Retrieves the details of a team by the name and account_id.
 
 ## Example Usage
 

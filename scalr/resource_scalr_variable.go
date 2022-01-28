@@ -250,7 +250,7 @@ func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("account_id", variable.Account.ID)
 	}
 
-	// Only set the value if its not sensitive, as otherwise it will be empty.
+	// Only set the value if it's not sensitive, as otherwise it will be empty.
 	if !variable.Sensitive {
 		d.Set("value", variable.Value)
 	}
