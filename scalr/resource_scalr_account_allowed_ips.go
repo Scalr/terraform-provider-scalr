@@ -90,6 +90,7 @@ func resourceScalrAccountAllowedIpsRead(d *schema.ResourceData, meta interface{}
 
 	// Update the config.
 	d.Set("allowed_ips", account.AllowedIPs)
+	d.Set("account_id", accountID)
 
 	return nil
 }
