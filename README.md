@@ -16,12 +16,12 @@ Follow the instructions on the [official documentation page](https://docs.scalr.
 ## Developing the provider
 ### Requirements
 - [Terraform](https://www.terraform.io/downloads.html) >= 0.15.x
-- [Go](https://golang.org/doc/install) >= 1.13
+- [Go](https://golang.org/doc/install) >= 1.17
 - [jq](https://stedolan.github.io/jq/) >= 1.0
 
 ### Setup
 If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed
-on your machine (version 1.13+ is *required*).
+on your machine (version 1.17+ is *required*).
 
 Clone the repository:
 ```sh
