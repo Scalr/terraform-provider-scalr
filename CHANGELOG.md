@@ -10,10 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `resource.scalr_role`: added new state migration (include `accounts:set-quotas` permission if needed) ([#108](https://github.com/Scalr/terraform-provider-scalr/pull/108))
 
+### Fixed
+- create vcs_provider with bitbucket_enterprise vcs_type ([#104](https://github.com/Scalr/terraform-provider-scalr/pull/104))
+
+### Required
+
+- scalr-server >= `8.10.0`
+
 ## [1.0.0-rc26] - 2022-01-21
 
 ### Changed
 - **New resource:** `scalr_run_triggers` ([#102](https://github.com/Scalr/terraform-provider-scalr/pull/102))
+- `data.scalr_environment`: allow obtaining scalr_environment by name ([#101](https://github.com/Scalr/terraform-provider-scalr/pull/101))
 - `data.scalr_environment`: allow to obtain scalr_environment by name ([#101](https://github.com/Scalr/terraform-provider-scalr/pull/101))
 - `data.scalr_environment`: `id` become optional  ([#101](https://github.com/Scalr/terraform-provider-scalr/pull/101))
 - `data.scalr_environment`: added new optional attribute `name` ([#101](https://github.com/Scalr/terraform-provider-scalr/pull/101))
@@ -173,7 +181,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
- - Version number in terraform provider binary name and in User-Agent header during API calls to Scalr server ([#60](https://github.com/Scalr/terraform-provider-scalr/pull/60))
+ - The version number in terraform provider binary name and in User-Agent header during API calls to Scalr server ([#60](https://github.com/Scalr/terraform-provider-scalr/pull/60))
  - `scalr_workspace`: new attribute `vcs_repo.path` ([#59](https://github.com/Scalr/terraform-provider-scalr/pull/59))
  - `scalr_workspace`: new attribute `vcs_repo.trigger_prefixes` ([#59](https://github.com/Scalr/terraform-provider-scalr/pull/59))
 

@@ -19,6 +19,14 @@ func resourceScalrVcsProvider() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceScalrVcsProviderV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceScalrVcsProviderStateUpgradeV0,
+				Version: 0,
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -49,6 +57,10 @@ func resourceScalrVcsProvider() *schema.Resource {
 				Required:  true,
 				Sensitive: true,
 			},
+			"username": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"account_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -75,6 +87,11 @@ func resourceScalrVcsProviderCreate(d *schema.ResourceData, meta interface{}) er
 	// Get the url
 	if url, ok := d.GetOk("url"); ok {
 		options.Url = scalr.String(url.(string))
+	}
+
+	// Get the username
+	if username, ok := d.GetOk("username"); ok {
+		options.Username = scalr.String(username.(string))
 	}
 
 	// Get the account
@@ -107,6 +124,7 @@ func resourceScalrVcsProviderRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("url", provider.Url)
 	d.Set("vcs_type", provider.VcsType)
 	d.Set("auth_type", provider.AuthType)
+	d.Set("username", provider.Username)
 	if provider.Account != nil {
 		d.Set("account_id", provider.Account.ID)
 	}
@@ -124,6 +142,11 @@ func resourceScalrVcsProviderUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if url, ok := d.GetOk("url"); ok {
 		options.Url = scalr.String(url.(string))
+	}
+
+	// Get the username
+	if username, ok := d.GetOk("username"); ok {
+		options.Username = scalr.String(username.(string))
 	}
 
 	log.Printf("[DEBUG] Update vcs provider: %s", d.Id())
