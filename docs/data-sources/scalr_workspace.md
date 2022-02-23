@@ -35,6 +35,7 @@ All arguments plus:
 * `operations` - Boolean indicates if the workspace is being used for remote execution.
 * `terraform_version` - The version of Terraform used for this workspace.
 * `working_directory` - A relative path that Terraform will execute within.
+* `run_operations_timeout` - The number of minutes run operation can be executed before termination.
 * `module_version_id` - The identifier of a module version in the format `modver-<RANDOM STRING>`.
 * `vcs_provider_id` - The identifier of a VCS provider in the format `vcs-<RANDOM STRING>`.
 * `vcs_repo` - If workspace is linked to VCS repository this block shows the details, otherwise `{}`
