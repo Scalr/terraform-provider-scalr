@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - scalr-server >= `8.13.0`
 
+## [1.0.0-rc27] - 2022-02-17
+
 ### Fixed
 - create vcs_provider with bitbucket_enterprise vcs_type ([#104](https://github.com/Scalr/terraform-provider-scalr/pull/104))
 
@@ -384,7 +386,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc26...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc27...HEAD
+[1.0.0-rc27]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc27
 [1.0.0-rc26]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc26
 [1.0.0-rc25]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc25
 [1.0.0-rc24]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc24
