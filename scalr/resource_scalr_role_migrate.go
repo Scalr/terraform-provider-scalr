@@ -42,8 +42,8 @@ func resourceScalrRoleResourceV0() *schema.Resource {
 
 func resourceScalrRoleStateUpgradeV0(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	permissionsSet := make(map[string]bool)
-	for _, perm := range rawState["permissions"].([]interface{}) {
-		permissionsSet[perm.(string)] = true
+	for _, perm := range rawState["permissions"].([]string) {
+		permissionsSet[perm] = true
 	}
 
 	if permissionsSet["accounts:set-quotas"] {
