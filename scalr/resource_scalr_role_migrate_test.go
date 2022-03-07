@@ -14,7 +14,7 @@ func testResourceScalrRoleStateDataV0() map[string]interface{} {
 func testResourceScalrRoleStateDataV1() map[string]interface{} {
 	perms := make([]interface{}, 0)
 	return map[string]interface{}{
-		"permissions": append(perms, "accounts:set-quotas", "accounts:update", "global-scope:read"),
+		"permissions": append(perms, "accounts:update", "global-scope:read", "accounts:set-quotas"),
 	}
 }
 

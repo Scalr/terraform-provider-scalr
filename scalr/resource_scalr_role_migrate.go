@@ -1,8 +1,6 @@
 package scalr
 
 import (
-	"sort"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
@@ -42,7 +40,8 @@ func resourceScalrRoleResourceV0() *schema.Resource {
 
 func resourceScalrRoleStateUpgradeV0(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	permissionsSet := make(map[string]bool)
-	for _, perm := range rawState["permissions"].([]interface{}) {
+	permissions := rawState["permissions"].([]interface{})
+	for _, perm := range permissions {
 		permissionsSet[perm.(string)] = true
 	}
 
@@ -50,18 +49,9 @@ func resourceScalrRoleStateUpgradeV0(rawState map[string]interface{}, meta inter
 		return rawState, nil
 	}
 	if permissionsSet["global-scope:read"] && permissionsSet["accounts:update"] {
-		permissionsSet["accounts:set-quotas"] = true
+		permissions = append(permissions, "accounts:set-quotas")
+		rawState["permissions"] = permissions
 	}
-
-	newPermissions := make([]string, len(permissionsSet))
-	counter := 0
-	for perm := range permissionsSet {
-		newPermissions[counter] = perm
-		counter++
-	}
-
-	sort.Strings(newPermissions)
-	rawState["permissions"] = newPermissions
 
 	return rawState, nil
 }
