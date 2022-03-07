@@ -6,13 +6,13 @@ import (
 
 func testResourceScalrRoleStateDataV0() map[string]interface{} {
 	return map[string]interface{}{
-		"permissions": []string{"accounts:create", "global-scope:*"},
+		"permissions": []string{"accounts:update", "global-scope:read"},
 	}
 }
 
 func testResourceScalrRoleStateDataV1() map[string]interface{} {
 	return map[string]interface{}{
-		"permissions": []string{"accounts:create", "accounts:set-quotas", "global-scope:*"},
+		"permissions": []string{"accounts:set-quotas", "accounts:update", "global-scope:read"},
 	}
 }
 
@@ -30,13 +30,13 @@ func testResourceScalrRoleStateDataV1NoGlobalScope() map[string]interface{} {
 
 func testResourceScalrRoleStateDataV0ExistingPerm() map[string]interface{} {
 	return map[string]interface{}{
-		"permissions": []string{"accounts:set-quotas", "global-scope:*"},
+		"permissions": []string{"accounts:set-quotas", "global-scope:read"},
 	}
 }
 
 func testResourceScalrRoleStateDataV1ExistingPerm() map[string]interface{} {
 	return map[string]interface{}{
-		"permissions": []string{"accounts:set-quotas", "global-scope:*"},
+		"permissions": []string{"accounts:set-quotas", "global-scope:read"},
 	}
 }
 
