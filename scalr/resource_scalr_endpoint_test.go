@@ -9,7 +9,7 @@ import (
 
 func TestAccEndpoint_basic(t *testing.T) {
 	rInt := GetRandomInteger()
-	secretKey := "stong_key_with_UPPERCASE_letter_at_leaast_1_number"
+	secretKey := "strong_key_with_UPPERCASE_letter_at_least_1_number"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -38,7 +38,7 @@ func TestAccEndpoint_basic(t *testing.T) {
 
 func TestAccEndpoint_update(t *testing.T) {
 	rInt := GetRandomInteger()
-	secretKey := "stong_key_with_UPPERCASE_letter_at_leaast_1_number"
+	secretKey := "strong_key_with_UPPERCASE_letter_at_least_1_number"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
