@@ -14,17 +14,76 @@ Manage the state of workspaces in Scalr. Create, update and destroy
 
 Basic usage:
 
+### VCS-driven
 ```hcl
-resource "scalr_workspace" "example" {
+data "scalr_vcs_provider" test {
+  name = "vcs-name"
+  account_id = "acc-xxxx" # in case if user has access to more than one account
+}
+
+data "scalr_environment" test {
+  name = "env-name"
+  account_id = "acc-xxxx" # in case if user has access to more than one account
+}
+
+resource "scalr_workspace" "vcs-driven" {
   name            = "my-workspace-name"
-  environment_id  = "env-xxxxxxxxx"
-  vcs_provider_id = "my_vcs_provider"
+  environment_id  = data.scalr_environment.test.id
+  vcs_provider_id = data.scalr_vcs_provider.test.id
+
+  working_directory = "example/path"
+
   vcs_repo {
       identifier          = "org/repo"
       branch              = "dev"
-      path                = "example/path"
       trigger_prefixes    = ["stage", "prod"]
   }
+}
+```
+
+### Module-driven
+
+```hcl
+data "scalr_environment" test {
+  name = "env-name"
+  # account_id = "acc-xxxx" # Optional, in case if user has access to more than one account
+}
+
+locals {
+  modules = {
+    "${data.scalr_environment.test.id}": "module-name/provider",         # environment-level module will be selected
+    "${data.scalr_environment.test.account_id}": "module-name/provider", # account-level module will be selected
+  }
+}
+
+data "scalr_module_version" "module-driven" {
+  for_each = local.modules
+  source = "${each.key}/${each.value}"
+  # version = "1.0.0" # Optional, if omitted, the latest module version is selected
+}
+
+resource "scalr_workspace" "example" {
+  for_each = data.scalr_module_version.example
+  environment_id = data.scalr_environment.test.id
+
+  name = replace(each.value.source, "/", "-")
+  module_version_id = each.value.id
+}
+```
+
+### CLI-driven
+
+```hcl
+data "scalr_environment" test {
+  name = "env-name"
+  # account_id = "acc-xxxx" # Optional, in case if user has access to more than one account
+}
+
+resource "scalr_workspace" "cli-driven" {
+  name            = "my-workspace-name"
+  environment_id  = data.scalr_environment.test.id
+
+  working_directory = "example/path"
 }
 ```
 
@@ -44,9 +103,9 @@ resource "scalr_workspace" "example" {
 * `vcs_repo` - (Optional) Settings for the workspace's VCS repository.
 
     The `vcs_repo` block supports: 
-    * `identifier` - (Required) A reference to your VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
+    * `identifier` - (Required) A reference to your VCS repository in the format `:org/:repo`, it refers to the organization and repository in your VCS provider.
     * `branch` - (Optional) The repository branch where Terraform will be run from. Default `master`.
-    * `path` - (Optional) The repository subdirectory that Terraform will execute from. If omitted or submitted as an empty string, this defaults to the repository's root.
+    * `path` - (Optional) `Deprecated`: The repository subdirectory that Terraform will execute from. If omitted or submitted as an empty string, this defaults to the repository's root.
     * `trigger_prefixes` - (Optional) List of paths (relative to `path`), whose changes will trigger a run for the workspace using this binding when the CV is created. If omitted or submitted as an empty list, any change in `path` will trigger a new run.
     * `dry_runs_enabled` - (Optional) Set (true/false) to configure the VCS driven dry runs should run when pull request to configuration versions branch created. Default `true`
 
