@@ -94,6 +94,7 @@ func Provider() terraform.ResourceProvider {
 			"scalr_vcs_provider":         resourceScalrVcsProvider(),
 			"scalr_webhook":              resourceScalrWebhook(),
 			"scalr_workspace":            resourceScalrWorkspace(),
+			"scalr_run_trigger":          resourceScalrRunTrigger(),
 		},
 
 		ConfigureFunc: providerConfigure,
@@ -143,7 +144,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			return nil, err
 		}
 		// If discoErr is nil we save the first error. When multiple services
-		// are checked and we found one that didn't give an error we need to
+		// are checked, and we found one that didn't give an error we need to
 		// reset the discoErr. So if err is nil, we assign it as well.
 		if discoErr == nil || err == nil {
 			discoErr = err
@@ -296,7 +297,7 @@ func checkConstraints(c *disco.Constraints) error {
 		return nil
 	}
 
-	// Find out what action (upgrade/downgrade) we should advice.
+	// Find out what action (upgrade/downgrade) we should advise.
 	minimum, err := version.NewVersion(c.Minimum)
 	if err != nil {
 		return checkConstraintsWarning(err)
