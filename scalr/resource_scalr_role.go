@@ -107,7 +107,7 @@ func resourceScalrRoleRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Read configuration of role: %s", id)
 	role, err := scalrClient.Roles.Read(ctx, id)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			log.Printf("[DEBUG] Role %s not found", id)
 			d.SetId("")
 			return nil
@@ -186,7 +186,7 @@ func resourceScalrRoleDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete role %s", id)
 	err := scalrClient.Roles.Delete(ctx, id)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
 		return fmt.Errorf(

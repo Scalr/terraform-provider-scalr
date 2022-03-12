@@ -164,7 +164,7 @@ func resourceVcsProviderDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete vcs provider: %s", d.Id())
 	err := scalrClient.VcsProviders.Delete(ctx, d.Id())
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
 		return fmt.Errorf("Error deleting vcs provider %s: %v", d.Id(), err)

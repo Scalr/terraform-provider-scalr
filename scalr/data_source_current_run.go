@@ -113,7 +113,7 @@ func dataSourceScalrCurrentRunRead(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Read configuration of run: %s", runID)
 	run, err := scalrClient.Runs.Read(ctx, runID)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return fmt.Errorf("Could not find run %s", runID)
 		}
 		return fmt.Errorf("Error retrieving run: %v", err)
@@ -122,7 +122,7 @@ func dataSourceScalrCurrentRunRead(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Read workspace of run: %s", runID)
 	workspace, err := scalrClient.Workspaces.ReadByID(ctx, run.Workspace.ID)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return fmt.Errorf("Could not find workspace %s", run.Workspace.ID)
 		}
 		return fmt.Errorf("Error retrieving workspace: %v", err)
