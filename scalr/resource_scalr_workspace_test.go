@@ -35,7 +35,7 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "run_operations_timeout", "18"),
+						"scalr_workspace.test", "run_operation_timeout", "18"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan.sh"),
 					resource.TestCheckResourceAttr(
@@ -74,7 +74,7 @@ func TestAccScalrWorkspace_monorepo(t *testing.T) {
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", "/db"),
-					resource.TestCheckNoResourceAttr("scalr_workspace.test", "run_operations_timeout"),
+					resource.TestCheckNoResourceAttr("scalr_workspace.test", "run_operation_timeout"),
 				),
 			},
 		},
@@ -163,7 +163,7 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr("scalr_workspace.test", "working_directory", ""),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "run_operations_timeout", "18"),
+						"scalr_workspace.test", "run_operation_timeout", "18"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan.sh"),
 					resource.TestCheckResourceAttr(
@@ -192,7 +192,7 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", "terraform/test"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "run_operations_timeout", "200"),
+						"scalr_workspace.test", "run_operation_timeout", "200"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan_updated.sh"),
 					resource.TestCheckResourceAttr(
@@ -221,7 +221,7 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", "terraform/test"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "run_operations_timeout", "0"),
+						"scalr_workspace.test", "run_operation_timeout", "0"),
 					resource.TestCheckNoResourceAttr("scalr_workspace.test", "hooks"),
 				),
 			},
@@ -429,7 +429,7 @@ resource scalr_workspace test {
   name                   = "workspace-test"
   environment_id         = scalr_environment.test.id
   auto_apply             = true
-  run_operations_timeout = 18
+  run_operation_timeout = 18
   hooks {
     pre_plan   = "./scripts/pre-plan.sh"
     post_plan  = "./scripts/post-plan.sh"
@@ -454,7 +454,7 @@ resource "scalr_workspace" "test" {
   name                   = "renamed-out-of-band"
   environment_id         = scalr_environment.test.id
   auto_apply             = true
-  run_operations_timeout = 18
+  run_operation_timeout = 18
   hooks {
     pre_plan   = "./scripts/pre-plan.sh"
     post_plan  = "./scripts/post-plan.sh"
@@ -473,7 +473,7 @@ resource "scalr_workspace" "test" {
   operations            = false
   terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
-  run_operations_timeout = 200
+  run_operation_timeout = 200
   hooks {
     pre_plan   = "./scripts/pre-plan_updated.sh"
     post_plan  = "./scripts/post-plan_updated.sh"

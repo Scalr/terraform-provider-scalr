@@ -187,7 +187,7 @@ func resourceScalrWorkspace() *schema.Resource {
 					},
 				},
 			},
-			"run_operations_timeout": {
+			"run_operation_timeout": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
@@ -236,8 +236,8 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		options.WorkingDirectory = scalr.String(workingDir.(string))
 	}
 
-	if runOperationsTimeout, ok := d.GetOk("run_operations_timeout"); ok {
-		options.RunOperationsTimeout = scalr.Int(runOperationsTimeout.(int))
+	if runOperationTimeout, ok := d.GetOk("run_operation_timeout"); ok {
+		options.RunOperationTimeout = scalr.Int(runOperationTimeout.(int))
 	}
 
 	if v, ok := d.GetOk("module_version_id"); ok {
@@ -324,8 +324,8 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("environment_id", workspace.Environment.ID)
 	d.Set("has_resources", workspace.HasResources)
 
-	if workspace.RunOperationsTimeout != nil {
-		d.Set("run_operations_timeout", &workspace.RunOperationsTimeout)
+	if workspace.RunOperationTimeout != nil {
+		d.Set("run_operation_timeout", &workspace.RunOperationTimeout)
 	}
 
 	if workspace.VcsProvider != nil {
@@ -387,7 +387,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		d.HasChange("terraform_version") || d.HasChange("working_directory") ||
 		d.HasChange("vcs_repo") || d.HasChange("operations") ||
 		d.HasChange("vcs_provider_id") || d.HasChange("agent_pool_id") ||
-		d.HasChange("hooks") || d.HasChange("module_version_id") || d.HasChange("run_operations_timeout") {
+		d.HasChange("hooks") || d.HasChange("module_version_id") || d.HasChange("run_operation_timeout") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
 			Name:       scalr.String(d.Get("name").(string)),
@@ -408,8 +408,8 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 		options.WorkingDirectory = scalr.String(d.Get("working_directory").(string))
 
-		if runOperationsTimeout, ok := d.GetOk("run_operations_timeout"); ok {
-			options.RunOperationsTimeout = scalr.Int(runOperationsTimeout.(int))
+		if runOperationTimeout, ok := d.GetOk("run_operation_timeout"); ok {
+			options.RunOperationTimeout = scalr.Int(runOperationTimeout.(int))
 		}
 
 		if vcsProviderId, ok := d.GetOk("vcs_provider_id"); ok {
