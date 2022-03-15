@@ -35,6 +35,10 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "var_files.0", "test1.tfvars"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "var_files.1", "test2.tfvars"),
+					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan.sh"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.post_plan", "./scripts/post-plan.sh"),
@@ -159,6 +163,8 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_workspace.test", "auto_apply", "true"),
 					resource.TestCheckResourceAttr("scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr("scalr_workspace.test", "working_directory", ""),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "var_files.0", "test1.tfvars"),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "var_files.1", "test2.tfvars"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan.sh"),
 					resource.TestCheckResourceAttr(
@@ -186,6 +192,10 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 						"scalr_workspace.test", "terraform_version", "0.12.19"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", "terraform/test"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "var_files.0", "test1updated.tfvars"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "var_files.1", "test2updated.tfvars"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan_updated.sh"),
 					resource.TestCheckResourceAttr(
@@ -420,6 +430,7 @@ resource scalr_workspace test {
   name           = "workspace-test"
   environment_id = scalr_environment.test.id
   auto_apply     = true
+  var_files      = ["test1.tfvars", "test2.tfvars"]
   hooks {
     pre_plan   = "./scripts/pre-plan.sh"
     post_plan  = "./scripts/post-plan.sh"
@@ -462,6 +473,7 @@ resource "scalr_workspace" "test" {
   operations            = false
   terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
+  var_files             = ["test1updated.tfvars", "test2updated.tfvars"]
   hooks {
     pre_plan   = "./scripts/pre-plan_updated.sh"
     post_plan  = "./scripts/post-plan_updated.sh"

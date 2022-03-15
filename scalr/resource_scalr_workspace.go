@@ -71,6 +71,12 @@ func resourceScalrWorkspace() *schema.Resource {
 				Default:  false,
 			},
 
+			"var_files": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
 			"operations": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -207,12 +213,27 @@ func parseTriggerPrefixDefinitions(vcsRepo map[string]interface{}) ([]string, er
 	return triggerPrefixes, nil
 }
 
+func parseVarFiles(d *schema.ResourceData) ([]string, error) {
+	varFiles := make([]string, 0)
+	varFilesRequest := d.Get("var_files").([]interface{})
+
+	for _, varFile := range varFilesRequest {
+		varFiles = append(varFiles, varFile.(string))
+	}
+
+	return varFiles, nil
+}
+
 func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get the name, environment_id and vcs_provider_id.
 	name := d.Get("name").(string)
 	environmentID := d.Get("environment_id").(string)
+	varfiles, err := parseVarFiles(d)
+	if err != nil {
+		return err
+	}
 
 	// Create a new options struct.
 	options := scalr.WorkspaceCreateOptions{
@@ -221,6 +242,7 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		Operations:  scalr.Bool(d.Get("operations").(bool)),
 		Environment: &scalr.Environment{ID: environmentID},
 		Hooks:       &scalr.HooksOptions{},
+		VarFiles:    varfiles,
 	}
 
 	// Process all configured options.
@@ -315,6 +337,7 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("working_directory", workspace.WorkingDirectory)
 	d.Set("environment_id", workspace.Environment.ID)
 	d.Set("has_resources", workspace.HasResources)
+	d.Set("var_files", workspace.VarFiles)
 
 	if workspace.VcsProvider != nil {
 		d.Set("vcs_provider_id", workspace.VcsProvider.ID)
@@ -370,17 +393,22 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
+	varfiles, err := parseVarFiles(d)
+	if err != nil {
+		return err
+	}
 
 	if d.HasChange("name") || d.HasChange("auto_apply") ||
 		d.HasChange("terraform_version") || d.HasChange("working_directory") ||
 		d.HasChange("vcs_repo") || d.HasChange("operations") ||
 		d.HasChange("vcs_provider_id") || d.HasChange("agent_pool_id") ||
-		d.HasChange("hooks") || d.HasChange("module_version_id") {
+		d.HasChange("hooks") || d.HasChange("var_files") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
 			Name:       scalr.String(d.Get("name").(string)),
 			AutoApply:  scalr.Bool(d.Get("auto_apply").(bool)),
 			Operations: scalr.Bool(d.Get("operations").(bool)),
+			VarFiles:   varfiles,
 			Hooks: &scalr.HooksOptions{
 				PrePlan:   scalr.String(""),
 				PostPlan:  scalr.String(""),
