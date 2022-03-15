@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	scalr "github.com/scalr/go-scalr"
@@ -48,7 +49,7 @@ func resourceScalrRole() *schema.Resource {
 			},
 
 			"permissions": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Required: true,
 				MinItems: 1,
 				MaxItems: 128,
@@ -132,7 +133,9 @@ func resourceScalrRoleRead(d *schema.ResourceData, meta interface{}) error {
 		for _, permission := range role.Permissions {
 			remotePermissions = append(remotePermissions, permission.ID)
 		}
+		sort.Strings(remotePermissions)
 	}
+
 	log.Printf("[DEBUG] remote permissions: %+v", remotePermissions)
 
 	d.Set("permissions", remotePermissions)
