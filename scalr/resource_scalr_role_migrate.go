@@ -28,7 +28,7 @@ func resourceScalrRoleResourceV0() *schema.Resource {
 			},
 
 			"permissions": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				MinItems: 1,
 				MaxItems: 128,
@@ -48,9 +48,9 @@ func resourceScalrRoleStateUpgradeV0(rawState map[string]interface{}, meta inter
 	if permissionsSet["accounts:set-quotas"] {
 		return rawState, nil
 	}
+
 	if permissionsSet["global-scope:read"] && permissionsSet["accounts:update"] {
-		permissions = append(permissions, "accounts:set-quotas")
-		rawState["permissions"] = permissions
+		rawState["permissions"] = append(permissions, "accounts:set-quotas")
 	}
 
 	return rawState, nil
