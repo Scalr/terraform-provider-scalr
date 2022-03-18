@@ -105,7 +105,7 @@ func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Environment %s not found", envID)
+			return fmt.Errorf("Environment '%s' not found", envID)
 		}
 		return fmt.Errorf("Error retrieving environment: %v", err)
 	}

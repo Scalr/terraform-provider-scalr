@@ -74,7 +74,7 @@ func dataSourceScalrAccessPolicyRead(d *schema.ResourceData, meta interface{}) e
 
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("AccessPolicy %s not found", id)
+			return fmt.Errorf("AccessPolicy '%s' not found", id)
 		}
 		return fmt.Errorf("Error reading configuration of access policy %s: %v", id, err)
 	}
