@@ -75,7 +75,7 @@ func resourceScalrAgentPoolRead(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Read configuration of agent pool: %s", id)
 	agentPool, err := scalrClient.AgentPools.Read(ctx, id)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			log.Printf("[DEBUG] agent pool %s not found", id)
 			d.SetId("")
 			return nil
@@ -124,7 +124,7 @@ func resourceScalrAgentPoolDelete(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Delete agent pool %s", id)
 	err := scalrClient.AgentPools.Delete(ctx, id)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
 		return fmt.Errorf(

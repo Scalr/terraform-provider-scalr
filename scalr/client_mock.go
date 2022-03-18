@@ -62,7 +62,7 @@ func (m *mockVariables) Read(ctx context.Context, varID string) (*scalr.Variable
 	v := m.ids[varID]
 
 	if v == nil {
-		return nil, scalr.ErrResourceNotFound{}
+		return nil, scalr.ErrResourceNotFound
 	}
 
 	return v, nil
@@ -71,7 +71,7 @@ func (m *mockVariables) Read(ctx context.Context, varID string) (*scalr.Variable
 func (m *mockWorkspaces) Read(ctx context.Context, environment string, workspace string) (*scalr.Workspace, error) {
 	w := m.workspaceNames[workspaceNamesKey{environment, workspace}]
 	if w == nil {
-		return nil, scalr.ErrResourceNotFound{}
+		return nil, scalr.ErrResourceNotFound
 	}
 
 	return w, nil
