@@ -27,7 +27,7 @@ func TestAccScalrAccessPolicyDataSource_basic(t *testing.T) {
 			},
 			{
 				Config:      testAccAccessPolicyDataSourceNotFoundConfig(),
-				ExpectError: regexp.MustCompile("AccessPolicy with ID 'ap-123' not found"),
+				ExpectError: regexp.MustCompile("AccessPolicy 'ap-123' not found"),
 				PlanOnly:    true,
 			},
 		},
