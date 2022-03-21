@@ -106,7 +106,7 @@ func resourceScalrIamTeamRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Read configuration of team %s", id)
 	t, err := scalrClient.Teams.Read(ctx, id)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			log.Printf("[DEBUG] Team %s not found", id)
 			d.SetId("")
 			return nil
@@ -170,7 +170,7 @@ func resourceScalrIamTeamDelete(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Delete team %s", id)
 	err := scalrClient.Teams.Delete(ctx, id)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			log.Printf("[DEBUG] Team %s not found", id)
 			return nil
 		}

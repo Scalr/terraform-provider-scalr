@@ -11,9 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **New resource:** `scalr_account_allowed_ips` ([#111](https://github.com/Scalr/terraform-provider-scalr/pull/111))
 
+### Fixed
+
+- Correctly handle not found resources ([#117](https://github.com/Scalr/terraform-provider-scalr/pull/117))
+
 ### Required
 
-- scalr-server >= `8.13.0`
+- scalr-server >= `8.15.0`
+
 
 ## [1.0.0-rc27] - 2022-02-17
 
