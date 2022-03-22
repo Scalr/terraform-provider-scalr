@@ -62,7 +62,12 @@ func resourceScalrRoleStateUpgradeV0(rawState map[string]interface{}, meta inter
 	// For some reason array should be reverse sorted to produce correct diff ¯\_(ツ)_/¯
 	sort.Sort(sort.Reverse(sort.StringSlice(permissions)))
 
-	rawState["permissions"] = permissions
+	perms := make([]interface{}, len(permissions))
+	for i, perm := range permissions {
+		perms[i] = perm
+	}
+
+	rawState["permissions"] = perms
 
 	return rawState, nil
 }

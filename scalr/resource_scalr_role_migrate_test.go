@@ -5,44 +5,44 @@ import (
 )
 
 func testResourceScalrRoleStateDataV0() map[string]interface{} {
-	perms := make([]interface{}, 0)
+	perms := []interface{}{"accounts:update", "global-scope:read"}
 	return map[string]interface{}{
-		"permissions": append(perms, "accounts:update", "global-scope:read"),
+		"permissions": perms,
 	}
 }
 
 func testResourceScalrRoleStateDataV1() map[string]interface{} {
-	perms := make([]interface{}, 0)
+	perms := []interface{}{"global-scope:read", "accounts:update", "accounts:set-quotas"}
 	return map[string]interface{}{
-		"permissions": append(perms, "accounts:update", "global-scope:read", "accounts:set-quotas"),
+		"permissions": perms,
 	}
 }
 
 func testResourceScalrRoleStateDataV0NoGlobalScope() map[string]interface{} {
-	perms := make([]interface{}, 0)
+	perms := []interface{}{"accounts:create"}
 	return map[string]interface{}{
-		"permissions": append(perms, "accounts:create"),
+		"permissions": perms,
 	}
 }
 
 func testResourceScalrRoleStateDataV1NoGlobalScope() map[string]interface{} {
-	perms := make([]interface{}, 0)
+	perms := []interface{}{"accounts:create"}
 	return map[string]interface{}{
-		"permissions": append(perms, "accounts:create"),
+		"permissions": perms,
 	}
 }
 
 func testResourceScalrRoleStateDataV0ExistingPerm() map[string]interface{} {
-	perms := make([]interface{}, 0)
+	perms := []interface{}{"accounts:set-quotas", "global-scope:read"}
 	return map[string]interface{}{
-		"permissions": append(perms, "accounts:set-quotas", "global-scope:read"),
+		"permissions": perms,
 	}
 }
 
 func testResourceScalrRoleStateDataV1ExistingPerm() map[string]interface{} {
-	perms := make([]interface{}, 0)
+	perms := []interface{}{"accounts:set-quotas", "global-scope:read"}
 	return map[string]interface{}{
-		"permissions": append(perms, "accounts:set-quotas", "global-scope:read"),
+		"permissions": perms,
 	}
 }
 
