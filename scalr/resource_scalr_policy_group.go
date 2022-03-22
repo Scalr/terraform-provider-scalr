@@ -150,7 +150,7 @@ func resourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Read configuration of policy group %s", id)
 	pg, err := scalrClient.PolicyGroups.Read(ctx, id)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			log.Printf("[DEBUG] Policy group %s not found", id)
 			d.SetId("")
 			return nil
@@ -250,7 +250,7 @@ func resourceScalrPolicyGroupDelete(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Delete policy group %s", id)
 	err := scalrClient.PolicyGroups.Delete(ctx, id)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			log.Printf("[DEBUG] Policy group %s not found", id)
 			return nil
 		}

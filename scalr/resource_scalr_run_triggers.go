@@ -61,7 +61,7 @@ func resourceScalrRunTriggerDelete(d *schema.ResourceData, meta interface{}) err
 	err := scalrClient.RunTriggers.Delete(ctx, id)
 
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
 		return fmt.Errorf("Error deleting run trigger %s: %v", id, err)
@@ -78,7 +78,7 @@ func resourceScalrRunTriggerRead(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Read run trigger %s", id)
 	runTrigger, err := scalrClient.RunTriggers.Read(ctx, id)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			log.Printf("[DEBUG] RunTrigger %s no longer exists", id)
 			d.SetId("")
 			return nil
