@@ -78,7 +78,7 @@ func resourceScalrAccountAllowedIpsRead(d *schema.ResourceData, meta interface{}
 	log.Printf("[DEBUG] Read endpoint with ID: %s", accountID)
 	account, err := scalrClient.Accounts.Read(ctx, accountID)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return fmt.Errorf("Could not find account %s: %v", accountID, err)
 		}
 		return fmt.Errorf("Error retrieving account: %v", err)
@@ -128,7 +128,7 @@ func resourceScalrAccountAllowedIpsDelete(d *schema.ResourceData, meta interface
 	}
 	_, err := scalrClient.Accounts.Update(ctx, d.Id(), options)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
 		return fmt.Errorf("Error deleting allowed ips for account %s: %v", d.Id(), err)
