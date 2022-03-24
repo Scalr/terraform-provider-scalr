@@ -70,7 +70,7 @@ func dataSourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Read endpoint with ID: %s", webhookID)
 	webhook, err := scalrClient.Webhooks.Read(ctx, webhookID)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return fmt.Errorf("Could not find webhook %s: %v", webhookID, err)
 		}
 		return fmt.Errorf("Error retrieving webhook: %v", err)

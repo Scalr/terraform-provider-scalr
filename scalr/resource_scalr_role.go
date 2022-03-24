@@ -20,7 +20,14 @@ func resourceScalrRole() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
-		SchemaVersion: 0,
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceScalrRoleResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceScalrRoleStateUpgradeV0,
+				Version: 0,
+			},
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -107,7 +114,7 @@ func resourceScalrRoleRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Read configuration of role: %s", id)
 	role, err := scalrClient.Roles.Read(ctx, id)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			log.Printf("[DEBUG] Role %s not found", id)
 			d.SetId("")
 			return nil
@@ -129,8 +136,8 @@ func resourceScalrRoleRead(d *schema.ResourceData, meta interface{}) error {
 		for _, id := range permissionNames {
 			schemaPermissions = append(schemaPermissions, id.(string))
 		}
+		sort.Strings(schemaPermissions)
 	}
-	sort.Strings(schemaPermissions)
 	log.Printf("[DEBUG] schema permissions: %+v", schemaPermissions)
 
 	remotePermissions := make([]string, 0)
@@ -140,6 +147,7 @@ func resourceScalrRoleRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		sort.Strings(remotePermissions)
 	}
+
 	log.Printf("[DEBUG] remote permissions: %+v", remotePermissions)
 
 	// ignore permission ordering from the remote server
@@ -186,7 +194,7 @@ func resourceScalrRoleDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete role %s", id)
 	err := scalrClient.Roles.Delete(ctx, id)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
 		return fmt.Errorf(
