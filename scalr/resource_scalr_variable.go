@@ -11,7 +11,7 @@ import (
 	scalr "github.com/scalr/go-scalr"
 )
 
-var errVariableMultiOnlyEnv = errors.New("Only environment variables should be multi-scoped.")
+var errVariableMultiOnlyEnv = errors.New("Only shell variables should be multi-scoped.")
 
 func resourceScalrVariable() *schema.Resource {
 	return &schema.Resource{
