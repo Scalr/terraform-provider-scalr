@@ -307,7 +307,7 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Read configuration of workspace: %s", id)
 	workspace, err := scalrClient.Workspaces.ReadByID(ctx, id)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			log.Printf("[DEBUG] Workspace %s no longer exists", id)
 			d.SetId("")
 			return nil
@@ -479,7 +479,7 @@ func resourceScalrWorkspaceDelete(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Delete workspace %s", id)
 	err := scalrClient.Workspaces.Delete(ctx, id)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
 		return fmt.Errorf("Error deleting workspace %s: %v", id, err)

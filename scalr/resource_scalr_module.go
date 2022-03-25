@@ -125,7 +125,7 @@ func resourceScalrModuleRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Read configuration of module: %s", id)
 	m, err := scalrClient.Modules.Read(ctx, id)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			log.Printf("[DEBUG] Module %s no longer exists", id)
 			d.SetId("")
 			return nil
@@ -162,7 +162,7 @@ func resourceScalrModuleDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Delete module %s", id)
 	err := scalrClient.Modules.Delete(ctx, id)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
 		return fmt.Errorf("Error deleting module %s: %v", id, err)

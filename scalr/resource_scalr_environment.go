@@ -3,10 +3,9 @@ package scalr
 import (
 	"errors"
 	"fmt"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	scalr "github.com/scalr/go-scalr"
+	"log"
 )
 
 func resourceScalrEnvironment() *schema.Resource {
@@ -145,7 +144,7 @@ func resourceScalrEnvironmentRead(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Read configuration of environment: %s", environmentID)
 	environment, err := scalrClient.Environments.Read(ctx, environmentID)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			// If the resource isn't available, the function should set the ID
 			// to an empty string so Terraform "destroys" the resource in state.
 			d.SetId("")
@@ -225,7 +224,7 @@ func resourceScalrEnvironmentDelete(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Delete environment %s", environmentID)
 	err := scalrClient.Environments.Delete(ctx, d.Id())
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
 		return fmt.Errorf(

@@ -78,7 +78,7 @@ func resourceScalrAgentPoolTokenRead(d *schema.ResourceData, meta interface{}) e
 		tokensList, err := scalrClient.AgentPoolTokens.List(ctx, poolID, options)
 
 		if err != nil {
-			if errors.Is(err, scalr.ErrResourceNotFound{}) {
+			if errors.Is(err, scalr.ErrResourceNotFound) {
 				log.Printf("[DEBUG] agent pool %s not found", poolID)
 				d.SetId("")
 				return nil
@@ -138,7 +138,7 @@ func resourceScalrAgentPoolTokenDelete(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Delete agent pool token %s", id)
 	err := scalrClient.AccessTokens.Delete(ctx, id)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound{}) {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
 		return fmt.Errorf(
