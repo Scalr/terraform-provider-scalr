@@ -7,13 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `scalr_workspace`: added new attribute `run_operation_timeout`
+
 ### Changed
 - `resource.scalr_role`: added new state migration (include `accounts:set-quotas` permission if needed) ([#116](https://github.com/Scalr/terraform-provider-scalr/pull/108))
 
 ### Fixed
 
 - Correctly handle not found resources ([#117](https://github.com/Scalr/terraform-provider-scalr/pull/117))
-
 
 ## [1.0.0-rc27] - 2022-02-17
 
