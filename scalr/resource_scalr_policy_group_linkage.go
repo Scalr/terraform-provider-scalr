@@ -60,19 +60,11 @@ func resourceScalrPolicyGroupLinkageCreate(d *schema.ResourceData, meta interfac
 	envID := d.Get("environment_id").(string)
 	id := packPolicyGroupLinkageID(pgID, envID)
 
-	environment, err := scalrClient.Environments.Read(ctx, envID)
-	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("environment %s not found", envID)
-		}
-		return fmt.Errorf("error creating policy group linkage %s: %v", id, err)
+	opts := scalr.PolicyGroupEnvironmentsCreateOptions{
+		PolicyGroupID:           pgID,
+		PolicyGroupEnvironments: []*scalr.PolicyGroupEnvironment{{ID: envID}},
 	}
-
-	// existing policy groups of the environment plus the new one
-	policyGroups := append(environment.PolicyGroups, &scalr.PolicyGroup{ID: pgID})
-
-	opts := scalr.EnvironmentUpdateOptions{PolicyGroups: policyGroups}
-	_, err = scalrClient.Environments.Update(ctx, envID, opts)
+	err = scalrClient.PolicyGroupEnvironments.Create(ctx, opts)
 	if err != nil {
 		return fmt.Errorf("error creating policy group linkage %s: %v", id, err)
 	}
@@ -116,16 +108,8 @@ func resourceScalrPolicyGroupLinkageDelete(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("error deleting policy group linkage %s: %v", id, err)
 	}
 
-	// existing policy groups of the environment that will remain linked
-	var policyGroups []*scalr.PolicyGroup
-	for _, pg := range environment.PolicyGroups {
-		if pg.ID != policyGroup.ID {
-			policyGroups = append(policyGroups, pg)
-		}
-	}
-
-	opts := scalr.EnvironmentUpdateOptions{PolicyGroups: policyGroups}
-	_, err = scalrClient.Environments.Update(ctx, environment.ID, opts)
+	opts := scalr.PolicyGroupEnvironmentDeleteOptions{PolicyGroupID: policyGroup.ID, EnvironmentID: environment.ID}
+	err = scalrClient.PolicyGroupEnvironments.Delete(ctx, opts)
 	if err != nil {
 		return fmt.Errorf("error deleting policy group linkage %s: %v", id, err)
 	}
