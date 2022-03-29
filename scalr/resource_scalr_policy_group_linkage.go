@@ -64,7 +64,7 @@ func resourceScalrPolicyGroupLinkageCreate(d *schema.ResourceData, meta interfac
 		PolicyGroupID:           pgID,
 		PolicyGroupEnvironments: []*scalr.PolicyGroupEnvironment{{ID: envID}},
 	}
-	err = scalrClient.PolicyGroupEnvironments.Create(ctx, opts)
+	err := scalrClient.PolicyGroupEnvironments.Create(ctx, opts)
 	if err != nil {
 		return fmt.Errorf("error creating policy group linkage %s: %v", id, err)
 	}
