@@ -13,11 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `resource.scalr_role`: added new state migration (include `accounts:set-quotas` permission if needed) ([#116](https://github.com/Scalr/terraform-provider-scalr/pull/108))
-- `resource.scalr_policy_group_linkage`: optimized api interactions
 
 ### Fixed
 
 - Correctly handle not found resources ([#117](https://github.com/Scalr/terraform-provider-scalr/pull/117))
+- `resource.scalr_policy_group_linkage`: optimized api interactions ([#120](https://github.com/Scalr/terraform-provider-scalr/pull/120))
 
 ## [1.0.0-rc27] - 2022-02-17
 
