@@ -81,6 +81,7 @@ func Provider() terraform.ResourceProvider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"scalr_access_policy":        resourceScalrAccessPolicy(),
+			"scalr_account_allowed_ips":  resourceScalrAccountAllowedIps(),
 			"scalr_agent_pool":           resourceScalrAgentPool(),
 			"scalr_agent_pool_token":     resourceScalrAgentPoolToken(),
 			"scalr_endpoint":             resourceScalrEndpoint(),
