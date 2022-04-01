@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scalr_workspace`: added new attribute `run_operation_timeout`
 
 ### Changed
-- `scalr_workspace`: added new  attribute `var_files` ([#118](https://github.com/Scalr/terraform-provider-scalr/pull/118))
+- `scalr_workspace`: added new attribute `var_files` ([#118](https://github.com/Scalr/terraform-provider-scalr/pull/118))
 - `resource.scalr_role`: added new state migration (include `accounts:set-quotas` permission if needed) ([#116](https://github.com/Scalr/terraform-provider-scalr/pull/108))
 
 ### Fixed
