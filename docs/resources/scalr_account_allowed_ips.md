@@ -8,7 +8,7 @@ description: |-
 
 # scalr_account_allowed_ips Resource
 
-Manage the state of allowed ips for an account in Scalr. Create, update and destroy.
+Manages the list of allowed IPs for an account in Scalr. Create, update and destroy.
 
 ## Example Usage
 
@@ -23,8 +23,10 @@ resource "scalr_account_allowed_ips" "default" {
 
 ## Argument Reference
 
-* `account_id` - (Required) ID of the account.
-* `allowed_ips` - (Required) The list of allowed IPs or CIDRs.
+* `account_id` -  (Required) ID of the account.
+* `allowed_ips` - (Required) The list of allowed IPs or CIDRs. 
+                  **Warning**: if you don't specify the current IP address, you may lose access to the account. 
+                  To restore it the account owner has to raise a [support ticket](https://suport.scalr.com)
 
 ## Attribute Reference
 
@@ -35,6 +37,7 @@ All arguments plus:
 ## Import
 
 To import allowed ips for an account use account ID as the import ID. For example:
+
 ```shell
 terraform import scalr_account_allowed_ips.default acc-xxxxxxxxx
 ```
