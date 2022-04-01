@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-rc28] - 2022-04-01
+
 ### Added
 
 - **New resource:** `scalr_account_allowed_ips` ([#111](https://github.com/Scalr/terraform-provider-scalr/pull/111))
-- `scalr_workspace`: added new attribute `run_operation_timeout`
+- `scalr_workspace`: added a new attribute `run_operation_timeout` ([#115](https://github.com/Scalr/terraform-provider-scalr/pull/115))
 
 ### Changed
 
@@ -395,7 +397,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc27...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc28...HEAD
+[1.0.0-rc28]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc28
 [1.0.0-rc27]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc27
 [1.0.0-rc26]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc26
 [1.0.0-rc25]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc25
