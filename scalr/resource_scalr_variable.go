@@ -11,8 +11,6 @@ import (
 	scalr "github.com/scalr/go-scalr"
 )
 
-var errVariableMultiOnlyEnv = errors.New("Only shell variables should be multi-scoped.")
-
 func resourceScalrVariable() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceScalrVariableCreate,
@@ -179,7 +177,7 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 		options.Workspace = ws
 	} else {
 		if category == scalr.CategoryTerraform {
-			return errVariableMultiOnlyEnv
+			return fmt.Errorf("Attribute 'workspace_id' is required for variable with category 'terraform'.")
 		}
 	}
 
