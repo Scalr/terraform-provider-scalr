@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `scalr_variable`: fix error on create terraform variable on some scope ([#119](https://github.com/Scalr/terraform-provider-scalr/pull/119))
 - Correctly handle not found resources ([#117](https://github.com/Scalr/terraform-provider-scalr/pull/117))
 
 ### Required
