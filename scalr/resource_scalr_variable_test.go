@@ -114,7 +114,7 @@ func TestAccScalrVariable_scopes(t *testing.T) {
 
 func TestAccScalrVariable_notTerraformOnMultiscope(t *testing.T) {
 	rInt := GetRandomInteger()
-	r := regexp.MustCompile(errVariableMultiOnlyEnv.Error())
+	r := regexp.MustCompile("Attribute 'workspace_id' is required for variable with category 'terraform'.")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
