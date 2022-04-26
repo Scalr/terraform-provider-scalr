@@ -2,6 +2,7 @@ package scalr
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -44,6 +45,11 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.416308637.sensitive", "false"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.416308637.value", "~/.kube/config"),
 				),
+			},
+			{
+				Config:      testAccScalrPorivderConfigurationCustomWithAwsAttrConfig(rName),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile("Provider type can't be changed."),
 			},
 		},
 	})
@@ -293,6 +299,20 @@ resource "scalr_provider_configuration" "kubernetes" {
       name      = "host"
       value     = "my-host"
     }
+  }
+}
+`, name, defaultAccount)
+}
+
+func testAccScalrPorivderConfigurationCustomWithAwsAttrConfig(name string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "kubernetes" {
+  name                   = "%s"
+  account_id             = "%s"
+  export_shell_variables = false
+  aws {
+    secret_key = "my-secret-key"
+    access_key = "my-access-key"
   }
 }
 `, name, defaultAccount)

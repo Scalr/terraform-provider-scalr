@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	scalr "github.com/scalr/go-scalr"
 )
@@ -14,6 +15,21 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 		Read:   resourceScalrProviderConfigurationRead,
 		Update: resourceScalrProviderConfigurationUpdate,
 		Delete: resourceScalrProviderConfigurationDelete,
+		CustomizeDiff: customdiff.All(
+			func(d *schema.ResourceDiff, meta interface{}) error {
+				changedProviderTypes := 0
+				providerTypeAttrs := []string{"aws", "google", "azurerm", "custom"}
+				for _, providerTypeAttr := range providerTypeAttrs {
+					if d.HasChange(providerTypeAttr) {
+						changedProviderTypes += 1
+					}
+				}
+				if changedProviderTypes > 1 {
+					return fmt.Errorf("Provider type can't be changed.")
+				}
+				return nil
+			},
+		),
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -36,7 +52,6 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 			"aws": {
 				Type:         schema.TypeList,
 				Optional:     true,
-				ForceNew:     true, // check how it works
 				MaxItems:     1,
 				ExactlyOneOf: []string{"google", "azurerm", "custom"},
 				Elem: &schema.Resource{
@@ -56,7 +71,6 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 			"google": {
 				Type:         schema.TypeList,
 				Optional:     true,
-				ForceNew:     true, // TODO: check how it works
 				MaxItems:     1,
 				ExactlyOneOf: []string{"aws", "azurerm", "custom"},
 				Elem: &schema.Resource{
@@ -76,7 +90,6 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 			"azurerm": {
 				Type:         schema.TypeList,
 				Optional:     true,
-				ForceNew:     true, // TODO: check how it works
 				MaxItems:     1,
 				ExactlyOneOf: []string{"aws", "google", "custom"},
 				Elem: &schema.Resource{
@@ -304,7 +317,7 @@ func resourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interfa
 			currentArgument := map[string]interface{}{
 				"name":      argument.Key,
 				"sensitive": argument.Sensitive,
-				"value":     "edited",
+				"value":     argument.Value,
 			}
 
 			if stateValue, ok := stateValues[argument.Key]; argument.Sensitive && ok {
