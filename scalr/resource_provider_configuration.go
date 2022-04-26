@@ -257,7 +257,7 @@ func resourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interfa
 
 	switch providerConfiguration.ProviderType {
 	case "aws":
-		stateAwsParameters := d.Get("aws").([]map[string]interface{})[0]
+		stateAwsParameters := d.Get("aws").([]interface{})[0].(map[string]interface{})
 		stateSecretKey := stateAwsParameters["secret_key"].(string)
 
 		d.Set("aws", []map[string]interface{}{
@@ -267,20 +267,20 @@ func resourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interfa
 			},
 		})
 	case "google":
-		stateGoogleParameters := d.Get("google").([]map[string]interface{})[0]
+		stateGoogleParameters := d.Get("google").([]interface{})[0].(map[string]interface{})
 		stateCredentials := stateGoogleParameters["credentials"].(string)
 
-		d.Set("aws", []map[string]interface{}{
+		d.Set("google", []map[string]interface{}{
 			{
 				"project":     providerConfiguration.GoogleProject,
 				"credentials": stateCredentials,
 			},
 		})
 	case "azurerm":
-		stateAzurermParameters := d.Get("azurerm").([]map[string]interface{})[0]
+		stateAzurermParameters := d.Get("azurerm").([]interface{})[0].(map[string]interface{})
 		stateClientSecret := stateAzurermParameters["client_secret"].(string)
 
-		d.Set("aws", []map[string]interface{}{
+		d.Set("azurerm", []map[string]interface{}{
 			{
 				"client_id":       providerConfiguration.AzurermClientId,
 				"client_secret":   stateClientSecret,
@@ -304,7 +304,7 @@ func resourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interfa
 			currentArgument := map[string]interface{}{
 				"name":      argument.Key,
 				"sensitive": argument.Sensitive,
-				"value":     argument.Value,
+				"value":     "edited",
 			}
 
 			if stateValue, ok := stateValues[argument.Key]; argument.Sensitive && ok {
