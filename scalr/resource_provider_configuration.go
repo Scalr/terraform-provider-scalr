@@ -24,7 +24,14 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 						changedProviderTypes += 1
 					}
 				}
-				if changedProviderTypes > 1 {
+				existsTypes := 0
+				for _, providerTypeAttr := range providerTypeAttrs {
+					if _, exists := d.GetOk(providerTypeAttr); exists {
+						existsTypes += 1
+					}
+				}
+
+				if changedProviderTypes > 1 || existsTypes > 1 {
 					return fmt.Errorf("Provider type can't be changed.")
 				}
 				return nil
@@ -47,7 +54,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 			"export_shell_variables": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  false,
 			},
 			"aws": {
 				Type:         schema.TypeList,
@@ -143,7 +150,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 									"sensitive": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										Computed: true,
+										Default:  false,
 									},
 								},
 							},
@@ -341,10 +348,12 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 
 	id := d.Id()
 
-	if d.HasChange("name") || d.HasChange("aws") || d.HasChange("google") || d.HasChange("azurerm") {
+	if d.HasChange("name") || d.HasChange("export_shell_variables") || d.HasChange("aws") || d.HasChange("google") || d.HasChange("azurerm") {
 		configurationOptions := scalr.ProviderConfigurationUpdateOptions{
-			Name: scalr.String(d.Get("name").(string)),
+			Name:                 scalr.String(d.Get("name").(string)),
+			ExportShellVariables: scalr.Bool(d.Get("export_shell_variables").(bool)),
 		}
+
 		if v, ok := d.GetOk("aws"); d.HasChange("aws") && ok {
 			aws := v.([]interface{})[0].(map[string]interface{})
 			if access_key, ok := aws["access_key"].(string); ok {
@@ -377,13 +386,11 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 			if tenantId, ok := azurerm["tenant_id"].(string); ok {
 				configurationOptions.AzurermTenantId = scalr.String(tenantId)
 			}
-
-			_, err := scalrClient.ProviderConfigurations.Update(ctx, id, configurationOptions)
-			if err != nil {
-				return fmt.Errorf(
-					"Error updating provider configuration %s: %v", id, err)
-			}
-
+		}
+		_, err := scalrClient.ProviderConfigurations.Update(ctx, id, configurationOptions)
+		if err != nil {
+			return fmt.Errorf(
+				"Error updating provider configuration %s: %v", id, err)
 		}
 	}
 
@@ -403,7 +410,8 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 func syncArguments(providerConfigurationId string, custom map[string]interface{}, client *scalr.Client) error {
 	providerType := custom["provider_type"].(string)
 	configArgumentsCreateOptions := make(map[string]scalr.ProviderConfigurationParameterCreateOptions)
-	for _, configArgument := range custom["argument"].([]map[string]interface{}) {
+	for _, v := range custom["argument"].(*schema.Set).List() {
+		configArgument := v.(map[string]interface{})
 		name := configArgument["name"].(string)
 		parameterCreateOption := scalr.ProviderConfigurationParameterCreateOptions{
 			Key: scalr.String(name),
@@ -453,7 +461,7 @@ func syncArguments(providerConfigurationId string, custom map[string]interface{}
 
 	var toDelete []string
 	for name, currentArgument := range currentArguments {
-		if _, exists := configArgumentsCreateOptions[name]; exists {
+		if _, exists := configArgumentsCreateOptions[name]; !exists {
 			toDelete = append(toDelete, currentArgument.ID)
 		}
 	}
