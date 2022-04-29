@@ -49,7 +49,7 @@ func resourceScalrWorkspaceRunScheduleCreate(d *schema.ResourceData, meta interf
 	options.DestroySchedule = d.Get("destroy_schedule").(string)
 
 	log.Printf(
-		"[DEBUG] Setting run schdules for workspace ID: %s, apply: %s, destroy: %s",
+		"[DEBUG] Setting run schedules for workspace ID: %s, apply: %s, destroy: %s",
 		workspaceId,
 		options.ApplySchedule,
 		options.DestroySchedule,
