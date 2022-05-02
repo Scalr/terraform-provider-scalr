@@ -21,6 +21,9 @@ func TestAccScalrProviderConfigurationDataSource_name(t *testing.T) {
 					testAccCheckEqualID("data.scalr_provider_configuration.aws", "scalr_provider_configuration.aws"),
 				),
 			},
+			{
+				Config: testAccScalrProviderConfigurationAwsDataSourceInitConfig,
+			},
 		},
 	})
 }
@@ -31,15 +34,15 @@ func TestAccScalrProviderConfigurationDataSource_provider_type(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationGoogleDataSourceInitConfig,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckEqualID("data.scalr_provider_configuration.google", "scalr_provider_configuration.google"),
-				),
 			},
 			{
 				Config: testAccScalrProviderConfigurationGoogleDataSourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckEqualID("data.scalr_provider_configuration.google", "scalr_provider_configuration.google"),
 				),
+			},
+			{
+				Config: testAccScalrProviderConfigurationAwsDataSourceInitConfig,
 			},
 		},
 	})
@@ -87,6 +90,5 @@ resource "scalr_provider_configuration" "aws" {
 }`, defaultAccount)
 var testAccScalrProviderConfigurationGoogleDataSourceConfig = testAccScalrProviderConfigurationGoogleDataSourceInitConfig + `
 data "scalr_provider_configuration" "google" {
-	account_id    = "%[1]s"
 	provider_type = "google"
 }`

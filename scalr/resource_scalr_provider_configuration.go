@@ -24,14 +24,8 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 						changedProviderTypes += 1
 					}
 				}
-				existsTypes := 0
-				for _, providerTypeAttr := range providerTypeAttrs {
-					if _, exists := d.GetOk(providerTypeAttr); exists {
-						existsTypes += 1
-					}
-				}
 
-				if changedProviderTypes > 1 || existsTypes > 1 {
+				if changedProviderTypes > 1 {
 					return fmt.Errorf("Provider type can't be changed.")
 				}
 				return nil
@@ -63,7 +57,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				ExactlyOneOf: []string{"google", "azurerm", "custom"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"access_key": { // TODO: required?
+						"access_key": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
@@ -88,7 +82,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 						},
 						"credentials": {
 							Type:      schema.TypeString,
-							Optional:  true, // TODO: required?
+							Optional:  true,
 							Sensitive: true,
 						},
 					},
@@ -101,7 +95,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				ExactlyOneOf: []string{"aws", "google", "custom"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"client_id": { // TODO: required?
+						"client_id": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},

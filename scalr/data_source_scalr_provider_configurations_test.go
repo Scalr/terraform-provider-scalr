@@ -22,6 +22,9 @@ func TestAccScalrProviderConfigurationsDataSource_name(t *testing.T) {
 					testAccCheckProviderConfigurationsDataSourceNameFilter(),
 				),
 			},
+			{
+				Config: testAccScalrProviderConfigurationsAwsDataSourceInitConfig, // depends_on works improperly with data sources
+			},
 		},
 	})
 }
@@ -38,6 +41,9 @@ func TestAccScalrProviderConfigurationsDataSource_provider_type(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckProviderConfigurationsDataSourceTypeFilter(),
 				),
+			},
+			{
+				Config: testAccScalrProviderConfigurationsGoogleDataSourceInitConfig,
 			},
 		},
 	})
