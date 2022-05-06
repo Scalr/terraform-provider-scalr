@@ -7,17 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `scalr_policy_group`: remove environments and workspaces as includes ([#125](https://github.com/Scalr/terraform-provider-scalr/pull/125))
+
+## [1.0.0-rc28] - 2022-04-01
+
 ### Added
 
-- `scalr_workspace`: added new attribute `run_operation_timeout`
+- **New resource:** `scalr_account_allowed_ips` ([#111](https://github.com/Scalr/terraform-provider-scalr/pull/111))
+- `scalr_workspace`: added a new attribute `run_operation_timeout` ([#115](https://github.com/Scalr/terraform-provider-scalr/pull/115))
 
 ### Changed
+
 - `resource.scalr_role`: added new state migration (include `accounts:set-quotas` permission if needed) ([#116](https://github.com/Scalr/terraform-provider-scalr/pull/108))
 
 ### Fixed
 
+- `scalr_variable`: fix error on create terraform variable on some scope ([#119](https://github.com/Scalr/terraform-provider-scalr/pull/119))
 - Correctly handle not found resources ([#117](https://github.com/Scalr/terraform-provider-scalr/pull/117))
 - `resource.scalr_policy_group_linkage`: optimized api interactions ([#120](https://github.com/Scalr/terraform-provider-scalr/pull/120))
+
+### Required
+
+- scalr-server >= `8.15.0`
 
 ## [1.0.0-rc27] - 2022-02-17
 
@@ -390,7 +402,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc27...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc28...HEAD
+[1.0.0-rc28]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc28
 [1.0.0-rc27]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc27
 [1.0.0-rc26]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc26
 [1.0.0-rc25]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc25
