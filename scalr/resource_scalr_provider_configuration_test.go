@@ -196,10 +196,10 @@ func TestAccProviderConfiguration_azurerm(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccScalrPorivderConfigurationAzurermConfig(rName),
+				Config: testAccScalrPorivderConfigurationAzurermUpdatedConfig(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProviderConfigurationExists("scalr_provider_configuration.azurerm", &providerConfiguration),
-					testAccCheckProviderConfigurationAzurermValues(&providerConfiguration, rNewName),
+					testAccCheckProviderConfigurationAzurermUpdatedValues(&providerConfiguration, rNewName),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "name", rNewName),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "export_shell_variables", "false"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "aws.#", "0"),
