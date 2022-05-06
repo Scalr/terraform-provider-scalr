@@ -25,7 +25,7 @@ func dataSourceScalrProviderConfigurations() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"provider_type": {
+			"provider_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -38,12 +38,12 @@ func dataSourceScalrProviderConfigurationsRead(d *schema.ResourceData, meta inte
 
 	accountID := d.Get("account_id").(string)
 	name := d.Get("name").(string)
-	providerType := d.Get("provider_type").(string)
+	providerName := d.Get("provider_name").(string)
 
 	providersFilter := scalr.ProviderConfigurationFilter{
 		AccountID:    accountID,
 		Name:         name,
-		ProviderType: providerType,
+		ProviderName: providerName,
 	}
 	options := scalr.ProviderConfigurationsListOptions{
 		Filter: &providersFilter,
@@ -71,7 +71,7 @@ func dataSourceScalrProviderConfigurationsRead(d *schema.ResourceData, meta inte
 	}
 
 	d.Set("ids", ids)
-	d.SetId(fmt.Sprintf("%d", schema.HashString(accountID+name+providerType)))
+	d.SetId(fmt.Sprintf("%d", schema.HashString(accountID+name+providerName)))
 
 	return nil
 }

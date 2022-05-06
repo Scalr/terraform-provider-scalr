@@ -25,7 +25,7 @@ func dataSourceScalrProviderConfiguration() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"provider_type": {
+			"provider_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -38,12 +38,12 @@ func dataSourceScalrProviderConfigurationRead(d *schema.ResourceData, meta inter
 
 	accountID := d.Get("account_id").(string)
 	name := d.Get("name").(string)
-	providerType := d.Get("provider_type").(string)
+	providerName := d.Get("provider_name").(string)
 
 	providersFilter := scalr.ProviderConfigurationFilter{
 		AccountID:    accountID,
 		Name:         name,
-		ProviderType: providerType,
+		ProviderName: providerName,
 	}
 	options := scalr.ProviderConfigurationsListOptions{
 		Filter: &providersFilter,
@@ -58,7 +58,7 @@ func dataSourceScalrProviderConfigurationRead(d *schema.ResourceData, meta inter
 		return errors.New("Your query returned more than one result. Please try a more specific search criteria.")
 	}
 	if len(providerConfigurations.Items) == 0 {
-		return fmt.Errorf("Could not find provider configuration with name '%s', account_id: '%s', and provider_type: '%s'", name, accountID, providerType)
+		return fmt.Errorf("Could not find provider configuration with name '%s', account_id: '%s', and provider_name: '%s'", name, accountID, providerName)
 	}
 
 	providerConfiguration := providerConfigurations.Items[0]

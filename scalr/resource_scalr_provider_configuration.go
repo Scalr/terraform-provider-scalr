@@ -17,15 +17,15 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 		Delete: resourceScalrProviderConfigurationDelete,
 		CustomizeDiff: customdiff.All(
 			func(d *schema.ResourceDiff, meta interface{}) error {
-				changedProviderTypes := 0
-				providerTypeAttrs := []string{"aws", "google", "azurerm", "custom"}
-				for _, providerTypeAttr := range providerTypeAttrs {
-					if d.HasChange(providerTypeAttr) {
-						changedProviderTypes += 1
+				changedProviderNames := 0
+				providerNameAttrs := []string{"aws", "google", "azurerm", "custom"}
+				for _, providerNameAttr := range providerNameAttrs {
+					if d.HasChange(providerNameAttr) {
+						changedProviderNames += 1
 					}
 				}
 
-				if changedProviderTypes > 1 {
+				if changedProviderNames > 1 {
 					return fmt.Errorf("Provider type can't be changed.")
 				}
 				return nil
@@ -122,7 +122,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				ExactlyOneOf: []string{"aws", "google", "azurerm"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"provider_type": {
+						"provider_name": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
@@ -170,7 +170,7 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 	var createArgumentOptions []scalr.ProviderConfigurationParameterCreateOptions
 
 	if v, ok := d.GetOk("aws"); ok {
-		configurationOptions.ProviderType = scalr.String("aws")
+		configurationOptions.ProviderName = scalr.String("aws")
 
 		aws := v.([]interface{})[0].(map[string]interface{})
 		if access_key, ok := aws["access_key"].(string); ok {
@@ -181,7 +181,7 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 		}
 
 	} else if v, ok := d.GetOk("google"); ok {
-		configurationOptions.ProviderType = scalr.String("google")
+		configurationOptions.ProviderName = scalr.String("google")
 
 		google := v.([]interface{})[0].(map[string]interface{})
 		if project, ok := google["project"].(string); ok {
@@ -192,7 +192,7 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 		}
 
 	} else if v, ok := d.GetOk("azurerm"); ok {
-		configurationOptions.ProviderType = scalr.String("azurerm")
+		configurationOptions.ProviderName = scalr.String("azurerm")
 
 		azurerm := v.([]interface{})[0].(map[string]interface{})
 		if clientId, ok := azurerm["client_id"].(string); ok {
@@ -210,7 +210,7 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 
 	} else if v, ok := d.GetOk("custom"); ok {
 		custom := v.([]interface{})[0].(map[string]interface{})
-		configurationOptions.ProviderType = scalr.String(custom["provider_type"].(string))
+		configurationOptions.ProviderName = scalr.String(custom["provider_name"].(string))
 
 		for _, v := range custom["argument"].(*schema.Set).List() {
 			argument := v.(map[string]interface{})
@@ -269,7 +269,7 @@ func resourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interfa
 	d.Set("account_id", providerConfiguration.Account.ID)
 	d.Set("export_shell_variables", providerConfiguration.ExportShellVariables)
 
-	switch providerConfiguration.ProviderType {
+	switch providerConfiguration.ProviderName {
 	case "aws":
 		stateAwsParameters := d.Get("aws").([]interface{})[0].(map[string]interface{})
 		stateSecretKey := stateAwsParameters["secret_key"].(string)
@@ -329,7 +329,7 @@ func resourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interfa
 		}
 		d.Set("custom", []map[string]interface{}{
 			{
-				"provider_type": providerConfiguration.ProviderType,
+				"provider_name": providerConfiguration.ProviderName,
 				"argument":      currentArguments,
 			},
 		})
@@ -402,7 +402,7 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 }
 
 func syncArguments(providerConfigurationId string, custom map[string]interface{}, client *scalr.Client) error {
-	providerType := custom["provider_type"].(string)
+	providerName := custom["provider_name"].(string)
 	configArgumentsCreateOptions := make(map[string]scalr.ProviderConfigurationParameterCreateOptions)
 	for _, v := range custom["argument"].(*schema.Set).List() {
 		configArgument := v.(map[string]interface{})
@@ -425,11 +425,11 @@ func syncArguments(providerConfigurationId string, custom map[string]interface{}
 			"Error reading provider configuration %s: %v", providerConfigurationId, err)
 	}
 
-	if providerType != providerConfiguration.ProviderType {
+	if providerName != providerConfiguration.ProviderName {
 		return fmt.Errorf(
 			"Can't change provider configuration type '%s' to '%s'",
-			providerConfiguration.ProviderType,
-			providerType,
+			providerConfiguration.ProviderName,
+			providerName,
 		)
 	}
 

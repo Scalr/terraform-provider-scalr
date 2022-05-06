@@ -27,7 +27,7 @@ func TestAccScalrProviderConfigurationDataSource_name(t *testing.T) {
 		},
 	})
 }
-func TestAccScalrProviderConfigurationDataSource_provider_type(t *testing.T) {
+func TestAccScalrProviderConfigurationDataSource_provider_name(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -90,5 +90,5 @@ resource "scalr_provider_configuration" "aws" {
 }`, defaultAccount)
 var testAccScalrProviderConfigurationGoogleDataSourceConfig = testAccScalrProviderConfigurationGoogleDataSourceInitConfig + `
 data "scalr_provider_configuration" "google" {
-	provider_type = "google"
+	provider_name = "google"
 }`

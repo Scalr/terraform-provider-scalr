@@ -34,7 +34,7 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "google.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "azurerm.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.#", "1"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.provider_type", "kubernetes"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.provider_name", "kubernetes"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.#", "3"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.2940088933.name", "host"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.2940088933.sensitive", "false"),
@@ -58,7 +58,7 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "google.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "azurerm.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.#", "1"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.provider_type", "kubernetes"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.provider_name", "kubernetes"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.#", "3"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.2940088933.name", "host"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.2940088933.sensitive", "false"),
@@ -221,8 +221,8 @@ func testAccCheckProviderConfigurationCustomValues(providerConfiguration *scalr.
 		if providerConfiguration.Name != name {
 			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, providerConfiguration.Name)
 		}
-		if providerConfiguration.ProviderType != "kubernetes" {
-			return fmt.Errorf("bad provider type, expected \"%s\", got: %#v", "kubernetes", providerConfiguration.ProviderType)
+		if providerConfiguration.ProviderName != "kubernetes" {
+			return fmt.Errorf("bad provider type, expected \"%s\", got: %#v", "kubernetes", providerConfiguration.ProviderName)
 		}
 		if providerConfiguration.ExportShellVariables != true {
 			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", true, providerConfiguration.ExportShellVariables)
@@ -286,8 +286,8 @@ func testAccCheckProviderConfigurationAwsValues(providerConfiguration *scalr.Pro
 		if providerConfiguration.Name != name {
 			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, providerConfiguration.Name)
 		}
-		if providerConfiguration.ProviderType != "aws" {
-			return fmt.Errorf("bad provider type, expected \"%s\", got: %#v", "aws", providerConfiguration.ProviderType)
+		if providerConfiguration.ProviderName != "aws" {
+			return fmt.Errorf("bad provider type, expected \"%s\", got: %#v", "aws", providerConfiguration.ProviderName)
 		}
 		if providerConfiguration.ExportShellVariables != false {
 			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", false, providerConfiguration.ExportShellVariables)
@@ -319,8 +319,8 @@ func testAccCheckProviderConfigurationGoogleValues(providerConfiguration *scalr.
 		if providerConfiguration.Name != name {
 			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, providerConfiguration.Name)
 		}
-		if providerConfiguration.ProviderType != "google" {
-			return fmt.Errorf("bad provider type, expected \"%s\", got: %#v", "google", providerConfiguration.ProviderType)
+		if providerConfiguration.ProviderName != "google" {
+			return fmt.Errorf("bad provider type, expected \"%s\", got: %#v", "google", providerConfiguration.ProviderName)
 		}
 		if providerConfiguration.ExportShellVariables != false {
 			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", false, providerConfiguration.ExportShellVariables)
@@ -352,8 +352,8 @@ func testAccCheckProviderConfigurationAzurermValues(providerConfiguration *scalr
 		if providerConfiguration.Name != name {
 			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, providerConfiguration.Name)
 		}
-		if providerConfiguration.ProviderType != "azurerm" {
-			return fmt.Errorf("bad provider type, expected \"%s\", got: %#v", "azurerm", providerConfiguration.ProviderType)
+		if providerConfiguration.ProviderName != "azurerm" {
+			return fmt.Errorf("bad provider type, expected \"%s\", got: %#v", "azurerm", providerConfiguration.ProviderName)
 		}
 		if providerConfiguration.ExportShellVariables != false {
 			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", false, providerConfiguration.ExportShellVariables)
@@ -441,7 +441,7 @@ resource "scalr_provider_configuration" "kubernetes" {
   account_id             = "%s"
   export_shell_variables = true
   custom {
-    provider_type = "kubernetes"
+    provider_name = "kubernetes"
     argument {
       name      = "config_path"
       value     = "~/.kube/config"
@@ -466,7 +466,7 @@ resource "scalr_provider_configuration" "kubernetes" {
   name                   = "%s"
   account_id             = "%s"
   custom {
-    provider_type = "kubernetes"
+    provider_name = "kubernetes"
     argument {
       name      = "config_path"
       value     = "~/.kube/config"
