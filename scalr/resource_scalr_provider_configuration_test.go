@@ -196,7 +196,7 @@ func TestAccProviderConfiguration_azurerm(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccScalrPorivderConfigurationAzurermUpdatedConfig(rName),
+				Config: testAccScalrPorivderConfigurationAzurermUpdatedConfig(rNewName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProviderConfigurationExists("scalr_provider_configuration.azurerm", &providerConfiguration),
 					testAccCheckProviderConfigurationAzurermUpdatedValues(&providerConfiguration, rNewName),
