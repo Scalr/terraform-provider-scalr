@@ -1,13 +1,17 @@
 package scalr
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	scalr "github.com/scalr/go-scalr"
 )
+
+const NUM_PARALLEL = 10
 
 func resourceScalrProviderConfiguration() *schema.Resource {
 	return &schema.Resource{
@@ -241,7 +245,7 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 	d.SetId(providerConfiguration.ID)
 
 	if len(createArgumentOptions) != 0 {
-		_, err = scalrClient.ProviderConfigurations.CreateParameters(ctx, providerConfiguration.ID, &createArgumentOptions)
+		_, err = createParameters(ctx, scalrClient, providerConfiguration.ID, &createArgumentOptions)
 		if err != nil {
 			defer scalrClient.ProviderConfigurations.Delete(ctx, providerConfiguration.ID)
 			return fmt.Errorf(
@@ -459,8 +463,9 @@ func syncArguments(providerConfigurationId string, custom map[string]interface{}
 			toDelete = append(toDelete, currentArgument.ID)
 		}
 	}
-	_, _, _, err = client.ProviderConfigurations.ChangeParameters(
+	_, _, _, err = changeParameters(
 		ctx,
+		client,
 		providerConfigurationId,
 		&toCreate,
 		&toUpdate,
@@ -484,4 +489,129 @@ func resourceScalrProviderConfigurationDelete(d *schema.ResourceData, meta inter
 	}
 
 	return nil
+}
+
+// changeParameters is used to change parameters for provider configuratio.
+func changeParameters(
+	ctx context.Context,
+	client *scalr.Client,
+	configurationID string,
+	toCreate *[]scalr.ProviderConfigurationParameterCreateOptions,
+	toUpdate *[]scalr.ProviderConfigurationParameterUpdateOptions,
+	toDelete *[]string,
+) (
+	created []scalr.ProviderConfigurationParameter,
+	updated []scalr.ProviderConfigurationParameter,
+	deleted []string,
+	err error,
+) {
+
+	done := make(chan struct{})
+	defer close(done)
+
+	type result struct {
+		created *scalr.ProviderConfigurationParameter
+		updated *scalr.ProviderConfigurationParameter
+		deleted *string
+		err     error
+	}
+	type task struct {
+		createOption *scalr.ProviderConfigurationParameterCreateOptions
+		updateOption *scalr.ProviderConfigurationParameterUpdateOptions
+		deleteId     *string
+	}
+
+	inputCh := make(chan task)
+	var tasks []task
+
+	if toDelete != nil {
+		for i := range *toDelete {
+			tasks = append(tasks, task{deleteId: &(*toDelete)[i]})
+		}
+	}
+	if toUpdate != nil {
+		for i := range *toUpdate {
+			tasks = append(tasks, task{updateOption: &(*toUpdate)[i]})
+		}
+	}
+	if toCreate != nil {
+		for i := range *toCreate {
+			tasks = append(tasks, task{createOption: &(*toCreate)[i]})
+		}
+	}
+
+	if tasks == nil {
+		return
+	}
+
+	go func() {
+		defer close(inputCh)
+		for _, t := range tasks {
+			select {
+			case inputCh <- t:
+
+			case <-done:
+				return
+			}
+		}
+	}()
+
+	var wg sync.WaitGroup
+	wg.Add(NUM_PARALLEL)
+
+	resultCh := make(chan result)
+
+	for i := 0; i < NUM_PARALLEL; i++ {
+		go func() {
+			for t := range inputCh {
+				if t.createOption != nil {
+					parameter, err := client.ProviderConfigurationParameters.Create(ctx, configurationID, *t.createOption)
+					resultCh <- result{created: parameter, err: err}
+				} else if t.updateOption != nil {
+					parameter, err := client.ProviderConfigurationParameters.Update(ctx, t.updateOption.ID, *t.updateOption)
+					resultCh <- result{updated: parameter, err: err}
+				} else {
+					err := client.ProviderConfigurationParameters.Delete(ctx, *t.deleteId)
+					resultCh <- result{deleted: t.deleteId, err: err}
+				}
+			}
+			wg.Done()
+		}()
+	}
+
+	go func() {
+		wg.Wait()
+		close(resultCh)
+	}()
+
+	for result := range resultCh {
+		if result.err != nil {
+			err = result.err
+			break
+		} else if result.created != nil {
+			created = append(created, *result.created)
+		} else if result.updated != nil {
+			updated = append(updated, *result.updated)
+		} else {
+			deleted = append(deleted, *result.deleted)
+		}
+	}
+
+	return
+}
+
+// createParameters is used to create parameters for provider configuratio.
+func createParameters(
+	ctx context.Context,
+	client *scalr.Client,
+	configurationID string,
+	optionsList *[]scalr.ProviderConfigurationParameterCreateOptions,
+) (
+	created []scalr.ProviderConfigurationParameter,
+	err error,
+) {
+	created, _, _, err = changeParameters(
+		ctx, client, configurationID, optionsList, nil, nil,
+	)
+	return
 }
