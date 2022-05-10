@@ -10,8 +10,14 @@ PROVIDER_SOURCE="scalr/scalr"
 URL="https://$DOMAIN"
 PROTOCOLS="[\"5.0\"]"
 
+# If tag is not defined, use branch name as version
 VERSION=$(PAGER= git tag --points-at HEAD)
-VERSION=${VERSION:1}
+if [ -z "$VERSION" ]; then
+    VERSION=$(git rev-parse --abbrev-ref HEAD | sed 's|\(.*\)|\L\1|g;s|/|-|g')
+else
+    VERSION=${VERSION:1}
+fi
+
 TMP_DIR=$(mktemp -d -t scalr-provider-$VERSION-XXXXXXXXXXX)
 PROVIDER_BIN_PATH=$TMP_DIR/$PROVIDER_NAME/$VERSION
 DOWNLOAD_DIR=$TMP_DIR/$PROVIDER_SOURCE/$VERSION/download/
