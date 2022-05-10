@@ -71,6 +71,12 @@ func resourceScalrWorkspace() *schema.Resource {
 				Default:  false,
 			},
 
+			"var_files": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
 			"operations": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -291,6 +297,14 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
+	if v, ok := d.Get("var_files").([]interface{}); ok {
+		varFiles := make([]string, 0)
+		for _, varFile := range v {
+			varFiles = append(varFiles, varFile.(string))
+		}
+		options.VarFiles = varFiles
+	}
+
 	log.Printf("[DEBUG] Create workspace %s for environment: %s", name, environmentID)
 	workspace, err := scalrClient.Workspaces.Create(ctx, options)
 	if err != nil {
@@ -323,6 +337,7 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("working_directory", workspace.WorkingDirectory)
 	d.Set("environment_id", workspace.Environment.ID)
 	d.Set("has_resources", workspace.HasResources)
+	d.Set("var_files", workspace.VarFiles)
 
 	if workspace.RunOperationTimeout != nil {
 		d.Set("run_operation_timeout", &workspace.RunOperationTimeout)
@@ -387,7 +402,8 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		d.HasChange("terraform_version") || d.HasChange("working_directory") ||
 		d.HasChange("vcs_repo") || d.HasChange("operations") ||
 		d.HasChange("vcs_provider_id") || d.HasChange("agent_pool_id") ||
-		d.HasChange("hooks") || d.HasChange("module_version_id") || d.HasChange("run_operation_timeout") {
+		d.HasChange("hooks") || d.HasChange("module_version_id") || d.HasChange("var_files") ||
+		d.HasChange("run_operation_timeout") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
 			Name:       scalr.String(d.Get("name").(string)),
@@ -404,6 +420,14 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		// Process all configured options.
 		if tfVersion, ok := d.GetOk("terraform_version"); ok {
 			options.TerraformVersion = scalr.String(tfVersion.(string))
+		}
+
+		if v, ok := d.Get("var_files").([]interface{}); ok {
+			varFiles := make([]string, 0)
+			for _, varFile := range v {
+				varFiles = append(varFiles, varFile.(string))
+			}
+			options.VarFiles = varFiles
 		}
 
 		options.WorkingDirectory = scalr.String(d.Get("working_directory").(string))
