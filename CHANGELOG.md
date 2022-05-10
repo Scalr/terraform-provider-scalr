@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **New resource:** `scalr_workspace_run_schedule` ([#124](https://github.com/Scalr/terraform-provider-scalr/pull/124))
 - **New resource:** `scalr_account_allowed_ips` ([#111](https://github.com/Scalr/terraform-provider-scalr/pull/111))
 - `scalr_workspace`: added a new attribute `run_operation_timeout` ([#115](https://github.com/Scalr/terraform-provider-scalr/pull/115))
 
