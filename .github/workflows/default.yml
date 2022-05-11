@@ -93,9 +93,8 @@ jobs:
           fetch-depth: 0
       - name: Create dev-tag
         run: |
-          LAST_TAG=$(git describe --tags --abbrev=0)
           BRANCH=$(git rev-parse --abbrev-ref HEAD | sed 's|\(.*\)|\L\1|g;s|/|-|g')
-          git tag $LAST_TAG-$BRANCH
+          git tag v1.0.0-rc-$BRANCH
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
