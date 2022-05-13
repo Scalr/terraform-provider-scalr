@@ -8,15 +8,25 @@ Manages run schedules.
 
 # scalr_workspace_run_schedule Resource
 
-Manage the state of workspace run schedules in Scalr. Create, update and destroy
+Allows workspace admins to automate the configuration of recurring runs for a workspace.
 
 ## Example Usage
 
 Basic usage:
 
 ```hcl
+data scalr_environment "current" {
+  account_id = "acc-12345"
+  name = "dev"
+}
+
+data "scalr_workspace" "cert" {
+  environment_id = data.scalr_environment.current.id
+  name = "ssl-certificates"
+}
+
 resource "scalr_workspace_run_schedule" "example" {
-  workspace_id = "ws-xxxxxx"
+  workspace_id = data.scalr_workspace.cert.id
   apply_schedule = "30 3 5 3-5 2"
   destroy_schedule = "30 4 5 3-5 2"
 }
@@ -33,5 +43,5 @@ resource "scalr_workspace_run_schedule" "example" {
 
 All arguments plus:
 
-* `id` - The workspaces's ID, in the format `ws-<RANDOM STRING>`.
+* `id` - The identifier of a workspace in the format `ws-<RANDOM STRING>`.
 
