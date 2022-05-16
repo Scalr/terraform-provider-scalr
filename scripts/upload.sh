@@ -18,8 +18,6 @@ DOWNLOAD_DIR=$TMP_DIR/$PROVIDER_SOURCE/$VERSION/download/
 
 echo "Starting to push $PROVIDER_NAME:$VERSION"
 
-exit
-
 # Copy remote provider registry to working directory.
 # Old versions of terraform provider is using for composing versions file
 gsutil -m rsync -R $BUCKET_NAME $TMP_DIR
