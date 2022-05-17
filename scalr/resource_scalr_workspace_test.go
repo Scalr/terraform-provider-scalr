@@ -511,6 +511,7 @@ resource "scalr_workspace" "test" {
 func testAccScalrWorkspaceUpdateVcsRepo(rInt int) string {
 	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
 resource "scalr_workspace" "test" {
+  name                  = "workspace-updated"
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
   operations            = false
@@ -526,6 +527,7 @@ resource "scalr_workspace" "test" {
 func testAccScalrWorkspaceUpdateVcsProvider(rInt int) string {
 	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
 resource "scalr_workspace" "test" {
+  name                  = "workspace-updated"
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
   operations            = false
