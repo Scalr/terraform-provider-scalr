@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -244,6 +245,18 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 				),
+			},
+
+			{
+				Config:      testAccScalrWorkspaceUpdateVcsRepo(rInt),
+				ExpectError: regexp.MustCompile("config is invalid: \"vcs_repo\": all of `vcs_provider_id,vcs_repo` must be specified"),
+				PlanOnly:    true,
+			},
+
+			{
+				Config:      testAccScalrWorkspaceUpdateVcsProvider(rInt),
+				ExpectError: regexp.MustCompile("config is invalid: \"vcs_provider_id\": all of `vcs_provider_id,vcs_repo` must be specified"),
+				PlanOnly:    true,
 			},
 		},
 	})
@@ -492,6 +505,33 @@ resource "scalr_workspace" "test" {
     pre_apply  = "./scripts/pre-apply_updated.sh"
     post_apply = "./scripts/post-apply_updated.sh"
   }
+}`)
+}
+
+func testAccScalrWorkspaceUpdateVcsRepo(rInt int) string {
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
+resource "scalr_workspace" "test" {
+  environment_id 		= scalr_environment.test.id
+  auto_apply            = false
+  operations            = false
+  terraform_version     = "0.12.19"
+  working_directory     = "terraform/test"
+  vcs_repo {
+    identifier = "RomanMytsko/local_exec"
+    branch     = "main"
+  }
+}`)
+}
+
+func testAccScalrWorkspaceUpdateVcsProvider(rInt int) string {
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
+resource "scalr_workspace" "test" {
+  environment_id 		= scalr_environment.test.id
+  auto_apply            = false
+  operations            = false
+  terraform_version     = "0.12.19"
+  working_directory     = "terraform/test"
+  vcs_provider_id	    = "test_provider_id"
 }`)
 }
 
