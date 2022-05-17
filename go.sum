@@ -303,8 +303,10 @@ github.com/scalr/go-scalr v0.0.0-20220331085920-4ec72236c661 h1:DnvLMEoIGdre8txC
 github.com/scalr/go-scalr v0.0.0-20220331085920-4ec72236c661/go.mod h1:xMnwfer9UxugeNITZjTpQBwQ/4bw6/JdyDLpGdmyorE=
 github.com/scalr/go-scalr v0.0.0-20220408125149-98e871983106 h1:2eJf0QIg5LpWqRVULkePfcvofFKid+pcHVDyhf6Jnfw=
 github.com/scalr/go-scalr v0.0.0-20220408125149-98e871983106/go.mod h1:xMnwfer9UxugeNITZjTpQBwQ/4bw6/JdyDLpGdmyorE=
-github.com/scalr/go-scalr v0.0.0-20220506112707-49f02107d87e h1:5ZiAqi2rN1/0qCc7zRzsEY4ZtZteDcpkbqXiiRecRr4=
-github.com/scalr/go-scalr v0.0.0-20220506112707-49f02107d87e/go.mod h1:xMnwfer9UxugeNITZjTpQBwQ/4bw6/JdyDLpGdmyorE=
+github.com/scalr/go-scalr v0.0.0-20220429130144-6ee1c7c3d93a h1:P4ANn4rx4tmVLUIIm5V0hUkR0eTUImyhtla8SE1EVhc=
+github.com/scalr/go-scalr v0.0.0-20220429130144-6ee1c7c3d93a/go.mod h1:xMnwfer9UxugeNITZjTpQBwQ/4bw6/JdyDLpGdmyorE=
+github.com/scalr/go-scalr v0.0.0-20220510084130-4347446d3afe h1:Gq6oYYwAe6b70HtxwG+3mfim87sHsZJVkE1DErQk2qY=
+github.com/scalr/go-scalr v0.0.0-20220510084130-4347446d3afe/go.mod h1:xMnwfer9UxugeNITZjTpQBwQ/4bw6/JdyDLpGdmyorE=
 github.com/sergi/go-diff v1.0.0/go.mod h1:0CfEIISq7TuYL3j771MWULgwwjU+GofnZX9QAmXWZgo=
 github.com/sergi/go-diff v1.1.0/go.mod h1:STckp+ISIX8hZLjrqAeVduY0gWCT9IjLuqbuNXdaHfM=
 github.com/sergi/go-diff v1.2.0 h1:XU+rvMAioB0UC3q1MFrIQy4Vo5/4VsRDQQXHsEya6xQ=
