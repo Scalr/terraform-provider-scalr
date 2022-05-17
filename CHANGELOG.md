@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- `scalr_workspace`: vcs_repo and vcs_provider_id have to passed together ([#130](https://github.com/Scalr/terraform-provider-scalr/pull/130))
+- `scalr_workspace`: vcs_repo and vcs_provider_id have to be passed simultaneously ([#130](https://github.com/Scalr/terraform-provider-scalr/pull/130))
 - `scalr_policy_group`: remove environments and workspaces as includes ([#125](https://github.com/Scalr/terraform-provider-scalr/pull/125))
 
 ## [1.0.0-rc28] - 2022-04-01
