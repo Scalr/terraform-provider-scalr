@@ -58,6 +58,25 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 	})
 }
 
+func TestAccScalrWorkspace_create_missed_vcs_attr(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccScalrWorkspaceMissedVcsProvider(rInt),
+				ExpectError: regexp.MustCompile("config is invalid: \"vcs_repo\": all of `vcs_provider_id,vcs_repo` must be specified"),
+			},
+			{
+				Config:      testAccScalrWorkspaceMissedVcsRepo(rInt),
+				ExpectError: regexp.MustCompile("config is invalid: \"vcs_provider_id\": all of `vcs_provider_id,vcs_repo` must be specified"),
+			},
+		},
+	})
+}
+
 func TestAccScalrWorkspace_monorepo(t *testing.T) {
 	workspace := &scalr.Workspace{}
 	rInt := GetRandomInteger()
@@ -245,18 +264,6 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 				),
-			},
-
-			{
-				Config:      testAccScalrWorkspaceUpdateVcsRepo(rInt),
-				ExpectError: regexp.MustCompile("config is invalid: \"vcs_repo\": all of `vcs_provider_id,vcs_repo` must be specified"),
-				PlanOnly:    true,
-			},
-
-			{
-				Config:      testAccScalrWorkspaceUpdateVcsProvider(rInt),
-				ExpectError: regexp.MustCompile("config is invalid: \"vcs_provider_id\": all of `vcs_provider_id,vcs_repo` must be specified"),
-				PlanOnly:    true,
 			},
 		},
 	})
@@ -508,7 +515,7 @@ resource "scalr_workspace" "test" {
 }`)
 }
 
-func testAccScalrWorkspaceUpdateVcsRepo(rInt int) string {
+func testAccScalrWorkspaceMissedVcsProvider(rInt int) string {
 	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
 resource "scalr_workspace" "test" {
   name                  = "workspace-updated"
@@ -518,13 +525,13 @@ resource "scalr_workspace" "test" {
   terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
   vcs_repo {
-    identifier = "RomanMytsko/local_exec"
-    branch     = "main"
+   identifier = "TestRepo/local"
+   branch     = "main"
   }
 }`)
 }
 
-func testAccScalrWorkspaceUpdateVcsProvider(rInt int) string {
+func testAccScalrWorkspaceMissedVcsRepo(rInt int) string {
 	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
 resource "scalr_workspace" "test" {
   name                  = "workspace-updated"
