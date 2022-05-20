@@ -34,6 +34,7 @@ scalr_workspace_run_schedule
 
 - `scalr_variable`: fix error on create terraform variable on some scope ([#119](https://github.com/Scalr/terraform-provider-scalr/pull/119))
 - Correctly handle not found resources ([#117](https://github.com/Scalr/terraform-provider-scalr/pull/117))
+- `resource.scalr_policy_group_linkage`: optimized api interactions ([#120](https://github.com/Scalr/terraform-provider-scalr/pull/120))
 
 ### Required
 
