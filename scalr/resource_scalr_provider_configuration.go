@@ -150,6 +150,10 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 										Optional: true,
 										Default:  false,
 									},
+									"description": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
 								},
 							},
 						},
@@ -320,9 +324,10 @@ func resourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interfa
 		var currentArguments []map[string]interface{}
 		for _, argument := range providerConfiguration.Parameters {
 			currentArgument := map[string]interface{}{
-				"name":      argument.Key,
-				"sensitive": argument.Sensitive,
-				"value":     argument.Value,
+				"name":        argument.Key,
+				"sensitive":   argument.Sensitive,
+				"value":       argument.Value,
+				"description": argument.Description,
 			}
 
 			if stateValue, ok := stateValues[argument.Key]; argument.Sensitive && ok {
@@ -420,6 +425,9 @@ func syncArguments(providerConfigurationId string, custom map[string]interface{}
 		if v, ok := configArgument["sensitive"]; ok {
 			parameterCreateOption.Sensitive = scalr.Bool(v.(bool))
 		}
+		if v, ok := configArgument["description"]; ok {
+			parameterCreateOption.Description = scalr.String(v.(string))
+		}
 		configArgumentsCreateOptions[name] = parameterCreateOption
 	}
 
@@ -448,11 +456,12 @@ func syncArguments(providerConfigurationId string, custom map[string]interface{}
 		currentArgument, exists := currentArguments[name]
 		if !exists {
 			toCreate = append(toCreate, configArgumentCreateOption)
-		} else if currentArgument.Value != *configArgumentCreateOption.Value || currentArgument.Sensitive != *configArgumentCreateOption.Sensitive {
+		} else if currentArgument.Value != *configArgumentCreateOption.Value || currentArgument.Sensitive != *configArgumentCreateOption.Sensitive || currentArgument.Description != *configArgumentCreateOption.Description {
 			toUpdate = append(toUpdate, scalr.ProviderConfigurationParameterUpdateOptions{
-				ID:        currentArgument.ID,
-				Sensitive: configArgumentCreateOption.Sensitive,
-				Value:     configArgumentCreateOption.Value,
+				ID:          currentArgument.ID,
+				Sensitive:   configArgumentCreateOption.Sensitive,
+				Value:       configArgumentCreateOption.Value,
+				Description: configArgumentCreateOption.Description,
 			})
 		}
 	}

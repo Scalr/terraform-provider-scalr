@@ -36,15 +36,18 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.#", "1"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.provider_name", "kubernetes"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.#", "3"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.2940088933.name", "host"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.2940088933.sensitive", "false"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.2940088933.value", "my-host"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.3779616726.name", "client_certificate"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.3779616726.sensitive", "true"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.3779616726.value", "-----BEGIN CERTIFICATE-----\nMIIB9TCCAWACAQAwgbgxG"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.416308637.name", "config_path"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.416308637.sensitive", "false"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.416308637.value", "~/.kube/config"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.4105667123.name", "host"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.4105667123.sensitive", "false"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.4105667123.description", ""),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.4105667123.value", "my-host"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.2169404039.name", "client_certificate"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.2169404039.sensitive", "true"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.2169404039.description", ""),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.2169404039.value", "-----BEGIN CERTIFICATE-----\nMIIB9TCCAWACAQAwgbgxG"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.3103878395.name", "config_path"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.3103878395.sensitive", "false"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.3103878395.description", "A path to a kube config file. some typo..."),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.3103878395.value", "~/.kube/config"),
 				),
 			},
 			{
@@ -60,15 +63,18 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.#", "1"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.provider_name", "kubernetes"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.#", "3"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.2940088933.name", "host"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.2940088933.sensitive", "false"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.2940088933.value", "my-host"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.2208544585.name", "config_path"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.2208544585.sensitive", "true"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.2208544585.value", "~/.kube/config"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.1938835301.name", "username"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.1938835301.sensitive", "false"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.1938835301.value", "my-username"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.4105667123.name", "host"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.4105667123.sensitive", "false"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.4105667123.description", ""),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.4105667123.value", "my-host"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.476034915.name", "config_path"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.476034915.description", "A path to a kube config file."),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.476034915.sensitive", "true"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.476034915.value", "~/.kube/config"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.3067103566.name", "username"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.3067103566.sensitive", "false"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.3067103566.description", ""),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.3067103566.value", "my-username"),
 				),
 			},
 			{
@@ -228,7 +234,7 @@ func testAccCheckProviderConfigurationCustomValues(providerConfiguration *scalr.
 			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", true, providerConfiguration.ExportShellVariables)
 		}
 		expectedArguments := []scalr.ProviderConfigurationParameter{
-			{Key: "config_path", Sensitive: false, Value: "~/.kube/config"},
+			{Key: "config_path", Sensitive: false, Value: "~/.kube/config", Description: "A path to a kube config file. some typo..."},
 			{Key: "client_certificate", Sensitive: true, Value: ""},
 			{Key: "host", Sensitive: false, Value: "my-host"},
 		}
@@ -244,6 +250,8 @@ func testAccCheckProviderConfigurationCustomValues(providerConfiguration *scalr.
 				return fmt.Errorf("argument \"%s\" bad Sensitive, expected \"%t\", got: \"%t\"", expectedArgument.Key, expectedArgument.Sensitive, receivedArgument.Sensitive)
 			} else if !receivedArgument.Sensitive && expectedArgument.Value != receivedArgument.Value {
 				return fmt.Errorf("argument \"%s\" bad Value, expected \"%s\", got: \"%s\"", expectedArgument.Key, expectedArgument.Value, receivedArgument.Value)
+			} else if expectedArgument.Description != receivedArgument.Description {
+				return fmt.Errorf("argument \"%s\" bad Description, expected \"%s\", got: \"%s\"", expectedArgument.Key, expectedArgument.Description, receivedArgument.Description)
 			}
 		}
 		return nil
@@ -259,7 +267,7 @@ func testAccCheckProviderConfigurationCustomUpdatedValues(providerConfiguration 
 			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", false, providerConfiguration.ExportShellVariables)
 		}
 		expectedArguments := []scalr.ProviderConfigurationParameter{
-			{Key: "config_path", Sensitive: true, Value: ""},
+			{Key: "config_path", Sensitive: true, Value: "", Description: "A path to a kube config file."},
 			{Key: "host", Sensitive: false, Value: "my-host"},
 			{Key: "username", Sensitive: false, Value: "my-username"},
 		}
@@ -275,6 +283,8 @@ func testAccCheckProviderConfigurationCustomUpdatedValues(providerConfiguration 
 				return fmt.Errorf("argument \"%s\" bad Sensitive, expected \"%t\", got: \"%t\"", expectedArgument.Key, expectedArgument.Sensitive, receivedArgument.Sensitive)
 			} else if !receivedArgument.Sensitive && expectedArgument.Value != receivedArgument.Value {
 				return fmt.Errorf("argument \"%s\" bad Value, expected \"%s\", got: \"%s\"", expectedArgument.Key, expectedArgument.Value, receivedArgument.Value)
+			} else if expectedArgument.Description != receivedArgument.Description {
+				return fmt.Errorf("argument \"%s\" bad Description, expected \"%s\", got: \"%s\"", expectedArgument.Key, expectedArgument.Description, receivedArgument.Description)
 			}
 		}
 		return nil
@@ -417,7 +427,7 @@ func testAccCheckProviderConfigurationResourceDestroy(s *terraform.State) error 
 	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "example_widget" {
+		if rs.Type != "scalr_provider_configuration" {
 			continue
 		}
 
@@ -446,6 +456,7 @@ resource "scalr_provider_configuration" "kubernetes" {
       name      = "config_path"
       value     = "~/.kube/config"
       sensitive = false
+	  description = "A path to a kube config file. some typo..."
     }
     argument {
       name      = "client_certificate"
@@ -471,6 +482,7 @@ resource "scalr_provider_configuration" "kubernetes" {
       name      = "config_path"
       value     = "~/.kube/config"
       sensitive = true
+	  description = "A path to a kube config file."
     }
     argument {
       name      = "host"
