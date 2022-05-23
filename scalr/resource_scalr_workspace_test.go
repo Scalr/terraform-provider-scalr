@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -52,6 +53,25 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("scalr_workspace.test", "created_by.0.email"),
 					resource.TestCheckResourceAttrSet("scalr_workspace.test", "created_by.0.username"),
 				),
+			},
+		},
+	})
+}
+
+func TestAccScalrWorkspace_create_missed_vcs_attr(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccScalrWorkspaceMissedVcsProvider(rInt),
+				ExpectError: regexp.MustCompile("config is invalid: \"vcs_repo\": all of `vcs_provider_id,vcs_repo` must be specified"),
+			},
+			{
+				Config:      testAccScalrWorkspaceMissedVcsRepo(rInt),
+				ExpectError: regexp.MustCompile("config is invalid: \"vcs_provider_id\": all of `vcs_provider_id,vcs_repo` must be specified"),
 			},
 		},
 	})
@@ -492,6 +512,35 @@ resource "scalr_workspace" "test" {
     pre_apply  = "./scripts/pre-apply_updated.sh"
     post_apply = "./scripts/post-apply_updated.sh"
   }
+}`)
+}
+
+func testAccScalrWorkspaceMissedVcsProvider(rInt int) string {
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
+resource "scalr_workspace" "test" {
+  name                  = "workspace-updated"
+  environment_id 		= scalr_environment.test.id
+  auto_apply            = false
+  operations            = false
+  terraform_version     = "0.12.19"
+  working_directory     = "terraform/test"
+  vcs_repo {
+   identifier = "TestRepo/local"
+   branch     = "main"
+  }
+}`)
+}
+
+func testAccScalrWorkspaceMissedVcsRepo(rInt int) string {
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
+resource "scalr_workspace" "test" {
+  name                  = "workspace-updated"
+  environment_id 		= scalr_environment.test.id
+  auto_apply            = false
+  operations            = false
+  terraform_version     = "0.12.19"
+  working_directory     = "terraform/test"
+  vcs_provider_id	    = "test_provider_id"
 }`)
 }
 

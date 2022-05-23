@@ -54,6 +54,7 @@ func resourceScalrWorkspace() *schema.Resource {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ConflictsWith: []string{"module_version_id"},
+				RequiredWith:  []string{"vcs_repo"},
 			},
 			"module_version_id": {
 				Type:          schema.TypeString,
@@ -138,6 +139,7 @@ func resourceScalrWorkspace() *schema.Resource {
 				MinItems:      1,
 				MaxItems:      1,
 				ConflictsWith: []string{"module_version_id"},
+				RequiredWith:  []string{"vcs_provider_id"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"identifier": {

@@ -16,6 +16,7 @@ scalr_workspace_run_schedule
 - `scalr_workspace`: added new attribute `var_files` ([#118](https://github.com/Scalr/terraform-provider-scalr/pull/118))
 
 ### Fixed
+- `scalr_workspace`: vcs_repo and vcs_provider_id have to be passed simultaneously ([#130](https://github.com/Scalr/terraform-provider-scalr/pull/130))
 - `scalr_policy_group`: remove environments and workspaces as includes ([#125](https://github.com/Scalr/terraform-provider-scalr/pull/125))
 - `scalr_variable`: updated the confusing error for multi-scope variables ([#119](https://github.com/Scalr/terraform-provider-scalr/pull/119))
 
