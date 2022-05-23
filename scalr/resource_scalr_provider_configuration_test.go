@@ -122,7 +122,7 @@ func TestAccProviderConfiguration_aws(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "google.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "azurerm.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "custom.#", "0"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.access_key", "my-new-access-key"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.access_key", ""),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.secret_key", "my-new-secret-key"),
 				),
 			},
@@ -317,7 +317,7 @@ func testAccCheckProviderConfigurationAwsUpdatedValues(providerConfiguration *sc
 		if providerConfiguration.ExportShellVariables != true {
 			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", true, providerConfiguration.ExportShellVariables)
 		}
-		if providerConfiguration.AwsAccessKey != "my-new-access-key" {
+		if providerConfiguration.AwsAccessKey != "" {
 			return fmt.Errorf("bad aws access key, expected \"%s\", got: %#v", "my-new-access-key", providerConfiguration.AwsAccessKey)
 		}
 		return nil
@@ -533,7 +533,6 @@ resource "scalr_provider_configuration" "aws" {
   export_shell_variables = true
   aws {
     secret_key = "my-new-secret-key"
-    access_key = "my-new-access-key"
   }
 }
 `, name, defaultAccount)
