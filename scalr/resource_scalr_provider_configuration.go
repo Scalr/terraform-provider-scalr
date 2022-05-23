@@ -359,23 +359,36 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 
 		if v, ok := d.GetOk("aws"); d.HasChange("aws") && ok {
 			aws := v.([]interface{})[0].(map[string]interface{})
-
-			configurationOptions.AwsAccessKey = scalr.String(aws["access_key"].(string))
-			configurationOptions.AwsSecretKey = scalr.String(aws["secret_key"].(string))
+			if access_key, ok := aws["access_key"].(string); ok {
+				configurationOptions.AwsAccessKey = scalr.String(access_key)
+			}
+			if secret_key, ok := aws["secret_key"].(string); ok {
+				configurationOptions.AwsSecretKey = scalr.String(secret_key)
+			}
 
 		} else if v, ok := d.GetOk("google"); d.HasChange("google") && ok {
 			google := v.([]interface{})[0].(map[string]interface{})
-
-			configurationOptions.GoogleProject = scalr.String(google["project"].(string))
-			configurationOptions.GoogleCredentials = scalr.String(google["credentials"].(string))
+			if project, ok := google["project"].(string); ok {
+				configurationOptions.GoogleProject = scalr.String(project)
+			}
+			if credentials, ok := google["credentials"].(string); ok {
+				configurationOptions.GoogleCredentials = scalr.String(credentials)
+			}
 
 		} else if v, ok := d.GetOk("azurerm"); d.HasChange("azurerm") && ok {
 			azurerm := v.([]interface{})[0].(map[string]interface{})
-
-			configurationOptions.AzurermClientId = scalr.String(azurerm["client_id"].(string))
-			configurationOptions.AzurermClientSecret = scalr.String(azurerm["client_secret"].(string))
-			configurationOptions.AzurermSubscriptionId = scalr.String(azurerm["subscription_id"].(string))
-			configurationOptions.AzurermTenantId = scalr.String(azurerm["tenant_id"].(string))
+			if clientId, ok := azurerm["client_id"].(string); ok {
+				configurationOptions.AzurermClientId = scalr.String(clientId)
+			}
+			if clientSecret, ok := azurerm["client_secret"].(string); ok {
+				configurationOptions.AzurermClientSecret = scalr.String(clientSecret)
+			}
+			if subscriptionId, ok := azurerm["subscription_id"].(string); ok {
+				configurationOptions.AzurermSubscriptionId = scalr.String(subscriptionId)
+			}
+			if tenantId, ok := azurerm["tenant_id"].(string); ok {
+				configurationOptions.AzurermTenantId = scalr.String(tenantId)
+			}
 		}
 		_, err := scalrClient.ProviderConfigurations.Update(ctx, id, configurationOptions)
 		if err != nil {
