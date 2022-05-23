@@ -10,11 +10,13 @@ PROVIDER_SOURCE="scalr/scalr"
 URL="https://$DOMAIN"
 PROTOCOLS="[\"5.0\"]"
 
-VERSION=$(PAGER= git tag --points-at HEAD)
-VERSION=${VERSION:1}
+
+VERSION=$(ls dist | grep '_SHA256SUMS$' | sed -n 's/^terraform-provider-scalr_\(.*\)_SHA256SUMS/\1/p')
 TMP_DIR=$(mktemp -d -t scalr-provider-$VERSION-XXXXXXXXXXX)
 PROVIDER_BIN_PATH=$TMP_DIR/$PROVIDER_NAME/$VERSION
 DOWNLOAD_DIR=$TMP_DIR/$PROVIDER_SOURCE/$VERSION/download/
+
+echo "Starting to push $PROVIDER_NAME:$VERSION"
 
 # Copy remote provider registry to working directory.
 # Old versions of terraform provider is using for composing versions file
