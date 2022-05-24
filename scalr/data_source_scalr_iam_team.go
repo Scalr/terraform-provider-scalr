@@ -43,7 +43,6 @@ func dataSourceScalrIamTeam() *schema.Resource {
 
 func dataSourceScalrIamTeamRead(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
-	var accID string
 
 	// required fields
 	name := d.Get("name").(string)
@@ -51,8 +50,10 @@ func dataSourceScalrIamTeamRead(d *schema.ResourceData, meta interface{}) error 
 	options := scalr.TeamListOptions{
 		Name: scalr.String(name),
 	}
-	if accID, ok := d.GetOk("account_id"); ok {
-		options.Account = scalr.String(accID.(string))
+
+	accountID := d.Get("account_id").(string)
+	if accountID != "" {
+		options.Account = scalr.String(accountID)
 	}
 
 	tl, err := scalrClient.Teams.List(ctx, options)
@@ -61,7 +62,7 @@ func dataSourceScalrIamTeamRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	if tl.TotalCount == 0 {
-		return fmt.Errorf("Could not find iam team with name %q, account_id: %q", name, accID)
+		return fmt.Errorf("Could not find iam team with name %q, account_id: %q", name, accountID)
 	}
 
 	if tl.TotalCount > 1 {
