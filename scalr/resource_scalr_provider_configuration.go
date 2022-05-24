@@ -177,43 +177,40 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 	}
 	var createArgumentOptions []scalr.ProviderConfigurationParameterCreateOptions
 
-	if v, ok := d.GetOk("aws"); ok {
+	if _, ok := d.GetOk("aws"); ok {
 		configurationOptions.ProviderName = scalr.String("aws")
 
-		aws := v.([]interface{})[0].(map[string]interface{})
-		if access_key, ok := aws["access_key"].(string); ok {
-			configurationOptions.AwsAccessKey = scalr.String(access_key)
+		if v, ok := d.GetOk("aws.0.access_key"); ok {
+			configurationOptions.AwsAccessKey = scalr.String(v.(string))
 		}
-		if secret_key, ok := aws["secret_key"].(string); ok {
-			configurationOptions.AwsSecretKey = scalr.String(secret_key)
+		if v, ok := d.GetOk("aws.0.secret_key"); ok {
+			configurationOptions.AwsSecretKey = scalr.String(v.(string))
 		}
 
-	} else if v, ok := d.GetOk("google"); ok {
+	} else if _, ok := d.GetOk("google"); ok {
 		configurationOptions.ProviderName = scalr.String("google")
 
-		google := v.([]interface{})[0].(map[string]interface{})
-		if project, ok := google["project"].(string); ok {
-			configurationOptions.GoogleProject = scalr.String(project)
+		if v, ok := d.GetOk("google.0.project"); ok {
+			configurationOptions.GoogleProject = scalr.String(v.(string))
 		}
-		if credentials, ok := google["credentials"].(string); ok {
-			configurationOptions.GoogleCredentials = scalr.String(credentials)
+		if v, ok := d.GetOk("google.0.credentials"); ok {
+			configurationOptions.GoogleCredentials = scalr.String(v.(string))
 		}
 
-	} else if v, ok := d.GetOk("azurerm"); ok {
+	} else if _, ok := d.GetOk("azurerm"); ok {
 		configurationOptions.ProviderName = scalr.String("azurerm")
 
-		azurerm := v.([]interface{})[0].(map[string]interface{})
-		if clientId, ok := azurerm["client_id"].(string); ok {
-			configurationOptions.AzurermClientId = scalr.String(clientId)
+		if v, ok := d.GetOk("azurerm.0.client_id"); ok {
+			configurationOptions.AzurermClientId = scalr.String(v.(string))
 		}
-		if clientSecret, ok := azurerm["client_secret"].(string); ok {
-			configurationOptions.AzurermClientSecret = scalr.String(clientSecret)
+		if v, ok := d.GetOk("azurerm.0.client_secret"); ok {
+			configurationOptions.AzurermClientSecret = scalr.String(v.(string))
 		}
-		if subscriptionId, ok := azurerm["subscription_id"].(string); ok {
-			configurationOptions.AzurermSubscriptionId = scalr.String(subscriptionId)
+		if v, ok := d.GetOk("azurerm.0.subscription_id"); ok {
+			configurationOptions.AzurermSubscriptionId = scalr.String(v.(string))
 		}
-		if tenantId, ok := azurerm["tenant_id"].(string); ok {
-			configurationOptions.AzurermTenantId = scalr.String(tenantId)
+		if v, ok := d.GetOk("azurerm.0.tenant_id"); ok {
+			configurationOptions.AzurermTenantId = scalr.String(v.(string))
 		}
 
 	} else if v, ok := d.GetOk("custom"); ok {
@@ -357,37 +354,32 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 			ExportShellVariables: scalr.Bool(d.Get("export_shell_variables").(bool)),
 		}
 
-		if v, ok := d.GetOk("aws"); d.HasChange("aws") && ok {
-			aws := v.([]interface{})[0].(map[string]interface{})
-			if access_key, ok := aws["access_key"].(string); ok {
-				configurationOptions.AwsAccessKey = scalr.String(access_key)
+		if d.HasChange("aws") {
+			if v, ok := d.GetOk("aws.0.access_key"); ok {
+				configurationOptions.AwsAccessKey = scalr.String(v.(string))
 			}
-			if secret_key, ok := aws["secret_key"].(string); ok {
-				configurationOptions.AwsSecretKey = scalr.String(secret_key)
+			if v, ok := d.GetOk("aws.0.secret_key"); ok {
+				configurationOptions.AwsSecretKey = scalr.String(v.(string))
 			}
-
-		} else if v, ok := d.GetOk("google"); d.HasChange("google") && ok {
-			google := v.([]interface{})[0].(map[string]interface{})
-			if project, ok := google["project"].(string); ok {
-				configurationOptions.GoogleProject = scalr.String(project)
+		} else if d.HasChange("google") {
+			if v, ok := d.GetOk("google.0.project"); ok {
+				configurationOptions.GoogleProject = scalr.String(v.(string))
 			}
-			if credentials, ok := google["credentials"].(string); ok {
-				configurationOptions.GoogleCredentials = scalr.String(credentials)
+			if v, ok := d.GetOk("google.0.credentials"); ok {
+				configurationOptions.GoogleCredentials = scalr.String(v.(string))
 			}
-
-		} else if v, ok := d.GetOk("azurerm"); d.HasChange("azurerm") && ok {
-			azurerm := v.([]interface{})[0].(map[string]interface{})
-			if clientId, ok := azurerm["client_id"].(string); ok {
-				configurationOptions.AzurermClientId = scalr.String(clientId)
+		} else if d.HasChange("azurerm") {
+			if v, ok := d.GetOk("azurerm.0.client_id"); ok {
+				configurationOptions.AzurermClientId = scalr.String(v.(string))
 			}
-			if clientSecret, ok := azurerm["client_secret"].(string); ok {
-				configurationOptions.AzurermClientSecret = scalr.String(clientSecret)
+			if v, ok := d.GetOk("azurerm.0.client_secret"); ok {
+				configurationOptions.AzurermClientSecret = scalr.String(v.(string))
 			}
-			if subscriptionId, ok := azurerm["subscription_id"].(string); ok {
-				configurationOptions.AzurermSubscriptionId = scalr.String(subscriptionId)
+			if v, ok := d.GetOk("azurerm.0.subscription_id"); ok {
+				configurationOptions.AzurermSubscriptionId = scalr.String(v.(string))
 			}
-			if tenantId, ok := azurerm["tenant_id"].(string); ok {
-				configurationOptions.AzurermTenantId = scalr.String(tenantId)
+			if v, ok := d.GetOk("azurerm.0.tenant_id"); ok {
+				configurationOptions.AzurermTenantId = scalr.String(v.(string))
 			}
 		}
 		_, err := scalrClient.ProviderConfigurations.Update(ctx, id, configurationOptions)
