@@ -43,6 +43,7 @@ func dataSourceScalrIamTeam() *schema.Resource {
 
 func dataSourceScalrIamTeamRead(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
+	var accountID string
 
 	// required fields
 	name := d.Get("name").(string)
@@ -50,9 +51,8 @@ func dataSourceScalrIamTeamRead(d *schema.ResourceData, meta interface{}) error 
 	options := scalr.TeamListOptions{
 		Name: scalr.String(name),
 	}
-
-	accountID := d.Get("account_id").(string)
-	if accountID != "" {
+	if accID, ok := d.GetOk("account_id"); ok {
+		accountID = accID.(string)
 		options.Account = scalr.String(accountID)
 	}
 
