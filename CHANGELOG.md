@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `resource.scalr_policy_group_linkage`: optimized api interactions ([#120](https://github.com/Scalr/terraform-provider-scalr/pull/120))
 - `scalr_workspace`: vcs_repo and vcs_provider_id have to be passed simultaneously ([#130](https://github.com/Scalr/terraform-provider-scalr/pull/130))
+- `scalr_iam_team`: Account id is shown in error message when trying to create `scalr_iam_team` resource and use it in datasource in parallel and without `depends_on` ([#135](https://github.com/Scalr/terraform-provider-scalr/pull/135))
 
 ## [1.0.0-rc29] - 2022-05-13
 
