@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - `scalr_policy_group`: remove environments and workspaces as includes ([#125](https://github.com/Scalr/terraform-provider-scalr/pull/125))
 
+### Added
+- **New resource:** `scalr_provider_configuration` ([#137](https://github.com/Scalr/terraform-provider-scalr/pull/137))
+
 ## [1.0.0-rc28] - 2022-04-01
 
 ### Added
