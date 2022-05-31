@@ -54,6 +54,19 @@ resource "scalr_provider_configuration" "azurerm" {
 }
 ```
 
+Scalr provider:
+
+```hcl
+resource "scalr_provider_configuration" "scalr" {
+  name       = "scalr"
+  account_id = "acc-xxxxxxxxx"
+  scalr {
+    hostname       = "scalr.host.example.com"
+    token          = "my-scalr-token"
+  }
+}
+```
+
 Other providers:
 
 ```hcl
@@ -99,6 +112,10 @@ resource "scalr_provider_configuration" "kubernetes" {
   * `client_secret` - (Optional) The Client Secret which should be used.
   * `subscription_id` - (Optional) The Subscription ID which should be used. 
   * `tenant_id` - (Optional) The Tenant ID should be used.
+* `scalr` - (Optional) Settings for the Scalr provider configuraiton. Exactly one of the following attributes must be set: `aws`, `google`, `azurerm`, `scalr`, `custom`.
+  The `scalr` block supports the following:
+    * `hostname` - (Optional) The Scalr hostname which should be used.
+    * `token` - (Optional) The Scalr Token which should be used.
 * `custom` - (Optional) Settings for the provider configuraiton that does not have first class scalr support. Exactly one of the following attributes must be set: `aws`, `google`, `azurerm`, `custom`.
    The `custom` block supports the following:
   * `provider_name` - (Required) The name of a Terraform provider.
