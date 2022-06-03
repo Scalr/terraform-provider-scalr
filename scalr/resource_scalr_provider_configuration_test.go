@@ -2,6 +2,7 @@ package scalr
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
 	"testing"
@@ -12,6 +13,9 @@ import (
 
 	scalr "github.com/scalr/go-scalr"
 )
+
+var scalrHostname = os.Getenv("SCALR_HOSTNAME")
+var scalrToken = os.Getenv("SCALR_TOKEN")
 
 func TestAccProviderConfiguration_custom(t *testing.T) {
 	var providerConfiguration scalr.ProviderConfiguration
@@ -156,8 +160,8 @@ func TestAccProviderConfiguration_scalr(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "google.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "azurerm.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "custom.#", "0"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "scalr.0.hostname", "somehost.scalr.com"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "scalr.0.token", "some_token"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "scalr.0.hostname", scalrHostname),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "scalr.0.token", scalrToken),
 				),
 			},
 			{
@@ -172,8 +176,8 @@ func TestAccProviderConfiguration_scalr(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "google.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "azurerm.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "custom.#", "0"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "scalr.0.hostname", "new.somehost.scalr.com"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "scalr.0.token", "new_some_token"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "scalr.0.hostname", scalrHostname+"/"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "scalr.0.token", scalrToken),
 				),
 			},
 		},
@@ -389,7 +393,7 @@ func testAccCheckProviderConfigurationScalrValues(providerConfiguration *scalr.P
 		if providerConfiguration.ExportShellVariables != false {
 			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", false, providerConfiguration.ExportShellVariables)
 		}
-		if providerConfiguration.ScalrHostname != "somehost.scalr.com" {
+		if providerConfiguration.ScalrHostname != scalrHostname {
 			return fmt.Errorf("bad scalr hostname, expected \"%s\", got: %#v", "my-access-key", providerConfiguration.ScalrHostname)
 		}
 		return nil
@@ -404,7 +408,7 @@ func testAccCheckProviderConfigurationScalrUpdatedValues(providerConfiguration *
 		if providerConfiguration.ExportShellVariables != true {
 			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", true, providerConfiguration.ExportShellVariables)
 		}
-		if providerConfiguration.ScalrHostname != "new.somehost.scalr.com" {
+		if providerConfiguration.ScalrHostname != scalrHostname+"/" {
 			return fmt.Errorf("bad scalr hostname, expected \"%s\", got: %#v", "new.somehost.scalr.com", providerConfiguration.ScalrHostname)
 		}
 		return nil
@@ -687,11 +691,11 @@ resource "scalr_provider_configuration" "scalr" {
   name       = "%s"
   account_id = "%s"
   scalr {
-    hostname = "somehost.scalr.com"
-    token    = "some_token"
+    hostname = "%s"
+    token    = "%s"
   }
 }
-`, name, defaultAccount)
+`, name, defaultAccount, os.Getenv("SCALR_HOSTNAME"), os.Getenv("SCALR_TOKEN"))
 }
 
 func testAccScalrProviderConfigurationScalrUpdatedConfig(name string) string {
@@ -701,9 +705,9 @@ resource "scalr_provider_configuration" "scalr" {
   account_id = "%s"
   export_shell_variables = true
   scalr {
-    hostname = "new.somehost.scalr.com"
-    token    = "new_some_token"
+    hostname = "%s"
+    token    = "%s"
   }
 }
-`, name, defaultAccount)
+`, name, defaultAccount, os.Getenv("SCALR_HOSTNAME")+"/", os.Getenv("SCALR_TOKEN"))
 }

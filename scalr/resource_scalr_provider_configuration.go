@@ -128,11 +128,11 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"hostname": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 						"token": {
 							Type:      schema.TypeString,
-							Optional:  true,
+							Required:  true,
 							Sensitive: true,
 						},
 					},
@@ -386,7 +386,7 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 
 	id := d.Id()
 
-	if d.HasChange("name") || d.HasChange("export_shell_variables") || d.HasChange("aws") || d.HasChange("google") || d.HasChange("azurerm") {
+	if d.HasChange("name") || d.HasChange("export_shell_variables") || d.HasChange("aws") || d.HasChange("google") || d.HasChange("azurerm") || d.HasChange("scalr") || d.HasChange("custom") {
 		configurationOptions := scalr.ProviderConfigurationUpdateOptions{
 			Name:                 scalr.String(d.Get("name").(string)),
 			ExportShellVariables: scalr.Bool(d.Get("export_shell_variables").(bool)),
@@ -407,12 +407,8 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 				configurationOptions.GoogleCredentials = scalr.String(v.(string))
 			}
 		} else if _, ok := d.GetOk("scalr"); ok {
-			if v, ok := d.GetOk("scalr.0.hostname"); ok {
-				configurationOptions.ScalrHostname = scalr.String(v.(string))
-			}
-			if v, ok := d.GetOk("scalr.0.token"); ok {
-				configurationOptions.ScalrToken = scalr.String(v.(string))
-			}
+			configurationOptions.ScalrHostname = scalr.String(d.Get("scalr.0.hostname").(string))
+			configurationOptions.ScalrToken = scalr.String(d.Get("scalr.0.token").(string))
 		} else if _, ok := d.GetOk("azurerm"); ok {
 			if v, ok := d.GetOk("azurerm.0.client_id"); ok {
 				configurationOptions.AzurermClientId = scalr.String(v.(string))
