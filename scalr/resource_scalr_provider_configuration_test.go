@@ -461,7 +461,7 @@ func getAwsTestingCreds(t *testing.T) (accessKeyId, secretAccessKey, roleArn, ex
 		len(secretAccessKey) == 0 ||
 		len(roleArn) == 0 ||
 		len(externalId) == 0 {
-		t.Fatal("TEST_AWS_ACCESS_KEY, TEST_AWS_SECRET_KEY, TEST_AWS_ROLE_ARN and TEST_AWS_EXTERNAL_ID env variables should be specified.")
+		t.Skip("Please set TEST_AWS_ACCESS_KEY, TEST_AWS_SECRET_KEY, TEST_AWS_ROLE_ARN and TEST_AWS_EXTERNAL_ID env variables to run this test.")
 	}
 	return
 }
