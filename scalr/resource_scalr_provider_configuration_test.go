@@ -2,6 +2,7 @@ package scalr
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
 	"testing"
@@ -90,6 +91,7 @@ func TestAccProviderConfiguration_aws(t *testing.T) {
 	var providerConfiguration scalr.ProviderConfiguration
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	accessKeyId, secretAccessKey, roleArn, externalId := getAwsTestingCreds(t)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -97,7 +99,7 @@ func TestAccProviderConfiguration_aws(t *testing.T) {
 		CheckDestroy: testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrPorivderConfigurationAwsConfig(rName),
+				Config: testAccScalrProviderConfigurationAwsConfig(rName, accessKeyId, secretAccessKey, roleArn, externalId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProviderConfigurationExists("scalr_provider_configuration.aws", &providerConfiguration),
 					testAccCheckProviderConfigurationAwsValues(&providerConfiguration, rName),
@@ -107,12 +109,12 @@ func TestAccProviderConfiguration_aws(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "google.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "azurerm.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "custom.#", "0"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.access_key", "my-access-key"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.secret_key", "my-secret-key"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.credentials_type", "role_delegation"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.account_type", "regular"),
 				),
 			},
 			{
-				Config: testAccScalrPorivderConfigurationAwsUpdatedConfig(rNewName),
+				Config: testAccScalrProviderConfigurationAwsUpdatedConfig(rNewName, accessKeyId, secretAccessKey, roleArn, externalId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProviderConfigurationExists("scalr_provider_configuration.aws", &providerConfiguration),
 					testAccCheckProviderConfigurationAwsUpdatedValues(&providerConfiguration, rNewName),
@@ -122,8 +124,8 @@ func TestAccProviderConfiguration_aws(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "google.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "azurerm.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "custom.#", "0"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.access_key", ""),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.secret_key", "my-new-secret-key"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.credentials_type", "role_delegation"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.account_type", "gov-cloud"),
 				),
 			},
 		},
@@ -302,8 +304,11 @@ func testAccCheckProviderConfigurationAwsValues(providerConfiguration *scalr.Pro
 		if providerConfiguration.ExportShellVariables != false {
 			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", false, providerConfiguration.ExportShellVariables)
 		}
-		if providerConfiguration.AwsAccessKey != "my-access-key" {
-			return fmt.Errorf("bad aws access key, expected \"%s\", got: %#v", "my-access-key", providerConfiguration.AwsAccessKey)
+		if providerConfiguration.AwsCredentialsType != "role_delegation" {
+			return fmt.Errorf("bad aws credentials type, expected \"%s\", got: %#v", "role_delegation", providerConfiguration.AwsCredentialsType)
+		}
+		if providerConfiguration.AwsAccountType != "regular" {
+			return fmt.Errorf("bad aws account type, expected \"%s\", got: %#v", "regular", providerConfiguration.AwsAccountType)
 		}
 		return nil
 	}
@@ -317,8 +322,11 @@ func testAccCheckProviderConfigurationAwsUpdatedValues(providerConfiguration *sc
 		if providerConfiguration.ExportShellVariables != true {
 			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", true, providerConfiguration.ExportShellVariables)
 		}
-		if providerConfiguration.AwsAccessKey != "" {
-			return fmt.Errorf("bad aws access key, expected \"%s\", got: %#v", "my-new-access-key", providerConfiguration.AwsAccessKey)
+		if providerConfiguration.AwsCredentialsType != "role_delegation" {
+			return fmt.Errorf("bad aws credentials type, expected \"%s\", got: %#v", "role_delegation", providerConfiguration.AwsCredentialsType)
+		}
+		if providerConfiguration.AwsAccountType != "gov-cloud" {
+			return fmt.Errorf("bad aws account type, expected \"%s\", got: %#v", "gov-cloud", providerConfiguration.AwsAccountType)
 		}
 		return nil
 	}
@@ -444,6 +452,20 @@ func testAccCheckProviderConfigurationResourceDestroy(s *terraform.State) error 
 	return nil
 }
 
+func getAwsTestingCreds(t *testing.T) (accessKeyId, secretAccessKey, roleArn, externalId string) {
+	accessKeyId = os.Getenv("TEST_AWS_ACCESS_KEY")
+	secretAccessKey = os.Getenv("TEST_AWS_SECRET_KEY")
+	roleArn = os.Getenv("TEST_AWS_ROLE_ARN")
+	externalId = os.Getenv("TEST_AWS_EXTERNAL_ID")
+	if len(accessKeyId) == 0 ||
+		len(secretAccessKey) == 0 ||
+		len(roleArn) == 0 ||
+		len(externalId) == 0 {
+		t.Fatal("TEST_AWS_ACCESS_KEY, TEST_AWS_SECRET_KEY, TEST_AWS_ROLE_ARN and TEST_AWS_EXTERNAL_ID env variables should be specified.")
+	}
+	return
+}
+
 func testAccScalrPorivderConfigurationCustomConfig(name string) string {
 	return fmt.Sprintf(`
 resource "scalr_provider_configuration" "kubernetes" {
@@ -511,31 +533,43 @@ resource "scalr_provider_configuration" "kubernetes" {
 `, name, defaultAccount)
 }
 
-func testAccScalrPorivderConfigurationAwsConfig(name string) string {
+func testAccScalrProviderConfigurationAwsConfig(name, accessKeyId, secretAccessKey, roleArn, externalId string) string {
 	return fmt.Sprintf(`
 resource "scalr_provider_configuration" "aws" {
   name                   = "%s"
   account_id             = "%s"
   export_shell_variables = false
   aws {
-    secret_key = "my-secret-key"
-    access_key = "my-access-key"
+	account_type        = "regular"
+	credentials_type    = "role_delegation"
+    access_key          = "%s"
+	secret_key          = "%s"
+	role_arn            = "%s"
+	external_id         = "%s"
+	trusted_entity_type = "aws_account"
   }
 }
-`, name, defaultAccount)
+`, name, defaultAccount, accessKeyId, secretAccessKey, roleArn, externalId)
 }
 
-func testAccScalrPorivderConfigurationAwsUpdatedConfig(name string) string {
+func testAccScalrProviderConfigurationAwsUpdatedConfig(name, accessKeyId, secretAccessKey, roleArn, externalId string) string {
 	return fmt.Sprintf(`
 resource "scalr_provider_configuration" "aws" {
   name                   = "%s"
   account_id             = "%s"
   export_shell_variables = true
   aws {
-    secret_key = "my-new-secret-key"
+	account_type        = "gov-cloud"
+	credentials_type    = "role_delegation"
+    access_key          = "%s"
+	secret_key          = "%s"
+	role_arn            = "%s"
+	external_id         = "%s"
+	trusted_entity_type = "aws_account"
+
   }
 }
-`, name, defaultAccount)
+`, name, defaultAccount, accessKeyId, secretAccessKey, roleArn, externalId)
 }
 
 func testAccScalrPorivderConfigurationGoogleConfig(name string) string {
