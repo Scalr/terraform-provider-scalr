@@ -233,13 +233,8 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 		}
 	} else if _, ok := d.GetOk("scalr"); ok {
 		configurationOptions.ProviderName = scalr.String("scalr")
-
-		if v, ok := d.GetOk("scalr.0.hostname"); ok {
-			configurationOptions.ScalrHostname = scalr.String(v.(string))
-		}
-		if v, ok := d.GetOk("scalr.0.token"); ok {
-			configurationOptions.ScalrToken = scalr.String(v.(string))
-		}
+		configurationOptions.ScalrHostname = scalr.String(d.Get("scalr.0.hostname").(string))
+		configurationOptions.ScalrToken = scalr.String(d.Get("scalr.0.token").(string))
 
 	} else if v, ok := d.GetOk("custom"); ok {
 		custom := v.([]interface{})[0].(map[string]interface{})
