@@ -14,9 +14,6 @@ import (
 	scalr "github.com/scalr/go-scalr"
 )
 
-var scalrHostname = os.Getenv("SCALR_HOSTNAME")
-var scalrToken = os.Getenv("SCALR_TOKEN")
-
 func TestAccProviderConfiguration_custom(t *testing.T) {
 	var providerConfiguration scalr.ProviderConfiguration
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
@@ -140,6 +137,7 @@ func TestAccProviderConfiguration_aws(t *testing.T) {
 
 func TestAccProviderConfiguration_scalr(t *testing.T) {
 	var providerConfiguration scalr.ProviderConfiguration
+	scalrHostname, scalrToken := getScalrTestingCreds(t)
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
@@ -152,7 +150,7 @@ func TestAccProviderConfiguration_scalr(t *testing.T) {
 				Config: testAccScalrProviderConfigurationScalrConfig(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProviderConfigurationExists("scalr_provider_configuration.scalr", &providerConfiguration),
-					testAccCheckProviderConfigurationScalrValues(&providerConfiguration, rName),
+					testAccCheckProviderConfigurationScalrValues(&providerConfiguration, rName, scalrHostname),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "name", rName),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "export_shell_variables", "false"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "scalr.#", "1"),
@@ -168,7 +166,7 @@ func TestAccProviderConfiguration_scalr(t *testing.T) {
 				Config: testAccScalrProviderConfigurationScalrUpdatedConfig(rNewName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProviderConfigurationExists("scalr_provider_configuration.scalr", &providerConfiguration),
-					testAccCheckProviderConfigurationScalrUpdatedValues(&providerConfiguration, rNewName),
+					testAccCheckProviderConfigurationScalrUpdatedValues(&providerConfiguration, rNewName, scalrHostname),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "name", rNewName),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "export_shell_variables", "true"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "scalr.#", "1"),
@@ -382,7 +380,7 @@ func testAccCheckProviderConfigurationAwsUpdatedValues(providerConfiguration *sc
 	}
 }
 
-func testAccCheckProviderConfigurationScalrValues(providerConfiguration *scalr.ProviderConfiguration, name string) resource.TestCheckFunc {
+func testAccCheckProviderConfigurationScalrValues(providerConfiguration *scalr.ProviderConfiguration, name string, scalrHostname string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if providerConfiguration.Name != name {
 			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, providerConfiguration.Name)
@@ -400,7 +398,7 @@ func testAccCheckProviderConfigurationScalrValues(providerConfiguration *scalr.P
 	}
 }
 
-func testAccCheckProviderConfigurationScalrUpdatedValues(providerConfiguration *scalr.ProviderConfiguration, name string) resource.TestCheckFunc {
+func testAccCheckProviderConfigurationScalrUpdatedValues(providerConfiguration *scalr.ProviderConfiguration, name string, scalrHostname string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if providerConfiguration.Name != name {
 			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, providerConfiguration.Name)
@@ -533,6 +531,16 @@ func testAccCheckProviderConfigurationResourceDestroy(s *terraform.State) error 
 	}
 
 	return nil
+}
+
+func getScalrTestingCreds(t *testing.T) (scalrHostname, scalrToken string) {
+	scalrHostname = os.Getenv("SCALR_HOSTNAME")
+	scalrToken = os.Getenv("SCALR_TOKEN")
+	if len(scalrHostname) == 0 ||
+		len(scalrToken) == 0 {
+		t.Skip("Please set SCALR_HOSTNAME, SCALR_TOKEN env variables to run this test.")
+	}
+	return
 }
 
 func testAccScalrProviderConfigurationCustomConfig(name string) string {
