@@ -363,7 +363,6 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 		} else if _, ok := d.GetOk("azurerm"); ok {
 			configurationOptions.AzurermClientId = scalr.String(d.Get("azurerm.0.client_id").(string))
 			configurationOptions.AzurermClientSecret = scalr.String(d.Get("azurerm.0.client_secret").(string))
-			configurationOptions.AzurermClientSecret = scalr.String(d.Get("azurerm.0.client_secret").(string))
 			configurationOptions.AzurermSubscriptionId = scalr.String(d.Get("azurerm.0.subscription_id").(string))
 			if v, ok := d.GetOk("azurerm.0.tenant_id"); ok {
 				configurationOptions.AzurermTenantId = scalr.String(v.(string))
