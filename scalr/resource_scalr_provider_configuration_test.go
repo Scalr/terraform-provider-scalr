@@ -476,10 +476,10 @@ resource "scalr_provider_configuration" "kubernetes" {
   custom {
     provider_name = "kubernetes"
     argument {
-      name      = "config_path"
-      value     = "~/.kube/config"
-      sensitive = false
-	  description = "A path to a kube config file. some typo..."
+      name        = "config_path"
+      value       = "~/.kube/config"
+      sensitive   = false
+      description = "A path to a kube config file. some typo..."
     }
     argument {
       name      = "client_certificate"
@@ -487,8 +487,8 @@ resource "scalr_provider_configuration" "kubernetes" {
       sensitive = true
     }
     argument {
-      name      = "host"
-      value     = "my-host"
+      name  = "host"
+      value = "my-host"
     }
   }
 }
@@ -497,24 +497,25 @@ resource "scalr_provider_configuration" "kubernetes" {
 func testAccScalrPorivderConfigurationCustomConfigUpdated(name string) string {
 	return fmt.Sprintf(`
 resource "scalr_provider_configuration" "kubernetes" {
-  name                   = "%s"
-  account_id             = "%s"
+  name       = "%s"
+  account_id = "%s"
   custom {
     provider_name = "kubernetes"
     argument {
-      name      = "config_path"
-      value     = "~/.kube/config"
-      sensitive = true
-	  description = "A path to a kube config file."
+      name        = "config_path"
+      value       = "~/.kube/config"
+      sensitive   = true
+      description = "A path to a kube config file."
     }
     argument {
-      name      = "host"
-      value     = "my-host"
+      name  = "host"
+      value = "my-host"
     }
-	argument {
-		name      = "username"
-		value     = "my-username"
-	  }
+    argument {
+      name  = "username"
+      value = "my-username"
+    }
+
   }
 }
 `, name, defaultAccount)
@@ -527,11 +528,11 @@ resource "scalr_provider_configuration" "kubernetes" {
   account_id             = "%s"
   export_shell_variables = false
   aws {
-	account_type        = "gov-cloud"
-	credentials_type    = "access_keys"
-	access_key          = "access_key"
-	secret_key          = "secret_key"
-	trusted_entity_type = "aws_account"
+    account_type        = "gov-cloud"
+    credentials_type    = "access_keys"
+    access_key          = "access_key"
+    secret_key          = "secret_key"
+    trusted_entity_type = "aws_account"
   }
 }
 `, name, defaultAccount)
@@ -544,13 +545,13 @@ resource "scalr_provider_configuration" "aws" {
   account_id             = "%s"
   export_shell_variables = false
   aws {
-	account_type        = "regular"
-	credentials_type    = "role_delegation"
+    account_type        = "regular"
+    credentials_type    = "role_delegation"
     access_key          = "%s"
-	secret_key          = "%s"
-	role_arn            = "%s"
-	external_id         = "%s"
-	trusted_entity_type = "aws_account"
+    secret_key          = "%s"
+    role_arn            = "%s"
+    external_id         = "%s"
+    trusted_entity_type = "aws_account"
   }
 }
 `, name, defaultAccount, accessKeyId, secretAccessKey, roleArn, externalId)
@@ -563,13 +564,13 @@ resource "scalr_provider_configuration" "aws" {
   account_id             = "%s"
   export_shell_variables = true
   aws {
-	account_type        = "gov-cloud"
-	credentials_type    = "role_delegation"
-	access_key          = "%s"
-	secret_key          = "%s"
-	role_arn            = "%s"
-	external_id         = "%s"
-	trusted_entity_type = "aws_account"
+    account_type        = "gov-cloud"
+    credentials_type    = "role_delegation"
+    access_key          = "%s"
+    secret_key          = "%s"
+    role_arn            = "%s"
+    external_id         = "%s"
+    trusted_entity_type = "aws_account"
   }
 }
 `, name, defaultAccount, accessKeyId, secretAccessKey, roleArn, externalId)
