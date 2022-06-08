@@ -160,7 +160,6 @@ func TestAccProviderConfiguration_scalr(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "azurerm.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "custom.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "scalr.0.hostname", scalrHostname),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "scalr.0.token", scalrToken),
 				),
 			},
 			{
@@ -176,7 +175,6 @@ func TestAccProviderConfiguration_scalr(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "azurerm.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "custom.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "scalr.0.hostname", scalrHostname+"/"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "scalr.0.token", scalrToken),
 				),
 			},
 		},
