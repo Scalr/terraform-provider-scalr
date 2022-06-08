@@ -137,7 +137,8 @@ func TestAccProviderConfiguration_aws(t *testing.T) {
 
 func TestAccProviderConfiguration_scalr(t *testing.T) {
 	var providerConfiguration scalr.ProviderConfiguration
-	scalrHostname, scalrToken := getScalrTestingCreds(t)
+	scalrHostname := os.Getenv("SCALR_HOSTNAME")
+	scalrToken := os.Getenv("SCALR_TOKEN")
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
@@ -392,7 +393,7 @@ func testAccCheckProviderConfigurationScalrValues(providerConfiguration *scalr.P
 			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", false, providerConfiguration.ExportShellVariables)
 		}
 		if providerConfiguration.ScalrHostname != scalrHostname {
-			return fmt.Errorf("bad scalr hostname, expected \"%s\", got: %#v", "my-access-key", providerConfiguration.ScalrHostname)
+			return fmt.Errorf("bad scalr hostname, expected \"%s\", got: %#v", scalrHostname, providerConfiguration.ScalrHostname)
 		}
 		return nil
 	}
@@ -531,16 +532,6 @@ func testAccCheckProviderConfigurationResourceDestroy(s *terraform.State) error 
 	}
 
 	return nil
-}
-
-func getScalrTestingCreds(t *testing.T) (scalrHostname, scalrToken string) {
-	scalrHostname = os.Getenv("SCALR_HOSTNAME")
-	scalrToken = os.Getenv("SCALR_TOKEN")
-	if len(scalrHostname) == 0 ||
-		len(scalrToken) == 0 {
-		t.Skip("Please set SCALR_HOSTNAME, SCALR_TOKEN env variables to run this test.")
-	}
-	return
 }
 
 func testAccScalrProviderConfigurationCustomConfig(name string) string {
