@@ -526,8 +526,11 @@ resource "scalr_provider_configuration" "kubernetes" {
   account_id             = "%s"
   export_shell_variables = false
   aws {
-    secret_key = "my-secret-key"
-    access_key = "my-access-key"
+	account_type        = "gov-cloud"
+	credentials_type    = "access_keys"
+	access_key          = "access_key"
+	secret_key          = "secret_key"
+	trusted_entity_type = "aws_account"
   }
 }
 `, name, defaultAccount)
@@ -561,12 +564,11 @@ resource "scalr_provider_configuration" "aws" {
   aws {
 	account_type        = "gov-cloud"
 	credentials_type    = "role_delegation"
-    access_key          = "%s"
+	access_key          = "%s"
 	secret_key          = "%s"
 	role_arn            = "%s"
 	external_id         = "%s"
 	trusted_entity_type = "aws_account"
-
   }
 }
 `, name, defaultAccount, accessKeyId, secretAccessKey, roleArn, externalId)
