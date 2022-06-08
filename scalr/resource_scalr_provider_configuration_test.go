@@ -177,6 +177,7 @@ func TestAccProviderConfiguration_google(t *testing.T) {
 }
 
 func TestAccProviderConfiguration_azurerm(t *testing.T) {
+	t.Skip("TODO: add a valid credentials for azurerm testing.")
 	var providerConfiguration scalr.ProviderConfiguration
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
