@@ -138,7 +138,6 @@ func TestAccProviderConfiguration_aws(t *testing.T) {
 func TestAccProviderConfiguration_scalr(t *testing.T) {
 	var providerConfiguration scalr.ProviderConfiguration
 	scalrHostname := os.Getenv("SCALR_HOSTNAME")
-	scalrToken := os.Getenv("SCALR_TOKEN")
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
