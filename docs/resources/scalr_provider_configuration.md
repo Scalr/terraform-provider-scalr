@@ -95,10 +95,10 @@ resource "scalr_provider_configuration" "kubernetes" {
   * `credentials` - (Optional) Either the path to or the contents of a service account key file in JSON format. You can manage key files using the Cloud Console. If not provided, the application default credentials will be used.
 * `azurerm` - (Optional) Settings for the azurerm provider configuraiton. Exactly one of the following attributes must be set: `aws`, `google`, `azurerm`, `custom`.
    The `azurerm` block supports the following:
-  * `client_id` - (Optional) The Client ID which should be used.
-  * `client_secret` - (Optional) The Client Secret which should be used.
-  * `subscription_id` - (Optional) The Subscription ID which should be used. 
-  * `tenant_id` - (Optional) The Tenant ID should be used.
+  * `client_id` - (Required) The Client ID which should be used.
+  * `client_secret` - (Required) The Client Secret which should be used.
+  * `tenant_id` - (Required) The Tenant ID should be used.
+  * `subscription_id` - (Optional) The Subscription ID which should be used.
 * `custom` - (Optional) Settings for the provider configuraiton that does not have first class scalr support. Exactly one of the following attributes must be set: `aws`, `google`, `azurerm`, `custom`.
    The `custom` block supports the following:
   * `provider_name` - (Required) The name of a Terraform provider.

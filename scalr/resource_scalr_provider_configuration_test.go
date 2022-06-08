@@ -2,13 +2,13 @@ package scalr
 
 import (
 	"fmt"
-	"regexp"
-	"strings"
-	"testing"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"os"
+	"regexp"
+	"strings"
+	"testing"
 
 	scalr "github.com/scalr/go-scalr"
 )
@@ -178,6 +178,7 @@ func TestAccProviderConfiguration_azurerm(t *testing.T) {
 	var providerConfiguration scalr.ProviderConfiguration
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	armClientId, armClientSecret, armSubscription, armTenantId := getAzureTestingCreds(t)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -185,37 +186,37 @@ func TestAccProviderConfiguration_azurerm(t *testing.T) {
 		CheckDestroy: testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrPorivderConfigurationAzurermConfig(rName),
+				Config: testAccScalrPorivderConfigurationAzurermConfig(rName, armClientId, armClientSecret, armSubscription, armTenantId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProviderConfigurationExists("scalr_provider_configuration.azurerm", &providerConfiguration),
-					testAccCheckProviderConfigurationAzurermValues(&providerConfiguration, rName),
+					testAccCheckProviderConfigurationAzurermValues(&providerConfiguration, rName, armClientId, armSubscription, armTenantId),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "name", rName),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "export_shell_variables", "false"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "aws.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "google.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.#", "1"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "custom.#", "0"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.client_id", "my-client-id"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.client_secret", "my-client-secret"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.subscription_id", "my-subscription-id"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.tenant_id", "my-tenant-id"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.client_id", armClientId),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.client_secret", armClientSecret),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.subscription_id", armSubscription),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.tenant_id", armTenantId),
 				),
 			},
 			{
-				Config: testAccScalrPorivderConfigurationAzurermUpdatedConfig(rNewName),
+				Config: testAccScalrPorivderConfigurationAzurermUpdatedConfig(rNewName, armClientId, armClientSecret, armSubscription, armTenantId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProviderConfigurationExists("scalr_provider_configuration.azurerm", &providerConfiguration),
 					testAccCheckProviderConfigurationAzurermUpdatedValues(&providerConfiguration, rNewName),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "name", rNewName),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "export_shell_variables", "false"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "export_shell_variables", "true"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "aws.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "google.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.#", "1"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "custom.#", "0"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.client_id", "my-new-client-id"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.client_secret", "my-new-client-secret"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.subscription_id", "my-new-subscription-id"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.tenant_id", "my-new-tenant-id"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.client_id", armClientId),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.client_secret", armClientSecret),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.subscription_id", armSubscription),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.tenant_id", armTenantId),
 				),
 			},
 		},
@@ -357,7 +358,7 @@ func testAccCheckProviderConfigurationGoogleUpdatedValues(providerConfiguration 
 	}
 }
 
-func testAccCheckProviderConfigurationAzurermValues(providerConfiguration *scalr.ProviderConfiguration, name string) resource.TestCheckFunc {
+func testAccCheckProviderConfigurationAzurermValues(providerConfiguration *scalr.ProviderConfiguration, name, armClientId, armSubscription, armTenantId string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if providerConfiguration.Name != name {
 			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, providerConfiguration.Name)
@@ -368,14 +369,14 @@ func testAccCheckProviderConfigurationAzurermValues(providerConfiguration *scalr
 		if providerConfiguration.ExportShellVariables != false {
 			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", false, providerConfiguration.ExportShellVariables)
 		}
-		if providerConfiguration.AzurermClientId != "my-client-id" {
-			return fmt.Errorf("bad azurerm client id, expected \"%s\", got: %#v", "my-client-id", providerConfiguration.AzurermClientId)
+		if providerConfiguration.AzurermClientId != armClientId {
+			return fmt.Errorf("bad azurerm client id, expected \"%s\", got: %#v", armClientId, providerConfiguration.AzurermClientId)
 		}
-		if providerConfiguration.AzurermSubscriptionId != "my-subscription-id" {
-			return fmt.Errorf("bad azurerm subscription id, expected \"%s\", got: %#v", "my-subscription-id", providerConfiguration.AzurermSubscriptionId)
+		if providerConfiguration.AzurermSubscriptionId != armSubscription {
+			return fmt.Errorf("bad azurerm subscription id, expected \"%s\", got: %#v", armSubscription, providerConfiguration.AzurermSubscriptionId)
 		}
-		if providerConfiguration.AzurermTenantId != "my-tenant-id" {
-			return fmt.Errorf("bad azurerm tenant id, expected \"%s\", got: %#v", "my-tenant-id", providerConfiguration.AzurermTenantId)
+		if providerConfiguration.AzurermTenantId != armTenantId {
+			return fmt.Errorf("bad azurerm tenant id, expected \"%s\", got: %#v", armTenantId, providerConfiguration.AzurermTenantId)
 		}
 		return nil
 	}
@@ -386,17 +387,8 @@ func testAccCheckProviderConfigurationAzurermUpdatedValues(providerConfiguration
 		if providerConfiguration.Name != name {
 			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, providerConfiguration.Name)
 		}
-		if providerConfiguration.ExportShellVariables != false {
+		if providerConfiguration.ExportShellVariables != true {
 			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", false, providerConfiguration.ExportShellVariables)
-		}
-		if providerConfiguration.AzurermClientId != "my-new-client-id" {
-			return fmt.Errorf("bad azurerm client id, expected \"%s\", got: %#v", "my-new-client-id", providerConfiguration.AzurermClientId)
-		}
-		if providerConfiguration.AzurermSubscriptionId != "my-new-subscription-id" {
-			return fmt.Errorf("bad azurerm subscription id, expected \"%s\", got: %#v", "my-new-subscription-id", providerConfiguration.AzurermSubscriptionId)
-		}
-		if providerConfiguration.AzurermTenantId != "my-new-tenant-id" {
-			return fmt.Errorf("bad azurerm tenant id, expected \"%s\", got: %#v", "my-new-tenant-id", providerConfiguration.AzurermTenantId)
 		}
 		return nil
 	}
@@ -442,6 +434,19 @@ func testAccCheckProviderConfigurationResourceDestroy(s *terraform.State) error 
 	}
 
 	return nil
+}
+func getAzureTestingCreds(t *testing.T) (armClientId string, armClientSecret string, armSubscription string, armTenantId string) {
+	armClientId = os.Getenv("TEST_ARM_CLIENT_ID")
+	armClientSecret = os.Getenv("TEST_ARM_CLIENT_SECRET")
+	armSubscription = os.Getenv("TEST_ARM_SUBSCRIPTION_ID")
+	armTenantId = os.Getenv("TEST_ARM_TENANT_ID")
+	if len(armClientId) == 0 ||
+		len(armClientSecret) == 0 ||
+		len(armSubscription) == 0 ||
+		len(armTenantId) == 0 {
+		t.Skip("Please set TEST_ARM_CLIENT_ID, TEST_ARM_CLIENT_SECRET, TEST_ARM_SUBSCRIPTION_ID and TEST_ARM_TENANT_ID env variables to run this test.")
+	}
+	return
 }
 
 func testAccScalrPorivderConfigurationCustomConfig(name string) string {
@@ -564,32 +569,34 @@ resource "scalr_provider_configuration" "google" {
 `, name, defaultAccount)
 }
 
-func testAccScalrPorivderConfigurationAzurermConfig(name string) string {
+func testAccScalrPorivderConfigurationAzurermConfig(name, armClientId, armClientSecret, armSubscription, armTenantId string) string {
 	return fmt.Sprintf(`
 resource "scalr_provider_configuration" "azurerm" {
-  name       = "%s"
-  account_id = "%s"
-  azurerm {
-    client_id       = "my-client-id"
-    client_secret   = "my-client-secret"
-    subscription_id = "my-subscription-id"
-    tenant_id       = "my-tenant-id"
-  }
+ name       = "%s"
+ account_id = "%s"
+ export_shell_variables = false
+ azurerm {
+   client_id       = "%s"
+   client_secret   = "%s"
+   subscription_id = "%s"
+   tenant_id       = "%s"
+ }
 }
-`, name, defaultAccount)
+`, name, defaultAccount, armClientId, armClientSecret, armSubscription, armTenantId)
 }
 
-func testAccScalrPorivderConfigurationAzurermUpdatedConfig(name string) string {
+func testAccScalrPorivderConfigurationAzurermUpdatedConfig(name, armClientId, armClientSecret, armSubscription, armTenantId string) string {
 	return fmt.Sprintf(`
 resource "scalr_provider_configuration" "azurerm" {
-  name       = "%s"
-  account_id = "%s"
-  azurerm {
-    client_id       = "my-new-client-id"
-    client_secret   = "my-new-client-secret"
-    subscription_id = "my-new-subscription-id"
-    tenant_id       = "my-new-tenant-id"
-  }
+ name       = "%s"
+ account_id = "%s"
+ export_shell_variables = true
+ azurerm {
+   client_id       = "%s"
+   client_secret   = "%s"
+   subscription_id = "%s"
+   tenant_id       = "%s"
+ }
 }
-`, name, defaultAccount)
+`, name, defaultAccount, armClientId, armClientSecret, armSubscription, armTenantId)
 }

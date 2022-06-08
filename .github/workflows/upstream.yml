@@ -39,6 +39,10 @@ jobs:
         env:
           SCALR_HOSTNAME: ${{ steps.create.outputs.hostname }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TEST_ARM_CLIENT_ID: ${{ secrets.TEST_ARM_CLIENT_ID }}
+          TEST_ARM_CLIENT_SECRET: ${{ secrets.TEST_ARM_CLIENT_SECRET }}
+          TEST_ARM_TENANT_ID: ${{ secrets.TEST_ARM_TENANT_ID }}
+          TEST_ARM_SUBSCRIPTION_ID: ${{ secrets.TEST_ARM_SUBSCRIPTION_ID }}
         run: make testacc
       - name: Delete container
         id: delete
