@@ -74,6 +74,49 @@ jobs:
         with:
           command: delete
           container_id: ${{ steps.create.outputs.container_id }}
+  upload-dev:
+    name: upload-dev
+    needs: [lint, unit-tests, acc-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Import GPG key
+        id: import_gpg
+        uses: Scalr/ghaction-import-gpg@v2.1.1
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          project_id: ${{ secrets.DEV_GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.DEV_GCP_SA_KEY }}
+          export_default_credentials: true
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Create dev-tag
+        run: |
+          BRANCH=$(git rev-parse --abbrev-ref HEAD | sed 's|\(.*\)|\L\1|g;s|/|-|g')
+          git tag v1.0.0-rc-$BRANCH
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.17"
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          version: v1.8.3
+          args: release --skip-publish
+        env:
+          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
+      - name: Upload provider to registry
+        env:
+          DOMAIN: ${{ secrets.DEV_DOMAIN }}
+          BUCKET_NAME: ${{ secrets.DEV_BUCKET_NAME }}
+          GPG_KEY_ID: ${{ steps.import_gpg.outputs.fingerprint }}
+          GPG_PUB_KEY: ${{ steps.import_gpg.outputs.pubkey }}
+        run: bash scripts/upload.sh
   release:
     name: release
     if: startsWith(github.ref, 'refs/tags/')

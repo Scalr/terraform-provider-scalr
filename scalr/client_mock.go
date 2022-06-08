@@ -89,6 +89,10 @@ func (m *mockWorkspaces) Delete(ctx context.Context, workspaceID string) error {
 	panic("not implemented")
 }
 
+func (m *mockWorkspaces) SetSchedule(ctx context.Context, workspaceID string, options scalr.WorkspaceRunScheduleOptions) (*scalr.Workspace, error) {
+	panic("not implemented")
+}
+
 func (m *mockVariables) Update(ctx context.Context, variableID string, options scalr.VariableUpdateOptions) (*scalr.Variable, error) {
 	panic("not implemented")
 }
