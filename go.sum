@@ -304,6 +304,8 @@ github.com/scalr/go-scalr v0.0.0-20220607104911-aa2052c01bbc h1:m77IVa1yDzGLlow8
 github.com/scalr/go-scalr v0.0.0-20220607104911-aa2052c01bbc/go.mod h1:xMnwfer9UxugeNITZjTpQBwQ/4bw6/JdyDLpGdmyorE=
 github.com/scalr/go-scalr v0.0.0-20220608123910-33a0d7a3eecc h1:Du4s+lkdhf4P3LhK0V6thdAOu3fbLNXWwJCxspp/ej0=
 github.com/scalr/go-scalr v0.0.0-20220608123910-33a0d7a3eecc/go.mod h1:xMnwfer9UxugeNITZjTpQBwQ/4bw6/JdyDLpGdmyorE=
+github.com/scalr/go-scalr v0.0.0-20220608134655-f842076ba7c2 h1:59oDO8EscYTQUZjfy2Pkqjn5mQu2w6mGqrKQ/PHGSlI=
+github.com/scalr/go-scalr v0.0.0-20220608134655-f842076ba7c2/go.mod h1:xMnwfer9UxugeNITZjTpQBwQ/4bw6/JdyDLpGdmyorE=
 github.com/sergi/go-diff v1.0.0/go.mod h1:0CfEIISq7TuYL3j771MWULgwwjU+GofnZX9QAmXWZgo=
 github.com/sergi/go-diff v1.1.0/go.mod h1:STckp+ISIX8hZLjrqAeVduY0gWCT9IjLuqbuNXdaHfM=
 github.com/sergi/go-diff v1.2.0 h1:XU+rvMAioB0UC3q1MFrIQy4Vo5/4VsRDQQXHsEya6xQ=
