@@ -106,7 +106,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 						},
 						"credentials": {
 							Type:      schema.TypeString,
-							Optional:  true,
+							Required:  true,
 							Sensitive: true,
 						},
 					},
@@ -237,11 +237,9 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 	} else if _, ok := d.GetOk("google"); ok {
 		configurationOptions.ProviderName = scalr.String("google")
 
+		configurationOptions.GoogleCredentials = scalr.String(d.Get("google.0.credentials").(string))
 		if v, ok := d.GetOk("google.0.project"); ok {
 			configurationOptions.GoogleProject = scalr.String(v.(string))
-		}
-		if v, ok := d.GetOk("google.0.credentials"); ok {
-			configurationOptions.GoogleCredentials = scalr.String(v.(string))
 		}
 
 	} else if _, ok := d.GetOk("azurerm"); ok {
@@ -347,15 +345,16 @@ func resourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interfa
 
 		d.Set("aws", []map[string]interface{}{aws})
 	case "google":
-		stateGoogleParameters := d.Get("google").([]interface{})[0].(map[string]interface{})
-		stateCredentials := stateGoogleParameters["credentials"].(string)
+		google := make(map[string]interface{})
 
-		d.Set("google", []map[string]interface{}{
-			{
-				"project":     providerConfiguration.GoogleProject,
-				"credentials": stateCredentials,
-			},
-		})
+		stateGoogleParameters := d.Get("google").([]interface{})[0].(map[string]interface{})
+		google["credentials"] = stateGoogleParameters["credentials"].(string)
+
+		if len(providerConfiguration.GoogleProject) > 0 {
+			google["project"] = providerConfiguration.GoogleProject
+		}
+
+		d.Set("google", []map[string]interface{}{google})
 	case "azurerm":
 		stateAzurermParameters := d.Get("azurerm").([]interface{})[0].(map[string]interface{})
 		stateClientSecret := stateAzurermParameters["client_secret"].(string)
@@ -450,11 +449,9 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 				return fmt.Errorf("'access_key' and 'secret_key' fields are required for 'access_keys' credentials type of aws provider configuration")
 			}
 		} else if _, ok := d.GetOk("google"); ok {
+			configurationOptions.GoogleCredentials = scalr.String(d.Get("google.0.credentials").(string))
 			if v, ok := d.GetOk("google.0.project"); ok {
 				configurationOptions.GoogleProject = scalr.String(v.(string))
-			}
-			if v, ok := d.GetOk("google.0.credentials"); ok {
-				configurationOptions.GoogleCredentials = scalr.String(v.(string))
 			}
 		} else if _, ok := d.GetOk("azurerm"); ok {
 			if v, ok := d.GetOk("azurerm.0.client_id"); ok {
