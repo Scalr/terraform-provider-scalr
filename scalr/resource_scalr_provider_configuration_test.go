@@ -14,16 +14,6 @@ import (
 	scalr "github.com/scalr/go-scalr"
 )
 
-func getGoogleTestingCreds(t *testing.T) (credentials, project string) {
-	credentials = os.Getenv("TEST_GOOGLE_CREDENTIALS")
-	project = os.Getenv("TEST_GOOGLE_PROJECT")
-	if len(credentials) == 0 ||
-		len(project) == 0 {
-		t.Skip("Please set TEST_GOOGLE_CREDENTIALS, TEST_GOOGLE_PROJECT env variables to run this test.")
-	}
-	return
-}
-
 func TestAccProviderConfiguration_custom(t *testing.T) {
 	var providerConfiguration scalr.ProviderConfiguration
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
@@ -474,6 +464,16 @@ func getAwsTestingCreds(t *testing.T) (accessKeyId, secretAccessKey, roleArn, ex
 		len(roleArn) == 0 ||
 		len(externalId) == 0 {
 		t.Skip("Please set TEST_AWS_ACCESS_KEY, TEST_AWS_SECRET_KEY, TEST_AWS_ROLE_ARN and TEST_AWS_EXTERNAL_ID env variables to run this test.")
+	}
+	return
+}
+
+func getGoogleTestingCreds(t *testing.T) (credentials, project string) {
+	credentials = os.Getenv("TEST_GOOGLE_CREDENTIALS")
+	project = os.Getenv("TEST_GOOGLE_PROJECT")
+	if len(credentials) == 0 ||
+		len(project) == 0 {
+		t.Skip("Please set TEST_GOOGLE_CREDENTIALS, TEST_GOOGLE_PROJECT env variables to run this test.")
 	}
 	return
 }
