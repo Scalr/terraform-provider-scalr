@@ -8,50 +8,32 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccScalrProviderConfigurationsDataSource_name(t *testing.T) {
+func TestAccScalrProviderConfigurationsDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrProviderConfigurationsAwsDataSourceInitConfig, // depends_on works improperly with data sources
+				Config: testAccScalrProviderConfigurationsDataSourceInitConfig, // depends_on works improperly with data sources
 			},
 			{
-				Config: testAccScalrProviderConfigurationsAwsDataSourceConfig,
+				Config: testAccScalrProviderConfigurationsDataSourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckProviderConfigurationsDataSourceNameFilter(),
-				),
-			},
-			{
-				Config: testAccScalrProviderConfigurationsAwsDataSourceInitConfig, // depends_on works improperly with data sources
-			},
-		},
-	})
-}
-func TestAccScalrProviderConfigurationsDataSource_provider_name(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccScalrProviderConfigurationsGoogleDataSourceInitConfig,
-			},
-			{
-				Config: testAccScalrProviderConfigurationsGoogleDataSourceConfig,
-				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckProviderConfigurationsDataSourceTypeFilter(),
 				),
 			},
 			{
-				Config: testAccScalrProviderConfigurationsGoogleDataSourceInitConfig,
+				Config: testAccScalrProviderConfigurationsDataSourceInitConfig, // depends_on works improperly with data sources
 			},
 		},
 	})
 }
+
 func testAccCheckProviderConfigurationsDataSourceNameFilter() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		var expectedIds []string
-		resourceNames := []string{"aws", "aws2"}
+		resourceNames := []string{"kubernetes2", "consul"}
 		for _, name := range resourceNames {
 			rsName := "scalr_provider_configuration." + name
 			rs, ok := s.RootModule().Resources[rsName]
@@ -61,9 +43,9 @@ func testAccCheckProviderConfigurationsDataSourceNameFilter() resource.TestCheck
 			expectedIds = append(expectedIds, rs.Primary.ID)
 
 		}
-		dataSource, ok := s.RootModule().Resources["data.scalr_provider_configurations.aws"]
+		dataSource, ok := s.RootModule().Resources["data.scalr_provider_configurations.kubernetes2consul"]
 		if !ok {
-			return fmt.Errorf("Not found: data.scalr_provider_configurations.aws")
+			return fmt.Errorf("Not found: data.scalr_provider_configurations.kubernetes2consul")
 		}
 		if dataSource.Primary.Attributes["ids.#"] != "2" {
 			return fmt.Errorf("Bad provider configuration ids, expected: %#v, got: %#v", expectedIds, dataSource.Primary.Attributes["ids"])
@@ -90,7 +72,7 @@ func testAccCheckProviderConfigurationsDataSourceNameFilter() resource.TestCheck
 func testAccCheckProviderConfigurationsDataSourceTypeFilter() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		var expectedIds []string
-		resourceNames := []string{"google", "google2"}
+		resourceNames := []string{"kubernetes1", "kubernetes2"}
 		for _, name := range resourceNames {
 			rsName := "scalr_provider_configuration." + name
 			rs, ok := s.RootModule().Resources[rsName]
@@ -100,9 +82,9 @@ func testAccCheckProviderConfigurationsDataSourceTypeFilter() resource.TestCheck
 			expectedIds = append(expectedIds, rs.Primary.ID)
 
 		}
-		dataSource, ok := s.RootModule().Resources["data.scalr_provider_configurations.google"]
+		dataSource, ok := s.RootModule().Resources["data.scalr_provider_configurations.kubernetes"]
 		if !ok {
-			return fmt.Errorf("Not found: data.scalr_provider_configurations.google")
+			return fmt.Errorf("Not found: data.scalr_provider_configurations.kubernetes")
 		}
 		if dataSource.Primary.Attributes["ids.#"] != "2" {
 			return fmt.Errorf("Bad provider configuration ids, expected: %#v, got: %#v", expectedIds, dataSource.Primary.Attributes["ids"])
@@ -121,69 +103,62 @@ func testAccCheckProviderConfigurationsDataSourceTypeFilter() resource.TestCheck
 				return fmt.Errorf("Bad provider configuration ids, expected: %#v, got: %#v", expectedIds, resultIds)
 			}
 		}
-
 		return nil
 	}
 }
 
-var testAccScalrProviderConfigurationsAwsDataSourceInitConfig = fmt.Sprintf(`
-resource "scalr_provider_configuration" "google" {
-  name       = "google_pcfg"
+var testAccScalrProviderConfigurationsDataSourceInitConfig = fmt.Sprintf(`
+resource "scalr_provider_configuration" "kubernetes1" {
+  name       = "kubernetes1"
   account_id = "%[1]s"
-  google {
-    project     = "my-new-project"
-    credentials = "my-new-credentials"
+  custom {
+    provider_name = "kubernetes"
+    argument {
+      name  = "host"
+      value = "my-host"
+    }
+    argument {
+      name  = "username"
+      value = "my-username"
+    }
   }
 }
-resource "scalr_provider_configuration" "aws" {
-  name                   = "aws_pcfg"
-  account_id             = "%[1]s"
-  aws {
-    secret_key = "my-new-secret-key"
-    access_key = "my-new-access-key"
+resource "scalr_provider_configuration" "kubernetes2" {
+  name       = "kubernetes2"
+  account_id = "%[1]s"
+  custom {
+    provider_name = "kubernetes"
+    argument {
+      name  = "host"
+      value = "my-host2"
+    }
+    argument {
+      name  = "username"
+      value = "my-username2"
+    }
   }
 }
-resource "scalr_provider_configuration" "aws2" {
-  name                   = "aws2_pcfg"
-  account_id             = "%[1]s"
-  aws {
-    secret_key = "my-new-secret-key"
-    access_key = "my-new-access-key"
+resource "scalr_provider_configuration" "consul" {
+  name       = "consul"
+  account_id = "%[1]s"
+  custom {
+    provider_name = "consul"
+    argument {
+      name  = "address"
+      value = "demo.consul.io:80"
+    }
+    argument {
+      name  = "datacenter"
+      value = "nyc1"
+    }
   }
 }`, defaultAccount)
-var testAccScalrProviderConfigurationsAwsDataSourceConfig = testAccScalrProviderConfigurationsAwsDataSourceInitConfig + `
-data "scalr_provider_configurations" "aws" {
-  name = "in:aws_pcfg,aws2_pcfg"
+
+var testAccScalrProviderConfigurationsDataSourceConfig = testAccScalrProviderConfigurationsDataSourceInitConfig + `
+data "scalr_provider_configurations" "kubernetes2consul" {
+  name = "in:kubernetes2,consul"
+}
+data "scalr_provider_configurations" "kubernetes" {
+  provider_name = "kubernetes"
 }
 `
-
-var testAccScalrProviderConfigurationsGoogleDataSourceInitConfig = fmt.Sprintf(`
-resource "scalr_provider_configuration" "google" {
-  name       = "google_pcfg"
-  account_id = "%[1]s"
-  google {
-    project     = "my-new-project"
-    credentials = "my-new-credentials"
-  }
-}
-resource "scalr_provider_configuration" "google2" {
-  name       = "google2_pcfg"
-  account_id = "%[1]s"
-  google {
-    project     = "my-new-project"
-    credentials = "my-new-credentials"
-  }
-}  
-resource "scalr_provider_configuration" "aws" {
-  name                   = "aws_pcfg"
-  account_id             = "%[1]s"
-  aws {
-    secret_key = "my-new-secret-key"
-    access_key = "my-new-access-key"
-  }
-}`, defaultAccount)
-
-var testAccScalrProviderConfigurationsGoogleDataSourceConfig = testAccScalrProviderConfigurationsGoogleDataSourceInitConfig + `
-data "scalr_provider_configurations" "google" {
-	provider_name = "google"
-}`

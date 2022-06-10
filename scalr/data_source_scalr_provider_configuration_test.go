@@ -7,88 +7,66 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
-func TestAccScalrProviderConfigurationDataSource_name(t *testing.T) {
+func TestAccScalrProviderConfigurationDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrProviderConfigurationAwsDataSourceInitConfig, // depends_on works improperly with data sources
+				Config: testAccScalrProviderConfigurationDataSourceInitConfig, // depends_on works improperly with data sources
 			},
 			{
-				Config: testAccScalrProviderConfigurationAwsDataSourceConfig,
+				Config: testAccScalrProviderConfigurationDataSourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckEqualID("data.scalr_provider_configuration.aws", "scalr_provider_configuration.aws"),
+					testAccCheckEqualID("data.scalr_provider_configuration.kubernetes", "scalr_provider_configuration.kubernetes"),
+					testAccCheckEqualID("data.scalr_provider_configuration.consul", "scalr_provider_configuration.consul"),
 				),
 			},
 			{
-				Config: testAccScalrProviderConfigurationAwsDataSourceInitConfig,
-			},
-		},
-	})
-}
-func TestAccScalrProviderConfigurationDataSource_provider_name(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccScalrProviderConfigurationGoogleDataSourceInitConfig,
-			},
-			{
-				Config: testAccScalrProviderConfigurationGoogleDataSourceConfig,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckEqualID("data.scalr_provider_configuration.google", "scalr_provider_configuration.google"),
-				),
-			},
-			{
-				Config: testAccScalrProviderConfigurationAwsDataSourceInitConfig,
+				Config: testAccScalrProviderConfigurationDataSourceInitConfig,
 			},
 		},
 	})
 }
 
-var testAccScalrProviderConfigurationAwsDataSourceInitConfig = fmt.Sprintf(`
-resource "scalr_provider_configuration" "google" {
-  name       = "google_pcfg"
+var testAccScalrProviderConfigurationDataSourceInitConfig = fmt.Sprintf(`
+resource "scalr_provider_configuration" "kubernetes" {
+  name       = "kubernetes1"
   account_id = "%[1]s"
-  google {
-    project     = "my-new-project"
-    credentials = "my-new-credentials"
+  custom {
+    provider_name = "kubernetes"
+    argument {
+      name  = "host"
+      value = "my-host"
+    }
+    argument {
+      name  = "username"
+      value = "my-username"
+    }
   }
 }
-resource "scalr_provider_configuration" "aws" {
-  name                   = "aws_pcfg"
-  account_id             = "%[1]s"
-  aws {
-    secret_key = "my-new-secret-key"
-    access_key = "my-new-access-key"
+resource "scalr_provider_configuration" "consul" {
+  name       = "consul"
+  account_id = "%[1]s"
+  custom {
+    provider_name = "consul"
+    argument {
+      name  = "address"
+      value = "demo.consul.io:80"
+    }
+    argument {
+      name  = "datacenter"
+      value = "nyc1"
+    }
   }
-}`, defaultAccount)
-var testAccScalrProviderConfigurationAwsDataSourceConfig = testAccScalrProviderConfigurationAwsDataSourceInitConfig + `
-data "scalr_provider_configuration" "aws" {
-  name = scalr_provider_configuration.aws.name
+}
+`, defaultAccount)
+
+var testAccScalrProviderConfigurationDataSourceConfig = testAccScalrProviderConfigurationDataSourceInitConfig + `
+data "scalr_provider_configuration" "kubernetes" {
+  name = scalr_provider_configuration.kubernetes.name
+}
+data "scalr_provider_configuration" "consul" {
+  provider_name = "consul"
 }
 `
-
-var testAccScalrProviderConfigurationGoogleDataSourceInitConfig = fmt.Sprintf(`
-resource "scalr_provider_configuration" "google" {
-  name       = "google_pcfg"
-  account_id = "%[1]s"
-  google {
-    project     = "my-new-project"
-    credentials = "my-new-credentials"
-  }
-}
-resource "scalr_provider_configuration" "aws" {
-  name                   = "aws_pcfg"
-  account_id             = "%[1]s"
-  aws {
-    secret_key = "my-new-secret-key"
-    access_key = "my-new-access-key"
-  }
-}`, defaultAccount)
-var testAccScalrProviderConfigurationGoogleDataSourceConfig = testAccScalrProviderConfigurationGoogleDataSourceInitConfig + `
-data "scalr_provider_configuration" "google" {
-	provider_name = "google"
-}`
