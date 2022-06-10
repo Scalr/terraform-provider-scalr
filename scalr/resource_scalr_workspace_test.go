@@ -42,6 +42,8 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "var_files.1", "test2.tfvars"),
 					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.pre_init", "./scripts/pre-init.sh"),
+					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan.sh"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.post_plan", "./scripts/post-plan.sh"),
@@ -129,6 +131,8 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.pre_init", "./scripts/pre-init.sh"),
+					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan.sh"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.post_plan", "./scripts/post-plan.sh"),
@@ -155,6 +159,8 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.pre_init", "./scripts/pre-init.sh"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan.sh"),
 					resource.TestCheckResourceAttr(
@@ -191,6 +197,8 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_workspace.test", "var_files.0", "test1.tfvars"),
 					resource.TestCheckResourceAttr("scalr_workspace.test", "var_files.1", "test2.tfvars"),
 					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.pre_init", "./scripts/pre-init.sh"),
+					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan.sh"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.post_plan", "./scripts/post-plan.sh"),
@@ -223,6 +231,8 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 						"scalr_workspace.test", "var_files.0", "test1updated.tfvars"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "var_files.1", "test2updated.tfvars"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.pre_init", "./scripts/pre-init_updated.sh"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan_updated.sh"),
 					resource.TestCheckResourceAttr(
@@ -462,6 +472,7 @@ resource scalr_workspace test {
   run_operation_timeout = 18
   var_files      = ["test1.tfvars", "test2.tfvars"]
   hooks {
+    pre_init   = "./scripts/pre-init.sh"
     pre_plan   = "./scripts/pre-plan.sh"
     post_plan  = "./scripts/post-plan.sh"
     pre_apply  = "./scripts/pre-apply.sh"
@@ -487,6 +498,7 @@ resource "scalr_workspace" "test" {
   auto_apply             = true
   run_operation_timeout = 18
   hooks {
+    pre_init   = "./scripts/pre-init.sh"
     pre_plan   = "./scripts/pre-plan.sh"
     post_plan  = "./scripts/post-plan.sh"
     pre_apply  = "./scripts/pre-apply.sh"
@@ -507,6 +519,7 @@ resource "scalr_workspace" "test" {
   run_operation_timeout = 200
   var_files             = ["test1updated.tfvars", "test2updated.tfvars"]
   hooks {
+    pre_init   = "./scripts/pre-init_updated.sh"
     pre_plan   = "./scripts/pre-plan_updated.sh"
     post_plan  = "./scripts/post-plan_updated.sh"
     pre_apply  = "./scripts/pre-apply_updated.sh"
@@ -566,6 +579,7 @@ resource "scalr_workspace" "test" {
   terraform_version     = "0.12.19"
   working_directory     = ""
   hooks {
+    pre_init   = "./scripts/pre-init_updated.sh"
     pre_plan   = "./scripts/pre-plan_updated.sh"
     post_plan  = "./scripts/post-plan_updated.sh"
     pre_apply  = "./scripts/pre-apply_updated.sh"
