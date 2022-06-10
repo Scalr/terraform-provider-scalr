@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `scalr_workspace`: added `pre-init` hook  ([#142](https://github.com/Scalr/terraform-provider-scalr/pull/142))
+- `data.scalr_workspace`: added `pre-init` hook ([#142](https://github.com/Scalr/terraform-provider-scalr/pull/142))
+
 ## [1.0.0-rc30] - 2022-05-30
 
 ### Fixed

@@ -113,6 +113,7 @@ resource "scalr_workspace" "cli-driven" {
 * `hooks` - (Optional) Settings for the workspaces custom hooks.
 
    The `hooks` block supports: 
+  * `pre_init` - (Optional) Action that will be called before init phase
   * `pre_plan` - (Optional) Action that will be called before plan phase
   * `post_plan` - (Optional) Action that will be called after plan phase
   * `pre_apply` - (Optional) Action that will be called before apply phase
