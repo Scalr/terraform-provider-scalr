@@ -61,6 +61,26 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				ExactlyOneOf: []string{"google", "azurerm", "custom"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"account_type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"credentials_type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"trusted_entity_type": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"role_arn": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"external_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 						"access_key": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -179,11 +199,38 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 	if _, ok := d.GetOk("aws"); ok {
 		configurationOptions.ProviderName = scalr.String("aws")
 
-		if v, ok := d.GetOk("aws.0.access_key"); ok {
-			configurationOptions.AwsAccessKey = scalr.String(v.(string))
+		configurationOptions.AwsAccountType = scalr.String(d.Get("aws.0.account_type").(string))
+		configurationOptions.AwsCredentialsType = scalr.String(d.Get("aws.0.credentials_type").(string))
+
+		accessKeyIdI, accessKeyIdExists := d.GetOk("aws.0.access_key")
+		accessKeyIdExists = accessKeyIdExists && len(accessKeyIdI.(string)) > 0
+		accessSecretKeyI, accessSecretKeyExists := d.GetOk("aws.0.secret_key")
+		accessSecretKeyExists = accessSecretKeyExists && len(accessSecretKeyI.(string)) > 0
+
+		if accessKeyIdExists && accessSecretKeyExists {
+			configurationOptions.AwsAccessKey = scalr.String(accessKeyIdI.(string))
+			configurationOptions.AwsSecretKey = scalr.String(accessSecretKeyI.(string))
+		} else if accessKeyIdExists || accessSecretKeyExists {
+			return fmt.Errorf("'access_key' and 'secret_key' fields can be used only together")
 		}
-		if v, ok := d.GetOk("aws.0.secret_key"); ok {
-			configurationOptions.AwsSecretKey = scalr.String(v.(string))
+
+		if *configurationOptions.AwsCredentialsType == "role_delegation" {
+			configurationOptions.AwsTrustedEntityType = scalr.String(d.Get("aws.0.trusted_entity_type").(string))
+			configurationOptions.AwsRoleArn = scalr.String(d.Get("aws.0.role_arn").(string))
+			configurationOptions.AwsExternalId = scalr.String(d.Get("aws.0.external_id").(string))
+			if len(*configurationOptions.AwsTrustedEntityType) == 0 {
+				return fmt.Errorf("'trusted_entity_type' field is required for 'role_delegation' credentials type of aws provider configuration")
+			}
+			if len(*configurationOptions.AwsRoleArn) == 0 {
+				return fmt.Errorf("'role_arn' field is required for 'role_delegation' credentials type of aws provider configuration")
+			}
+			if len(*configurationOptions.AwsExternalId) == 0 {
+				return fmt.Errorf("'external_id' field is required for 'role_delegation' credentials type of aws provider configuration")
+			}
+		} else if *configurationOptions.AwsCredentialsType != "access_keys" {
+			return fmt.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys'", *configurationOptions.AwsCredentialsType)
+		} else if !accessKeyIdExists || !accessSecretKeyExists {
+			return fmt.Errorf("'access_key' and 'secret_key' fields are required for 'access_keys' credentials type of aws provider configuration")
 		}
 
 	} else if _, ok := d.GetOk("google"); ok {
@@ -268,15 +315,29 @@ func resourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interfa
 
 	switch providerConfiguration.ProviderName {
 	case "aws":
-		stateAwsParameters := d.Get("aws").([]interface{})[0].(map[string]interface{})
-		stateSecretKey := stateAwsParameters["secret_key"].(string)
+		aws := make(map[string]interface{})
 
-		d.Set("aws", []map[string]interface{}{
-			{
-				"access_key": providerConfiguration.AwsAccessKey,
-				"secret_key": stateSecretKey,
-			},
-		})
+		aws["account_type"] = providerConfiguration.AwsAccountType
+		aws["credentials_type"] = providerConfiguration.AwsCredentialsType
+
+		if stateSecretKeyI, ok := d.GetOk("aws.0.secret_key"); ok {
+			aws["secret_key"] = stateSecretKeyI.(string)
+		}
+
+		if len(providerConfiguration.AwsAccessKey) > 0 {
+			aws["access_key"] = providerConfiguration.AwsAccessKey
+		}
+		if len(providerConfiguration.AwsTrustedEntityType) > 0 {
+			aws["trusted_entity_type"] = providerConfiguration.AwsTrustedEntityType
+		}
+		if len(providerConfiguration.AwsTrustedEntityType) > 0 {
+			aws["role_arn"] = providerConfiguration.AwsRoleArn
+		}
+		if len(providerConfiguration.AwsTrustedEntityType) > 0 {
+			aws["external_id"] = providerConfiguration.AwsExternalId
+		}
+
+		d.Set("aws", []map[string]interface{}{aws})
 	case "google":
 		stateGoogleParameters := d.Get("google").([]interface{})[0].(map[string]interface{})
 		stateCredentials := stateGoogleParameters["credentials"].(string)
@@ -346,14 +407,41 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 			ExportShellVariables: scalr.Bool(d.Get("export_shell_variables").(bool)),
 		}
 
-		if d.HasChange("aws") {
-			if v, ok := d.GetOk("aws.0.access_key"); ok {
-				configurationOptions.AwsAccessKey = scalr.String(v.(string))
+		if _, ok := d.GetOk("aws"); ok {
+			configurationOptions.AwsAccountType = scalr.String(d.Get("aws.0.account_type").(string))
+			configurationOptions.AwsCredentialsType = scalr.String(d.Get("aws.0.credentials_type").(string))
+
+			accessKeyIdI, accessKeyIdExists := d.GetOk("aws.0.access_key")
+			accessKeyIdExists = accessKeyIdExists && len(accessKeyIdI.(string)) > 0
+			accessSecretKeyI, accessSecretKeyExists := d.GetOk("aws.0.secret_key")
+			accessSecretKeyExists = accessSecretKeyExists && len(accessSecretKeyI.(string)) > 0
+
+			if accessKeyIdExists && accessSecretKeyExists {
+				configurationOptions.AwsAccessKey = scalr.String(accessKeyIdI.(string))
+				configurationOptions.AwsSecretKey = scalr.String(accessSecretKeyI.(string))
+			} else if accessKeyIdExists || accessSecretKeyExists {
+				return fmt.Errorf("'access_key' and 'secret_key' fields can be used only together")
 			}
-			if v, ok := d.GetOk("aws.0.secret_key"); ok {
-				configurationOptions.AwsSecretKey = scalr.String(v.(string))
+
+			if *configurationOptions.AwsCredentialsType == "role_delegation" {
+				configurationOptions.AwsTrustedEntityType = scalr.String(d.Get("aws.0.trusted_entity_type").(string))
+				configurationOptions.AwsRoleArn = scalr.String(d.Get("aws.0.role_arn").(string))
+				configurationOptions.AwsExternalId = scalr.String(d.Get("aws.0.external_id").(string))
+				if len(*configurationOptions.AwsTrustedEntityType) == 0 {
+					return fmt.Errorf("'trusted_entity_type' field is required for 'role_delegation' credentials type of aws provider configuration")
+				}
+				if len(*configurationOptions.AwsRoleArn) == 0 {
+					return fmt.Errorf("'role_arn' field is required for 'role_delegation' credentials type of aws provider configuration")
+				}
+				if len(*configurationOptions.AwsExternalId) == 0 {
+					return fmt.Errorf("'external_id' field is required for 'role_delegation' credentials type of aws provider configuration")
+				}
+			} else if *configurationOptions.AwsCredentialsType != "access_keys" {
+				return fmt.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys'", *configurationOptions.AwsCredentialsType)
+			} else if !accessKeyIdExists || !accessSecretKeyExists {
+				return fmt.Errorf("'access_key' and 'secret_key' fields are required for 'access_keys' credentials type of aws provider configuration")
 			}
-		} else if d.HasChange("google") {
+		} else if _, ok := d.GetOk("google"); ok {
 			if v, ok := d.GetOk("google.0.project"); ok {
 				configurationOptions.GoogleProject = scalr.String(v.(string))
 			}
