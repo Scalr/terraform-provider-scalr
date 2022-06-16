@@ -300,8 +300,8 @@ github.com/posener/complete v1.2.1 h1:LrvDIY//XNo65Lq84G/akBuMGlawHvGBABv8f/ZN6D
 github.com/posener/complete v1.2.1/go.mod h1:6gapUrK/U1TAN7ciCoNRIdVC5sbdBTUh1DKN0g6uH7E=
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
-github.com/scalr/go-scalr v0.0.0-20220608155411-6e6a912ba37d h1:dzPuWZ+8AFEcflC/N9LBVhxdHjLrpQT0t88ch9ztb84=
-github.com/scalr/go-scalr v0.0.0-20220608155411-6e6a912ba37d/go.mod h1:xMnwfer9UxugeNITZjTpQBwQ/4bw6/JdyDLpGdmyorE=
+github.com/scalr/go-scalr v0.0.0-20220616132445-6d6376eb80a6 h1:W6E+G4BwY70FyqD69eYtjxsuvUjoBBC45uSjUG+taA4=
+github.com/scalr/go-scalr v0.0.0-20220616132445-6d6376eb80a6/go.mod h1:xMnwfer9UxugeNITZjTpQBwQ/4bw6/JdyDLpGdmyorE=
 github.com/sergi/go-diff v1.0.0/go.mod h1:0CfEIISq7TuYL3j771MWULgwwjU+GofnZX9QAmXWZgo=
 github.com/sergi/go-diff v1.1.0/go.mod h1:STckp+ISIX8hZLjrqAeVduY0gWCT9IjLuqbuNXdaHfM=
 github.com/sergi/go-diff v1.2.0 h1:XU+rvMAioB0UC3q1MFrIQy4Vo5/4VsRDQQXHsEya6xQ=
