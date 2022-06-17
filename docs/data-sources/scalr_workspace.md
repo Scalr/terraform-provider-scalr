@@ -45,6 +45,7 @@ All arguments plus:
 
   The `hooks` block supports:
 
+  * `pre_init` - Script or action configured to call before init phase  
   * `pre_plan` - Script or action configured to call before plan phase
   * `post_plan` - Script or action configured to call after plan phase
   * `pre_apply` - Script or action configured to call before apply phase

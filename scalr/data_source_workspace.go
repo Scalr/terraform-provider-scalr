@@ -67,6 +67,10 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"pre_init": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 						"pre_plan": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -190,6 +194,7 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 	var hooks []interface{}
 	if workspace.Hooks != nil {
 		hooks = append(hooks, map[string]interface{}{
+			"pre_init":   workspace.Hooks.PreInit,
 			"pre_plan":   workspace.Hooks.PrePlan,
 			"post_plan":  workspace.Hooks.PostPlan,
 			"pre_apply":  workspace.Hooks.PreApply,
