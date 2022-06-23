@@ -100,12 +100,17 @@ resource "scalr_provider_configuration" "kubernetes" {
 * `export_shell_variables` - (Optional) Export provider variables into the run environment. This option is available only for built in providers.
 * `aws` - (Optional) Settings for the aws provider configuraiton. Exactly one of the following attributes must be set: `aws`, `google`, `azurerm`, `scalr`, `custom`.
    The `aws` block supports the following:
-  * `secret_key` - (Optional) AWS secret key. 
-  * `access_key` - (Optional) AWS access key.
+  * `account_type` - (Required) The type of AWS accoutn, available options: `regular`, `gov-cloud`, `cn-cloud`.
+  * `credentials_type` - (Required) The type of AWS credentials, available options: `access_keys`, `role_delegation`.
+  * `trusted_entity_type` - (Optional) Trusted entity type, available options: `aws_account`, `aws_service`. This option is required with `role_delegation` credentials type.
+  * `role_arn` - (Optional) Amazon Resource Name (ARN) of the IAM Role to assume. This option is required with `role_delegation` credentials type.
+  * `external_id` - (Optional) External identifier to use when assuming the role. This option is required with `role_delegation` credentials type.
+  * `secret_key` - (Optional) AWS secret key. This option is required with `access_keys` credentials type.
+  * `access_key` - (Optional) AWS access key.This option is required with `access_keys` credentials type.
 * `google` - (Optional) Settings for the google provider configuraiton. Exactly one of the following attributes must be set: `aws`, `google`, `azurerm`, `scalr`, `custom`.
    The `google` block supports the following:
   * `project` - (Optional) The default project to manage resources in. If another project is specified on a resource, it will take precedence.
-  * `credentials` - (Optional) Either the path to or the contents of a service account key file in JSON format. You can manage key files using the Cloud Console. If not provided, the application default credentials will be used.
+  * `credentials` - (Required) Service account key file in JSON format.
 * `azurerm` - (Optional) Settings for the azurerm provider configuraiton. Exactly one of the following attributes must be set: `aws`, `google`, `azurerm`, `scalr`, `custom`.
    The `azurerm` block supports the following:
   * `client_id` - (Optional) The Client ID which should be used.
