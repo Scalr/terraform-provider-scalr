@@ -25,7 +25,7 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 		CheckDestroy: testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrPorivderConfigurationCustomConfig(rName),
+				Config: testAccScalrProviderConfigurationCustomConfig(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProviderConfigurationExists("scalr_provider_configuration.kubernetes", &providerConfiguration),
 					testAccCheckProviderConfigurationCustomValues(&providerConfiguration, rName),
@@ -33,6 +33,7 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "export_shell_variables", "true"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "aws.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "google.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "scalr.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "azurerm.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.#", "1"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.provider_name", "kubernetes"),
@@ -52,7 +53,7 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccScalrPorivderConfigurationCustomConfigUpdated(rNewName),
+				Config: testAccScalrProviderConfigurationCustomConfigUpdated(rNewName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProviderConfigurationExists("scalr_provider_configuration.kubernetes", &providerConfiguration),
 					testAccCheckProviderConfigurationCustomUpdatedValues(&providerConfiguration, rNewName),
@@ -61,6 +62,7 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "aws.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "google.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "azurerm.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "scalr.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.#", "1"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.provider_name", "kubernetes"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.kubernetes", "custom.0.argument.#", "3"),
@@ -79,7 +81,7 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 				),
 			},
 			{
-				Config:      testAccScalrPorivderConfigurationCustomWithAwsAttrConfig(rName),
+				Config:      testAccScalrProviderConfigurationCustomWithAwsAttrConfig(rName),
 				PlanOnly:    true,
 				ExpectError: regexp.MustCompile("Provider type can't be changed."),
 			},
@@ -108,6 +110,7 @@ func TestAccProviderConfiguration_aws(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.#", "1"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "google.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "azurerm.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "scalr.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "custom.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.credentials_type", "role_delegation"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.account_type", "regular"),
@@ -122,6 +125,7 @@ func TestAccProviderConfiguration_aws(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "export_shell_variables", "true"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.#", "1"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "google.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "scalr.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "azurerm.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "custom.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.credentials_type", "role_delegation"),
@@ -132,8 +136,9 @@ func TestAccProviderConfiguration_aws(t *testing.T) {
 	})
 }
 
-func TestAccProviderConfiguration_google(t *testing.T) {
+func TestAccProviderConfiguration_scalr(t *testing.T) {
 	var providerConfiguration scalr.ProviderConfiguration
+	scalrHostname := os.Getenv("SCALR_HOSTNAME")
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
@@ -143,33 +148,77 @@ func TestAccProviderConfiguration_google(t *testing.T) {
 		CheckDestroy: testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrPorivderConfigurationGoogleConfig(rName),
+				Config: testAccScalrProviderConfigurationScalrConfig(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.scalr", &providerConfiguration),
+					testAccCheckProviderConfigurationScalrValues(&providerConfiguration, rName, scalrHostname),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "name", rName),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "export_shell_variables", "false"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "scalr.#", "1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "aws.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "google.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "azurerm.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "custom.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "scalr.0.hostname", scalrHostname),
+				),
+			},
+			{
+				Config: testAccScalrProviderConfigurationScalrUpdatedConfig(rNewName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.scalr", &providerConfiguration),
+					testAccCheckProviderConfigurationScalrUpdatedValues(&providerConfiguration, rNewName, scalrHostname),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "name", rNewName),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "export_shell_variables", "true"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "scalr.#", "1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "aws.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "google.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "azurerm.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "custom.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.scalr", "scalr.0.hostname", scalrHostname+"/"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccProviderConfiguration_google(t *testing.T) {
+	var providerConfiguration scalr.ProviderConfiguration
+	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	credentials, project := getGoogleTestingCreds(t)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckProviderConfigurationResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrProviderConfigurationGoogleConfig(rName, credentials, project),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProviderConfigurationExists("scalr_provider_configuration.google", &providerConfiguration),
-					testAccCheckProviderConfigurationGoogleValues(&providerConfiguration, rName),
+					testAccCheckProviderConfigurationGoogleValues(&providerConfiguration, rName, project),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "name", rName),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "export_shell_variables", "false"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "aws.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.#", "1"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "azurerm.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "custom.#", "0"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.project", "my-project"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.credentials", "my-credentials"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.project", project),
 				),
 			},
 			{
-				Config: testAccScalrPorivderConfigurationGoogleUpdatedConfig(rNewName),
+				Config: testAccScalrProviderConfigurationGoogleUpdatedConfig(rNewName, credentials, project),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProviderConfigurationExists("scalr_provider_configuration.google", &providerConfiguration),
-					testAccCheckProviderConfigurationGoogleUpdatedValues(&providerConfiguration, rNewName),
+					testAccCheckProviderConfigurationGoogleUpdatedValues(&providerConfiguration, rNewName, project),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "name", rNewName),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "export_shell_variables", "false"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "export_shell_variables", "true"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "aws.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.#", "1"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "azurerm.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "custom.#", "0"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.project", "my-new-project"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.credentials", "my-new-credentials"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.project", project),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "scalr.#", "0"),
 				),
 			},
 		},
@@ -191,7 +240,7 @@ func TestAccProviderConfiguration_azurerm(t *testing.T) {
 		CheckDestroy: testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrPorivderConfigurationAzurermConfig(rName, armClientId, armClientSecret, armSubscription, armTenantId),
+				Config: testAccScalrProviderConfigurationAzurermConfig(rName, armClientId, armClientSecret, armSubscription, armTenantId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProviderConfigurationExists("scalr_provider_configuration.azurerm", &providerConfiguration),
 					testAccCheckProviderConfigurationAzurermValues(&providerConfiguration, rName, armClientId, armSubscription, armTenantId),
@@ -201,13 +250,14 @@ func TestAccProviderConfiguration_azurerm(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "google.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.#", "1"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "custom.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "scalr.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.client_id", armClientId),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.subscription_id", armSubscription),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.tenant_id", armTenantId),
 				),
 			},
 			{
-				Config: testAccScalrPorivderConfigurationAzurermUpdatedConfig(rNewName, armClientId, armClientSecret, armSubscription, armTenantId),
+				Config: testAccScalrProviderConfigurationAzurermUpdatedConfig(rNewName, armClientId, armClientSecret, armSubscription, armTenantId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProviderConfigurationExists("scalr_provider_configuration.azurerm", &providerConfiguration),
 					testAccCheckProviderConfigurationAzurermUpdatedValues(&providerConfiguration, rNewName),
@@ -217,6 +267,7 @@ func TestAccProviderConfiguration_azurerm(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "google.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.#", "1"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "custom.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "scalr.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.client_id", armClientId),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.subscription_id", armSubscription),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.azurerm", "azurerm.0.tenant_id", armTenantId),
@@ -334,7 +385,40 @@ func testAccCheckProviderConfigurationAwsUpdatedValues(providerConfiguration *sc
 	}
 }
 
-func testAccCheckProviderConfigurationGoogleValues(providerConfiguration *scalr.ProviderConfiguration, name string) resource.TestCheckFunc {
+func testAccCheckProviderConfigurationScalrValues(providerConfiguration *scalr.ProviderConfiguration, name string, scalrHostname string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if providerConfiguration.Name != name {
+			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, providerConfiguration.Name)
+		}
+		if providerConfiguration.ProviderName != "scalr" {
+			return fmt.Errorf("bad provider type, expected \"%s\", got: %#v", "scalr", providerConfiguration.ProviderName)
+		}
+		if providerConfiguration.ExportShellVariables != false {
+			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", false, providerConfiguration.ExportShellVariables)
+		}
+		if providerConfiguration.ScalrHostname != scalrHostname {
+			return fmt.Errorf("bad scalr hostname, expected \"%s\", got: %#v", scalrHostname, providerConfiguration.ScalrHostname)
+		}
+		return nil
+	}
+}
+
+func testAccCheckProviderConfigurationScalrUpdatedValues(providerConfiguration *scalr.ProviderConfiguration, name string, scalrHostname string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if providerConfiguration.Name != name {
+			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, providerConfiguration.Name)
+		}
+		if providerConfiguration.ExportShellVariables != true {
+			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", true, providerConfiguration.ExportShellVariables)
+		}
+		if providerConfiguration.ScalrHostname != scalrHostname+"/" {
+			return fmt.Errorf("bad scalr hostname, expected \"%s\", got: %#v", "new.somehost.scalr.com", providerConfiguration.ScalrHostname)
+		}
+		return nil
+	}
+}
+
+func testAccCheckProviderConfigurationGoogleValues(providerConfiguration *scalr.ProviderConfiguration, name, project string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if providerConfiguration.Name != name {
 			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, providerConfiguration.Name)
@@ -345,23 +429,23 @@ func testAccCheckProviderConfigurationGoogleValues(providerConfiguration *scalr.
 		if providerConfiguration.ExportShellVariables != false {
 			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", false, providerConfiguration.ExportShellVariables)
 		}
-		if providerConfiguration.GoogleProject != "my-project" {
-			return fmt.Errorf("bad google project, expected \"%s\", got: %#v", "my-project", providerConfiguration.GoogleProject)
+		if providerConfiguration.GoogleProject != project {
+			return fmt.Errorf("bad google project, expected \"%s\", got: %#v", project, providerConfiguration.GoogleProject)
 		}
 		return nil
 	}
 }
 
-func testAccCheckProviderConfigurationGoogleUpdatedValues(providerConfiguration *scalr.ProviderConfiguration, name string) resource.TestCheckFunc {
+func testAccCheckProviderConfigurationGoogleUpdatedValues(providerConfiguration *scalr.ProviderConfiguration, name, project string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if providerConfiguration.Name != name {
 			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, providerConfiguration.Name)
 		}
-		if providerConfiguration.ExportShellVariables != false {
-			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", false, providerConfiguration.ExportShellVariables)
+		if providerConfiguration.ExportShellVariables != true {
+			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", true, providerConfiguration.ExportShellVariables)
 		}
-		if providerConfiguration.GoogleProject != "my-new-project" {
-			return fmt.Errorf("bad google project, expected \"%s\", got: %#v", "my-new-project", providerConfiguration.GoogleProject)
+		if providerConfiguration.GoogleProject != project {
+			return fmt.Errorf("bad google project, expected \"%s\", got: %#v", project, providerConfiguration.GoogleProject)
 		}
 		return nil
 	}
@@ -472,7 +556,17 @@ func getAwsTestingCreds(t *testing.T) (accessKeyId, secretAccessKey, roleArn, ex
 	return
 }
 
-func testAccScalrPorivderConfigurationCustomConfig(name string) string {
+func getGoogleTestingCreds(t *testing.T) (credentials, project string) {
+	credentials = os.Getenv("TEST_GOOGLE_CREDENTIALS")
+	project = os.Getenv("TEST_GOOGLE_PROJECT")
+	if len(credentials) == 0 ||
+		len(project) == 0 {
+		t.Skip("Please set TEST_GOOGLE_CREDENTIALS, TEST_GOOGLE_PROJECT env variables to run this test.")
+	}
+	return
+}
+
+func testAccScalrProviderConfigurationCustomConfig(name string) string {
 	return fmt.Sprintf(`
 resource "scalr_provider_configuration" "kubernetes" {
   name                   = "%s"
@@ -499,7 +593,7 @@ resource "scalr_provider_configuration" "kubernetes" {
 }
 `, name, defaultAccount)
 }
-func testAccScalrPorivderConfigurationCustomConfigUpdated(name string) string {
+func testAccScalrProviderConfigurationCustomConfigUpdated(name string) string {
 	return fmt.Sprintf(`
 resource "scalr_provider_configuration" "kubernetes" {
   name       = "%s"
@@ -526,7 +620,7 @@ resource "scalr_provider_configuration" "kubernetes" {
 `, name, defaultAccount)
 }
 
-func testAccScalrPorivderConfigurationCustomWithAwsAttrConfig(name string) string {
+func testAccScalrProviderConfigurationCustomWithAwsAttrConfig(name string) string {
 	return fmt.Sprintf(`
 resource "scalr_provider_configuration" "kubernetes" {
   name                   = "%s"
@@ -581,33 +675,38 @@ resource "scalr_provider_configuration" "aws" {
 `, name, defaultAccount, accessKeyId, secretAccessKey, roleArn, externalId)
 }
 
-func testAccScalrPorivderConfigurationGoogleConfig(name string) string {
+func testAccScalrProviderConfigurationGoogleConfig(name, credentials, project string) string {
 	return fmt.Sprintf(`
 resource "scalr_provider_configuration" "google" {
   name       = "%s"
   account_id = "%s"
   google {
-    project     = "my-project"
-    credentials = "my-credentials"
+    project     = "%s"
+    credentials = <<-EOT
+%s
+EOT
   }
 }
-`, name, defaultAccount)
+`, name, defaultAccount, project, credentials)
 }
 
-func testAccScalrPorivderConfigurationGoogleUpdatedConfig(name string) string {
+func testAccScalrProviderConfigurationGoogleUpdatedConfig(name, credentials, project string) string {
 	return fmt.Sprintf(`
 resource "scalr_provider_configuration" "google" {
   name       = "%s"
   account_id = "%s"
+  export_shell_variables = true
   google {
-    project     = "my-new-project"
-    credentials = "my-new-credentials"
+    project     = "%s"
+    credentials = <<-EOT
+%s
+EOT
   }
 }
-`, name, defaultAccount)
+`, name, defaultAccount, project, credentials)
 }
 
-func testAccScalrPorivderConfigurationAzurermConfig(name, armClientId, armClientSecret, armSubscription, armTenantId string) string {
+func testAccScalrProviderConfigurationAzurermConfig(name, armClientId, armClientSecret, armSubscription, armTenantId string) string {
 	return fmt.Sprintf(`
 resource "scalr_provider_configuration" "azurerm" {
  name       = "%s"
@@ -623,7 +722,7 @@ resource "scalr_provider_configuration" "azurerm" {
 `, name, defaultAccount, armClientId, armClientSecret, armSubscription, armTenantId)
 }
 
-func testAccScalrPorivderConfigurationAzurermUpdatedConfig(name, armClientId, armClientSecret, armSubscription, armTenantId string) string {
+func testAccScalrProviderConfigurationAzurermUpdatedConfig(name, armClientId, armClientSecret, armSubscription, armTenantId string) string {
 	return fmt.Sprintf(`
 resource "scalr_provider_configuration" "azurerm" {
  name       = "%s"
@@ -637,4 +736,31 @@ resource "scalr_provider_configuration" "azurerm" {
  }
 }
 `, name, defaultAccount, armClientId, armClientSecret, armSubscription, armTenantId)
+}
+
+func testAccScalrProviderConfigurationScalrConfig(name string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "scalr" {
+  name       = "%s"
+  account_id = "%s"
+  scalr {
+    hostname = "%s"
+    token    = "%s"
+  }
+}
+`, name, defaultAccount, os.Getenv("SCALR_HOSTNAME"), os.Getenv("SCALR_TOKEN"))
+}
+
+func testAccScalrProviderConfigurationScalrUpdatedConfig(name string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "scalr" {
+  name       = "%s"
+  account_id = "%s"
+  export_shell_variables = true
+  scalr {
+    hostname = "%s"
+    token    = "%s"
+  }
+}
+`, name, defaultAccount, os.Getenv("SCALR_HOSTNAME")+"/", os.Getenv("SCALR_TOKEN"))
 }

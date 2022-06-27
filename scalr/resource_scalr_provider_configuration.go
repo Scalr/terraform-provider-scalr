@@ -22,7 +22,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			func(d *schema.ResourceDiff, meta interface{}) error {
 				changedProviderNames := 0
-				providerNameAttrs := []string{"aws", "google", "azurerm", "custom"}
+				providerNameAttrs := []string{"aws", "google", "azurerm", "scalr", "custom"}
 				for _, providerNameAttr := range providerNameAttrs {
 					if d.HasChange(providerNameAttr) {
 						changedProviderNames += 1
@@ -58,7 +58,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				Type:         schema.TypeList,
 				Optional:     true,
 				MaxItems:     1,
-				ExactlyOneOf: []string{"google", "azurerm", "custom"},
+				ExactlyOneOf: []string{"google", "azurerm", "scalr", "custom"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"account_type": {
@@ -97,7 +97,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				Type:         schema.TypeList,
 				Optional:     true,
 				MaxItems:     1,
-				ExactlyOneOf: []string{"aws", "azurerm", "custom"},
+				ExactlyOneOf: []string{"aws", "azurerm", "scalr", "custom"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"project": {
@@ -106,7 +106,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 						},
 						"credentials": {
 							Type:      schema.TypeString,
-							Optional:  true,
+							Required:  true,
 							Sensitive: true,
 						},
 					},
@@ -116,7 +116,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				Type:         schema.TypeList,
 				Optional:     true,
 				MaxItems:     1,
-				ExactlyOneOf: []string{"aws", "google", "custom"},
+				ExactlyOneOf: []string{"aws", "google", "scalr", "custom"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"client_id": {
@@ -138,11 +138,30 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 					},
 				},
 			},
+			"scalr": {
+				Type:         schema.TypeList,
+				Optional:     true,
+				MaxItems:     1,
+				ExactlyOneOf: []string{"aws", "google", "azurerm", "custom"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"hostname": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"token": {
+							Type:      schema.TypeString,
+							Required:  true,
+							Sensitive: true,
+						},
+					},
+				},
+			},
 			"custom": {
 				Type:         schema.TypeList,
 				Optional:     true,
 				MaxItems:     1,
-				ExactlyOneOf: []string{"aws", "google", "azurerm"},
+				ExactlyOneOf: []string{"aws", "google", "azurerm", "scalr"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"provider_name": {
@@ -236,11 +255,9 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 	} else if _, ok := d.GetOk("google"); ok {
 		configurationOptions.ProviderName = scalr.String("google")
 
+		configurationOptions.GoogleCredentials = scalr.String(d.Get("google.0.credentials").(string))
 		if v, ok := d.GetOk("google.0.project"); ok {
 			configurationOptions.GoogleProject = scalr.String(v.(string))
-		}
-		if v, ok := d.GetOk("google.0.credentials"); ok {
-			configurationOptions.GoogleCredentials = scalr.String(v.(string))
 		}
 
 	} else if _, ok := d.GetOk("azurerm"); ok {
@@ -251,6 +268,10 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 		if v, ok := d.GetOk("azurerm.0.tenant_id"); ok {
 			configurationOptions.AzurermTenantId = scalr.String(v.(string))
 		}
+	} else if _, ok := d.GetOk("scalr"); ok {
+		configurationOptions.ProviderName = scalr.String("scalr")
+		configurationOptions.ScalrHostname = scalr.String(d.Get("scalr.0.hostname").(string))
+		configurationOptions.ScalrToken = scalr.String(d.Get("scalr.0.token").(string))
 
 	} else if v, ok := d.GetOk("custom"); ok {
 		custom := v.([]interface{})[0].(map[string]interface{})
@@ -339,13 +360,24 @@ func resourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interfa
 
 		d.Set("aws", []map[string]interface{}{aws})
 	case "google":
-		stateGoogleParameters := d.Get("google").([]interface{})[0].(map[string]interface{})
-		stateCredentials := stateGoogleParameters["credentials"].(string)
+		google := make(map[string]interface{})
 
-		d.Set("google", []map[string]interface{}{
+		stateGoogleParameters := d.Get("google").([]interface{})[0].(map[string]interface{})
+		google["credentials"] = stateGoogleParameters["credentials"].(string)
+
+		if len(providerConfiguration.GoogleProject) > 0 {
+			google["project"] = providerConfiguration.GoogleProject
+		}
+
+		d.Set("google", []map[string]interface{}{google})
+	case "scalr":
+		stateScalrParameters := d.Get("scalr").([]interface{})[0].(map[string]interface{})
+		stateToken := stateScalrParameters["token"].(string)
+
+		d.Set("scalr", []map[string]interface{}{
 			{
-				"project":     providerConfiguration.GoogleProject,
-				"credentials": stateCredentials,
+				"hostname": providerConfiguration.ScalrHostname,
+				"token":    stateToken,
 			},
 		})
 	case "azurerm":
@@ -401,7 +433,7 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 
 	id := d.Id()
 
-	if d.HasChange("name") || d.HasChange("export_shell_variables") || d.HasChange("aws") || d.HasChange("google") || d.HasChange("azurerm") {
+	if d.HasChange("name") || d.HasChange("export_shell_variables") || d.HasChange("aws") || d.HasChange("google") || d.HasChange("azurerm") || d.HasChange("scalr") || d.HasChange("custom") {
 		configurationOptions := scalr.ProviderConfigurationUpdateOptions{
 			Name:                 scalr.String(d.Get("name").(string)),
 			ExportShellVariables: scalr.Bool(d.Get("export_shell_variables").(bool)),
@@ -442,12 +474,13 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 				return fmt.Errorf("'access_key' and 'secret_key' fields are required for 'access_keys' credentials type of aws provider configuration")
 			}
 		} else if _, ok := d.GetOk("google"); ok {
+			configurationOptions.GoogleCredentials = scalr.String(d.Get("google.0.credentials").(string))
 			if v, ok := d.GetOk("google.0.project"); ok {
 				configurationOptions.GoogleProject = scalr.String(v.(string))
 			}
-			if v, ok := d.GetOk("google.0.credentials"); ok {
-				configurationOptions.GoogleCredentials = scalr.String(v.(string))
-			}
+		} else if _, ok := d.GetOk("scalr"); ok {
+			configurationOptions.ScalrHostname = scalr.String(d.Get("scalr.0.hostname").(string))
+			configurationOptions.ScalrToken = scalr.String(d.Get("scalr.0.token").(string))
 		} else if _, ok := d.GetOk("azurerm"); ok {
 			configurationOptions.AzurermClientId = scalr.String(d.Get("azurerm.0.client_id").(string))
 			configurationOptions.AzurermClientSecret = scalr.String(d.Get("azurerm.0.client_secret").(string))
