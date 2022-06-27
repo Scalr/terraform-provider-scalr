@@ -113,10 +113,10 @@ resource "scalr_provider_configuration" "kubernetes" {
   * `credentials` - (Required) Service account key file in JSON format.
 * `azurerm` - (Optional) Settings for the azurerm provider configuraiton. Exactly one of the following attributes must be set: `aws`, `google`, `azurerm`, `scalr`, `custom`.
    The `azurerm` block supports the following:
-  * `client_id` - (Optional) The Client ID which should be used.
-  * `client_secret` - (Optional) The Client Secret which should be used.
-  * `subscription_id` - (Optional) The Subscription ID which should be used. 
-  * `tenant_id` - (Optional) The Tenant ID should be used.
+  * `client_id` - (Required) The Client ID which should be used.
+  * `client_secret` - (Required) The Client Secret which should be used.
+  * `tenant_id` - (Required) The Tenant ID should be used.
+  * `subscription_id` - (Optional) The Subscription ID which should be used.
 * `scalr` - (Optional) Settings for the Scalr provider configuraiton. Exactly one of the following attributes must be set: `aws`, `google`, `azurerm`, `scalr`, `custom`.
   The `scalr` block supports the following:
     * `hostname` - (Optional) The Scalr hostname which should be used.

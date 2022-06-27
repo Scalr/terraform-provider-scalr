@@ -121,18 +121,17 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"client_id": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 						"client_secret": {
-							Type:      schema.TypeString,
-							Optional:  true,
-							Sensitive: true,
-						},
-						"subscription_id": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 						"tenant_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"subscription_id": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
@@ -263,16 +262,9 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 
 	} else if _, ok := d.GetOk("azurerm"); ok {
 		configurationOptions.ProviderName = scalr.String("azurerm")
-
-		if v, ok := d.GetOk("azurerm.0.client_id"); ok {
-			configurationOptions.AzurermClientId = scalr.String(v.(string))
-		}
-		if v, ok := d.GetOk("azurerm.0.client_secret"); ok {
-			configurationOptions.AzurermClientSecret = scalr.String(v.(string))
-		}
-		if v, ok := d.GetOk("azurerm.0.subscription_id"); ok {
-			configurationOptions.AzurermSubscriptionId = scalr.String(v.(string))
-		}
+		configurationOptions.AzurermClientId = scalr.String(d.Get("azurerm.0.client_id").(string))
+		configurationOptions.AzurermClientSecret = scalr.String(d.Get("azurerm.0.client_secret").(string))
+		configurationOptions.AzurermSubscriptionId = scalr.String(d.Get("azurerm.0.subscription_id").(string))
 		if v, ok := d.GetOk("azurerm.0.tenant_id"); ok {
 			configurationOptions.AzurermTenantId = scalr.String(v.(string))
 		}
@@ -490,15 +482,9 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 			configurationOptions.ScalrHostname = scalr.String(d.Get("scalr.0.hostname").(string))
 			configurationOptions.ScalrToken = scalr.String(d.Get("scalr.0.token").(string))
 		} else if _, ok := d.GetOk("azurerm"); ok {
-			if v, ok := d.GetOk("azurerm.0.client_id"); ok {
-				configurationOptions.AzurermClientId = scalr.String(v.(string))
-			}
-			if v, ok := d.GetOk("azurerm.0.client_secret"); ok {
-				configurationOptions.AzurermClientSecret = scalr.String(v.(string))
-			}
-			if v, ok := d.GetOk("azurerm.0.subscription_id"); ok {
-				configurationOptions.AzurermSubscriptionId = scalr.String(v.(string))
-			}
+			configurationOptions.AzurermClientId = scalr.String(d.Get("azurerm.0.client_id").(string))
+			configurationOptions.AzurermClientSecret = scalr.String(d.Get("azurerm.0.client_secret").(string))
+			configurationOptions.AzurermSubscriptionId = scalr.String(d.Get("azurerm.0.subscription_id").(string))
 			if v, ok := d.GetOk("azurerm.0.tenant_id"); ok {
 				configurationOptions.AzurermTenantId = scalr.String(v.(string))
 			}

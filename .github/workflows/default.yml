@@ -58,6 +58,10 @@ jobs:
           TEST_AWS_SECRET_KEY: ${{ secrets.TEST_AWS_SECRET_KEY }}
           TEST_AWS_ROLE_ARN: ${{ secrets.TEST_AWS_ROLE_ARN }}
           TEST_AWS_EXTERNAL_ID: ${{ secrets.TEST_AWS_EXTERNAL_ID }}
+          TEST_ARM_CLIENT_ID: ${{ secrets.TEST_ARM_CLIENT_ID }}
+          TEST_ARM_CLIENT_SECRET: ${{ secrets.TEST_ARM_CLIENT_SECRET }}
+          TEST_ARM_TENANT_ID: ${{ secrets.TEST_ARM_TENANT_ID }}
+          TEST_ARM_SUBSCRIPTION_ID: ${{ secrets.TEST_ARM_SUBSCRIPTION_ID }}
         run: make testacc
       - name: Install goveralls
         env:
