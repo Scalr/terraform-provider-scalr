@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-rc31] - 2022-07-01
+
 ### Added
 - `scalr_workspace`: added `pre-init` hook  ([#142](https://github.com/Scalr/terraform-provider-scalr/pull/142))
 - `data.scalr_workspace`: added `pre-init` hook ([#142](https://github.com/Scalr/terraform-provider-scalr/pull/142))
+
+### Fixed
+- `scalr_iam_team`: Account id is shown in the error message when trying to create `scalr_iam_team` resource and use it in datasource in parallel and without `depends_on` ([#135](https://github.com/Scalr/terraform-provider-scalr/pull/135))
 
 ## [1.0.0-rc30] - 2022-05-30
 
@@ -17,7 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `resource.scalr_policy_group_linkage`: optimized api interactions ([#120](https://github.com/Scalr/terraform-provider-scalr/pull/120))
 - `scalr_workspace`: vcs_repo and vcs_provider_id have to be passed simultaneously ([#130](https://github.com/Scalr/terraform-provider-scalr/pull/130))
-- `scalr_iam_team`: Account id is shown in error message when trying to create `scalr_iam_team` resource and use it in datasource in parallel and without `depends_on` ([#135](https://github.com/Scalr/terraform-provider-scalr/pull/135))
 
 ## [1.0.0-rc29] - 2022-05-13
 
@@ -423,7 +427,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc30...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc31...HEAD
+[1.0.0-rc31]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc31
 [1.0.0-rc30]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc30
 [1.0.0-rc29]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc29
 [1.0.0-rc28]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc28
