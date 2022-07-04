@@ -214,7 +214,7 @@ func testAccCheckScalrEnvironmentProviderConfigurationsUpdate(environment *scalr
 		if err != nil {
 			return err
 		}
-		if provider_configuration.ProviderName != "kubernemes" {
+		if provider_configuration.ProviderName != "kubernetes" {
 			return fmt.Errorf("Bad default provider configurations: %s", provider_configuration.ProviderName)
 		}
 		return nil
