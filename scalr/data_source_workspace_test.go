@@ -32,6 +32,8 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.email"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.username"),
 					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "hooks.0.pre_init", "./scripts/pre-init.sh"),
+					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan.sh"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.post_plan", "./scripts/post-plan.sh"),
@@ -59,6 +61,7 @@ resource scalr_workspace test {
   terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
   hooks {
+    pre_init   = "./scripts/pre-init.sh"
     pre_plan   = "./scripts/pre-plan.sh"
     post_plan  = "./scripts/post-plan.sh"
     pre_apply  = "./scripts/pre-apply.sh"
