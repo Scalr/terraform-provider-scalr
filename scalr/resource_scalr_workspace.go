@@ -101,6 +101,12 @@ func resourceScalrWorkspace() *schema.Resource {
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"pre_init": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "",
+						},
+
 						"pre_plan": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -307,6 +313,7 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 			hooks := v.([]interface{})[0].(map[string]interface{})
 
 			options.Hooks = &scalr.HooksOptions{
+				PreInit:   scalr.String(hooks["pre_init"].(string)),
 				PrePlan:   scalr.String(hooks["pre_plan"].(string)),
 				PostPlan:  scalr.String(hooks["post_plan"].(string)),
 				PreApply:  scalr.String(hooks["pre_apply"].(string)),
@@ -420,6 +427,7 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	var hooks []interface{}
 	if workspace.Hooks != nil {
 		hooks = append(hooks, map[string]interface{}{
+			"pre_init":   workspace.Hooks.PreInit,
 			"pre_plan":   workspace.Hooks.PrePlan,
 			"post_plan":  workspace.Hooks.PostPlan,
 			"pre_apply":  workspace.Hooks.PreApply,
@@ -461,6 +469,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 			AutoApply:  scalr.Bool(d.Get("auto_apply").(bool)),
 			Operations: scalr.Bool(d.Get("operations").(bool)),
 			Hooks: &scalr.HooksOptions{
+				PreInit:   scalr.String(""),
 				PrePlan:   scalr.String(""),
 				PostPlan:  scalr.String(""),
 				PreApply:  scalr.String(""),
@@ -522,6 +531,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 				hooks := v.([]interface{})[0].(map[string]interface{})
 
 				options.Hooks = &scalr.HooksOptions{
+					PreInit:   scalr.String(hooks["pre_init"].(string)),
 					PrePlan:   scalr.String(hooks["pre_plan"].(string)),
 					PostPlan:  scalr.String(hooks["post_plan"].(string)),
 					PreApply:  scalr.String(hooks["pre_apply"].(string)),
