@@ -291,6 +291,9 @@ func testAccCheckProviderConfigurationCustomValues(providerConfiguration *scalr.
 		if providerConfiguration.ExportShellVariables != true {
 			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", true, providerConfiguration.ExportShellVariables)
 		}
+		if providerConfiguration.IsShared != true {
+			return fmt.Errorf("bad `is shared`, expected \"%t\", got: %#v", true, providerConfiguration.IsShared)
+		}
 		expectedArguments := []scalr.ProviderConfigurationParameter{
 			{Key: "config_path", Sensitive: false, Value: "~/.kube/config", Description: "A path to a kube config file. some typo..."},
 			{Key: "client_certificate", Sensitive: true, Value: ""},
@@ -323,6 +326,12 @@ func testAccCheckProviderConfigurationCustomUpdatedValues(providerConfiguration 
 		}
 		if providerConfiguration.ExportShellVariables != false {
 			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", false, providerConfiguration.ExportShellVariables)
+		}
+		if providerConfiguration.IsShared != false {
+			return fmt.Errorf("bad `is shared`, expected \"%t\", got: %#v", false, providerConfiguration.IsShared)
+		}
+		if len(providerConfiguration.Environments) != 1 {
+			return fmt.Errorf("bad `environments`, expected len \"%d\", got: %#v", 1, len(providerConfiguration.Environments))
 		}
 		expectedArguments := []scalr.ProviderConfigurationParameter{
 			{Key: "config_path", Sensitive: true, Value: "", Description: "A path to a kube config file."},
@@ -561,6 +570,7 @@ resource "scalr_provider_configuration" "kubernetes" {
   name                   = "%s"
   account_id             = "%s"
   export_shell_variables = true
+  environments           = ["*"]
   custom {
     provider_name = "kubernetes"
     argument {
@@ -584,9 +594,16 @@ resource "scalr_provider_configuration" "kubernetes" {
 }
 func testAccScalrProviderConfigurationCustomConfigUpdated(name string) string {
 	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name                    = "test-provider-configuration-env"
+  account_id              = "%s"
+  cost_estimation_enabled = false
+}
+
 resource "scalr_provider_configuration" "kubernetes" {
-  name       = "%s"
-  account_id = "%s"
+  name         = "%s"
+  account_id   = "%s"
+  environments = ["${scalr_environment.test.id}"]
   custom {
     provider_name = "kubernetes"
     argument {
@@ -603,10 +620,9 @@ resource "scalr_provider_configuration" "kubernetes" {
       name  = "username"
       value = "my-username"
     }
-
   }
 }
-`, name, defaultAccount)
+`, defaultAccount, name, defaultAccount)
 }
 
 func testAccScalrProviderConfigurationCustomWithAwsAttrConfig(name string) string {
