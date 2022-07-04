@@ -177,6 +177,11 @@ func resourceScalrWorkspace() *schema.Resource {
 							Optional: true,
 							Default:  true,
 						},
+                        "ingress_submodules": {
+                            Type:     schema.TypeBool,
+                            Optional: true,
+                            Default:  false,
+                        },
 					},
 				},
 			},
@@ -283,6 +288,7 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 			Path:            scalr.String(vcsRepo["path"].(string)),
 			TriggerPrefixes: &triggerPrefixes,
 			DryRunsEnabled:  scalr.Bool(vcsRepo["dry_runs_enabled"].(bool)),
+            IngressSubmodules: scalr.Bool(vcsRepo["ingress_submodules"].(bool)),
 		}
 
 		// Only set the branch if one is configured.
@@ -384,6 +390,7 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 			"path":             workspace.VCSRepo.Path,
 			"trigger_prefixes": workspace.VCSRepo.TriggerPrefixes,
 			"dry_runs_enabled": workspace.VCSRepo.DryRunsEnabled,
+            "ingress_submodules": workspace.VCSRepo.IngressSubmodules,
 		})
 	}
 	d.Set("vcs_repo", vcsRepo)
@@ -473,6 +480,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 				Path:            scalr.String(vcsRepo["path"].(string)),
 				TriggerPrefixes: &triggerPrefixes,
 				DryRunsEnabled:  scalr.Bool(vcsRepo["dry_runs_enabled"].(bool)),
+                IngressSubmodules: scalr.Bool(vcsRepo["ingress_submodules"].(bool)),
 			}
 		}
 
