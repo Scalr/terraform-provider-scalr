@@ -194,7 +194,7 @@ func testAccCheckScalrEnvironmentProviderConfigurations(environment *scalr.Envir
 			return fmt.Errorf("Bad default provider configurations: %v", environment.DefaultProviderConfigurations)
 		}
 		provider_configuration, err := scalrClient.ProviderConfigurations.Read(ctx, environment.DefaultProviderConfigurations[0].ID)
-		if err == nil {
+		if err != nil {
 			return err
 		}
 		if provider_configuration.ProviderName != "consul" {
@@ -211,7 +211,7 @@ func testAccCheckScalrEnvironmentProviderConfigurationsUpdate(environment *scalr
 			return fmt.Errorf("Bad default provider configurations: %v", environment.DefaultProviderConfigurations)
 		}
 		provider_configuration, err := scalrClient.ProviderConfigurations.Read(ctx, environment.DefaultProviderConfigurations[0].ID)
-		if err == nil {
+		if err != nil {
 			return err
 		}
 		if provider_configuration.ProviderName != "kubernemes" {
