@@ -81,6 +81,14 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 				),
 			},
 			{
+				// not shared to shared check
+				Config: testAccScalrProviderConfigurationCustomConfig(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.kubernetes", &providerConfiguration),
+					testAccCheckProviderConfigurationCustomValues(&providerConfiguration, rName),
+				),
+			},
+			{
 				Config:      testAccScalrProviderConfigurationCustomWithAwsAttrConfig(rName),
 				PlanOnly:    true,
 				ExpectError: regexp.MustCompile("Provider type can't be changed."),

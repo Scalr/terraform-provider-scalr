@@ -488,6 +488,7 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 			environments := environmentsI.(*schema.Set).List()
 			if (len(environments) == 1) && (environments[0].(string) == "*") {
 				configurationOptions.IsShared = scalr.Bool(true)
+				configurationOptions.Environments = make([]*scalr.Environment, 0)
 			} else {
 				configurationOptions.IsShared = scalr.Bool(false)
 				environmentValues := make([]*scalr.Environment, 0)
