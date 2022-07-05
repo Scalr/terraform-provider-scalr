@@ -50,6 +50,10 @@ func dataSourceScalrPolicyGroup() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"ingress_submodules": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -135,6 +139,7 @@ func dataSourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) er
 			"identifier": pg.VCSRepo.Identifier,
 			"branch":     pg.VCSRepo.Branch,
 			"path":       pg.VCSRepo.Path,
+            "ingress_submodules": pg.VCSRepo.IngressSubmodules,
 		}
 		vcsRepo = append(vcsRepo, vcsConfig)
 	}
