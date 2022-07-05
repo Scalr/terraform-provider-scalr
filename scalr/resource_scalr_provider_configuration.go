@@ -54,6 +54,11 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"environments": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"aws": {
 				Type:         schema.TypeList,
 				Optional:     true,
@@ -213,6 +218,20 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 		Account:              &scalr.Account{ID: accountID},
 		ExportShellVariables: scalr.Bool(d.Get("export_shell_variables").(bool)),
 	}
+
+	if environmentsI, ok := d.GetOk("environments"); ok {
+		environments := environmentsI.(*schema.Set).List()
+		if (len(environments) == 1) && (environments[0].(string) == "*") {
+			configurationOptions.IsShared = scalr.Bool(true)
+		} else if len(environments) > 0 {
+			environmentValues := make([]*scalr.Environment, 0)
+			for _, env := range environments {
+				environmentValues = append(environmentValues, &scalr.Environment{ID: env.(string)})
+			}
+			configurationOptions.Environments = environmentValues
+		}
+	}
+
 	var createArgumentOptions []scalr.ProviderConfigurationParameterCreateOptions
 
 	if _, ok := d.GetOk("aws"); ok {
@@ -334,6 +353,17 @@ func resourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interfa
 	d.Set("account_id", providerConfiguration.Account.ID)
 	d.Set("export_shell_variables", providerConfiguration.ExportShellVariables)
 
+	if providerConfiguration.IsShared {
+		allEnvironments := []string{"*"}
+		d.Set("environments", allEnvironments)
+	} else {
+		environmentIDs := make([]string, 0)
+		for _, environment := range providerConfiguration.Environments {
+			environmentIDs = append(environmentIDs, environment.ID)
+		}
+		d.Set("environments", environmentIDs)
+	}
+
 	switch providerConfiguration.ProviderName {
 	case "aws":
 		aws := make(map[string]interface{})
@@ -433,10 +463,34 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 
 	id := d.Id()
 
-	if d.HasChange("name") || d.HasChange("export_shell_variables") || d.HasChange("aws") || d.HasChange("google") || d.HasChange("azurerm") || d.HasChange("scalr") || d.HasChange("custom") {
+	if d.HasChange("name") ||
+		d.HasChange("export_shell_variables") ||
+		d.HasChange("aws") ||
+		d.HasChange("google") ||
+		d.HasChange("azurerm") ||
+		d.HasChange("scalr") ||
+		d.HasChange("custom") ||
+		d.HasChange("environments") {
 		configurationOptions := scalr.ProviderConfigurationUpdateOptions{
 			Name:                 scalr.String(d.Get("name").(string)),
 			ExportShellVariables: scalr.Bool(d.Get("export_shell_variables").(bool)),
+		}
+		if environmentsI, ok := d.GetOk("environments"); ok {
+			environments := environmentsI.(*schema.Set).List()
+			if (len(environments) == 1) && (environments[0].(string) == "*") {
+				configurationOptions.IsShared = scalr.Bool(true)
+				configurationOptions.Environments = make([]*scalr.Environment, 0)
+			} else {
+				configurationOptions.IsShared = scalr.Bool(false)
+				environmentValues := make([]*scalr.Environment, 0)
+				for _, env := range environments {
+					environmentValues = append(environmentValues, &scalr.Environment{ID: env.(string)})
+				}
+				configurationOptions.Environments = environmentValues
+			}
+		} else {
+			configurationOptions.IsShared = scalr.Bool(false)
+			configurationOptions.Environments = make([]*scalr.Environment, 0)
 		}
 
 		if _, ok := d.GetOk("aws"); ok {

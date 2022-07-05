@@ -300,6 +300,39 @@ func TestAccScalrWorkspace_import(t *testing.T) {
 	})
 }
 
+func TestAccScalrWorkspace_providerConfiguration(t *testing.T) {
+	workspace := &scalr.Workspace{}
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrWorkspaceProviderConfiguration(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrWorkspaceExists(
+						"scalr_workspace.test", workspace),
+					testAccCheckScalrWorkspaceProviderConfigurations(workspace),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "provider_configuration.#", "3"),
+				),
+			},
+			{
+				Config: testAccScalrWorkspaceProviderConfigurationUpdated(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrWorkspaceExists(
+						"scalr_workspace.test", workspace),
+					testAccCheckScalrWorkspaceProviderConfigurationsUpdated(workspace),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "provider_configuration.#", "3"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckScalrWorkspaceExists(
 	n string, workspace *scalr.Workspace) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -428,6 +461,115 @@ func testAccCheckScalrWorkspaceAttributesUpdated(
 
 		if workspace.WorkingDirectory != "terraform/test" {
 			return fmt.Errorf("Bad working directory: %s", workspace.WorkingDirectory)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckScalrWorkspaceProviderConfigurations(
+	workspace *scalr.Workspace) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
+
+		links, err := getProviderConfigurationWorkspaceLinks(scalrClient, workspace.ID)
+		if err != nil {
+			return fmt.Errorf("Error retrieving provider configuration links: %v", err)
+		}
+
+		if len(links) != 3 {
+			return fmt.Errorf("Bad provider configurations: %v", links)
+		}
+
+		pcfgNameToAliases := make(map[string][]string)
+		for _, currentLink := range links {
+			pcfgNameToAliases[currentLink.ProviderConfiguration.Name] = append(
+				pcfgNameToAliases[currentLink.ProviderConfiguration.Name], currentLink.Alias,
+			)
+		}
+		if aliases, ok := pcfgNameToAliases["kubernetes"]; ok {
+			if !(len(aliases) == 1 && aliases[0] == "") {
+				return fmt.Errorf("Bad kubernetes link aliases: %v", aliases)
+			}
+		} else {
+			return fmt.Errorf("Kubernetes provider configuration link doesn't exist.")
+		}
+
+		if aliases, ok := pcfgNameToAliases["consul"]; ok {
+			if len(aliases) != 2 {
+				return fmt.Errorf("Bad consul provider configuration link aliases: %v", aliases)
+			}
+			expected := []string{"dev", ""}
+			for _, expectedAlias := range expected {
+				found := false
+				for _, gotAlias := range aliases {
+					if expectedAlias == gotAlias {
+						found = true
+						break
+					}
+				}
+				if !found {
+					return fmt.Errorf("Bad consul provider configuration link aliases: %v", aliases)
+				}
+			}
+
+		} else {
+			return fmt.Errorf("Bad consul provider configuration link aliases: %v", aliases)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckScalrWorkspaceProviderConfigurationsUpdated(
+	workspace *scalr.Workspace) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
+
+		links, err := getProviderConfigurationWorkspaceLinks(scalrClient, workspace.ID)
+		if err != nil {
+			return fmt.Errorf("Error retrieving provider configuration links: %v", err)
+		}
+
+		if len(links) != 3 {
+			return fmt.Errorf("Bad provider configurations: %v", links)
+		}
+
+		pcfgNameToAliases := make(map[string][]string)
+		for _, currentLink := range links {
+			pcfgNameToAliases[currentLink.ProviderConfiguration.Name] = append(
+				pcfgNameToAliases[currentLink.ProviderConfiguration.Name], currentLink.Alias,
+			)
+		}
+		if aliases, ok := pcfgNameToAliases["kubernetes"]; ok {
+			if !(len(aliases) == 1 && aliases[0] == "") {
+				return fmt.Errorf("Bad kubernetes link aliases: %v", aliases)
+			}
+		} else {
+			return fmt.Errorf("Kubernetes provider configuration link doesn't exist.")
+		}
+
+		if aliases, ok := pcfgNameToAliases["consul"]; ok {
+			if len(aliases) != 2 {
+				return fmt.Errorf("Bad consul provider configuration link aliases: %v", aliases)
+			}
+
+			expected := []string{"dev", "dev2"}
+			for _, expectedAlias := range expected {
+				found := false
+				for _, gotAlias := range aliases {
+					if expectedAlias == gotAlias {
+						found = true
+						break
+					}
+				}
+				if !found {
+					return fmt.Errorf("Bad consul provider configuration link aliases: %v", aliases)
+				}
+			}
+
+		} else {
+			return fmt.Errorf("Bad consul provider configuration link aliases: %v", aliases)
 		}
 
 		return nil
@@ -584,6 +726,103 @@ resource "scalr_workspace" "test" {
     post_plan  = "./scripts/post-plan_updated.sh"
     pre_apply  = "./scripts/pre-apply_updated.sh"
     post_apply = "./scripts/post-apply_updated.sh"
+  }
+}`)
+}
+
+func testAccScalrWorkspaceProviderConfiguration(rInt int) string {
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
+resource "scalr_provider_configuration" "kubernetes" {
+  name         = "kubernetes"
+  account_id   = scalr_environment.test.account_id
+  environments = ["*"]
+  custom {
+    provider_name = "kubernetes"
+    argument {
+      name  = "config_path"
+      value = "~/.kube/config"
+	}
+  }
+}
+
+resource "scalr_provider_configuration" "consul" {
+  name         = "consul"
+  account_id   = scalr_environment.test.account_id
+  environments = ["*"]
+  custom {
+    provider_name = "consul"
+    argument {
+      name  = "config_path"
+      value = "~/.kube/config"
+    }
+  }
+}
+
+resource "scalr_workspace" "test" {
+  name                   = "workspace-pcfg-test"
+  environment_id         = scalr_environment.test.id
+  auto_apply             = false
+  operations             = false
+  working_directory      = "terraform/test"
+  provider_configuration {
+    id = scalr_provider_configuration.kubernetes.id
+  }
+  provider_configuration {
+    id    = scalr_provider_configuration.consul.id
+    alias = "dev"
+  }
+  provider_configuration {
+    id    = scalr_provider_configuration.consul.id
+    alias = ""
+  }
+}`)
+}
+
+func testAccScalrWorkspaceProviderConfigurationUpdated(rInt int) string {
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
+resource "scalr_provider_configuration" "kubernetes" {
+  name         = "kubernetes"
+  account_id   = scalr_environment.test.account_id
+  environments = ["*"]
+  custom {
+    provider_name = "kubernetes"
+    argument {
+      name  = "config_path"
+      value = "~/.kube/config"
+    }
+  }
+}
+
+resource "scalr_provider_configuration" "consul" {
+  name         = "consul"
+  account_id   = scalr_environment.test.account_id
+  environments = ["*"]
+  custom {
+    provider_name = "consul"
+    argument {
+      name  = "config_path"
+      value = "~/.kube/config"
+	}
+  }
+}
+
+resource "scalr_workspace" "test" {
+  name                   = "workspace-pcfg-test"
+  environment_id         = scalr_environment.test.id
+  auto_apply             = false
+  operations             = false
+  working_directory      = "terraform/test"
+  provider_configuration {
+    id    = scalr_provider_configuration.kubernetes.id
+    alias = ""
+  }
+  provider_configuration {
+    id    = scalr_provider_configuration.consul.id
+    alias = "dev"
+  }
+  provider_configuration {
+    id    = scalr_provider_configuration.consul.id
+    alias = "dev2"
   }
 }`)
 }

@@ -19,6 +19,7 @@ resource "scalr_provider_configuration" "aws" {
   name                   = "aws_dev_us_east_1"
   account_id             = "acc-xxxxxxxxx"
   export_shell_variables = false
+  environments           = [scalr_environment.env1.id]
   aws {
     secret_key = "my-secret-key"
     access_key = "my-access-key"
@@ -98,6 +99,7 @@ resource "scalr_provider_configuration" "kubernetes" {
 * `account_id` - (Required) The account that owns the variable, specified as an ID, in the format.
 * `name` - (Required) The name of a Scalr provider configuration. This field is unique for the account.
 * `export_shell_variables` - (Optional) Export provider variables into the run environment. This option is available only for built in providers.
+* `environments` - (Optional) The list of environments attached to the provider configuration. Use `["*"]` to select all environments.
 * `aws` - (Optional) Settings for the aws provider configuraiton. Exactly one of the following attributes must be set: `aws`, `google`, `azurerm`, `scalr`, `custom`.
    The `aws` block supports the following:
   * `account_type` - (Required) The type of AWS accoutn, available options: `regular`, `gov-cloud`, `cn-cloud`.

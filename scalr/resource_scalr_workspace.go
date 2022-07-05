@@ -205,6 +205,22 @@ func resourceScalrWorkspace() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"provider_configuration": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"alias": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -321,6 +337,26 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 			"Error creating workspace %s for environment %s: %v", name, environmentID, err)
 	}
 	d.SetId(workspace.ID)
+
+	if providerConfigurationsI, ok := d.GetOk("provider_configuration"); ok {
+		for _, v := range providerConfigurationsI.(*schema.Set).List() {
+			pcfg := v.(map[string]interface{})
+			createLinkOption := scalr.ProviderConfigurationLinkCreateOptions{
+				ProviderConfiguration: &scalr.ProviderConfiguration{ID: pcfg["id"].(string)},
+			}
+			if alias, ok := pcfg["alias"]; ok && len(alias.(string)) > 0 {
+				createLinkOption.Alias = scalr.String(alias.(string))
+			}
+			_, err := scalrClient.ProviderConfigurationLinks.Create(
+				ctx, workspace.ID, createLinkOption,
+			)
+			if err != nil {
+				return fmt.Errorf(
+					"Error creating workspace %s provider configuration link: %v", name, err)
+			}
+		}
+	}
+
 	return resourceScalrWorkspaceRead(d, meta)
 }
 
@@ -399,6 +435,19 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 		})
 	}
 	d.Set("hooks", hooks)
+
+	providerConfigurationLinks, err := getProviderConfigurationWorkspaceLinks(scalrClient, id)
+	if err != nil {
+		return fmt.Errorf("Error reading provider configuration links of workspace %s: %v", id, err)
+	}
+	var providerConfigurations []map[string]interface{}
+	for _, link := range providerConfigurationLinks {
+		providerConfigurations = append(providerConfigurations, map[string]interface{}{
+			"id":    link.ProviderConfiguration.ID,
+			"alias": link.Alias,
+		})
+	}
+	d.Set("provider_configuration", providerConfigurations)
 
 	return nil
 }
@@ -504,8 +553,81 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 				"Error updating workspace %s: %v", id, err)
 		}
 	}
+	if d.HasChange("provider_configuration") {
+
+		expectedLinks := make(map[string]scalr.ProviderConfigurationLinkCreateOptions)
+		if providerConfigurationI, ok := d.GetOk("provider_configuration"); ok {
+			for _, v := range providerConfigurationI.(*schema.Set).List() {
+				configLink := v.(map[string]interface{})
+				mapID := configLink["id"].(string)
+				linkCreateOption := scalr.ProviderConfigurationLinkCreateOptions{
+					ProviderConfiguration: &scalr.ProviderConfiguration{ID: configLink["id"].(string)},
+				}
+				if v, ok := configLink["alias"]; ok && len(v.(string)) > 0 {
+					linkCreateOption.Alias = scalr.String(v.(string))
+					mapID = mapID + v.(string)
+				}
+				expectedLinks[mapID] = linkCreateOption
+
+			}
+		}
+
+		currentLinks, err := getProviderConfigurationWorkspaceLinks(scalrClient, id)
+		if err != nil {
+			return err
+		}
+
+		for _, currentLink := range currentLinks {
+			mapID := currentLink.ProviderConfiguration.ID + currentLink.Alias
+			if _, ok := expectedLinks[mapID]; ok {
+				delete(expectedLinks, mapID)
+			} else {
+				err = scalrClient.ProviderConfigurationLinks.Delete(ctx, currentLink.ID)
+				if err != nil {
+					return fmt.Errorf(
+						"Error removing provider configuration link in workspace %s: %v", id, err)
+				}
+			}
+		}
+		for _, createOption := range expectedLinks {
+			_, err = scalrClient.ProviderConfigurationLinks.Create(ctx, id, createOption)
+			if err != nil {
+				return fmt.Errorf(
+					"Error creating provider configuration link in workspace %s: %v", id, err)
+			}
+
+		}
+	}
 
 	return resourceScalrWorkspaceRead(d, meta)
+}
+
+func getProviderConfigurationWorkspaceLinks(
+	scalrClient *scalr.Client, workspaceId string,
+) (workspaceLinks []*scalr.ProviderConfigurationLink, err error) {
+	linkListOption := scalr.ProviderConfigurationLinksListOptions{Include: "provider-configuration"}
+	for {
+		linksList, err := scalrClient.ProviderConfigurationLinks.List(ctx, workspaceId, linkListOption)
+
+		if err != nil {
+			return nil, fmt.Errorf("Error reading provider configuration links %s: %v", workspaceId, err)
+		}
+
+		for _, link := range linksList.Items {
+			if link.Workspace != nil {
+				workspaceLinks = append(workspaceLinks, link)
+			}
+		}
+
+		// Exit the loop when we've seen all pages.
+		if linksList.CurrentPage >= linksList.TotalPages {
+			break
+		}
+
+		// Update the page number to get the next page.
+		linkListOption.PageNumber = linksList.NextPage
+	}
+	return
 }
 
 func resourceScalrWorkspaceDelete(d *schema.ResourceData, meta interface{}) error {

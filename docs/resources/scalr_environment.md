@@ -21,6 +21,7 @@ resource "scalr_environment" "test" {
   cost_estimation_enabled = true
   cloud_credentials = ["cred-xxxxx", "cred-yyyyy"]
   policy_groups = ["pgrp-xxxxx", "pgrp-yyyyy"]
+  default_provider_configurations = ["pcfg-xxxxx", "pcfg-yyyyy"]
 }
 ```
 
@@ -31,6 +32,7 @@ resource "scalr_environment" "test" {
 * `cost_estimation_enabled` - (Optional) Set (true/false) to enable/disable cost estimation for the environment. Default `true`.
 * `cloud_credentials` - (Optional) List of the environment cloud-credentials IDs, in the format `cred-<RANDOM STRING>`.
 * `policy_groups` - (Optional) List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.
+* `default_provider_configurations` - (Optional) List of IDs of provider configurations, used in the environment workspaces by default.
 
 ## Attributes
 
