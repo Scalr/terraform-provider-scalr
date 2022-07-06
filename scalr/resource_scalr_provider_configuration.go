@@ -262,8 +262,8 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 			if len(*configurationOptions.AwsRoleArn) == 0 {
 				return fmt.Errorf("'role_arn' field is required for 'role_delegation' credentials type of aws provider configuration")
 			}
-			if len(*configurationOptions.AwsExternalId) == 0 {
-				return fmt.Errorf("'external_id' field is required for 'role_delegation' credentials type of aws provider configuration")
+			if *configurationOptions.AwsTrustedEntityType == "aws_account" && len(*configurationOptions.AwsExternalId) == 0 {
+				return fmt.Errorf("'external_id' field is required for 'role_delegation' credentials type with 'aws_account' trusted entity type of aws provider configuration")
 			}
 		} else if *configurationOptions.AwsCredentialsType != "access_keys" {
 			return fmt.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys'", *configurationOptions.AwsCredentialsType)
@@ -519,8 +519,8 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 				if len(*configurationOptions.AwsRoleArn) == 0 {
 					return fmt.Errorf("'role_arn' field is required for 'role_delegation' credentials type of aws provider configuration")
 				}
-				if len(*configurationOptions.AwsExternalId) == 0 {
-					return fmt.Errorf("'external_id' field is required for 'role_delegation' credentials type of aws provider configuration")
+				if *configurationOptions.AwsTrustedEntityType == "aws_account" && len(*configurationOptions.AwsExternalId) == 0 {
+					return fmt.Errorf("'external_id' field is required for 'role_delegation' credentials type with 'aws_account' entity type of aws provider configuration")
 				}
 			} else if *configurationOptions.AwsCredentialsType != "access_keys" {
 				return fmt.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys'", *configurationOptions.AwsCredentialsType)

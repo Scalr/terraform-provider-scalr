@@ -21,8 +21,10 @@ resource "scalr_provider_configuration" "aws" {
   export_shell_variables = false
   environments           = [scalr_environment.env1.id]
   aws {
-    secret_key = "my-secret-key"
-    access_key = "my-access-key"
+    account_type     = "regular"
+    credentials_type = "access_keys"
+    secret_key       = "my-secret-key"
+    access_key       = "my-access-key"
   }
 }
 ```
@@ -106,7 +108,7 @@ resource "scalr_provider_configuration" "kubernetes" {
   * `credentials_type` - (Required) The type of AWS credentials, available options: `access_keys`, `role_delegation`.
   * `trusted_entity_type` - (Optional) Trusted entity type, available options: `aws_account`, `aws_service`. This option is required with `role_delegation` credentials type.
   * `role_arn` - (Optional) Amazon Resource Name (ARN) of the IAM Role to assume. This option is required with `role_delegation` credentials type.
-  * `external_id` - (Optional) External identifier to use when assuming the role. This option is required with `role_delegation` credentials type.
+  * `external_id` - (Optional) External identifier to use when assuming the role. This option is required with `role_delegation` credentials type and `aws_account` trusted entity type.
   * `secret_key` - (Optional) AWS secret key. This option is required with `access_keys` credentials type.
   * `access_key` - (Optional) AWS access key.This option is required with `access_keys` credentials type.
 * `google` - (Optional) Settings for the google provider configuraiton. Exactly one of the following attributes must be set: `aws`, `google`, `azurerm`, `scalr`, `custom`.
