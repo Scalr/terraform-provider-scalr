@@ -177,11 +177,11 @@ func resourceScalrWorkspace() *schema.Resource {
 							Optional: true,
 							Default:  true,
 						},
-                        "ingress_submodules": {
-                            Type:     schema.TypeBool,
-                            Optional: true,
-                            Default:  false,
-                        },
+						"ingress_submodules": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
 					},
 				},
 			},
@@ -284,11 +284,11 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		options.VCSRepo = &scalr.WorkspaceVCSRepoOptions{
-			Identifier:      scalr.String(vcsRepo["identifier"].(string)),
-			Path:            scalr.String(vcsRepo["path"].(string)),
-			TriggerPrefixes: &triggerPrefixes,
-			DryRunsEnabled:  scalr.Bool(vcsRepo["dry_runs_enabled"].(bool)),
-            IngressSubmodules: scalr.Bool(vcsRepo["ingress_submodules"].(bool)),
+			Identifier:        scalr.String(vcsRepo["identifier"].(string)),
+			Path:              scalr.String(vcsRepo["path"].(string)),
+			TriggerPrefixes:   &triggerPrefixes,
+			DryRunsEnabled:    scalr.Bool(vcsRepo["dry_runs_enabled"].(bool)),
+			IngressSubmodules: scalr.Bool(vcsRepo["ingress_submodules"].(bool)),
 		}
 
 		// Only set the branch if one is configured.
@@ -385,12 +385,12 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	var vcsRepo []interface{}
 	if workspace.VCSRepo != nil {
 		vcsRepo = append(vcsRepo, map[string]interface{}{
-			"branch":           workspace.VCSRepo.Branch,
-			"identifier":       workspace.VCSRepo.Identifier,
-			"path":             workspace.VCSRepo.Path,
-			"trigger_prefixes": workspace.VCSRepo.TriggerPrefixes,
-			"dry_runs_enabled": workspace.VCSRepo.DryRunsEnabled,
-            "ingress_submodules": workspace.VCSRepo.IngressSubmodules,
+			"branch":             workspace.VCSRepo.Branch,
+			"identifier":         workspace.VCSRepo.Identifier,
+			"path":               workspace.VCSRepo.Path,
+			"trigger_prefixes":   workspace.VCSRepo.TriggerPrefixes,
+			"dry_runs_enabled":   workspace.VCSRepo.DryRunsEnabled,
+			"ingress_submodules": workspace.VCSRepo.IngressSubmodules,
 		})
 	}
 	d.Set("vcs_repo", vcsRepo)
@@ -475,12 +475,12 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 			}
 
 			options.VCSRepo = &scalr.WorkspaceVCSRepoOptions{
-				Identifier:      scalr.String(vcsRepo["identifier"].(string)),
-				Branch:          scalr.String(vcsRepo["branch"].(string)),
-				Path:            scalr.String(vcsRepo["path"].(string)),
-				TriggerPrefixes: &triggerPrefixes,
-				DryRunsEnabled:  scalr.Bool(vcsRepo["dry_runs_enabled"].(bool)),
-                IngressSubmodules: scalr.Bool(vcsRepo["ingress_submodules"].(bool)),
+				Identifier:        scalr.String(vcsRepo["identifier"].(string)),
+				Branch:            scalr.String(vcsRepo["branch"].(string)),
+				Path:              scalr.String(vcsRepo["path"].(string)),
+				TriggerPrefixes:   &triggerPrefixes,
+				DryRunsEnabled:    scalr.Bool(vcsRepo["dry_runs_enabled"].(bool)),
+				IngressSubmodules: scalr.Bool(vcsRepo["ingress_submodules"].(bool)),
 			}
 		}
 

@@ -136,10 +136,10 @@ func dataSourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) er
 	var vcsRepo []interface{}
 	if pg.VCSRepo != nil {
 		vcsConfig := map[string]interface{}{
-			"identifier": pg.VCSRepo.Identifier,
-			"branch":     pg.VCSRepo.Branch,
-			"path":       pg.VCSRepo.Path,
-            "ingress_submodules": pg.VCSRepo.IngressSubmodules,
+			"identifier":         pg.VCSRepo.Identifier,
+			"branch":             pg.VCSRepo.Branch,
+			"path":               pg.VCSRepo.Path,
+			"ingress_submodules": pg.VCSRepo.IngressSubmodules,
 		}
 		vcsRepo = append(vcsRepo, vcsConfig)
 	}
