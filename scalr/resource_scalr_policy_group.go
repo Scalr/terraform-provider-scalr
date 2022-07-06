@@ -231,8 +231,8 @@ func resourceScalrPolicyGroupUpdate(d *schema.ResourceData, meta interface{}) er
 		if path, ok := vcsRepo["path"].(string); ok && path != "" {
 			vcsOpt.Path = scalr.String(path)
 		}
-		if ingressSubmodules, ok := vcsRepo["ingress-submodules"].(bool); ok {
-			vcsOpt.IngressSubmodules = scalr.Bool(ingressSubmodules)
+		if _, ok := vcsRepo["ingress_submodules"]; ok {
+			vcsOpt.IngressSubmodules = scalr.Bool(vcsRepo["ingress_submodules"].(bool))
 		}
 
 		opts := scalr.PolicyGroupUpdateOptions{
