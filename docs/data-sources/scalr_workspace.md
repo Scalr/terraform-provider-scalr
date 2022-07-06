@@ -56,7 +56,7 @@ The `vcs_repo` block contains:
 * `identifier` - * The reference to the VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
 * `path` - Path within the repo, if any.
 * `dry_runs_enabled` - Boolean indicates the VCS driven dry runs should run when pull request to configuration versions branch created.
-* `ingress_submodules` - Boolean indicates whether git submodules of VCS repository should be fetched.
+* `ingress_submodules` - Boolean indicates whether git submodules of the VCS repository should be fetched.
 
 The `created_by` block contains:
 

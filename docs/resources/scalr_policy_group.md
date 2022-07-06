@@ -36,6 +36,7 @@ resource "scalr_policy_group" "example" {
     * `identifier` - (Required) The reference to the VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
     * `branch` - (Optional) The branch of a repository the policy group is associated with. If omitted, the repository default branch will be used.
     * `path` - (Optional) The subdirectory of the VCS repository where OPA policies are stored. If omitted or submitted as an empty string, this defaults to the repository's root.
+    * `ingress_submodules` - (Optional) Designates whether to clone git submodules of the VCS repository.
 
 * `opa_version` - (Optional) The version of Open Policy Agent to run policies against. If omitted, the system default version is assigned.
 
