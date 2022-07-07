@@ -255,14 +255,17 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 		if *configurationOptions.AwsCredentialsType == "role_delegation" {
 			configurationOptions.AwsTrustedEntityType = scalr.String(d.Get("aws.0.trusted_entity_type").(string))
 			configurationOptions.AwsRoleArn = scalr.String(d.Get("aws.0.role_arn").(string))
-			configurationOptions.AwsExternalId = scalr.String(d.Get("aws.0.external_id").(string))
+			externalIdI, externalIdExists := d.GetOk("aws.0.external_id")
+			if externalIdExists {
+				configurationOptions.AwsExternalId = scalr.String(externalIdI.(string))
+			}
 			if len(*configurationOptions.AwsTrustedEntityType) == 0 {
 				return fmt.Errorf("'trusted_entity_type' field is required for 'role_delegation' credentials type of aws provider configuration")
 			}
 			if len(*configurationOptions.AwsRoleArn) == 0 {
 				return fmt.Errorf("'role_arn' field is required for 'role_delegation' credentials type of aws provider configuration")
 			}
-			if *configurationOptions.AwsTrustedEntityType == "aws_account" && len(*configurationOptions.AwsExternalId) == 0 {
+			if *configurationOptions.AwsTrustedEntityType == "aws_account" && (!externalIdExists || (len(externalIdI.(string)) == 0)) {
 				return fmt.Errorf("'external_id' field is required for 'role_delegation' credentials type with 'aws_account' trusted entity type of aws provider configuration")
 			}
 		} else if *configurationOptions.AwsCredentialsType != "access_keys" {
@@ -512,14 +515,17 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 			if *configurationOptions.AwsCredentialsType == "role_delegation" {
 				configurationOptions.AwsTrustedEntityType = scalr.String(d.Get("aws.0.trusted_entity_type").(string))
 				configurationOptions.AwsRoleArn = scalr.String(d.Get("aws.0.role_arn").(string))
-				configurationOptions.AwsExternalId = scalr.String(d.Get("aws.0.external_id").(string))
+				externalIdI, externalIdExists := d.GetOk("aws.0.external_id")
+				if externalIdExists {
+					configurationOptions.AwsExternalId = scalr.String(externalIdI.(string))
+				}
 				if len(*configurationOptions.AwsTrustedEntityType) == 0 {
 					return fmt.Errorf("'trusted_entity_type' field is required for 'role_delegation' credentials type of aws provider configuration")
 				}
 				if len(*configurationOptions.AwsRoleArn) == 0 {
 					return fmt.Errorf("'role_arn' field is required for 'role_delegation' credentials type of aws provider configuration")
 				}
-				if *configurationOptions.AwsTrustedEntityType == "aws_account" && len(*configurationOptions.AwsExternalId) == 0 {
+				if *configurationOptions.AwsTrustedEntityType == "aws_account" && (!externalIdExists || (len(externalIdI.(string)) == 0)) {
 					return fmt.Errorf("'external_id' field is required for 'role_delegation' credentials type with 'aws_account' entity type of aws provider configuration")
 				}
 			} else if *configurationOptions.AwsCredentialsType != "access_keys" {
