@@ -62,6 +62,8 @@ jobs:
           TEST_ARM_CLIENT_SECRET: ${{ secrets.TEST_ARM_CLIENT_SECRET }}
           TEST_ARM_TENANT_ID: ${{ secrets.TEST_ARM_TENANT_ID }}
           TEST_ARM_SUBSCRIPTION_ID: ${{ secrets.TEST_ARM_SUBSCRIPTION_ID }}
+          TEST_GOOGLE_CREDENTIALS: ${{ secrets.TEST_GOOGLE_CREDENTIALS }}
+          TEST_GOOGLE_PROJECT: ${{ secrets.TEST_GOOGLE_PROJECT }}
         run: make testacc
       - name: Install goveralls
         env:
