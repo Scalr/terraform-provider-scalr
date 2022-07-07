@@ -186,25 +186,6 @@ func TestAccScalrVariable_update(t *testing.T) {
 				),
 			},
 
-			// Test change scope
-			{
-				Config:      testAccScalrVariableOnWorkspaceScopeUpdateWorkspace(rInt),
-				ExpectError: regexp.MustCompile("Error changing scope for variable var-[a-z0-9]+: scope is immutable attribute"),
-				PlanOnly:    true,
-			},
-
-			{
-				Config:      testAccScalrVariableOnWorkspaceScopeUpdateEnvironment(rInt),
-				ExpectError: regexp.MustCompile("Error changing scope for variable var-[a-z0-9]+: scope is immutable attribute"),
-				PlanOnly:    true,
-			},
-
-			{
-				Config:      testAccScalrVariableOnWorkspaceScopeUpdateAccount(rInt),
-				ExpectError: regexp.MustCompile("Error changing scope for variable var-[a-z0-9]+: scope is immutable attribute"),
-				PlanOnly:    true,
-			},
-
 			// Test change key attribute for sensitive variable
 			{
 				Config: testAccScalrVariableOnWorkspaceScopeUpdateSensitivity(rInt),
@@ -502,45 +483,6 @@ resource scalr_variable test {
   environment_id = scalr_environment.test.id
   workspace_id   = scalr_workspace.test.id
   description    = "updated"
-}`, rInt, defaultAccount)
-}
-
-func testAccScalrVariableOnWorkspaceScopeUpdateWorkspace(rInt int) string {
-	return fmt.Sprintf(baseForUpdate+`
-resource scalr_variable test {
-  key            = "var_on_ws_updated_%[1]d"
-  value          = "updated"
-  category       = "terraform"
-  hcl            = true
-  force          = true
-  final          = true
-  workspace_id   = "42"
-}`, rInt, defaultAccount)
-}
-
-func testAccScalrVariableOnWorkspaceScopeUpdateEnvironment(rInt int) string {
-	return fmt.Sprintf(baseForUpdate+`
-resource scalr_variable test {
-  key            = "var_on_ws_updated_%[1]d"
-  value          = "updated"
-  category       = "terraform"
-  hcl            = true
-  force          = true
-  final          = true
-  environment_id = "42"
-}`, rInt, defaultAccount)
-}
-
-func testAccScalrVariableOnWorkspaceScopeUpdateAccount(rInt int) string {
-	return fmt.Sprintf(baseForUpdate+`
-resource scalr_variable test {
-  key            = "var_on_ws_updated_%[1]d"
-  value          = "updated"
-  category       = "terraform"
-  hcl            = true
-  force          = true
-  final          = true
-  account_id     = "42"
 }`, rInt, defaultAccount)
 }
 
