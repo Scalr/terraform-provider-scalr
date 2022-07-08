@@ -191,7 +191,6 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
 	headers := make(http.Header)
 	headers.Add("User-Agent", providerUaString)
-	headers.Add("Prefer", "profile=internal")
 
 	// Create a new Scalr client config
 	cfg := &scalr.Config{
