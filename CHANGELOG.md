@@ -36,6 +36,9 @@ scalr_workspace_run_schedule
 - `scalr_policy_group`: remove environments and workspaces as includes ([#125](https://github.com/Scalr/terraform-provider-scalr/pull/125))
 - `scalr_variable`: updated the confusing error for multi-scope variables ([#119](https://github.com/Scalr/terraform-provider-scalr/pull/119))
 
+### Added
+- **New resource:** `scalr_provider_configuration` ([#137](https://github.com/Scalr/terraform-provider-scalr/pull/137))
+
 ## [1.0.0-rc28] - 2022-04-01
 
 ### Added

@@ -38,6 +38,15 @@ resource "scalr_workspace" "vcs-driven" {
       branch              = "dev"
       trigger_prefixes    = ["stage", "prod"]
   }
+
+  provider_configuration {
+    id    = "pcfg-1"
+    alias = "us_east1"
+  }
+  provider_configuration {
+    id    = "pcfg-2"
+    alias = "us_east2"
+  }
 }
 ```
 
@@ -118,6 +127,12 @@ resource "scalr_workspace" "cli-driven" {
   * `post_plan` - (Optional) Action that will be called after plan phase
   * `pre_apply` - (Optional) Action that will be called before apply phase
   * `post_apply` - (Optional) Action that will be called after apply phase
+
+* `provider_configuration` - (Optional) Provider configurations used in workspace runs.
+
+   The `provider_configuration` block supports:
+  * `id` - (Required) The identifier of provider configuration
+  * `alias` - (Optional) The alias of provider configuration
 
 ## Attribute Reference
 
