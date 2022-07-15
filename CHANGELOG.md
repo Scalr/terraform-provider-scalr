@@ -5,7 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.0-rc32] - 2022-07-15
+
+### Fixed
+- `scalr_variable`: Fixed error on change workspace_id, environment_id, account_id of variable. ([#150](https://github.com/Scalr/terraform-provider-scalr/pull/150))
 
 ## [1.0.0-rc31] - 2022-07-01
 
