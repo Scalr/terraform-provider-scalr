@@ -8,9 +8,9 @@ description: |-
 
 # scalr_provider_configuration Resource
 
-Provider configuration helps organizations to manage providers' secrets in a centralized way from a single place.
-It natively supports the management of the major providers like Scalr, AWS, AzureRM, and Google Cloud Platform. 
-But also, allows registering any custom provider. Please have a look at basic usage examples for each provider type.
+A provider configuration helps organizations manage provider secrets in a centralized way.
+It natively supports the management of the major providers like Scalr, AWS, AzureRM, and Google Cloud Platform, 
+but also allows registering any custom provider. Please have a look at the basic usage examples for each provider type.
 
 ## Basic Usage
 
@@ -44,9 +44,9 @@ resource "scalr_provider_configuration" "aws" {
 }
 ```
 
-To get into more advanced AWS usage please refer to the official [AWS module](https://github.com/emocharnik/terraform-scalr-provider-configuration-aws).
+To get into more advanced AWS usage please refer to the official [AWS module](https://github.com/Scalr/terraform-scalr-provider-configuration-aws).
 
-## AzureRM provider:
+### AzureRM provider:
 
 ```hcl
 resource "scalr_provider_configuration" "azurerm" {
@@ -102,14 +102,14 @@ resource "scalr_provider_configuration" "kubernetes" {
 
 ## Argument Reference
 
-* `account_id` - (Required) The account that owns the variable, specified as an ID, in the format.
-* `name` - (Required) The name of a Scalr provider configuration. This field is unique for the account.
+* `account_id` - (Required) The account that owns the object, specified as an ID.
+* `name` - (Required) The name of the Scalr provider configuration. This field is unique for the account.
 * `export_shell_variables` - (Optional) Export provider variables into the run environment. This option is available for built-in (Scalr, AWS, AzureRM, Google) providers only.
-* `environments` - (Optional) The list of environment identifiers to the provider configuration is shared. Use `["*"]` to share with all environments.
+* `environments` - (Optional) The list of environment identifiers that the provider configuration is shared to. Use `["*"]` to share with all environments.
 * `scalr` - (Optional) Settings for the Scalr provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.
   The `scalr` block supports the following:
     * `hostname` - (Optional) The Scalr hostname which should be used.
-    * `token` - (Optional) The Scalr Token which should be used.
+    * `token` - (Optional) The Scalr token which should be used.
 * `aws` - (Optional) Settings for the aws provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.
    The `aws` block supports the following:
   * `account_type` - (Required) The type of AWS account, available options: `regular`, `gov-cloud`, `cn-cloud`.
@@ -125,10 +125,10 @@ resource "scalr_provider_configuration" "kubernetes" {
   * `project` - (Optional) The default project to manage resources in. If another project is specified on a resource, it will take precedence.
 * `azurerm` - (Optional) Settings for the azurerm provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.
    The `azurerm` block supports the following:
-  * `client_id` - (Required) The Client ID which should be used.
-  * `client_secret` - (Required) The Client Secret which should be used.
-  * `tenant_id` - (Required) The Tenant ID should be used.
-  * `subscription_id` - (Optional) The Subscription ID which should be used. If skipped, has to be set as a shell variable in the workspace or as a part of the source configuration.
+  * `client_id` - (Required) The Client ID that should be used.
+  * `client_secret` - (Required) The Client Secret that should be used.
+  * `tenant_id` - (Required) The Tenant ID that should be used.
+  * `subscription_id` - (Optional) The Subscription ID that should be used. If skipped, it must be set as a shell variable in the workspace or as a part of the source configuration.
 * `custom` - (Optional) Settings for the provider configuration that does not have scalr support as a built-in provider. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.
    The `custom` block supports the following:
   * `provider_name` - (Required) The name of a Terraform provider.

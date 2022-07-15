@@ -8,7 +8,7 @@ description: |-
 
 # scalr_provider_configuration Data Source
 
-This data source is used to retrieve id of a single provider configuration by name or type.
+This data source is used to retrieve the id of a single provider configuration by name or type.
 
 ## Example Usage
 
