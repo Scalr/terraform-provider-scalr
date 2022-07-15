@@ -43,7 +43,7 @@ The `vcs_repo` object contains:
 * `identifier` - A reference to the VCS repository in the format `:org/:repo`, it stands for the organization and repository.
 * `branch` - A branch of a repository the policy group is associated with.
 * `path` - A subdirectory of a VCS repository where OPA policies are stored.
-* `ingress_submodules` - Designates whether to clone git submodules of the VCS repository
+* `ingress_submodules` - Designates whether to clone git submodules of the VCS repository.
 
 A `policies` list contains definitions of OPA policies in the following form:
 
