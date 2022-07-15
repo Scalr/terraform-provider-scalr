@@ -3,9 +3,10 @@ package scalr
 import (
 	"errors"
 	"fmt"
+	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	scalr "github.com/scalr/go-scalr"
-	"log"
 )
 
 func resourceScalrEnvironment() *schema.Resource {
@@ -69,6 +70,11 @@ func resourceScalrEnvironment() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"default_provider_configurations": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -126,6 +132,16 @@ func resourceScalrEnvironmentCreate(d *schema.ResourceData, meta interface{}) er
 		CloudCredentials:      cloudCredentials,
 		PolicyGroups:          policyGroups,
 	}
+	if defaultProviderConfigurationsI, ok := d.GetOk("default_provider_configurations"); ok {
+		defaultProviderConfigurations := defaultProviderConfigurationsI.(*schema.Set).List()
+		pcfgValues := make([]*scalr.ProviderConfiguration, 0)
+		for _, pcfg := range defaultProviderConfigurations {
+			pcfgValues = append(pcfgValues, &scalr.ProviderConfiguration{ID: pcfg.(string)})
+		}
+		options.DefaultProviderConfigurations = pcfgValues
+
+	}
+
 	log.Printf("[DEBUG] Create Environment %s for account: %s", name, accountID)
 	environment, err := scalrClient.Environments.Create(ctx, options)
 	if err != nil {
@@ -158,6 +174,12 @@ func resourceScalrEnvironmentRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("account_id", environment.Account.ID)
 	d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)
 	d.Set("status", environment.Status)
+
+	defaultProviderConfigurations := make([]string, 0)
+	for _, providerConfiguration := range environment.DefaultProviderConfigurations {
+		defaultProviderConfigurations = append(defaultProviderConfigurations, providerConfiguration.ID)
+	}
+	d.Set("default_provider_configurations", defaultProviderConfigurations)
 
 	var createdBy []interface{}
 	if environment.CreatedBy != nil {
@@ -208,6 +230,18 @@ func resourceScalrEnvironmentUpdate(d *schema.ResourceData, meta interface{}) er
 		CloudCredentials:      cloudCredentials,
 		PolicyGroups:          policyGroups,
 	}
+
+	if defaultProviderConfigurationsI, ok := d.GetOk("default_provider_configurations"); ok {
+		defaultProviderConfigurations := defaultProviderConfigurationsI.(*schema.Set).List()
+		pcfgValues := make([]*scalr.ProviderConfiguration, 0)
+		for _, pcfg := range defaultProviderConfigurations {
+			pcfgValues = append(pcfgValues, &scalr.ProviderConfiguration{ID: pcfg.(string)})
+		}
+		options.DefaultProviderConfigurations = pcfgValues
+	} else {
+		options.DefaultProviderConfigurations = make([]*scalr.ProviderConfiguration, 0)
+	}
+
 	log.Printf("[DEBUG] Update environment: %s", d.Id())
 	_, err = scalrClient.Environments.Update(ctx, d.Id(), options)
 	if err != nil {

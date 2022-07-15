@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - `scalr_variable`: Fixed error on change workspace_id, environment_id, account_id of variable. ([#150](https://github.com/Scalr/terraform-provider-scalr/pull/150))
 
+## [1.0.0-rc32] - 2022-07-14
+
+### Added
+- **New resource:** [`scalr_provider_configuration`](https://github.com/Scalr/terraform-provider-scalr/blob/develop/docs/resources/scalr_provider_configuration.md) ([#151](https://github.com/Scalr/terraform-provider-scalr/pull/151))
+- **New data-source:** [`scalr_provider_configuration`](https://github.com/Scalr/terraform-provider-scalr/blob/develop/docs/data-sources/scalr_provider_configuration.md) ([#151](https://github.com/Scalr/terraform-provider-scalr/pull/151))
+- **New data-source:** [`scalr_provider_configurations`](https://github.com/Scalr/terraform-provider-scalr/blob/develop/docs/data-sources/scalr_provider_configurations.md) ([#151](https://github.com/Scalr/terraform-provider-scalr/pull/151))
+
+### Required
+
+- scalr-server >= `8.27.0`
+
 ## [1.0.0-rc31] - 2022-07-01
 
 ### Added
@@ -17,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `data.scalr_workspace`: added `pre-init` hook ([#142](https://github.com/Scalr/terraform-provider-scalr/pull/142))
 
 ### Fixed
-- `scalr_iam_team`: Account id is shown in the error message when trying to create `scalr_iam_team` resource and use it in datasource in parallel and without `depends_on` ([#135](https://github.com/Scalr/terraform-provider-scalr/pull/135))
+- `scalr_iam_team`: Account id is shown in the error message when trying to create `scalr_iam_team` resource and use it in data source in parallel and without `depends_on` ([#135](https://github.com/Scalr/terraform-provider-scalr/pull/135))
 
 ## [1.0.0-rc30] - 2022-05-30
 
@@ -29,7 +40,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0-rc29] - 2022-05-13
 
 ### Added
-scalr_workspace_run_schedule
 - **New resource:** `scalr_workspace_run_schedule` ([#124](https://github.com/Scalr/terraform-provider-scalr/pull/124))
 
 ### Changed
@@ -430,7 +440,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc31...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc32...HEAD
+[1.0.0-rc32]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc32
 [1.0.0-rc31]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc31
 [1.0.0-rc30]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc30
 [1.0.0-rc29]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc29
