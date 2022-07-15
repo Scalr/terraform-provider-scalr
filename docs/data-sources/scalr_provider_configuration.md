@@ -28,7 +28,6 @@ The following arguments are supported:
 
 * `name` - (Optional) The name of a Scalr provider configuration.
 * `provider_name` - (Optional) The name of a Terraform provider.
-* `environment_id` - (Optional) ID of the environment, in the format `env-xxxxxxxx`.
 
 ## Attribute Reference
 
