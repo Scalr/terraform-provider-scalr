@@ -24,13 +24,11 @@ func dataSourceScalrAgentPool() *schema.Resource {
 			"account_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 
 			"environment_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"workspace_ids": {
