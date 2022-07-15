@@ -60,6 +60,7 @@ func resourceScalrModule() *schema.Resource {
 						"ingress_submodules": {
 							Type:     schema.TypeBool,
 							Optional: true,
+							Default:  false,
 							ForceNew: true,
 						},
 					},
