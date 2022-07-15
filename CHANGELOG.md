@@ -7,15 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0-rc32] - 2022-07-15
 
-### Fixed
-- `scalr_variable`: Fixed error on change workspace_id, environment_id, account_id of variable. ([#150](https://github.com/Scalr/terraform-provider-scalr/pull/150))
-
-## [1.0.0-rc32] - 2022-07-14
-
 ### Added
 - **New resource:** [`scalr_provider_configuration`](https://github.com/Scalr/terraform-provider-scalr/blob/develop/docs/resources/scalr_provider_configuration.md) ([#151](https://github.com/Scalr/terraform-provider-scalr/pull/151))
 - **New data-source:** [`scalr_provider_configuration`](https://github.com/Scalr/terraform-provider-scalr/blob/develop/docs/data-sources/scalr_provider_configuration.md) ([#151](https://github.com/Scalr/terraform-provider-scalr/pull/151))
 - **New data-source:** [`scalr_provider_configurations`](https://github.com/Scalr/terraform-provider-scalr/blob/develop/docs/data-sources/scalr_provider_configurations.md) ([#151](https://github.com/Scalr/terraform-provider-scalr/pull/151))
+
+### Fixed
+- `scalr_variable`: Fixed error on change workspace_id, environment_id, account_id of variable. ([#150](https://github.com/Scalr/terraform-provider-scalr/pull/150))
 
 ### Required
 
