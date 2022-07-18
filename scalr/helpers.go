@@ -55,6 +55,48 @@ func GetEnvironmentByName(options GetEnvironmentByNameOptions, scalrClient *scal
 	}
 }
 
+type GetEndpointByNameOptions struct {
+	Name        *string
+	Environment *string
+}
+
+func GetEndpointByName(options GetEndpointByNameOptions, scalrClient *scalr.Client) (*scalr.Endpoint, error) {
+	listOptions := scalr.EndpointListOptions{
+		Name:        options.Name,
+		Environment: options.Environment,
+		Include:     options.Include,
+	}
+	endpl, err := scalrClient.Endpoints.List(ctx, listOptions)
+	if err != nil {
+		return nil, fmt.Errorf("Error retrieving endpoints: %v", err)
+	}
+
+	if len(endpl.Items) == 0 {
+		return nil, fmt.Errorf("Endpoint with name '%s' not found or user unauthorized", *options.Name)
+	}
+
+	var matchedEndpoints []*scalr.Environment
+
+	// filter in endpoint search endpoints that contains query string, this is why we need to do exact match on our side.
+	for _, endp := range endpl.Items {
+		if endp.Name == *options.Name {
+			matchedEndpoints = append(matchedEndpoints, endp)
+		}
+	}
+
+	switch numberOfMatch := len(matchedEndpoints); {
+	case numberOfMatch == 0:
+		return nil, fmt.Errorf("Endpoint with name '%s' not found", *options.Name)
+
+	case numberOfMatch > 1:
+		return nil, fmt.Errorf("Found more than one endpoint with name: %s, specify 'environment_id' to search only for endpoints in specific environment", *options.Name)
+
+	default:
+		return matchedEndpoints[0], nil
+
+	}
+}
+
 func GetRandomInteger() int {
 	return rand.Int()
 }
