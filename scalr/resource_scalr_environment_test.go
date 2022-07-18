@@ -84,6 +84,33 @@ func TestAccEnvironment_update(t *testing.T) {
 	})
 }
 
+func TestAccEnvironmentWithProviderConfigurations_update(t *testing.T) {
+	environment := &scalr.Environment{}
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckScalrEnvironmentDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccEnvironmentWithProviderConfigurationsConfig(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrEnvironmentExists("scalr_environment.test", environment),
+					testAccCheckScalrEnvironmentProviderConfigurations(environment, rInt),
+				),
+			},
+			{
+				Config: testAccEnvironmentWithProviderConfigurationsUpdateConfig(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrEnvironmentExists("scalr_environment.test", environment),
+					testAccCheckScalrEnvironmentProviderConfigurationsUpdate(environment, rInt),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckScalrEnvironmentDestroy(s *terraform.State) error {
 	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
@@ -159,6 +186,41 @@ func testAccCheckScalrEnvironmentAttributesUpdate(environment *scalr.Environment
 	}
 }
 
+func testAccCheckScalrEnvironmentProviderConfigurations(environment *scalr.Environment, rInt int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
+
+		if len(environment.DefaultProviderConfigurations) != 1 {
+			return fmt.Errorf("Bad default provider configurations: %v", environment.DefaultProviderConfigurations)
+		}
+		provider_configuration, err := scalrClient.ProviderConfigurations.Read(ctx, environment.DefaultProviderConfigurations[0].ID)
+		if err != nil {
+			return err
+		}
+		if provider_configuration.ProviderName != "consul" {
+			return fmt.Errorf("Bad default provider configurations: %s", provider_configuration.ProviderName)
+		}
+		return nil
+	}
+}
+func testAccCheckScalrEnvironmentProviderConfigurationsUpdate(environment *scalr.Environment, rInt int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
+
+		if len(environment.DefaultProviderConfigurations) != 1 {
+			return fmt.Errorf("Bad default provider configurations: %v", environment.DefaultProviderConfigurations)
+		}
+		provider_configuration, err := scalrClient.ProviderConfigurations.Read(ctx, environment.DefaultProviderConfigurations[0].ID)
+		if err != nil {
+			return err
+		}
+		if provider_configuration.ProviderName != "kubernetes" {
+			return fmt.Errorf("Bad default provider configurations: %s", provider_configuration.ProviderName)
+		}
+		return nil
+	}
+}
+
 func testAccEnvironmentConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
@@ -177,6 +239,52 @@ resource "scalr_environment" "test" {
   cost_estimation_enabled = false
   cloud_credentials = []
 }`, rInt, defaultAccount)
+}
+
+func testAccEnvironmentWithProviderConfigurationsConfig(rInt int) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "consul" {
+  name         = "consul"
+  account_id   = "%s"
+  environments = ["*"]
+  custom {
+    provider_name = "consul"
+    argument {
+      name        = "config_path"
+      value       = "config"
+    }
+  }
+}
+
+resource "scalr_environment" "test" {
+  name       = "test-env-%d"
+  account_id = "%s"
+  cost_estimation_enabled = true
+  default_provider_configurations = ["${scalr_provider_configuration.consul.id}"]
+}`, defaultAccount, rInt, defaultAccount)
+}
+
+func testAccEnvironmentWithProviderConfigurationsUpdateConfig(rInt int) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "kubernetes" {
+  name         = "kubernetes"
+  account_id   = "%s"
+  environments = ["*"]
+  custom {
+    provider_name = "kubernetes"
+    argument {
+      name        = "config_path"
+      value       = "config"
+    }
+  }
+}
+
+resource "scalr_environment" "test" {
+  name       = "test-env-%d-patched"
+  account_id = "%s"
+  cost_estimation_enabled = false
+  default_provider_configurations = ["${scalr_provider_configuration.kubernetes.id}"]
+}`, defaultAccount, rInt, defaultAccount)
 }
 
 func testAccEnvironmentUpdateConfigEmptyString(rInt int) string {
