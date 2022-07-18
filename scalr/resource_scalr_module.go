@@ -57,12 +57,6 @@ func resourceScalrModule() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
-						"ingress_submodules": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
-							ForceNew: true,
-						},
 					},
 				},
 			},
@@ -97,9 +91,6 @@ func resourceScalrModuleCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	if prefix, ok := vcsRepo["tag_prefix"].(string); ok && prefix != "" {
 		vcsOpt.TagPrefix = scalr.String(prefix)
-	}
-	if ingressSubmodules, ok := vcsRepo["ingress_submodules"].(bool); ok {
-		vcsOpt.IngressSubmodules = scalr.Bool(ingressSubmodules)
 	}
 
 	opt := scalr.ModuleCreateOptions{
@@ -148,10 +139,9 @@ func resourceScalrModuleRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("status", m.Status)
 	d.Set("source", m.Source)
 	d.Set("vcs_repo", []map[string]interface{}{{
-		"identifier":         m.VCSRepo.Identifier,
-		"path":               m.VCSRepo.Path,
-		"tag_prefix":         m.VCSRepo.TagPrefix,
-		"ingress_submodules": m.VCSRepo.IngressSubmodules,
+		"identifier": m.VCSRepo.Identifier,
+		"path":       m.VCSRepo.Path,
+		"tag_prefix": m.VCSRepo.TagPrefix,
 	}})
 	d.Set("vcs_provider_id", m.VcsProvider.ID)
 

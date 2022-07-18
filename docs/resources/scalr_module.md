@@ -39,7 +39,6 @@ resource "scalr_module" "example" {
     * `identifier` - (Required) The identifier of a VCS repository in the format `:org/:repo` (`:org/:project/:name` is used for Azure DevOps). It refers to an organization and a repository name in a VCS provider.
     * `path` - (Optional) The path to the root module folder. It Is expected to have the format '<path>/terraform-<provider_name>-<module_name>', where `<path>` stands for any folder within the repository inclusively a repository root.
     * `tag_prefix` - (Optional) Registry ignores tags which do not match specified prefix, e.g. `aws/`.
-    * `ingress_submodules` - (Optional) Designates whether to clone git submodules of the VCS repository.
     
 
 ## Attribute Reference

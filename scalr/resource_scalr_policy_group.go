@@ -57,11 +57,6 @@ func resourceScalrPolicyGroup() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"ingress_submodules": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
-						},
 					},
 				},
 			},
@@ -126,9 +121,6 @@ func resourceScalrPolicyGroupCreate(d *schema.ResourceData, meta interface{}) er
 	if path, ok := vcsRepo["path"].(string); ok && path != "" {
 		vcsOpt.Path = scalr.String(path)
 	}
-	if ingressSubmodules, ok := vcsRepo["ingress_submodules"].(bool); ok {
-		vcsOpt.IngressSubmodules = scalr.Bool(ingressSubmodules)
-	}
 
 	opts := scalr.PolicyGroupCreateOptions{
 		Name:        scalr.String(name),
@@ -174,10 +166,9 @@ func resourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("account_id", pg.Account.ID)
 	d.Set("vcs_provider_id", pg.VcsProvider.ID)
 	d.Set("vcs_repo", []map[string]interface{}{{
-		"identifier":         pg.VCSRepo.Identifier,
-		"branch":             pg.VCSRepo.Branch,
-		"path":               pg.VCSRepo.Path,
-		"ingress_submodules": pg.VCSRepo.IngressSubmodules,
+		"identifier": pg.VCSRepo.Identifier,
+		"branch":     pg.VCSRepo.Branch,
+		"path":       pg.VCSRepo.Path,
 	}})
 
 	var policies []map[string]interface{}
@@ -231,9 +222,6 @@ func resourceScalrPolicyGroupUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 		if path, ok := vcsRepo["path"].(string); ok && path != "" {
 			vcsOpt.Path = scalr.String(path)
-		}
-		if _, ok := vcsRepo["ingress_submodules"]; ok {
-			vcsOpt.IngressSubmodules = scalr.Bool(vcsRepo["ingress_submodules"].(bool))
 		}
 
 		opts := scalr.PolicyGroupUpdateOptions{
