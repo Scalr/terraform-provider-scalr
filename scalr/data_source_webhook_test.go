@@ -3,6 +3,7 @@ package scalr
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -10,6 +11,14 @@ import (
 
 func TestAccWebhookDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
+	for {
+		if rInt >= 100 {
+			break
+		}
+		rInt = GetRandomInteger()
+	}
+
+	cutRInt := strconv.Itoa(rInt)[:len(strconv.Itoa(rInt))-1]
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -42,8 +51,8 @@ func TestAccWebhookDataSource_basic(t *testing.T) {
 				),
 			},
 			{
-				Config:      testAccWebhookDataSourceNotFoundAlmostTheSameNameConfig(rInt, cuttedRInt),
-				ExpectError: regexp.MustCompile(fmt.Sprintf("Endpoint with name 'test webhook-%s' not found", cuttedRInt)),
+				Config:      testAccWebhookDataSourceNotFoundAlmostTheSameNameConfig(rInt, cutRInt),
+				ExpectError: regexp.MustCompile(fmt.Sprintf("Endpoint with name 'test webhook-%s' not found", cutRInt)),
 				PlanOnly:    true,
 			},
 			{
@@ -151,7 +160,7 @@ func testAccWebhookBothNameAndIdSetConfig() string {
 	}`
 }
 
-func testAccWebhookDataSourceNotFoundAlmostTheSameNameConfig(rInt int, cuttedRInt string) string {
+func testAccWebhookDataSourceNotFoundAlmostTheSameNameConfig(rInt int, cutRInt string) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
   name       = "test-env-%[1]d"
@@ -181,5 +190,5 @@ resource scalr_webhook test {
 
 data scalr_webhook test {
   name           = "test webhook-%s"
-}`, rInt, defaultAccount, cuttedRInt)
+}`, rInt, defaultAccount, cutRInt)
 }

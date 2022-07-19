@@ -18,7 +18,7 @@ func TestAccEndpointDataSource_basic(t *testing.T) {
 		rInt = GetRandomInteger()
 	}
 
-	cuttedRInt := strconv.Itoa(rInt)[:len(strconv.Itoa(rInt))-1]
+	cutRInt := strconv.Itoa(rInt)[:len(strconv.Itoa(rInt))-1]
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
@@ -59,8 +59,8 @@ func TestAccEndpointDataSource_basic(t *testing.T) {
 				),
 			},
 			{
-				Config:      testAccEndpointDataSourceNotFoundAlmostTheSameNameConfig(rInt, cuttedRInt),
-				ExpectError: regexp.MustCompile(fmt.Sprintf("Endpoint with name 'test endpoint-%s' not found", cuttedRInt)),
+				Config:      testAccEndpointDataSourceNotFoundAlmostTheSameNameConfig(rInt, cutRInt),
+				ExpectError: regexp.MustCompile(fmt.Sprintf("Endpoint with name 'test endpoint-%s' not found", cutRInt)),
 				PlanOnly:    true,
 			},
 			{
@@ -139,7 +139,7 @@ func testAccEndpointBothNameAndIdSetConfig() string {
 	}`
 }
 
-func testAccEndpointDataSourceNotFoundAlmostTheSameNameConfig(rInt int, cuttedRInt string) string {
+func testAccEndpointDataSourceNotFoundAlmostTheSameNameConfig(rInt int, cutRInt string) string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
   name       = "test-env-%[1]d"
@@ -155,5 +155,5 @@ resource scalr_endpoint test {
 
 data scalr_endpoint test {
   name           = "test endpoint-%s"
-}`, rInt, defaultAccount, cuttedRInt)
+}`, rInt, defaultAccount, cutRInt)
 }
