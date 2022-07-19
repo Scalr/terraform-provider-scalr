@@ -302,6 +302,10 @@ github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/scalr/go-scalr v0.0.0-20220705164951-30c98b966d48 h1:U1MwJfCyYqA8USl8IzEWJWmzLElmxN8ygEkOoY2YeQM=
 github.com/scalr/go-scalr v0.0.0-20220705164951-30c98b966d48/go.mod h1:xMnwfer9UxugeNITZjTpQBwQ/4bw6/JdyDLpGdmyorE=
+github.com/scalr/go-scalr v0.0.0-20220711092821-b5bf24a47d01 h1:6/XbSdPU+QKjC6q7X16DZQV6CV90ZpJ7vsF7hpsZ6c4=
+github.com/scalr/go-scalr v0.0.0-20220711092821-b5bf24a47d01/go.mod h1:xMnwfer9UxugeNITZjTpQBwQ/4bw6/JdyDLpGdmyorE=
+github.com/scalr/go-scalr v0.0.0-20220719092545-d8aef66afa8c h1:7oSm8CjwjEoLyyLIA0l0s0pes5eZG3UC4cmzidqY2bM=
+github.com/scalr/go-scalr v0.0.0-20220719092545-d8aef66afa8c/go.mod h1:xMnwfer9UxugeNITZjTpQBwQ/4bw6/JdyDLpGdmyorE=
 github.com/sergi/go-diff v1.0.0/go.mod h1:0CfEIISq7TuYL3j771MWULgwwjU+GofnZX9QAmXWZgo=
 github.com/sergi/go-diff v1.1.0/go.mod h1:STckp+ISIX8hZLjrqAeVduY0gWCT9IjLuqbuNXdaHfM=
 github.com/sergi/go-diff v1.2.0 h1:XU+rvMAioB0UC3q1MFrIQy4Vo5/4VsRDQQXHsEya6xQ=
