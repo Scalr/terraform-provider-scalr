@@ -154,6 +154,6 @@ resource scalr_endpoint test {
 }
 
 data scalr_endpoint test {
-  name           = "test endpoint-%[3]d"
+  name           = "test endpoint-%[3]s"
 }`, rInt, defaultAccount, cutRInt)
 }
