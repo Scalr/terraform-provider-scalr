@@ -38,7 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - `scalr_iam_team`: Account id is shown in the error message when trying to create `scalr_iam_team` resource and use it in data source in parallel and without `depends_on` ([#135](https://github.com/Scalr/terraform-provider-scalr/pull/135))
->>>>>>> develop
 
 ## [1.0.0-rc30] - 2022-05-30
 
