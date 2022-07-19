@@ -81,7 +81,7 @@ func dataSourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error
 		endpoint, err = scalrClient.Endpoints.Read(ctx, endpointID)
 	} else {
 		log.Printf("[DEBUG] Read configuration of endpoint: %s", endpointName)
-		options := GetEndpointtByNameOptions{
+		options := GetEndpointByNameOptions{
 			Name: &endpointName,
 		}
 		if environmentID != "" {
