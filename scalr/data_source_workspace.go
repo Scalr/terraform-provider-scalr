@@ -111,6 +111,10 @@ func dataSourceScalrWorkspace() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
+						"ingress_submodules": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -183,9 +187,10 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 	var vcsRepo []interface{}
 	if workspace.VCSRepo != nil {
 		vcsConfig := map[string]interface{}{
-			"identifier":       workspace.VCSRepo.Identifier,
-			"path":             workspace.VCSRepo.Path,
-			"dry_runs_enabled": workspace.VCSRepo.DryRunsEnabled,
+			"identifier":         workspace.VCSRepo.Identifier,
+			"path":               workspace.VCSRepo.Path,
+			"dry_runs_enabled":   workspace.VCSRepo.DryRunsEnabled,
+			"ingress_submodules": workspace.VCSRepo.IngressSubmodules,
 		}
 		vcsRepo = append(vcsRepo, vcsConfig)
 	}
