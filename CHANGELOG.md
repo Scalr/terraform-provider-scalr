@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `scalr_workspace`: added new attribute `execution-mode` ([#157](https://github.com/Scalr/terraform-provider-scalr/pull/157))
+
+### Deprecated
+
+- `scalr_workspace`: attribute `operations` has been deprecated ([#157](https://github.com/Scalr/terraform-provider-scalr/pull/157)) 
+
+### Required
+
+- scalr-server >= `8.29.0`
+
 ## [1.0.0-rc32] - 2022-07-15
 
 ### Added

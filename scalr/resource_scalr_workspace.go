@@ -3,6 +3,7 @@ package scalr
 import (
 	"errors"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -19,7 +20,7 @@ func resourceScalrWorkspace() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
-		SchemaVersion: 3,
+		SchemaVersion: 4,
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceScalrWorkspaceResourceV0().CoreConfigSchema().ImpliedType(),
@@ -35,6 +36,11 @@ func resourceScalrWorkspace() *schema.Resource {
 				Type:    resourceScalrWorkspaceResourceV2().CoreConfigSchema().ImpliedType(),
 				Upgrade: resourceScalrWorkspaceStateUpgradeV2,
 				Version: 2,
+			},
+			{
+				Type:    resourceScalrWorkspaceResourceV3().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceScalrWorkspaceStateUpgradeV3,
+				Version: 3,
 			},
 		},
 
@@ -79,9 +85,23 @@ func resourceScalrWorkspace() *schema.Resource {
 			},
 
 			"operations": {
-				Type:     schema.TypeBool,
+				Type:       schema.TypeBool,
+				Optional:   true,
+				Computed:   true,
+				Deprecated: "The attribute `operations` is deprecated. Use `execution-mode` instead",
+			},
+
+			"execution_mode": {
+				Type:     schema.TypeString,
 				Optional: true,
-				Default:  true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice(
+					[]string{
+						string(scalr.WorkspaceExecutionModeRemote),
+						string(scalr.WorkspaceExecutionModeLocal),
+					},
+					false,
+				),
 			},
 
 			"terraform_version": {
@@ -252,12 +272,21 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 	options := scalr.WorkspaceCreateOptions{
 		Name:        scalr.String(name),
 		AutoApply:   scalr.Bool(d.Get("auto_apply").(bool)),
-		Operations:  scalr.Bool(d.Get("operations").(bool)),
 		Environment: &scalr.Environment{ID: environmentID},
 		Hooks:       &scalr.HooksOptions{},
 	}
 
 	// Process all configured options.
+	if operations, ok := d.GetOk("operations"); ok {
+		options.Operations = scalr.Bool(operations.(bool))
+	}
+
+	if executionMode, ok := d.GetOk("execution_mode"); ok {
+		options.ExecutionMode = scalr.WorkspaceExecutionModePtr(
+			scalr.WorkspaceExecutionMode(executionMode.(string)),
+		)
+	}
+
 	if tfVersion, ok := d.GetOk("terraform_version"); ok {
 		options.TerraformVersion = scalr.String(tfVersion.(string))
 	}
@@ -378,6 +407,7 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("name", workspace.Name)
 	d.Set("auto_apply", workspace.AutoApply)
 	d.Set("operations", workspace.Operations)
+	d.Set("execution_mode", workspace.ExecutionMode)
 	d.Set("terraform_version", workspace.TerraformVersion)
 	d.Set("working_directory", workspace.WorkingDirectory)
 	d.Set("environment_id", workspace.Environment.ID)
@@ -459,15 +489,14 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("name") || d.HasChange("auto_apply") ||
 		d.HasChange("terraform_version") || d.HasChange("working_directory") ||
-		d.HasChange("vcs_repo") || d.HasChange("operations") ||
+		d.HasChange("vcs_repo") || d.HasChange("operations") || d.HasChange("execution_mode") ||
 		d.HasChange("vcs_provider_id") || d.HasChange("agent_pool_id") ||
 		d.HasChange("hooks") || d.HasChange("module_version_id") || d.HasChange("var_files") ||
 		d.HasChange("run_operation_timeout") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
-			Name:       scalr.String(d.Get("name").(string)),
-			AutoApply:  scalr.Bool(d.Get("auto_apply").(bool)),
-			Operations: scalr.Bool(d.Get("operations").(bool)),
+			Name:      scalr.String(d.Get("name").(string)),
+			AutoApply: scalr.Bool(d.Get("auto_apply").(bool)),
 			Hooks: &scalr.HooksOptions{
 				PreInit:   scalr.String(""),
 				PrePlan:   scalr.String(""),
@@ -478,6 +507,16 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		// Process all configured options.
+		if operations, ok := d.GetOk("operations"); ok {
+			options.Operations = scalr.Bool(operations.(bool))
+		}
+
+		if executionMode, ok := d.GetOk("execution_mode"); ok {
+			options.ExecutionMode = scalr.WorkspaceExecutionModePtr(
+				scalr.WorkspaceExecutionMode(executionMode.(string)),
+			)
+		}
+
 		if tfVersion, ok := d.GetOk("terraform_version"); ok {
 			options.TerraformVersion = scalr.String(tfVersion.(string))
 		}

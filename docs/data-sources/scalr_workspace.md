@@ -33,6 +33,7 @@ All arguments plus:
 * `id` - The workspace ID, in the format `ws-<RANDOM STRING>`.
 * `auto_apply` - Boolean indicates if `terrafrom apply` will be automatically run when `terraform plan` ends without error.
 * `operations` - Boolean indicates if the workspace is being used for remote execution.
+* `execution-mode` - Execution mode of the workspace.
 * `terraform_version` - The version of Terraform used for this workspace.
 * `working_directory` - A relative path that Terraform will execute within.
 * `run_operation_timeout` - The number of minutes run operation can be executed before termination.
