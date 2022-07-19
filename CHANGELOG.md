@@ -9,7 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `scalr_workspace`: added new attribute `vcs_repo.ingress_submodules` ([#146](https://github.com/Scalr/terraform-provider-scalr/pull/146))
+- `data.scalr_workspace`: added new attribute `vcs_repo.ingress_submodules` ([#146](https://github.com/Scalr/terraform-provider-scalr/pull/146))
 - `scalr_workspace`: added new attribute `execution-mode` ([#157](https://github.com/Scalr/terraform-provider-scalr/pull/157))
+- `data.scalr_workspace`: added new attribute `execution-mode` ([#157](https://github.com/Scalr/terraform-provider-scalr/pull/157))
 
 ### Deprecated
 

@@ -46,7 +46,7 @@ All arguments plus:
 
   The `hooks` block supports:
 
-  * `pre_init` - Script or action configured to call before init phase  
+  * `pre_init` - Script or action configured to call before init phase
   * `pre_plan` - Script or action configured to call before plan phase
   * `post_plan` - Script or action configured to call after plan phase
   * `pre_apply` - Script or action configured to call before apply phase
@@ -57,6 +57,7 @@ The `vcs_repo` block contains:
 * `identifier` - * The reference to the VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
 * `path` - Path within the repo, if any.
 * `dry_runs_enabled` - Boolean indicates the VCS driven dry runs should run when pull request to configuration versions branch created.
+* `ingress_submodules` - Designates whether to clone git submodules of the VCS repository.
 
 The `created_by` block contains:
 
