@@ -87,7 +87,7 @@ func dataSourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error
 		if environmentID != "" {
 			options.Environment = &environmentID
 		}
-		endpoint, err = GetEndpointtByName(options, scalrClient)
+		endpoint, err = GetEndpointByName(options, scalrClient)
 	}
 
 	if err != nil {
