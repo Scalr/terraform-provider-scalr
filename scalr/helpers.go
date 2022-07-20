@@ -56,14 +56,14 @@ func GetEnvironmentByName(options GetEnvironmentByNameOptions, scalrClient *scal
 }
 
 type GetEndpointByNameOptions struct {
-	Name        *string
-	Environment *string
+	Name    *string
+	Account *string
 }
 
 func GetEndpointByName(options GetEndpointByNameOptions, scalrClient *scalr.Client) (*scalr.Endpoint, error) {
 	listOptions := scalr.EndpointListOptions{
-		Name:        options.Name,
-		Environment: options.Environment,
+		Name:    options.Name,
+		Account: options.Account,
 	}
 	endpl, err := scalrClient.Endpoints.List(ctx, listOptions)
 	if err != nil {
@@ -88,7 +88,7 @@ func GetEndpointByName(options GetEndpointByNameOptions, scalrClient *scalr.Clie
 		return nil, fmt.Errorf("Endpoint with name '%s' not found", *options.Name)
 
 	case numberOfMatch > 1:
-		return nil, fmt.Errorf("Found more than one endpoint with name: %s, specify 'environment_id' to search only for endpoints in specific environment", *options.Name)
+		return nil, fmt.Errorf("Found more than one endpoint with name: %s, specify 'account_id' to search only for endpoints in specific account", *options.Name)
 
 	default:
 		return matchedEndpoints[0], nil

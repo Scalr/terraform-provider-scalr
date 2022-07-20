@@ -114,7 +114,7 @@ resource scalr_endpoint test {
 
 data scalr_endpoint test {
   name = scalr_endpoint.test.name
-  environment_id = scalr_environment.test.id
+  account_id = scalr_environment.test.account_id
 }`, rInt, defaultAccount)
 }
 

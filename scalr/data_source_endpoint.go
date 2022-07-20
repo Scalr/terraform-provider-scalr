@@ -48,6 +48,12 @@ func dataSourceScalrEndpoint() *schema.Resource {
 				Computed: true,
 			},
 
+			"account_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+			},
+
 			"environment_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -72,7 +78,7 @@ func dataSourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Attributes 'name' and 'id' can not be set at the same time")
 	}
 
-	environmentID := d.Get("environment_id").(string)
+	accountID := d.Get("account_id").(string)
 
 	var endpoint *scalr.Endpoint
 	var err error
@@ -85,8 +91,8 @@ func dataSourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error
 		options := GetEndpointByNameOptions{
 			Name: &endpointName,
 		}
-		if environmentID != "" {
-			options.Environment = &environmentID
+		if accountID != "" {
+			options.Account = &accountID
 		}
 		endpoint, err = GetEndpointByName(options, scalrClient)
 	}
