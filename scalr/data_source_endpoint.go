@@ -73,6 +73,7 @@ func dataSourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	environmentID := d.Get("environment_id").(string)
+
 	var endpoint *scalr.Endpoint
 	var err error
 
