@@ -83,7 +83,7 @@ func dataSourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error 
 	var webhook *scalr.Webhook
 	var err error
 
-	if environmentID != "" {
+	if webhookID != "" {
 		log.Printf("[DEBUG] Read configuration of webhook: %s", webhookID)
 		webhook, err = scalrClient.Webhooks.Read(ctx, webhookID)
 	} else {

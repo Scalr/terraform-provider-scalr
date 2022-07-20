@@ -189,6 +189,6 @@ resource scalr_webhook test {
 }
 
 data scalr_webhook test {
-  name           = "test webhook-%s"
+  name           = "test webhook-%[3]s"
 }`, rInt, defaultAccount, cutRInt)
 }
