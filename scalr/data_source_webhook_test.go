@@ -13,7 +13,7 @@ import (
 
 func TestAccWebhookDataSource_basic(t *testing.T) {
 	rand.Seed(time.Now().UnixNano())
-	rInt = rand.Intn(100)
+	rInt := rand.Intn(100)
 
 	cutRInt := strconv.Itoa(rInt)[:len(strconv.Itoa(rInt))-1]
 
