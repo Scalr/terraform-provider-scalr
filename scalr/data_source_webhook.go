@@ -72,19 +72,20 @@ func dataSourceScalrWebhook() *schema.Resource {
 func dataSourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
-	// Get the ID
+	// Get IDs
 	webhookID := d.Get("id").(string)
 	webhookName := d.Get("name").(string)
+	accountID := d.Get("account_id").(string)
 
-	if webhookID == "" && webhookName == "" {
-		return fmt.Errorf("At least one argument 'id' or 'name' is required, but no definitions was found")
-	}
-
-	if webhookID != "" && webhookName != "" {
+	if webhookID == "" {
+		if webhookName == "" {
+			return fmt.Errorf("At least one argument 'id' or 'name' is required, but no definitions was found")
+		} else if accountID == "" {
+			return fmt.Errorf("Argument 'account_id' is required to be set in pair with 'name'")
+		}
+	} else if webhookName != "" {
 		return fmt.Errorf("Attributes 'name' and 'id' can not be set at the same time")
 	}
-
-	accountId := d.Get("account_id").(string)
 
 	var webhook *scalr.Webhook
 	var err error
@@ -97,8 +98,8 @@ func dataSourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error 
 		options := GetWebhookByNameOptions{
 			Name: &webhookName,
 		}
-		if accountId != "" {
-			options.Account = &accountId
+		if accountID != "" {
+			options.Account = &accountID
 		}
 		webhook, err = GetWebhookByName(options, scalrClient)
 	}
