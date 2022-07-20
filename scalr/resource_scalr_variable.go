@@ -28,25 +28,6 @@ func resourceScalrVariable() *schema.Resource {
 				}
 				return nil
 			},
-			func(d *schema.ResourceDiff, meta interface{}) error {
-				// Reject any changes for variable scope
-				var scopeAttributes = []string{"workspace_id", "environment_id", "account_id"}
-
-				scopeIsAlreadySet := false
-				for _, scope := range scopeAttributes {
-					old, _ := d.GetChange(scope)
-					if old.(string) != "" {
-						scopeIsAlreadySet = true
-						break
-					}
-				}
-
-				if scopeIsAlreadySet && (d.HasChange("workspace_id") || d.HasChange("environment_id") || d.HasChange("account_id")) {
-					return fmt.Errorf("Error changing scope for variable %s: scope is immutable attribute", d.Id())
-				}
-
-				return nil
-			},
 		),
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -131,18 +112,21 @@ func resourceScalrVariable() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				ForceNew: true,
 			},
 
 			"environment_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				ForceNew: true,
 			},
 
 			"account_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				ForceNew: true,
 			},
 		},
 	}
