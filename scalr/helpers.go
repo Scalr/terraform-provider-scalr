@@ -97,14 +97,14 @@ func GetEndpointByName(options GetEndpointByNameOptions, scalrClient *scalr.Clie
 }
 
 type GetWebhookByNameOptions struct {
-	Name        *string
-	Environment *string
+	Name    *string
+	Account *string
 }
 
 func GetWebhookByName(options GetWebhookByNameOptions, scalrClient *scalr.Client) (*scalr.Webhook, error) {
 	listOptions := scalr.WebhookListOptions{
-		Name:        options.Name,
-		Environment: options.Environment,
+		Name:    options.Name,
+		Account: options.Account,
 	}
 	whl, err := scalrClient.Webhooks.List(ctx, listOptions)
 	if err != nil {
@@ -129,7 +129,7 @@ func GetWebhookByName(options GetWebhookByNameOptions, scalrClient *scalr.Client
 		return nil, fmt.Errorf("Webhook with name '%s' not found", *options.Name)
 
 	case numberOfMatch > 1:
-		return nil, fmt.Errorf("Found more than one webhook with name: %s, specify 'environment_id' to search only for webhooks in specific environment", *options.Name)
+		return nil, fmt.Errorf("Found more than one webhook with name: %s, specify 'account_id' to search only for webhooks in specific account", *options.Name)
 
 	default:
 		return matchedWebhooks[0], nil

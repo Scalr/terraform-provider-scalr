@@ -130,20 +130,19 @@ resource scalr_webhook test {
   events       = ["run:completed", "run:errored"]
   endpoint_id  = scalr_endpoint.test.id
   workspace_id = scalr_workspace.test.id
-  environment_id = scalr_environment.test.id
 }
 
 data scalr_webhook test {
-  name = scalr_webhook.test.name
-  environment_id = scalr_environment.test.id
+  name       = scalr_webhook.test.name
+  account_id = scalr_environment.test.account_id
 }`, rInt, defaultAccount)
 }
 
 func testAccWebhookDataSourceNotFoundByNameConfig() string {
 	return `
 data scalr_webhook test {
-  name           = "webhook-foo-bar-baz"
-  environment_id = "foobar"
+  name       = "webhook-foo-bar-baz"
+  account_id = "foobar"
 }`
 }
 
@@ -183,11 +182,10 @@ resource scalr_webhook test {
   name         = "test webhook-%[1]d"
   events       = ["run:completed", "run:errored"]
   endpoint_id  = scalr_endpoint.test.id
-  environment_id = scalr_environment.test.id
 }
 
 data scalr_webhook test {
-  name           = "test webhook-%[3]s"
-  environment_id = scalr_environment.test.id
+  name       = "test webhook-%[3]s"
+  account_id = scalr_environment.test.account_id
 }`, rInt, defaultAccount, cutRInt)
 }

@@ -48,6 +48,12 @@ func dataSourceScalrWebhook() *schema.Resource {
 				Computed: true,
 			},
 
+			"account_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+			},
+
 			"environment_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -78,7 +84,7 @@ func dataSourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Attributes 'name' and 'id' can not be set at the same time")
 	}
 
-	environmentID := d.Get("environment_id").(string)
+	accountId := d.Get("account_id").(string)
 
 	var webhook *scalr.Webhook
 	var err error
@@ -91,8 +97,8 @@ func dataSourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error 
 		options := GetWebhookByNameOptions{
 			Name: &webhookName,
 		}
-		if environmentID != "" {
-			options.Environment = &environmentID
+		if accountId != "" {
+			options.Account = &accountId
 		}
 		webhook, err = GetWebhookByName(options, scalrClient)
 	}
