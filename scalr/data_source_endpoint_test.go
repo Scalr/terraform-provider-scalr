@@ -2,21 +2,18 @@ package scalr
 
 import (
 	"fmt"
+	"math/rand"
 	"regexp"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccEndpointDataSource_basic(t *testing.T) {
-	rInt := GetRandomInteger()
-	for {
-		if rInt >= 100 {
-			break
-		}
-		rInt = GetRandomInteger()
-	}
+	rand.Seed(time.Now().UnixNano())
+	rInt = rand.Intn(100)
 
 	cutRInt := strconv.Itoa(rInt)[:len(strconv.Itoa(rInt))-1]
 

@@ -7,14 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- `data.scalr_endpoint`: allow to obtain scalr_endpoint by name ([#101](https://github.com/Scalr/terraform-provider-scalr/pull/156))
-- `data.scalr_endpoint`: `id` become optional  ([#101](https://github.com/Scalr/terraform-provider-scalr/pull/156))
-- `data.scalr_endpoint`: added new optional attribute `name` ([#101](https://github.com/Scalr/terraform-provider-scalr/pull/156))
-- `data.scalr_endpoint`: added new optional attribute `env_id` ([#101](https://github.com/Scalr/terraform-provider-scalr/pull/156))
-- `data.scalr_webhook`: allow to obtain scalr_webhook by name ([#101](https://github.com/Scalr/terraform-provider-scalr/pull/156))
-- `data.scalr_webhook`: `id` become optional  ([#101](https://github.com/Scalr/terraform-provider-scalr/pull/156))
-- `data.scalr_webhook`: added new optional attribute `name` ([#101](https://github.com/Scalr/terraform-provider-scalr/pull/156))
-- `data.scalr_webhook`: added new optional attribute `env_id` ([#101](https://github.com/Scalr/terraform-provider-scalr/pull/156))
+- `data.scalr_endpoint`: allow to obtain `scalr_endpoint` by name, added new optional attributes `name` and `acc_id`, `id` became optional ([#156](https://github.com/Scalr/terraform-provider-scalr/pull/156))
+- `data.scalr_webhook`: allow to obtain `scalr_webhook` by name, added new optional attributes `name` and `acc_id`, `id` became optional ([#156](https://github.com/Scalr/terraform-provider-scalr/pull/156))
 
 ### Added
 - `scalr_workspace`: added new attribute `vcs_repo.ingress_submodules` ([#146](https://github.com/Scalr/terraform-provider-scalr/pull/146))
