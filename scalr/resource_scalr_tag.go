@@ -14,6 +14,9 @@ func resourceScalrTag() *schema.Resource {
 		Read:   resourceScalrTagRead,
 		Update: resourceScalrTagUpdate,
 		Delete: resourceScalrTagDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
