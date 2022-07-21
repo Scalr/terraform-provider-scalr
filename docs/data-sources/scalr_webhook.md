@@ -18,11 +18,18 @@ data "scalr_webhook" "example" {
 }
 ```
 
+```hcl
+data "scalr_webhook" "example" {
+  name = "webhook_name"
+  account_id = "<acc-id>"
+}
+```
+
 ## Argument Reference
 
 * `id` - (Optional) The webhook ID, in the format `wh-<RANDOM STRING>`.
 * `name` - (Optional) Name of the webhook.
-* `environment_id` - (Optional) ID of the webhook environment, in the format `env-<RANDOM STRING>`
+* `account_id` - (Optional) ID of the account, in the format `acc-<RANDOM STRING>`
 
 Arguments `id` and `name` are both optional, specify at least one of them to obtain `scalr_webhook`.
 
@@ -32,6 +39,6 @@ All arguments plus:
 
 * `enabled` - Boolean indicates if the webhook is enabled. 
 * `endpoint_id` - ID of the endpoint, in the format `ep-<RANDOM STRING>`.
-* `workspace_id` - ID of the workspace if applicable, in the format `ws-<RANDOM STRING>`.
+* `environment_id` - ID of the environment, in the format `env-<RANDOM STRING>`.
 * `events` - List of event IDs.
 * `last_triggered_at` - Date/time when webhook was last triggered.
