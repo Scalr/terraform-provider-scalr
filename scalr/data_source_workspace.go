@@ -226,7 +226,6 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 			tags = append(tags, tag.ID)
 		}
 	}
-
 	d.Set("tags", tags)
 
 	d.SetId(workspace.ID)

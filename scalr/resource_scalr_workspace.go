@@ -246,6 +246,11 @@ func resourceScalrWorkspace() *schema.Resource {
 					},
 				},
 			},
+			"tags": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -392,6 +397,23 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
+	if tagsIDs, ok := d.GetOk("tags"); ok {
+		tags := make([]*scalr.WorkspaceTag, 0)
+		for _, tag := range tagsIDs.([]interface{}) {
+			tagID := tag.(string)
+			tags = append(tags, &scalr.WorkspaceTag{ID: tagID})
+		}
+		opts := scalr.WorkspaceTagsCreateOptions{
+			WorkspaceID:   workspace.ID,
+			WorkspaceTags: tags,
+		}
+		err := scalrClient.WorkspaceTags.Create(ctx, opts)
+		if err != nil {
+			return fmt.Errorf(
+				"Error adding tags to workspace %s: %v", name, err)
+		}
+	}
+
 	return resourceScalrWorkspaceRead(d, meta)
 }
 
@@ -486,6 +508,14 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	}
 	d.Set("provider_configuration", providerConfigurations)
 
+	var tags []string
+	if len(workspace.Tags) != 0 {
+		for _, tag := range workspace.Tags {
+			tags = append(tags, tag.ID)
+		}
+	}
+	d.Set("tags", tags)
+
 	return nil
 }
 
@@ -499,7 +529,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		d.HasChange("vcs_repo") || d.HasChange("operations") || d.HasChange("execution_mode") ||
 		d.HasChange("vcs_provider_id") || d.HasChange("agent_pool_id") ||
 		d.HasChange("hooks") || d.HasChange("module_version_id") || d.HasChange("var_files") ||
-		d.HasChange("run_operation_timeout") {
+		d.HasChange("run_operation_timeout") || d.HasChange("tags") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
 			Name:      scalr.String(d.Get("name").(string)),
@@ -643,6 +673,22 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 					"Error creating provider configuration link in workspace %s: %v", id, err)
 			}
 
+		}
+	}
+
+	if d.HasChange("tags") {
+		tags := make([]*scalr.WorkspaceTag, 0)
+		for _, tag := range d.Get("tags").([]interface{}) {
+			tagID := tag.(string)
+			tags = append(tags, &scalr.WorkspaceTag{ID: tagID})
+		}
+		opts := scalr.WorkspaceTagsUpdateOptions{
+			WorkspaceID:   id,
+			WorkspaceTags: tags,
+		}
+		err := scalrClient.WorkspaceTags.Update(ctx, opts)
+		if err != nil {
+			return fmt.Errorf("Error updating tags in workspace %s: %v", id, err)
 		}
 	}
 
