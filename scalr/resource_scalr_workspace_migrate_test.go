@@ -1,6 +1,7 @@
 package scalr
 
 import (
+	"github.com/scalr/go-scalr"
 	"testing"
 )
 
@@ -78,5 +79,33 @@ func testResourceScalrWorkspaceStateDataV3() map[string]interface{} {
 func TestResourceScalrWorkspaceStateUpgradeV2(t *testing.T) {
 	expected := testResourceScalrWorkspaceStateDataV3()
 	actual, err := resourceScalrWorkspaceStateUpgradeV2(testResourceScalrWorkspaceStateDataV2(), nil)
+	assertCorrectState(t, err, actual, expected)
+}
+
+func testResourceScalrWorkspaceStateDataV3Operations() map[string]interface{} {
+	return map[string]interface{}{
+		"operations": false,
+	}
+}
+
+func testResourceScalrWorkspaceStateDataV4Operations() map[string]interface{} {
+	v3 := testResourceScalrWorkspaceStateDataV3Operations()
+
+	var executionMode scalr.WorkspaceExecutionMode
+	if v3["operations"].(bool) {
+		executionMode = scalr.WorkspaceExecutionModeRemote
+	} else {
+		executionMode = scalr.WorkspaceExecutionModeLocal
+	}
+
+	return map[string]interface{}{
+		"operations":     false,
+		"execution_mode": executionMode,
+	}
+}
+
+func TestResourceScalrWorkspaceStateUpgradeV3(t *testing.T) {
+	expected := testResourceScalrWorkspaceStateDataV4Operations()
+	actual, err := resourceScalrWorkspaceStateUpgradeV3(testResourceScalrWorkspaceStateDataV3Operations(), nil)
 	assertCorrectState(t, err, actual, expected)
 }

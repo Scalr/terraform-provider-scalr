@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `data.scalr_webhook`: allow to obtain `scalr_webhook` by name, added new optional attributes `name` and `acc_id`, `id` became optional ([#156](https://github.com/Scalr/terraform-provider-scalr/pull/156))
 
 ### Added
+
+- `scalr_workspace`: added new attribute `execution-mode` ([#158](https://github.com/Scalr/terraform-provider-scalr/pull/158))
+- `data.scalr_workspace`: added new attribute `execution-mode` ([#158](https://github.com/Scalr/terraform-provider-scalr/pull/158))
+
+### Deprecated
+
+- `scalr_workspace`: attribute `operations` has been deprecated ([#158](https://github.com/Scalr/terraform-provider-scalr/pull/158))
+
+### Required
+
+- scalr-server >= `8.29.0`
+
+## [1.0.0-rc33] - 2022-07-22
+
+### Added
+
 - `scalr_workspace`: added new attribute `vcs_repo.ingress_submodules` ([#146](https://github.com/Scalr/terraform-provider-scalr/pull/146))
 - `data.scalr_workspace`: added new attribute `vcs_repo.ingress_submodules` ([#146](https://github.com/Scalr/terraform-provider-scalr/pull/146))
 
@@ -447,7 +463,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc32...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc33...HEAD
+[1.0.0-rc33]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc33
 [1.0.0-rc32]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc32
 [1.0.0-rc31]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc31
 [1.0.0-rc30]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc30
