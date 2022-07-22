@@ -47,6 +47,11 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Computed: true,
 			},
 
+			"execution_mode": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"terraform_version": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -162,6 +167,7 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 	// Update the config.
 	d.Set("auto_apply", workspace.AutoApply)
 	d.Set("operations", workspace.Operations)
+	d.Set("execution_mode", workspace.ExecutionMode)
 	d.Set("terraform_version", workspace.TerraformVersion)
 	d.Set("working_directory", workspace.WorkingDirectory)
 	d.Set("has_resources", workspace.HasResources)

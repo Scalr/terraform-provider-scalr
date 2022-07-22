@@ -34,6 +34,8 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
+					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "run_operation_timeout", "18"),
@@ -99,6 +101,8 @@ func TestAccScalrWorkspace_monorepo(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
+					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", "/db"),
 					resource.TestCheckNoResourceAttr("scalr_workspace.test", "run_operation_timeout"),
 				),
@@ -129,6 +133,8 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
+					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.pre_init", "./scripts/pre-init.sh"),
@@ -157,6 +163,8 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 						"scalr_workspace.test", "auto_apply", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 					resource.TestCheckResourceAttr(
@@ -191,6 +199,8 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_workspace.test", "name", "workspace-test"),
 					resource.TestCheckResourceAttr("scalr_workspace.test", "auto_apply", "true"),
 					resource.TestCheckResourceAttr("scalr_workspace.test", "operations", "true"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
 					resource.TestCheckResourceAttr("scalr_workspace.test", "working_directory", ""),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "run_operation_timeout", "18"),
@@ -221,6 +231,8 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 						"scalr_workspace.test", "auto_apply", "false"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "false"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeLocal)),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "terraform_version", "0.12.19"),
 					resource.TestCheckResourceAttr(
@@ -256,6 +268,8 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 						"scalr_workspace.test", "auto_apply", "false"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "false"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeLocal)),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "terraform_version", "0.12.19"),
 					resource.TestCheckResourceAttr(
@@ -370,8 +384,8 @@ func testAccCheckScalrWorkspaceAttributes(
 			return fmt.Errorf("Bad auto apply: %t", workspace.AutoApply)
 		}
 
-		if workspace.Operations != true {
-			return fmt.Errorf("Bad operations: %t", workspace.Operations)
+		if workspace.ExecutionMode != scalr.WorkspaceExecutionModeRemote {
+			return fmt.Errorf("Bad execution mode: %s", workspace.ExecutionMode)
 		}
 
 		if workspace.WorkingDirectory != "" {
@@ -451,8 +465,8 @@ func testAccCheckScalrWorkspaceAttributesUpdated(
 			return fmt.Errorf("Bad auto apply: %t", workspace.AutoApply)
 		}
 
-		if workspace.Operations != false {
-			return fmt.Errorf("Bad operations: %t", workspace.Operations)
+		if workspace.ExecutionMode != scalr.WorkspaceExecutionModeLocal {
+			return fmt.Errorf("Bad execution mode: %s", workspace.ExecutionMode)
 		}
 
 		if workspace.TerraformVersion != "0.12.19" {
@@ -650,12 +664,13 @@ resource "scalr_workspace" "test" {
 }
 
 func testAccScalrWorkspaceUpdate(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount,
+		fmt.Sprintf(`
 resource "scalr_workspace" "test" {
   name                  = "workspace-updated"
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
-  operations            = false
+  execution_mode        = "%s"
   terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
   run_operation_timeout = 200
@@ -667,57 +682,65 @@ resource "scalr_workspace" "test" {
     pre_apply  = "./scripts/pre-apply_updated.sh"
     post_apply = "./scripts/post-apply_updated.sh"
   }
-}`)
+}`, scalr.WorkspaceExecutionModeLocal),
+	)
 }
 
 func testAccScalrWorkspaceMissedVcsProvider(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount,
+		fmt.Sprintf(`
 resource "scalr_workspace" "test" {
   name                  = "workspace-updated"
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
-  operations            = false
+  execution_mode        = "%s"
   terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
   vcs_repo {
    identifier = "TestRepo/local"
    branch     = "main"
   }
-}`)
+}`, scalr.WorkspaceExecutionModeLocal),
+	)
 }
 
 func testAccScalrWorkspaceMissedVcsRepo(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount,
+		fmt.Sprintf(`
 resource "scalr_workspace" "test" {
   name                  = "workspace-updated"
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
-  operations            = false
+  execution_mode        = "%s"
   terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
   vcs_provider_id	    = "test_provider_id"
-}`)
+}`, scalr.WorkspaceExecutionModeLocal),
+	)
 }
 
 func testAccScalrWorkspaceUpdateWithoutHooks(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount,
+		fmt.Sprintf(`
 resource "scalr_workspace" "test" {
   name                  = "workspace-updated"
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
-  operations            = false
+  execution_mode        = "%s"
   terraform_version     = "0.12.19"
   working_directory     = "terraform/test"
-}`)
+}`, scalr.WorkspaceExecutionModeLocal),
+	)
 }
 
 func testAccScalrWorkspaceUpdateWorkingDir(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount,
+		fmt.Sprintf(`
 resource "scalr_workspace" "test" {
   name                  = "workspace-updated"
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
-  operations            = false
+  execution_mode        = "%s"
   terraform_version     = "0.12.19"
   working_directory     = ""
   hooks {
@@ -727,11 +750,13 @@ resource "scalr_workspace" "test" {
     pre_apply  = "./scripts/pre-apply_updated.sh"
     post_apply = "./scripts/post-apply_updated.sh"
   }
-}`)
+}`, scalr.WorkspaceExecutionModeLocal),
+	)
 }
 
 func testAccScalrWorkspaceProviderConfiguration(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount,
+		fmt.Sprintf(`
 resource "scalr_provider_configuration" "kubernetes" {
   name         = "kubernetes"
   account_id   = scalr_environment.test.account_id
@@ -762,7 +787,7 @@ resource "scalr_workspace" "test" {
   name                   = "workspace-pcfg-test"
   environment_id         = scalr_environment.test.id
   auto_apply             = false
-  operations             = false
+  execution_mode        = "%s"
   working_directory      = "terraform/test"
   provider_configuration {
     id = scalr_provider_configuration.kubernetes.id
@@ -775,11 +800,13 @@ resource "scalr_workspace" "test" {
     id    = scalr_provider_configuration.consul.id
     alias = ""
   }
-}`)
+}`, scalr.WorkspaceExecutionModeLocal),
+	)
 }
 
 func testAccScalrWorkspaceProviderConfigurationUpdated(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount,
+		fmt.Sprintf(`
 resource "scalr_provider_configuration" "kubernetes" {
   name         = "kubernetes"
   account_id   = scalr_environment.test.account_id
@@ -810,7 +837,7 @@ resource "scalr_workspace" "test" {
   name                   = "workspace-pcfg-test"
   environment_id         = scalr_environment.test.id
   auto_apply             = false
-  operations             = false
+  execution_mode        = "%s"
   working_directory      = "terraform/test"
   provider_configuration {
     id    = scalr_provider_configuration.kubernetes.id
@@ -824,5 +851,6 @@ resource "scalr_workspace" "test" {
     id    = scalr_provider_configuration.consul.id
     alias = "dev2"
   }
-}`)
+}`, scalr.WorkspaceExecutionModeLocal),
+	)
 }

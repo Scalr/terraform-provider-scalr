@@ -101,8 +101,8 @@ resource "scalr_workspace" "cli-driven" {
 * `name` - (Required) Name of the workspace.
 * `environment_id` - (Required) ID of the environment, in the format `env-<RANDOM STRING>`.
 * `auto_apply` - (Optional) Set (true/false) to configure if `terraform apply` should automatically run when `terraform plan` ends without error. Default `false`.
-* `operations` - (Optional) Set (true/false) to configure workspace remote execution. When `false` workspace is only used to store state. Default `true`.
-  Defaults to `true`.
+* `operations` - Deprecated. Use `execution-mode` instead.
+* `execution-mode` - (Optional) Which execution mode to use. Valid values are `remote` and `local`. When set to `local`, the workspace will be used for state storage only. Defaults to `remote` (not set, backend default is used).
 * `terraform_version` - (Optional) The version of Terraform to use for this workspace. Defaults to the latest available version.
 * `working_directory` - (Optional) A relative path that Terraform will be run in. Defaults to the root of the repository `""`.
 * `var_files` - (Optional) List of paths to the workspace variables files.
