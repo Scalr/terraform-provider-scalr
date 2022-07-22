@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-rc33] - 2022-07-22
+
 ### Added
 
 - `scalr_workspace`: added new attribute `vcs_repo.ingress_submodules` ([#146](https://github.com/Scalr/terraform-provider-scalr/pull/146))
@@ -455,7 +457,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc32...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc33...HEAD
+[1.0.0-rc33]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc33
 [1.0.0-rc32]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc32
 [1.0.0-rc31]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc31
 [1.0.0-rc30]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc30
