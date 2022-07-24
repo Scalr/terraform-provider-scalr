@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `scalr_workspace`: added new attribute `execution-mode` ([#158](https://github.com/Scalr/terraform-provider-scalr/pull/158))
 - `data.scalr_workspace`: added new attribute `execution-mode` ([#158](https://github.com/Scalr/terraform-provider-scalr/pull/158))
+- **New data source:**  `scalr_tag` ([#160](https://github.com/Scalr/terraform-provider-scalr/pull/160))
+- **New resource:** `scalr_tag` ([#160](https://github.com/Scalr/terraform-provider-scalr/pull/160))
+- `scalr_workspace`: added new attribute `tags` ([#160](https://github.com/Scalr/terraform-provider-scalr/pull/160))
+- `data.scalr_workspace`: added new attribute `tags` ([#160](https://github.com/Scalr/terraform-provider-scalr/pull/160))
 
 ### Deprecated
 
