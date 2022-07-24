@@ -38,6 +38,7 @@ All arguments plus:
 * `working_directory` - A relative path that Terraform will execute within.
 * `run_operation_timeout` - The number of minutes run operation can be executed before termination.
 * `module_version_id` - The identifier of a module version in the format `modver-<RANDOM STRING>`.
+  `tags` - List of tags IDs associated with the workspace.
 * `vcs_provider_id` - The identifier of a VCS provider in the format `vcs-<RANDOM STRING>`.
 * `vcs_repo` - If workspace is linked to VCS repository this block shows the details, otherwise `{}`
 * `created_by` - Details of the user that created the workspace.
