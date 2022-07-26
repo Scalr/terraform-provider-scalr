@@ -17,11 +17,13 @@ func dataSourceScalrWebhook() *schema.Resource {
 
 			"id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 
 			"name": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 
@@ -46,6 +48,12 @@ func dataSourceScalrWebhook() *schema.Resource {
 				Computed: true,
 			},
 
+			"account_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+			},
+
 			"environment_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -64,11 +72,38 @@ func dataSourceScalrWebhook() *schema.Resource {
 func dataSourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
-	// Get the ID
+	// Get IDs
 	webhookID := d.Get("id").(string)
+	webhookName := d.Get("name").(string)
+	accountID := d.Get("account_id").(string)
 
-	log.Printf("[DEBUG] Read endpoint with ID: %s", webhookID)
-	webhook, err := scalrClient.Webhooks.Read(ctx, webhookID)
+	if webhookID == "" {
+		if webhookName == "" {
+			return fmt.Errorf("At least one argument 'id' or 'name' is required, but no definitions was found")
+		} else if accountID == "" {
+			return fmt.Errorf("Argument 'account_id' is required to be set in pair with 'name'")
+		}
+	} else if webhookName != "" {
+		return fmt.Errorf("Attributes 'name' and 'id' can not be set at the same time")
+	}
+
+	var webhook *scalr.Webhook
+	var err error
+
+	if webhookID != "" {
+		log.Printf("[DEBUG] Read configuration of webhook: %s", webhookID)
+		webhook, err = scalrClient.Webhooks.Read(ctx, webhookID)
+	} else {
+		log.Printf("[DEBUG] Read configuration of webhook: %s", webhookName)
+		options := GetWebhookByNameOptions{
+			Name: &webhookName,
+		}
+		if accountID != "" {
+			options.Account = &accountID
+		}
+		webhook, err = GetWebhookByName(options, scalrClient)
+	}
+
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return fmt.Errorf("Could not find webhook %s: %v", webhookID, err)
@@ -98,7 +133,7 @@ func dataSourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error 
 	if webhook.Endpoint != nil {
 		d.Set("endpoint_id", webhook.Endpoint.ID)
 	}
-	d.SetId(webhookID)
+	d.SetId(webhook.ID)
 
 	return nil
 }

@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- `data.scalr_endpoint`: allow to obtain `scalr_endpoint` by name, added new optional attributes `name` and `acc_id`, `id` became optional ([#156](https://github.com/Scalr/terraform-provider-scalr/pull/156))
+- `data.scalr_webhook`: allow to obtain `scalr_webhook` by name, added new optional attributes `name` and `acc_id`, `id` became optional ([#156](https://github.com/Scalr/terraform-provider-scalr/pull/156))
 
 ### Added
 
