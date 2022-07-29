@@ -7,9 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **New data source:**  `scalr_tag` ([#160](https://github.com/Scalr/terraform-provider-scalr/pull/160))
+- **New resource:** `scalr_tag` ([#160](https://github.com/Scalr/terraform-provider-scalr/pull/160))
+- `scalr_workspace`: added new attribute `tag_ids` ([#160](https://github.com/Scalr/terraform-provider-scalr/pull/160))
+- `data.scalr_workspace`: added new attribute `tag_ids` ([#160](https://github.com/Scalr/terraform-provider-scalr/pull/160))
+
+### Required
+
+- scalr-server >= `8.30.0`
+
 ## [1.0.0-rc34] - 2022-07-29
 
 ### Changed
+
 - `data.scalr_endpoint`: allow to obtain `scalr_endpoint` by name, added new optional attributes `name` and `acc_id`, `id` became optional ([#156](https://github.com/Scalr/terraform-provider-scalr/pull/156))
 - `data.scalr_webhook`: allow to obtain `scalr_webhook` by name, added new optional attributes `name` and `acc_id`, `id` became optional ([#156](https://github.com/Scalr/terraform-provider-scalr/pull/156))
 
@@ -17,10 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `scalr_workspace`: added new attribute `execution-mode` ([#158](https://github.com/Scalr/terraform-provider-scalr/pull/158))
 - `data.scalr_workspace`: added new attribute `execution-mode` ([#158](https://github.com/Scalr/terraform-provider-scalr/pull/158))
-- **New data source:**  `scalr_tag` ([#160](https://github.com/Scalr/terraform-provider-scalr/pull/160))
-- **New resource:** `scalr_tag` ([#160](https://github.com/Scalr/terraform-provider-scalr/pull/160))
-- `scalr_workspace`: added new attribute `tags` ([#160](https://github.com/Scalr/terraform-provider-scalr/pull/160))
-- `data.scalr_workspace`: added new attribute `tags` ([#160](https://github.com/Scalr/terraform-provider-scalr/pull/160))
 
 ### Deprecated
 
