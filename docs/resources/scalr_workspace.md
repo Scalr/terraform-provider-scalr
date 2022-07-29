@@ -109,7 +109,7 @@ resource "scalr_workspace" "cli-driven" {
 * `run_operation_timeout` - (Optional) The number of minutes run operation can be executed before termination. Defaults to `0` (not set, backend default is used).
 * `module_version_id` - (Optional) The identifier of a module version in the format `modver-<RANDOM STRING>`. This attribute conflicts with `vcs_provider_id` and `vcs_repo` attributes.
 * `agent_pool_id` - (Optional) The identifier of an agent pool in the format `apool-<RANDOM STRING>`.
-* `tags` - (Optional) List of tags IDs associated with the workspace.
+* `tags` - (Optional) List of tag IDs associated with the workspace.
 * `vcs_provider_id` - (Optional) ID of vcs provider - required if vcs-repo present and vice versa, in the format `vcs-<RANDOM STRING>`
 * `vcs_repo` - (Optional) Settings for the workspace's VCS repository.
 

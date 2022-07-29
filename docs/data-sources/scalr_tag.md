@@ -15,7 +15,7 @@ This data source is used to retrieve details of a tag.
 ```hcl
 data "scalr_tag" "example" {
   name = "tag-name"
-  account_id = "acc-<id>"
+  account_id = "acc-xxxxxxxxx"
 }
 ```
 

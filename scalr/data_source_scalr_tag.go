@@ -1,7 +1,6 @@
 package scalr
 
 import (
-	"errors"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/scalr/go-scalr"
@@ -35,15 +34,27 @@ func dataSourceScalrTagRead(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	accountID := d.Get("account_id").(string)
 
-	log.Printf("[DEBUG] Read tag: %s", name)
-	tag, err := scalrClient.Tags.Read(ctx, accountID, name)
+	options := scalr.TagListOptions{
+		Account: scalr.String(accountID),
+		Name:    scalr.String(name),
+	}
+
+	log.Printf("[DEBUG] Read tag: %s/%s", accountID, name)
+	tags, err := scalrClient.Tags.List(ctx, options)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Could not find tag %s: %v", name, err)
-		}
 		return fmt.Errorf("Error retrieving tag: %v", err)
 	}
 
+	// Unlikely
+	if tags.TotalCount > 1 {
+		return fmt.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
+	}
+
+	if tags.TotalCount == 0 {
+		return fmt.Errorf("Could not find tag %s/%s", accountID, name)
+	}
+
+	tag := tags.Items[0]
 	d.SetId(tag.ID)
 
 	return nil

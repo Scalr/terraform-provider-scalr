@@ -124,9 +124,9 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				},
 			},
 
-			"tags": {
+			"tag_ids": {
 				Type:     schema.TypeList,
-				Optional: true,
+				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
@@ -226,7 +226,7 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 			tags = append(tags, tag.ID)
 		}
 	}
-	d.Set("tags", tags)
+	d.Set("tag_ids", tags)
 
 	d.SetId(workspace.ID)
 

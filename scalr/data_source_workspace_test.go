@@ -31,7 +31,7 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.email"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.username"),
-					resource.TestCheckResourceAttr("data.scalr_workspace.test", "tags.%", "0"),
+					resource.TestCheckResourceAttr("data.scalr_workspace.test", "tags.#", "0"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.pre_init", "./scripts/pre-init.sh"),
 					resource.TestCheckResourceAttr(

@@ -137,7 +137,7 @@ func testAccCheckScalrTagRename(tag *scalr.Tag) func() {
 	return func() {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
-		t, err := scalrClient.Tags.ReadByID(ctx, tag.ID)
+		t, err := scalrClient.Tags.Read(ctx, tag.ID)
 
 		if err != nil {
 			log.Fatalf("Error retrieving tag: %v", err)
@@ -173,7 +173,7 @@ func testAccCheckScalrTagExists(resId string, tag *scalr.Tag) resource.TestCheck
 		}
 
 		// Get the tag
-		t, err := scalrClient.Tags.ReadByID(ctx, rs.Primary.ID)
+		t, err := scalrClient.Tags.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -196,7 +196,7 @@ func testAccCheckScalrTagDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := scalrClient.Tags.ReadByID(ctx, rs.Primary.ID)
+		_, err := scalrClient.Tags.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Tag %s still exists", rs.Primary.ID)
 		}

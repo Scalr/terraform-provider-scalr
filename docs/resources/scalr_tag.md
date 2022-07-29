@@ -17,7 +17,7 @@ Basic usage:
 ```hcl
 resource "scalr_tag" "example" {
   name       = "tag-name"
-  account_id = "acc-<id>"
+  account_id = "acc-xxxxxxxxx"
 }
 ```
 

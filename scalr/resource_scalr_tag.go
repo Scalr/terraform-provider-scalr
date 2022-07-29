@@ -37,10 +37,10 @@ func resourceScalrTagRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 
 	log.Printf("[DEBUG] Read tag: %s", id)
-	tag, err := scalrClient.Tags.ReadByID(ctx, id)
+	tag, err := scalrClient.Tags.Read(ctx, id)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			log.Printf("[DEBUG] Tag %s does no longer exist", id)
+			log.Printf("[DEBUG] Tag %s not found", id)
 			d.SetId("")
 			return nil
 		}
@@ -66,7 +66,7 @@ func resourceScalrTagCreate(d *schema.ResourceData, meta interface{}) error {
 		Account: &scalr.Account{ID: accountID},
 	}
 
-	log.Printf("[DEBUG] Create tag %s for account: %s", name, accountID)
+	log.Printf("[DEBUG] Create tag %s for account %s", name, accountID)
 	tag, err := scalrClient.Tags.Create(ctx, options)
 	if err != nil {
 		return fmt.Errorf(
