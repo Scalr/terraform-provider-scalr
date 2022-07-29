@@ -293,9 +293,6 @@ func testAccCheckProviderConfigurationCustomValues(providerConfiguration *scalr.
 		if providerConfiguration.ProviderName != "kubernetes" {
 			return fmt.Errorf("bad provider type, expected \"%s\", got: %#v", "kubernetes", providerConfiguration.ProviderName)
 		}
-		if providerConfiguration.ExportShellVariables != true {
-			return fmt.Errorf("bad export shell variables, expected \"%t\", got: %#v", true, providerConfiguration.ExportShellVariables)
-		}
 		if providerConfiguration.IsShared != true {
 			return fmt.Errorf("bad `is shared`, expected \"%t\", got: %#v", true, providerConfiguration.IsShared)
 		}
@@ -588,7 +585,6 @@ func testAccScalrProviderConfigurationCustomConfig(name string) string {
 resource "scalr_provider_configuration" "kubernetes" {
   name                   = "%s"
   account_id             = "%s"
-  export_shell_variables = true
   environments           = ["*"]
   custom {
     provider_name = "kubernetes"
