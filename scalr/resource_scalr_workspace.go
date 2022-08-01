@@ -246,6 +246,11 @@ func resourceScalrWorkspace() *schema.Resource {
 					},
 				},
 			},
+			"tag_ids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -363,6 +368,15 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 			varFiles = append(varFiles, varFile.(string))
 		}
 		options.VarFiles = varFiles
+	}
+
+	if tagIDs, ok := d.GetOk("tag_ids"); ok {
+		tagIDsList := tagIDs.(*schema.Set).List()
+		tags := make([]*scalr.Tag, len(tagIDsList))
+		for i, id := range tagIDsList {
+			tags[i] = &scalr.Tag{ID: id.(string)}
+		}
+		options.Tags = tags
 	}
 
 	log.Printf("[DEBUG] Create workspace %s for environment: %s", name, environmentID)
@@ -485,6 +499,14 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 		})
 	}
 	d.Set("provider_configuration", providerConfigurations)
+
+	var tagIDs []string
+	if len(workspace.Tags) != 0 {
+		for _, tag := range workspace.Tags {
+			tagIDs = append(tagIDs, tag.ID)
+		}
+	}
+	d.Set("tag_ids", tagIDs)
 
 	return nil
 }
@@ -643,6 +665,30 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 					"Error creating provider configuration link in workspace %s: %v", id, err)
 			}
 
+		}
+	}
+
+	if d.HasChange("tag_ids") {
+		oldTags, newTags := d.GetChange("tag_ids")
+		oldSet := oldTags.(*schema.Set)
+		newSet := newTags.(*schema.Set)
+		tagsToAdd := InterfaceArrToTagRelationArr(newSet.Difference(oldSet).List())
+		tagsToDelete := InterfaceArrToTagRelationArr(oldSet.Difference(newSet).List())
+
+		if len(tagsToAdd) > 0 {
+			err := scalrClient.WorkspaceTags.Add(ctx, id, tagsToAdd)
+			if err != nil {
+				return fmt.Errorf(
+					"Error adding tags to workspace %s: %v", id, err)
+			}
+		}
+
+		if len(tagsToDelete) > 0 {
+			err := scalrClient.WorkspaceTags.Delete(ctx, id, tagsToDelete)
+			if err != nil {
+				return fmt.Errorf(
+					"Error deleting tags from workspace %s: %v", id, err)
+			}
 		}
 	}
 

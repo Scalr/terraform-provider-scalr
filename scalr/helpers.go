@@ -150,3 +150,11 @@ func ValidateIDsDefinitions(d []interface{}) error {
 	}
 	return nil
 }
+
+func InterfaceArrToTagRelationArr(arr []interface{}) []*scalr.TagRelation {
+	tags := make([]*scalr.TagRelation, len(arr))
+	for i, id := range arr {
+		tags[i] = &scalr.TagRelation{ID: id.(string)}
+	}
+	return tags
+}

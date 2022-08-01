@@ -124,6 +124,12 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				},
 			},
 
+			"tag_ids": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
 			"created_by": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -213,6 +219,14 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 		})
 	}
 	d.Set("hooks", hooks)
+
+	var tags []string
+	if len(workspace.Tags) != 0 {
+		for _, tag := range workspace.Tags {
+			tags = append(tags, tag.ID)
+		}
+	}
+	d.Set("tag_ids", tags)
 
 	d.SetId(workspace.ID)
 
