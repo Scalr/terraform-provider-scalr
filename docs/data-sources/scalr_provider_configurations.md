@@ -21,6 +21,7 @@ The following arguments are supported:
 
 * `name` - (Optional) The query used in a Scalr provider configuration name filter.
 * `provider_name` - (Optional) The name of a Terraform provider.
+* `account_id` - (Optional) The identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.
 
 ## Attribute Reference
 
