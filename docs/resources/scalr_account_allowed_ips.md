@@ -1,12 +1,5 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_account_allowed_ips"
-sidebar_current: "docs-resource-scalr-account-allowed-ips"
-description: |-
-  Manages allowed ips for account.
----
 
-# scalr_account_allowed_ips Resource
+# Resource `scalr_account_allowed_ips` 
 
 Manages the list of allowed IPs for an account in Scalr. Create, update and destroy.
 
@@ -14,7 +7,7 @@ Manages the list of allowed IPs for an account in Scalr. Create, update and dest
 
 Basic usage:
 
-```hcl
+```javascript
 resource "scalr_account_allowed_ips" "default" {
   account_id  = "acc-xxxxxxxx"
   allowed_ips = ["127.0.0.1", "192.168.0.0/24"]

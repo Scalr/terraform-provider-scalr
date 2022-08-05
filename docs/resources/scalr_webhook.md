@@ -1,12 +1,5 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_webhook"
-sidebar_current: "docs-resource-scalr-webhook"
-description: |-
-  Manages webhooks.
----
 
-# scalr_webhook resource
+# Resource `scalr_webhook`
 
 Manage the state of webhooks in Scalr. Creates, updates and destroy.
 

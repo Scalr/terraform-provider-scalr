@@ -1,14 +1,7 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_tag"
-sidebar_current: "docs-resource-scalr-tag"
-description: |-
-  Manages tags.
----
 
-# scalr_tag Resource
+# Resource `scalr_tag`
 
-Manage the state of tags in Scalr.
+Manages the state of tags in Scalr.
 
 ## Example Usage
 
