@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `scalr_provider_configuration` data source: added new filter argument `account_id` ([163](https://github.com/Scalr/terraform-provider-scalr/pull/163))
+
+### Required
+
+- scalr-server >= `8.30.0`
+
 ## [1.0.0-rc35] - 2022-08-05
 
 ### Added
