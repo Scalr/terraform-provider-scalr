@@ -18,6 +18,13 @@ data "scalr_webhook" "example" {
 }
 ```
 
+```javascript
+data "scalr_webhook" "example" {
+  name = "webhook_name"
+  account_id = "<acc-id>"
+}
+```
+
 ## Argument Reference
 
 * `id` - (Optional) The webhook ID, in the format `wh-<RANDOM STRING>`.

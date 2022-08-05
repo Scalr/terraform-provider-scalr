@@ -1,5 +1,5 @@
 
-# Resource `scalr_workspace_run_schedule` 
+# scalr_workspace_run_schedule Resource
 
 Allows workspace admins to automate the configuration of recurring runs for a workspace.
 
@@ -7,7 +7,7 @@ Allows workspace admins to automate the configuration of recurring runs for a wo
 
 Basic usage:
 
-```hcl
+```javascript
 data scalr_environment "current" {
   account_id = "acc-12345"
   name = "dev"

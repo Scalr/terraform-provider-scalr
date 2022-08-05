@@ -5,7 +5,7 @@ Retrieves a list of provider configuration ids by name or type.
 
 ## Example Usage
 
-```hcl
+```javascript
 data "scalr_provider_configurations" "aws" {
   name = "in:aws_dev,aws_demo,aws_prod"
 }

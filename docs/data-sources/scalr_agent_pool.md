@@ -25,4 +25,4 @@ data "scalr_agent_pool" "default" {
 All arguments plus:
 
 * `id` - The ID of the agent pool.
-* `workspace_ids` - The list of workspace identifiers that uses current pool to execute runs in.
+* `workspace_ids` - The list of IDs of linked workspaces.

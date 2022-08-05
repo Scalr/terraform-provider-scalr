@@ -17,6 +17,12 @@ data "scalr_endpoint" "example" {
 }
 ```
 
+```javascript
+data "scalr_endpoint" "example" {
+  name = "endpoint_name"
+}
+```
+
 ## Argument Reference
 
 * `id` - (Optional) The endpoint ID, in the format `env-<RANDOM STRING>`.

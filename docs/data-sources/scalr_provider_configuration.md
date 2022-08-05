@@ -5,7 +5,7 @@ Retrieves the id of a single provider configuration by name or type.
 
 ## Example Usage
 
-```hcl
+```javascript
 data "scalr_provider_configuration" "aws_dev" {
   name = "aws_dev"
 }
