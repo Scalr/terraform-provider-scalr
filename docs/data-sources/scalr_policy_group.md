@@ -24,7 +24,7 @@ All arguments plus:
 * `id` - An identifier of the policy group.
 * `status` - A system status of the policy group.
 * `error_message` - An error details if Scalr failed to process the policy group.
-* `opa_version` -  A version of Open Policy Agent the policy group verifies run on. 
+* `opa_version` -  The version of the Open Policy Agent that the policy group is using. 
 * `vcs_provider_id` - The VCS provider idenitfier for the repository where the policy group resides. In the format `vcs-<RANDOM STRING>`.
 * `vcs_repo` - Contains VCS-related meta-data for the policy group.
 * `policies` - A list of the OPA policies the policy group verifies each run.
