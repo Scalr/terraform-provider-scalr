@@ -1,12 +1,5 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_policy_group"
-sidebar_current: "docs-resource-scalr-policy-group"
-description: |-
-  Manages policy groups.
----
 
-# scalr_policy_group Resource
+# Resource `scalr_policy_group`
 
 Manage the state of policy groups in Scalr. Create, update and destroy.
 
@@ -33,7 +26,7 @@ resource "scalr_policy_group" "example" {
 * `vcs_provider_id` - (Required) The identifier of a VCS provider, in the format `vcs-<RANDOM STRING>`.
 * `vcs_repo` - (Required) Object. The VCS meta-data to create the policy from:
 
-    * `identifier` - (Required) The reference to the VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
+    * `identifier` - (Required) The reference to the VCS repository in the format `:org/:repo`, refers to the organization and repository in your VCS provider.
     * `branch` - (Optional) The branch of a repository the policy group is associated with. If omitted, the repository default branch will be used.
     * `path` - (Optional) The subdirectory of the VCS repository where OPA policies are stored. If omitted or submitted as an empty string, this defaults to the repository's root.
 
@@ -48,7 +41,7 @@ All arguments plus:
 * `error_message` - A detailed error if Scalr failed to process the policy group.
 * `policies` - A list of the OPA policies the group verifies each run.
 * `environments` - A list of the environments the policy group is linked to.
-* `workspaces` - A list of the workspaces this policy group verify runs for.
+* `workspaces` - A list of the workspaces this policy group verifies runs for.
 
 The `policies` list contains definitions of OPA policies in the following form:
 
@@ -58,7 +51,7 @@ The `policies` list contains definitions of OPA policies in the following form:
 
 ## Import
 
-To import policy groups use policy group ID as the import ID. For example:
+To import policy groups use the policy group ID as the import ID. For example:
 
 ```shell
 terraform import scalr_policy_group.example pgrp-svsu2dqfvtk5qfg

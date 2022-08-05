@@ -1,14 +1,7 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_tag"
-sidebar_current: "docs-datasource-scalr-tag-x"
-description: |-
-  Get information on a tag.
----
 
-# scalr_tag Data Source
+# Data Source `scalr_tag` 
 
-This data source is used to retrieve details of a tag.
+Retrieves information about the tag.
 
 ## Example Usage
 
@@ -21,8 +14,8 @@ data "scalr_tag" "example" {
 
 ## Arguments
 
-* `name` - (Required) Name of the tag.
-* `account_id` - (Required) ID of the environment account, in the format `acc-<RANDOM STRING>`
+* `name` - (Required) A name of the tag.
+* `account_id` - (Required) An ID of the Sclar account, in the format `acc-<RANDOM STRING>`
 
 ## Attributes
 

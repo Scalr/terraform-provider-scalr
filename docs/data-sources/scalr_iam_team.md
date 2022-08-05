@@ -1,12 +1,5 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_iam_team"
-sidebar_current: "docs-datasource-scalr-iam-team-x"
-description: |-
-Get information on a team.
----
 
-# scalr_iam_team Data Source
+# Data Source `scalr_iam_team` 
 
 Retrieves the details of a team by the name and account_id.
 

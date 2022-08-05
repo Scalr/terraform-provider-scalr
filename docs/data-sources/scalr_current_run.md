@@ -1,14 +1,7 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_current_run"
-sidebar_current: "docs-datasource-scalr-current-run-x"
-description: |-
-  Get information on the current run.
----
 
-# scalr_current_run Data Source
+# Data Source `scalr_current_run` 
 
-This data source allows you to get information about the current Terraform run when using a Scalr remote backend workspace, including VCS (Git) metadata.
+Allows you to get information about the current Terraform run when using a Scalr remote backend workspace, including VCS (Git) metadata.
 
 ## Example Usage
 
@@ -19,11 +12,9 @@ data scalr_current_run example {
 
 ## Argument Reference
 
-No arguments required. This data source returns details of the current run.
+No arguments are required. The data source returns details of the current run based on the `SCALR_RUN_ID` shell variable that is automatically exported in the Scalr remoted backend.
 
 ## Attribute Reference
-
-All arguments plus:
 
 * `id` - The ID of the run, in the format `run-<RANDOM STRING>`
 * `environment_id` - The ID of the environment, in the format `env-<RANDOM STRING>`
@@ -32,7 +23,7 @@ All arguments plus:
 * `is_destroy` - Boolean indicates if this is a "destroy" run.
 * `is_dry` - Boolean indicates if this is a dry run, i.e. triggered by a Pull Request (PR). No apply phase if this is true.
 * `message` - Message describing how the run was triggered
-* `source` - The source of the run (VCS, api, Manual).
+* `source` - The source of the run (VCS, API, Manual).
 
 The `vcs` block contains:
 
@@ -44,10 +35,10 @@ The `vcs.commit` block contains:
 
 * `message` - Message for the last commit.
 * `sha` - SHA of the last commit.
-* `author` - Details of the commit author.
+* `author` - Details of the author of the last commit.
 
 The `vcs.commit.author` block contains:
 
-* `email` - email_address of author in the VCS.
-* `name` - Name of author in the VCS.
-* `username` - Username of author in the VCS.
+* `email` - email_address of the author in the VCS.
+* `name` - Name of the author in the VCS.
+* `username` - Username of the author in the VCS.

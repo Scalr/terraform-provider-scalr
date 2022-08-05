@@ -1,12 +1,5 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_policy_group"
-sidebar_current: "docs-datasource-scalr-policy-group-x"
-description: |-
-  Get information on a policy group.
----
 
-# scalr_policy_group Data Source
+# Data Source `scalr_policy_group` 
 
 Retrieves the details of a policy group by the name and account_id.
 
@@ -31,12 +24,12 @@ All arguments plus:
 * `id` - An identifier of the policy group.
 * `status` - A system status of the policy group.
 * `error_message` - An error details if Scalr failed to process the policy group.
-* `opa_version` -  A version of Open Policy Agent the policy group verify run on. 
-* `vcs_provider_id` - An identifier of a VCS provider the policy group is create from. In the format `vcs-<RANDOM STRING>`.
-* `vcs_repo` - Contains VCS-related meta-data the policy group is created from.
+* `opa_version` -  A version of Open Policy Agent the policy group verifies run on. 
+* `vcs_provider_id` - An identifier of a VCS provider in the policy group is created. In the format `vcs-<RANDOM STRING>`.
+* `vcs_repo` - Contains VCS-related meta-data the policy group created from.
 * `policies` - A list of the OPA policies the policy group verifies each run.
 * `environments` - A list of the environments the policy group is linked to.
-* `workspaces` - A list of the workspaces this policy group verify runs for.
+* `workspaces` - A list of the workspaces this policy group verifies runs for.
 
 The `vcs_repo` object contains:
 

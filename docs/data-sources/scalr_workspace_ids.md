@@ -1,14 +1,7 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_workspace_ids"
-sidebar_current: "docs-datasource-scalr-workspace-ids"
-description: |-
-  Get information on workspace IDs.
----
 
-# scalr_workspace_ids Data Source
+# Data Source `scalr_workspace_ids` 
 
-Obtain a map of workspace IDs based on the names provided. Wildcards are accepted.
+Retrieves a map of workspace IDs based on the names provided. Wildcards are accepted.
 
 ## Example Usage
 

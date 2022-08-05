@@ -1,14 +1,7 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_provider_configuration"
-sidebar_current: "docs-datasource-scalr-provider-configuration"
-description: |-
-  Get information on a provider configuration.
----
 
-# scalr_provider_configuration Data Source
+# Data Source `scalr_provider_configuration` 
 
-This data source is used to retrieve the id of a single provider configuration by name or type.
+Retrieves the id of a single provider configuration by name or type.
 
 ## Example Usage
 

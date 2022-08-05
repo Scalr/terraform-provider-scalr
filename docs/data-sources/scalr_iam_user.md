@@ -1,12 +1,5 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_iam_user"
-sidebar_current: "docs-datasource-scalr-iam-user-x"
-description: |-
-Get information on a user.
----
 
-# scalr_iam_user Data Source
+# Data Source `scalr_iam_user` 
 
 Retrieves the details of a Scalr user by the email.
 

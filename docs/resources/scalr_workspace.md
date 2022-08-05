@@ -1,12 +1,5 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_workspace"
-sidebar_current: "docs-resource-scalr-workspace"
-description: |-
-  Manages workspaces.
----
 
-# scalr_workspace Resource
+# Resource `scalr_workspace` 
 
 Manage the state of workspaces in Scalr. Create, update and destroy
 
@@ -18,12 +11,12 @@ Basic usage:
 ```hcl
 data "scalr_vcs_provider" test {
   name = "vcs-name"
-  account_id = "acc-xxxx" # in case if user has access to more than one account
+  account_id = "acc-xxxx" # in case if a user has access to more than one account
 }
 
 data "scalr_environment" test {
   name = "env-name"
-  account_id = "acc-xxxx" # in case if user has access to more than one account
+  account_id = "acc-xxxx" # in case if a user has access to more than one account
 }
 
 resource "scalr_workspace" "vcs-driven" {
@@ -124,8 +117,8 @@ resource "scalr_workspace" "cli-driven" {
 * `hooks` - (Optional) Settings for the workspaces custom hooks.
 
    The `hooks` block supports: 
-  * `pre_init` - (Optional) Action that will be called before init phase
-  * `pre_plan` - (Optional) Action that will be called before plan phase
+  * `pre_init` - (Optional) Action that will be called before the init phase
+  * `pre_plan` - (Optional) Action that will be called before the plan phase
   * `post_plan` - (Optional) Action that will be called after plan phase
   * `pre_apply` - (Optional) Action that will be called before apply phase
   * `post_apply` - (Optional) Action that will be called after apply phase

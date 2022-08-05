@@ -1,12 +1,5 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_role"
-sidebar_current: "docs-resource-scalr-role"
-description: |-
-  Manages role.
----
 
-# scalr_role Resource
+# Resource `scalr_role`
 
 Manage the Scalr IAM roles. Create, update and destroy.
 

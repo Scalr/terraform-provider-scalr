@@ -1,12 +1,5 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_workspace_run_schedule"
-sidebar_current: "docs-resource-scalr-workspace-run-schedule"
-description: |-
-Manages run schedules.
----
 
-# scalr_workspace_run_schedule Resource
+# Resource `scalr_workspace_run_schedule` 
 
 Allows workspace admins to automate the configuration of recurring runs for a workspace.
 

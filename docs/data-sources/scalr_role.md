@@ -1,18 +1,11 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_role"
-sidebar_current: "docs-datasource-scalr-role-x"
-description: |-
-  Get information on a IAM role.
----
 
-# scalr_role Data Source
+# Data Source `scalr_role` 
 
 This data source is used to retrieve details of a single role by name and account_id.
 
 ## Example Usage
 
-To retrieve a custom role, an account id and the role name is required, for example: 
+To retrieve a custom role, an account id and the role name are required, for example: 
 
 ```hcl
 data "scalr_role" "example" {
