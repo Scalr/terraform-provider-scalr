@@ -33,10 +33,10 @@ All arguments plus:
 * `module_version_id` - The identifier of a module version in the format `modver-<RANDOM STRING>`.
 * `tag_ids` - List of tag IDs associated with the workspace.
 * `vcs_provider_id` - The identifier of a VCS provider in the format `vcs-<RANDOM STRING>`.
-* `vcs_repo` - If a workspace is linked to the VCS repository this block shows the details, otherwise `{}`
+* `vcs_repo` - If a workspace is linked to a VCS repository this block shows the details, otherwise `{}`
 * `created_by` - Details of the user that created the workspace.
 * `has_resources` - The presence of active terraform resources in the current state version.
-* `hooks` - List of the workspaces' custom hooks.
+* `hooks` - List of custom hooks in a workspace.
 
   The `hooks` block supports:
 
@@ -48,7 +48,7 @@ All arguments plus:
 
 The `vcs_repo` block contains:
 
-* `identifier` - * The reference to the VCS repository in the format `:org/:repo`, refers to the organization and repository in your VCS provider.
+* `identifier` - * The reference to the VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
 * `path` - Path within the repo, if any.
 * `dry_runs_enabled` - Boolean indicates the VCS-driven dry runs should run when the pull request to the configuration versions branch is created.
 * `ingress_submodules` - Designates whether to clone git submodules of the VCS repository.

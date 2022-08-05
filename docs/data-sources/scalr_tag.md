@@ -1,7 +1,7 @@
 
 # Data Source `scalr_tag` 
 
-Retrieves information about the tag.
+Retrieves information about a tag.
 
 ## Example Usage
 
@@ -14,8 +14,8 @@ data "scalr_tag" "example" {
 
 ## Arguments
 
-* `name` - (Required) A name of the tag.
-* `account_id` - (Required) An ID of the Sclar account, in the format `acc-<RANDOM STRING>`
+* `name` - (Required) The name of the tag.
+* `account_id` - (Required) The ID of the Scalr account, in the format `acc-<RANDOM STRING>`
 
 ## Attributes
 

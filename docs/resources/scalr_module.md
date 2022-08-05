@@ -46,7 +46,7 @@ All arguments plus:
 
 ## Import
 
-To import a module use module ID as the import ID. For example:
+To import a module use the module ID as the import ID. For example:
 
 ```shell
 terraform import scalr_module.example mod-tk4315k3lofu4i0

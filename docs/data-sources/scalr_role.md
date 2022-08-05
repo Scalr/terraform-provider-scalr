@@ -5,7 +5,7 @@ This data source is used to retrieve details of a single role by name and accoun
 
 ## Example Usage
 
-To retrieve a custom role, an account id and the role name are required, for example: 
+To retrieve a custom role, an account id and role name are required, for example: 
 
 ```hcl
 data "scalr_role" "example" {
