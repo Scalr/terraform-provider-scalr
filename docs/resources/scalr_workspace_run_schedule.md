@@ -1,10 +1,3 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_workspace_run_schedule"
-sidebar_current: "docs-resource-scalr-workspace-run-schedule"
-description: |-
-Manages run schedules.
----
 
 # scalr_workspace_run_schedule Resource
 
@@ -14,7 +7,7 @@ Allows workspace admins to automate the configuration of recurring runs for a wo
 
 Basic usage:
 
-```hcl
+```javascript
 data scalr_environment "current" {
   account_id = "acc-12345"
   name = "dev"

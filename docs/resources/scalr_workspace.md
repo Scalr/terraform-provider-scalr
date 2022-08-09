@@ -1,12 +1,5 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_workspace"
-sidebar_current: "docs-resource-scalr-workspace"
-description: |-
-  Manages workspaces.
----
 
-# scalr_workspace Resource
+# Resource `scalr_workspace` 
 
 Manage the state of workspaces in Scalr. Create, update and destroy
 
@@ -15,7 +8,7 @@ Manage the state of workspaces in Scalr. Create, update and destroy
 Basic usage:
 
 ### VCS-driven
-```hcl
+```javascript
 data "scalr_vcs_provider" test {
   name = "vcs-name"
   account_id = "acc-xxxx" # in case if user has access to more than one account
@@ -23,7 +16,7 @@ data "scalr_vcs_provider" test {
 
 data "scalr_environment" test {
   name = "env-name"
-  account_id = "acc-xxxx" # in case if user has access to more than one account
+  account_id = "acc-xxxx" # in case if a user has access to more than one account
 }
 
 resource "scalr_workspace" "vcs-driven" {
@@ -52,7 +45,7 @@ resource "scalr_workspace" "vcs-driven" {
 
 ### Module-driven
 
-```hcl
+```javascript
 data "scalr_environment" test {
   name = "env-name"
   # account_id = "acc-xxxx" # Optional, in case if user has access to more than one account
@@ -82,7 +75,7 @@ resource "scalr_workspace" "example" {
 
 ### CLI-driven
 
-```hcl
+```javascript
 data "scalr_environment" test {
   name = "env-name"
   # account_id = "acc-xxxx" # Optional, in case if user has access to more than one account
@@ -105,11 +98,11 @@ resource "scalr_workspace" "cli-driven" {
 * `execution-mode` - (Optional) Which execution mode to use. Valid values are `remote` and `local`. When set to `local`, the workspace will be used for state storage only. Defaults to `remote` (not set, backend default is used).
 * `terraform_version` - (Optional) The version of Terraform to use for this workspace. Defaults to the latest available version.
 * `working_directory` - (Optional) A relative path that Terraform will be run in. Defaults to the root of the repository `""`.
-* `var_files` - (Optional) List of paths to the workspace variables files.
+var_files` - (Optional) A list of paths to the `.tfvars` file(s) to be used as part of the workspace configuration.
 * `run_operation_timeout` - (Optional) The number of minutes run operation can be executed before termination. Defaults to `0` (not set, backend default is used).
 * `module_version_id` - (Optional) The identifier of a module version in the format `modver-<RANDOM STRING>`. This attribute conflicts with `vcs_provider_id` and `vcs_repo` attributes.
 * `agent_pool_id` - (Optional) The identifier of an agent pool in the format `apool-<RANDOM STRING>`.
-* `tags` - (Optional) List of tag IDs associated with the workspace.
+* `tag_ids` - (Optional) List of tag IDs associated with the workspace.
 * `vcs_provider_id` - (Optional) ID of vcs provider - required if vcs-repo present and vice versa, in the format `vcs-<RANDOM STRING>`
 * `vcs_repo` - (Optional) Settings for the workspace's VCS repository.
 
@@ -124,8 +117,8 @@ resource "scalr_workspace" "cli-driven" {
 * `hooks` - (Optional) Settings for the workspaces custom hooks.
 
    The `hooks` block supports: 
-  * `pre_init` - (Optional) Action that will be called before init phase
-  * `pre_plan` - (Optional) Action that will be called before plan phase
+  * `pre_init` - (Optional) Action that will be called before the init phase
+  * `pre_plan` - (Optional) Action that will be called before the plan phase
   * `post_plan` - (Optional) Action that will be called after plan phase
   * `pre_apply` - (Optional) Action that will be called before apply phase
   * `post_apply` - (Optional) Action that will be called after apply phase
@@ -153,6 +146,7 @@ The `created_by` block contains:
 ## Import
 
 To import workspaces use workspace ID as the import ID. For example:
+
 ```shell
 terraform import scalr_workspace.example ws-t47s1aa6s4boubg
 ```

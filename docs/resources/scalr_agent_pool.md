@@ -1,12 +1,5 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_agent_pool"
-sidebar_current: "docs-resource-scalr-agent-pool"
-description: |-
-  Manages agent pools.
----
 
-# scalr_agent_pool Resource
+# Resource `scalr_agent_pool` 
 
 Manage the state of agent pools in Scalr. Create, update and destroy.
 
@@ -36,6 +29,7 @@ All arguments plus:
 ## Import
 
 To import agent pool use agent pool ID as the import ID. For example:
+
 ```shell
 terraform import scalr_agent_pool.default apool-xxxxxxxxx
 ```

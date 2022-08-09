@@ -1,14 +1,7 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_environment"
-sidebar_current: "docs-resource-scalr-environment"
-description: |-
-  Manages environments.
----
 
-# scalr_environment Resource
+# Resource `scalr_environment`
 
-Manage the state of environments in Scalr. Creates, updates and destroy.
+Manage the state of environments in Scalr. Creates, updates and destroys.
 
 ## Example Usage
 
@@ -40,7 +33,7 @@ All arguments plus:
 
 * `id` - The environment ID, in the format `env-<RANDOM STRING>`.
 * `created_by` - Details of the user that created the environment.
-* `status` - Shows status of the environment. 
+* `status` - The status of the environment. 
 
 The `created_by` block contains:
 

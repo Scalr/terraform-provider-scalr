@@ -1,12 +1,5 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_endpoint"
-sidebar_current: "docs-resource-scalr-endpoint"
-description: |-
-  Manages endpoints.
----
 
-# scalr_endpoint Resource
+# Resource `scalr_endpoint` 
 
 Manage the state of endpoints in Scalr. Create, update and destroy
 
@@ -42,7 +35,7 @@ All arguments plus:
 
 ## Useful snippets
 
-Secret key can be generated using the `random_string` resource.
+The secret key can be generated using the `random_string` resource.
 
 ```hcl
 resource "random_string" "r" {

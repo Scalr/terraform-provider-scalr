@@ -1,14 +1,7 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_workspace"
-sidebar_current: "docs-datasource-scalr-workspace-x"
-description: |-
-  Get information on a workspace.
----
 
-# scalr_workspace Data Source
+# Data Source `scalr_workspace`
 
-This data source is used to retrieve details of a single workspace by name.
+Retrieves the details of a single workspace by name.
 
 ## Example Usage
 
@@ -31,7 +24,7 @@ The following arguments are supported:
 All arguments plus:
 
 * `id` - The workspace ID, in the format `ws-<RANDOM STRING>`.
-* `auto_apply` - Boolean indicates if `terrafrom apply` will be automatically run when `terraform plan` ends without error.
+* `auto_apply` - Boolean indicates if `terraform apply` will be automatically run when `terraform plan` ends without error.
 * `operations` - Boolean indicates if the workspace is being used for remote execution.
 * `execution-mode` - Execution mode of the workspace.
 * `terraform_version` - The version of Terraform used for this workspace.
@@ -40,10 +33,10 @@ All arguments plus:
 * `module_version_id` - The identifier of a module version in the format `modver-<RANDOM STRING>`.
 * `tag_ids` - List of tag IDs associated with the workspace.
 * `vcs_provider_id` - The identifier of a VCS provider in the format `vcs-<RANDOM STRING>`.
-* `vcs_repo` - If workspace is linked to VCS repository this block shows the details, otherwise `{}`
+* `vcs_repo` - If a workspace is linked to a VCS repository this block shows the details, otherwise `{}`
 * `created_by` - Details of the user that created the workspace.
 * `has_resources` - The presence of active terraform resources in the current state version.
-* `hooks` - List of the workspace's custom hooks.
+* `hooks` - List of custom hooks in a workspace.
 
   The `hooks` block supports:
 
@@ -57,7 +50,7 @@ The `vcs_repo` block contains:
 
 * `identifier` - * The reference to the VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.
 * `path` - Path within the repo, if any.
-* `dry_runs_enabled` - Boolean indicates the VCS driven dry runs should run when pull request to configuration versions branch created.
+* `dry_runs_enabled` - Boolean indicates the VCS-driven dry runs should run when the pull request to the configuration versions branch is created.
 * `ingress_submodules` - Designates whether to clone git submodules of the VCS repository.
 
 The `created_by` block contains:

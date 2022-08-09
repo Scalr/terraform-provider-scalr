@@ -1,12 +1,5 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_policy_group_linkage"
-sidebar_current: "docs-resource-scalr-policy-group-linkage"
-description: |-
-  Manages policy group to environment linkage.
----
 
-# scalr_policy_group_linkage Resource
+# Resource `scalr_policy_group_linkage` 
 
 Manage policy group to environment linking in Scalr. Create, update and destroy.
 

@@ -1,18 +1,11 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_provider_configuration"
-sidebar_current: "docs-datasource-scalr-provider-configuration"
-description: |-
-  Get information on a provider configuration.
----
 
-# scalr_provider_configuration Data Source
+# Data Source `scalr_provider_configuration` 
 
-This data source is used to retrieve the id of a single provider configuration by name or type.
+Retrieves the id of a single provider configuration by name or type.
 
 ## Example Usage
 
-```hcl
+```javascript
 data "scalr_provider_configuration" "aws_dev" {
   name = "aws_dev"
 }
@@ -28,6 +21,7 @@ The following arguments are supported:
 
 * `name` - (Optional) The name of a Scalr provider configuration.
 * `provider_name` - (Optional) The name of a Terraform provider.
+* `account_id` - (Optional) The identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.
 
 ## Attribute Reference
 

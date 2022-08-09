@@ -1,14 +1,7 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_vcs_provider"
-sidebar_current: "docs-datasource-scalr-vcs-provider-x"
-description: |-
-  Get information on a vcs provider.
----
 
-# scalr_vcs_provider Data Source
+# Data Source `scalr_vcs_provider` 
 
-This data source is used to retrieve details of a vcs_provider.
+Retrieves the details of a vcs_provider.
 
 ## Example Usage
 
