@@ -70,7 +70,7 @@ func resourceScalrWebhook() *schema.Resource {
 	}
 }
 
-//remove after https://scalr-labs.atlassian.net/browse/SCALRCORE-16234
+// remove after https://scalr-labs.atlassian.net/browse/SCALRCORE-16234
 func getResourceScope(scalrClient *scalr.Client, workspaceID string, environmentID string) (*scalr.Workspace, *scalr.Environment, *scalr.Account, error) {
 
 	// Resource scope
