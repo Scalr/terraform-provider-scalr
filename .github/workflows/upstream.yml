@@ -32,7 +32,7 @@ jobs:
           go-version: "1.17"
       - name: Create container
         id: create
-        uses: Scalr/gh-action-revizor@master
+        uses: Scalr/gh-action-revizor@add-upstream-metadarta
         with:
           command: create
       - name: Run acceptance tests
