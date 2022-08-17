@@ -58,7 +58,7 @@ jobs:
           container_id: ${{ steps.create.outputs.container_id }}
       - name: Notify upstream about success
         if: ${{ success() }}
-        run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=success
+        run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=success run_id=${{ github.run_id }}
       - name: Notify upstream about failure
         if: ${{ failure() }}
-        run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=failure
+        run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=failure run_id=${{ github.run_id }}
