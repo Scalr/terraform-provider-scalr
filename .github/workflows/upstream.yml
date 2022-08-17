@@ -1,4 +1,4 @@
-name: upstream ${{ github.event.inputs.api-branch }}
+name: upstream
 
 on:
   workflow_dispatch:
