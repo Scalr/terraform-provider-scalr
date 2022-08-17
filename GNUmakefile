@@ -11,7 +11,7 @@ USER_PLUGIN_DIR=${HOME}/.terraform.d/plugins/scalr.io/scalr/scalr/$(VERSION)/$(P
 BIN_NAME := terraform-provider-scalr_$(VERSION)
 ARGS=-ldflags='-X github.com/scalr/terraform-provider-scalr/version.ProviderVersion=$(TAG) -X github.com/scalr/terraform-provider-scalr/version.Branch=$(BRANCH)'
 UPSTREAM_COMMIT_DESCRIPTION="Scalr terraform provider acceptance tests"
-UPSTREAM_COMMIT_TARGET_URL = "https://github.com/Scalr/terraform-provider-scalr/actions/workflows/upstream.yml"
+UPSTREAM_COMMIT_TARGET_URL_PREFIX = "https://github.com/Scalr/terraform-provider-scalr/actions/runs/"
 
 default: build
 
@@ -44,7 +44,7 @@ notify-upstream:
 	-H "Accept: application/vnd.github.v3+json" \
 	-H "Authorization: token $(ORG_ADMIN_TOKEN)" \
 	https://api.github.com/repos/Scalr/fatmouse/statuses/$(upstream_sha) \
-	-d '{"context":"downstream/provider", "state":"$(state)", "description": $(UPSTREAM_COMMIT_DESCRIPTION), "target_url": $(UPSTREAM_COMMIT_TARGET_URL)}'
+	-d '{"context":"downstream/provider", "state":"$(state)", "description": $(UPSTREAM_COMMIT_DESCRIPTION), "target_url": $(UPSTREAM_COMMIT_TARGET_URL_PREFIX)/$(run_id)}'
 
 
 vet:
