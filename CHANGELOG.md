@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `scalr_policy_group` data source: remove environments as include ([172](https://github.com/Scalr/terraform-provider-scalr/pull/172))
+- `scalr_policy_group` data source: remove environments include from policy groups ([172](https://github.com/Scalr/terraform-provider-scalr/pull/172))
 
 ## [1.0.0-rc36] - 2022-08-19
 
