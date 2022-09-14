@@ -85,12 +85,7 @@ func dataSourceScalrPolicyGroup() *schema.Resource {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"workspaces": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
+			}
 		},
 	}
 }
@@ -105,7 +100,7 @@ func dataSourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) er
 	options := scalr.PolicyGroupListOptions{
 		Account: accountID,
 		Name:    name,
-		Include: "policies,workspaces",
+		Include: "policies",
 	}
 	log.Printf("[DEBUG] Read configuration of policy group: %s/%s", accountID, name)
 
@@ -159,14 +154,6 @@ func dataSourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 	d.Set("environments", envs)
-
-	var wss []string
-	if len(pg.Workspaces) != 0 {
-		for _, ws := range pg.Workspaces {
-			wss = append(wss, ws.ID)
-		}
-	}
-	d.Set("workspaces", wss)
 
 	d.SetId(pg.ID)
 

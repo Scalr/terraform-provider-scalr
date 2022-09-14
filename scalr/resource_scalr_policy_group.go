@@ -93,12 +93,7 @@ func resourceScalrPolicyGroup() *schema.Resource {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"workspaces": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
+			}
 		},
 	}
 }
@@ -190,14 +185,6 @@ func resourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 	d.Set("environments", envs)
-
-	var wss []string
-	if len(pg.Workspaces) != 0 {
-		for _, ws := range pg.Workspaces {
-			wss = append(wss, ws.ID)
-		}
-	}
-	d.Set("workspaces", wss)
 
 	return nil
 }
