@@ -85,7 +85,7 @@ func dataSourceScalrPolicyGroup() *schema.Resource {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-			}
+			},
 		},
 	}
 }
