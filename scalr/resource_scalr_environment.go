@@ -75,6 +75,11 @@ func resourceScalrEnvironment() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"tag_ids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -140,6 +145,14 @@ func resourceScalrEnvironmentCreate(d *schema.ResourceData, meta interface{}) er
 		}
 		options.DefaultProviderConfigurations = pcfgValues
 
+	}
+	if tagIDs, ok := d.GetOk("tag_ids"); ok {
+		tagIDsList := tagIDs.(*schema.Set).List()
+		tags := make([]*scalr.Tag, len(tagIDsList))
+		for i, id := range tagIDsList {
+			tags[i] = &scalr.Tag{ID: id.(string)}
+		}
+		options.Tags = tags
 	}
 
 	log.Printf("[DEBUG] Create Environment %s for account: %s", name, accountID)
@@ -207,6 +220,14 @@ func resourceScalrEnvironmentRead(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.Set("policy_groups", policyGroups)
 
+	var tagIDs []string
+	if len(environment.Tags) != 0 {
+		for _, tag := range environment.Tags {
+			tagIDs = append(tagIDs, tag.ID)
+		}
+	}
+	d.Set("tag_ids", tagIDs)
+
 	return nil
 }
 
@@ -246,6 +267,30 @@ func resourceScalrEnvironmentUpdate(d *schema.ResourceData, meta interface{}) er
 	_, err = scalrClient.Environments.Update(ctx, d.Id(), options)
 	if err != nil {
 		return fmt.Errorf("Error updating environment %s: %v", d.Id(), err)
+	}
+
+	if d.HasChange("tag_ids") {
+		oldTags, newTags := d.GetChange("tag_ids")
+		oldSet := oldTags.(*schema.Set)
+		newSet := newTags.(*schema.Set)
+		tagsToAdd := InterfaceArrToTagRelationArr(newSet.Difference(oldSet).List())
+		tagsToDelete := InterfaceArrToTagRelationArr(oldSet.Difference(newSet).List())
+
+		if len(tagsToAdd) > 0 {
+			err := scalrClient.EnvironmentTags.Add(ctx, d.Id(), tagsToAdd)
+			if err != nil {
+				return fmt.Errorf(
+					"Error adding tags to environment %s: %v", d.Id(), err)
+			}
+		}
+
+		if len(tagsToDelete) > 0 {
+			err := scalrClient.EnvironmentTags.Delete(ctx, d.Id(), tagsToDelete)
+			if err != nil {
+				return fmt.Errorf(
+					"Error deleting tags from environment %s: %v", d.Id(), err)
+			}
+		}
 	}
 
 	return resourceScalrEnvironmentRead(d, meta)

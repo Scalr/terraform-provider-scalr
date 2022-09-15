@@ -66,6 +66,11 @@ func dataSourceScalrEnvironment() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"tag_ids": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		}}
 }
 
@@ -138,6 +143,14 @@ func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	d.Set("policy_groups", policyGroups)
+
+	var tags []string
+	if len(environment.Tags) != 0 {
+		for _, tag := range environment.Tags {
+			tags = append(tags, tag.ID)
+		}
+	}
+	d.Set("tag_ids", tags)
 
 	d.SetId(environment.ID)
 	return nil
