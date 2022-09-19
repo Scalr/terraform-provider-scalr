@@ -1,12 +1,5 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_provider_configuration"
-sidebar_current: "docs-resource-scalr-provider-configuration"
-description: |-
-  Manages provider configurations.
----
 
-# scalr_provider_configuration Resource
+# Resource `scalr_provider_configuration`
 
 A provider configuration helps organizations manage provider secrets in a centralized way.
 It natively supports the management of the major providers like Scalr, AWS, AzureRM, and Google Cloud Platform, 
@@ -16,7 +9,7 @@ but also allows registering any custom provider. Please have a look at the basic
 
 ### Scalr provider:
 
-```hcl
+```javascript
 resource "scalr_provider_configuration" "scalr" {
   name       = "scalr"
   account_id = "acc-xxxxxxxxx"
@@ -29,7 +22,7 @@ resource "scalr_provider_configuration" "scalr" {
 
 ### Aws provider:
 
-```hcl
+```javascript
 resource "scalr_provider_configuration" "aws" {
   name                   = "aws_dev_us_east_1"
   account_id             = "acc-xxxxxxxxx"
@@ -48,7 +41,7 @@ To get into more advanced AWS usage please refer to the official [AWS module](ht
 
 ### AzureRM provider:
 
-```hcl
+```javascript
 resource "scalr_provider_configuration" "azurerm" {
   name       = "azurerm"
   account_id = "acc-xxxxxxxxx"
@@ -63,7 +56,7 @@ resource "scalr_provider_configuration" "azurerm" {
 
 ### Google provider:
 
-```hcl
+```javascript
 resource "scalr_provider_configuration" "google" {
   name       = "google_main"
   account_id = "acc-xxxxxxxxx"
@@ -76,7 +69,7 @@ resource "scalr_provider_configuration" "google" {
 
 ### Custom providers:
 
-```hcl
+```javascript
 resource "scalr_provider_configuration" "kubernetes" {
   name                   = "k8s"
   account_id             = "acc-xxxxxxxxx"

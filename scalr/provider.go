@@ -3,7 +3,6 @@ package scalr
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -229,7 +228,7 @@ func cliConfig() *Config {
 	}
 
 	// Read the CLI config file content.
-	content, err := ioutil.ReadFile(configFilePath)
+	content, err := os.ReadFile(configFilePath)
 	if err != nil {
 		log.Printf("[ERROR] Error reading the CLI config file %s: %v", configFilePath, err)
 		return config

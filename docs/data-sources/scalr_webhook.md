@@ -1,14 +1,7 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_webhook"
-sidebar_current: "docs-datasource-scalr-webhook-x"
-description: |-
-  Get information on a webhook.
----
 
-# scalr_webhook Data Source
+# Data Source `scalr_webhook`
 
-This data source is used to retrieve details of a webhook.
+Retrieves the details of a webhook.
 
 ## Example Usage
 
@@ -19,6 +12,13 @@ data "scalr_webhook" "example" {
 ```
 
 ```hcl
+data "scalr_webhook" "example" {
+  name = "webhook_name"
+  account_id = "<acc-id>"
+}
+```
+
+```javascript
 data "scalr_webhook" "example" {
   name = "webhook_name"
   account_id = "<acc-id>"

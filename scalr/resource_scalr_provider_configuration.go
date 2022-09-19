@@ -108,6 +108,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 						"project": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 						},
 						"credentials": {
 							Type:      schema.TypeString,

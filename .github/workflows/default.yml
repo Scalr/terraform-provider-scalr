@@ -14,7 +14,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.45.2
+          version: v1.48.0
           args: --timeout 2m
   unit-tests:
     name: unit-tests
@@ -34,6 +34,7 @@ jobs:
       REVIZOR_URL: ${{ secrets.REVIZOR_URL }}
       REVIZOR_TOKEN: ${{ secrets.REVIZOR_TOKEN }}
       SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
+      UPSTREAM_ID: ${{ github.run_number }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2

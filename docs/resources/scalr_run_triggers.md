@@ -1,12 +1,5 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_run_trigger"
-sidebar_current: "docs-resource-scalr-run-trigger"
-description: |-
-  Manages workspace run triggers.
----
 
-# scalr_run_trigger Resource
+# Resource `scalr_run_trigger` 
 
 Run triggers are a way to chain workspaces together. 
 The use case for this is that you might have one or more upstream workspaces that need to automatically kick off a downstream workspace based on a successful run in the upstream workspace. 
@@ -49,7 +42,8 @@ All arguments plus:
 
 ## Import
 
-To import existing run trigger use its identifier. For example:
+To import an existing run trigger use its identifier. For example:
+
 ```shell
 terraform import scalr_run_trigger.set_downstream rt-xxxxxxxxxx
 ```

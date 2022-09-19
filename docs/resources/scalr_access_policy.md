@@ -1,14 +1,7 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_access_policy"
-sidebar_current: "docs-resource-scalr-access-policy"
-description: |-
-  Manages access policies.
----
 
-# scalr_access_policy Resource
+# Resource `scalr_access_policy`
 
-Manage the Scalr IAM access policies. Create, update and destroy.
+Manages the Scalr IAM access policies. Create, update and destroy.
 
 ## Example Usage
 
@@ -64,7 +57,8 @@ The `subject` block contains:
 * `type` - The subject type, is one of `user`, `team`, or `service_account`.
 * `id` - The subject ID, `user-<RANDOM STRING>` for user, `team-<RANDOM STRING>` for team, `sa-<RANDOM STRING>` for service account.## Import
 
-To import an access policy use access policy ID as the import ID. For example:
+To import an access policy use the access policy ID as the import ID. For example:
+
 ```shell
 terraform import scalr_access_policy.example ap-te2cteuismsqocd
 ```

@@ -1,12 +1,5 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_module"
-sidebar_current: "docs-resource-scalr-module"
-description: |-
-  Manages module.
----
 
-# scalr_module Resource
+# Resource `scalr_module`
 
 Manages the state of a module in the Private Modules Registry. Create and destroy operations are available only.
 
@@ -53,7 +46,8 @@ All arguments plus:
 
 ## Import
 
-To import module use module ID as the import ID. For example:
+To import a module use the module ID as the import ID. For example:
+
 ```shell
 terraform import scalr_module.example mod-tk4315k3lofu4i0
 ```

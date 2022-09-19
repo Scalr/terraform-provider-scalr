@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `scalr_policy_group` data source: remove environments include from policy groups ([172](https://github.com/Scalr/terraform-provider-scalr/pull/172))
+
+## [1.0.0-rc36] - 2022-08-19
+
+### Added
+
+- `scalr_provider_configuration` data source: added new filter argument `account_id` ([163](https://github.com/Scalr/terraform-provider-scalr/pull/163))
+
+### Fixed
+
+- `scalr_environment` resource: fixed unsetting the default provider configuration for an environment ([169](https://github.com/Scalr/terraform-provider-scalr/pull/169))
+
+### Required
+
+- scalr-server >= `8.31.0`
+
+## [1.0.0-rc35] - 2022-08-05
+
 ### Added
 
 - **New data source:**  `scalr_tag` ([#160](https://github.com/Scalr/terraform-provider-scalr/pull/160))
@@ -478,7 +498,9 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc34...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc36...HEAD
+[1.0.0-rc36]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc36
+[1.0.0-rc35]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc35
 [1.0.0-rc34]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc34
 [1.0.0-rc33]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc33
 [1.0.0-rc32]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc32

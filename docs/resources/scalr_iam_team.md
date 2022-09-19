@@ -1,12 +1,5 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_iam_team"
-sidebar_current: "docs-resource-scalr-iam-team"
-description: |-
-Manages teams.
----
 
-# scalr_iam_team Resource
+# Resource `scalr_iam_team` 
 
 Manages the Scalr IAM teams: performs create, update and destroy actions.
 

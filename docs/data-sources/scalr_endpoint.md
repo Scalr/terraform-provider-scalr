@@ -1,14 +1,7 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_endpoint"
-sidebar_current: "docs-datasource-scalr-endpoint-x"
-description: |-
-  Get information on an endpoint.
----
 
-# scalr_endpoint Data Source
+# Data Source `scalr_endpoint` 
 
-This data source is used to retrieve details of an endpoint.
+Retrieves the details of a webhook endpoint.
 
 ## Example Usage
 
@@ -19,6 +12,12 @@ data "scalr_endpoint" "example" {
 ```
 
 ```hcl
+data "scalr_endpoint" "example" {
+  name = "endpoint_name"
+}
+```
+
+```javascript
 data "scalr_endpoint" "example" {
   name = "endpoint_name"
 }

@@ -1,12 +1,5 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_agent_pool_token"
-sidebar_current: "docs-resource-scalr-agent-pool-token"
-description: |-
-  Manages agent pool's tokens.
----
 
-# scalr_agent_pool_token Resource
+# Resource `scalr_agent_pool_token` 
 
 Manage the state of agent pool's tokens in Scalr. Create, update and destroy.
 
@@ -36,6 +29,7 @@ All arguments plus:
 ## Import
 
 To import agent pool's token use token ID as the import ID. For example:
+
 ```shell
 terraform import scalr_agent_pool_token.default at-xxxxxxxxx
 ```

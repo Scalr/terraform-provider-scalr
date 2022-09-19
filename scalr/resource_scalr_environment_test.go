@@ -97,14 +97,21 @@ func TestAccEnvironmentWithProviderConfigurations_update(t *testing.T) {
 				Config: testAccEnvironmentWithProviderConfigurationsConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrEnvironmentExists("scalr_environment.test", environment),
-					testAccCheckScalrEnvironmentProviderConfigurations(environment, rInt),
+					testAccCheckScalrEnvironmentProviderConfigurations(environment),
 				),
 			},
 			{
 				Config: testAccEnvironmentWithProviderConfigurationsUpdateConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrEnvironmentExists("scalr_environment.test", environment),
-					testAccCheckScalrEnvironmentProviderConfigurationsUpdate(environment, rInt),
+					testAccCheckScalrEnvironmentProviderConfigurationsUpdate(environment),
+				),
+			},
+			{
+				Config: testAccEnvironmentWithProviderConfigurationsConfigRemovedDefault(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrEnvironmentExists("scalr_environment.test", environment),
+					testAccCheckScalrEnvironmentProviderConfigurationsDefaultRemoved(environment),
 				),
 			},
 		},
@@ -186,7 +193,7 @@ func testAccCheckScalrEnvironmentAttributesUpdate(environment *scalr.Environment
 	}
 }
 
-func testAccCheckScalrEnvironmentProviderConfigurations(environment *scalr.Environment, rInt int) resource.TestCheckFunc {
+func testAccCheckScalrEnvironmentProviderConfigurations(environment *scalr.Environment) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
@@ -203,7 +210,7 @@ func testAccCheckScalrEnvironmentProviderConfigurations(environment *scalr.Envir
 		return nil
 	}
 }
-func testAccCheckScalrEnvironmentProviderConfigurationsUpdate(environment *scalr.Environment, rInt int) resource.TestCheckFunc {
+func testAccCheckScalrEnvironmentProviderConfigurationsUpdate(environment *scalr.Environment) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
@@ -216,6 +223,15 @@ func testAccCheckScalrEnvironmentProviderConfigurationsUpdate(environment *scalr
 		}
 		if provider_configuration.ProviderName != "kubernetes" {
 			return fmt.Errorf("Bad default provider configurations: %s", provider_configuration.ProviderName)
+		}
+		return nil
+	}
+}
+
+func testAccCheckScalrEnvironmentProviderConfigurationsDefaultRemoved(environment *scalr.Environment) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(environment.DefaultProviderConfigurations) != 0 {
+			return fmt.Errorf("Bad default provider configurations: %v", environment.DefaultProviderConfigurations)
 		}
 		return nil
 	}
@@ -285,6 +301,21 @@ resource "scalr_environment" "test" {
   cost_estimation_enabled = false
   default_provider_configurations = ["${scalr_provider_configuration.kubernetes.id}"]
 }`, defaultAccount, rInt, defaultAccount)
+}
+
+func testAccEnvironmentWithProviderConfigurationsConfigRemovedDefault(rInt int) string {
+	return fmt.Sprintf(`
+resource "scalr_workspace" "test" {
+  name                  = "workspace-monorepo"
+  environment_id 		= scalr_environment.test.id
+  working_directory     = "/db"
+}
+
+resource "scalr_environment" "test" {
+  name       = "test-env-%d-patched"
+  account_id = "%s"
+  cost_estimation_enabled = false
+}`, rInt, defaultAccount)
 }
 
 func testAccEnvironmentUpdateConfigEmptyString(rInt int) string {

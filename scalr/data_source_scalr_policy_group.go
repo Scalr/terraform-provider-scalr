@@ -105,7 +105,7 @@ func dataSourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) er
 	options := scalr.PolicyGroupListOptions{
 		Account: accountID,
 		Name:    name,
-		Include: "policies,environments,workspaces",
+		Include: "policies,workspaces",
 	}
 	log.Printf("[DEBUG] Read configuration of policy group: %s/%s", accountID, name)
 

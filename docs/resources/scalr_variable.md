@@ -1,14 +1,7 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_variable"
-sidebar_current: "docs-resource-scalr-variable"
-description: |-
-  Manages variables.
----
 
-# scalr_variable Resource
+# Resource `scalr_variable 
 
-Manage the state of variables in Scalr. Creates, updates and destroy.
+Manage the state of variables in Scalr. Creates, updates and destroys.
 
 ## Example Usage
 
@@ -31,7 +24,7 @@ resource "scalr_variable" "example" {
 
 Adding Complex Type Variable:
 
- ```javascript
+ ```hcl
  resource "scalr_variable" "example" {
    key          = "xyz"
    value        = jsonencode(["foo", "bar"])

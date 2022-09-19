@@ -1,14 +1,7 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_agent_pool"
-sidebar_current: "docs-datasource-scalr-agent-pool"
-description: |-
-  Get information on the agent pool.
----
 
-# scalr_agent_pool Data Source
+# Data Source `scalr_agent_pool` 
 
-This data source is used to retrieve details of an agent pool.
+Retrieves the details of an agent pool.
 
 ## Example Usage
 
@@ -23,9 +16,9 @@ data "scalr_agent_pool" "default" {
 
 ## Argument Reference
 
-* `name` - (Required) Name of the agent pool.
-* `account_id` - (Required) ID of the account.
-* `environment_id` - (Optional) ID of the environment.
+* `name` - (Required) A name of the agent pool.
+* `account_id` - (Required) An identifier of the Scalr account.
+* `environment_id` - (Optional) An identifier of the Scalr environment.
 
 ## Attribute Reference
 

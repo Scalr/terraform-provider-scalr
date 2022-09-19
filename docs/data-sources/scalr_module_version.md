@@ -1,13 +1,7 @@
----
-layout: "scalr"
-page_title: "Scalr: scalr_module_version"
-sidebar_current: "docs-datasource-module-version-x"
-description: |- Get information on the module version.
----
 
-# scalr_module_version Data Source
+# Data Source `scalr_module_version`
 
-This data source is used to retrieve module version data by module source and semantic version.
+Retrieves the module version data by module source and semantic version.
 
 ## Example Usage
 
