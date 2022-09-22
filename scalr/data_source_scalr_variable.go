@@ -2,16 +2,9 @@ package scalr
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-)
-
-package scalr
-
-import (
-"fmt"
-
-"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-scalr "github.com/scalr/go-scalr"
+	scalr "github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrVariable() *schema.Resource {
