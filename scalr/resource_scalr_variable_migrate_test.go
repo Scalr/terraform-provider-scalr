@@ -65,8 +65,21 @@ func testResourceScalrVariableStateDataDescriptionV2(varID string) map[string]in
 }
 
 func TestResourceScalrVariableStateUpgradeV2(t *testing.T) {
-	client := testScalrClient(t)
-	variable, _ := client.Variables.Create(context.Background(), scalr.VariableCreateOptions{ID: "var-123"})
+	client, err := createScalrClient()
+	if err != nil {
+		t.Fatal(err)
+	}
+	variable, err := client.Variables.Create(ctx, scalr.VariableCreateOptions{
+		Key:         scalr.String("foo"),
+		Value:       scalr.String("bar"),
+		Description: scalr.String(""),
+		Category:    scalr.Category("shell"),
+		HCL:         scalr.Bool(false),
+		Sensitive:   scalr.Bool(false),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	expected := testResourceScalrVariableStateDataDescriptionV2(variable.ID)
 	actual, err := resourceScalrVariableStateUpgradeV2(testResourceScalrVariableStateDataDescriptionV1(variable.ID), client)
 	assertCorrectState(t, err, actual, expected)
