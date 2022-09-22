@@ -15,39 +15,20 @@ func dataSourceScalrVariable() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"category": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"hcl": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
+			// required arguments
 			"key": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"sensitive": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"final": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"value": {
+			"category": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
 			"account_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			// optional arguments
 			"environment_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -56,36 +37,47 @@ func dataSourceScalrVariable() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			// computed attributes
+			"hcl": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"sensitive": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"final": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"value": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		}}
 }
 
 func dataSourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
-	options := scalr.VariableListOptions{}
+	filters := scalr.VariableFilter{}
+	options := scalr.VariableListOptions{Filter: &filters}
 
-	// TODO: communicate with PO if renaming key -> name makes any sense. Seems to be a stupid requirement
-	if name, ok := d.GetOk("name"); ok {
-		options.Key = scalr.String(name.(string))
+	filters.Key = scalr.String(d.Get("key").(string))
+	filters.Category = scalr.String(d.Get("category").(string))
+	filters.Account = scalr.String(d.Get("account_id").(string))
+
+	if envIdI, ok := d.GetOk("environment_id"); ok {
+		filters.Environment = scalr.String(envIdI.(string))
 	}
-
-	if category, ok := d.GetOk("category"); ok {
-		options.Category = scalr.String(category.(string))
-	}
-
-	if accountId, ok := d.GetOk("account_id"); ok {
-		options.Account = scalr.String(accountId.(string))
-	}
-
-	if envId, ok := d.GetOk("environment_id"); ok {
-		options.Environment = scalr.String(envId.(string))
-	}
-
-	if workspaceID, ok := d.GetOk("workspace_id"); ok {
-		options.workspace = scalr.String(workspaceID.(string))
+	if workspaceIDI, ok := d.GetOk("workspace_id"); ok {
+		filters.Workspace = scalr.String(workspaceIDI.(string))
 	}
 
 	variables, err := scalrClient.Variables.List(ctx, options)
-
 	if err != nil {
 		return fmt.Errorf("Error retrieving Scalr variable: %s.", err)
 	}
@@ -100,9 +92,20 @@ func dataSourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error
 
 	variable := variables.Items[0]
 
-	// TODO: Update the variable.
-	// Update the variable.
 	d.SetId(variable.ID)
+
+	if variable.Environment != nil {
+		d.Set("environment_id", variable.Environment.ID)
+	}
+	if variable.Workspace != nil {
+		d.Set("workspace_id", variable.Workspace.ID)
+	}
+
+	d.Set("hcl", variable.HCL)
+	d.Set("sensitive", variable.Sensitive)
+	d.Set("final", variable.Final)
+	d.Set("value", variable.Value)
+	d.Set("description", variable.Description)
 
 	return nil
 }

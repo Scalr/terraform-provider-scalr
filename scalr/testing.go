@@ -26,7 +26,6 @@ func testScalrClient(t *testing.T) *scalr.Client {
 	}
 
 	client.Workspaces = newMockWorkspaces()
-	client.Variables = newMockVariables()
 
 	return client
 }
