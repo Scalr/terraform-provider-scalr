@@ -13,6 +13,10 @@ on:
         description: "DB Branch"
         required: false
         default: "master"
+      py-req:
+        description: "Whether to upgrade python requirements"
+        required: false
+        default: "no"
 
 jobs:
   acc-tests:
@@ -25,6 +29,7 @@ jobs:
       SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
       API_BRANCH: ${{ github.event.inputs.api-branch }}
       DB_BRANCH: ${{ github.event.inputs.db-branch }}
+      PY_REQ: ${{ github.event.inputs.py-req }}
       UPSTREAM_ID: ${{ github.run_number }}
     steps:
       - uses: actions/checkout@v2
