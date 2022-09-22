@@ -49,6 +49,7 @@ func isAccTest() bool {
 func createScalrClient() (*scalr.Client, error) {
 	config := scalr.DefaultConfig()
 	config.Address = fmt.Sprintf("https://%s", os.Getenv("SCALR_HOSTNAME"))
+	config.Token = os.Getenv("SCALR_TOKEN")
 	scalrClient, err := scalr.NewClient(config)
 	return scalrClient, err
 }

@@ -70,18 +70,25 @@ func TestResourceScalrVariableStateUpgradeV2(t *testing.T) {
 		t.Fatal(err)
 	}
 	variable, err := client.Variables.Create(ctx, scalr.VariableCreateOptions{
-		Key:         scalr.String("foo"),
+		Key:         scalr.String("boo"),
 		Value:       scalr.String("bar"),
 		Description: scalr.String(""),
 		Category:    scalr.Category("shell"),
 		HCL:         scalr.Bool(false),
 		Sensitive:   scalr.Bool(false),
 	})
+	defer func() {
+		if err := client.Variables.Delete(ctx, variable.ID); err != nil {
+			t.Errorf("Error destroying variable! WARNING: Dangling resources\n"+
+				"may exist! The full error is shown below.\n\n"+
+				"Variable: %s\nError: %s", variable.Key, err)
+		}
+	}()
+
 	if err != nil {
 		t.Fatal(err)
 	}
 	expected := testResourceScalrVariableStateDataDescriptionV2(variable.ID)
 	actual, err := resourceScalrVariableStateUpgradeV2(testResourceScalrVariableStateDataDescriptionV1(variable.ID), client)
 	assertCorrectState(t, err, actual, expected)
-
 }
