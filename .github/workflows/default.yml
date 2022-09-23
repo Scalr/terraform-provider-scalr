@@ -26,9 +26,6 @@ jobs:
           go-version: "1.17"
 
       - name: Run unit tests
-        env:
-          SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
-          SCALR_HOSTNAME: ${{ steps.create.outputs.hostname }}
         run: make test
   acc-tests:
     runs-on: ubuntu-latest
