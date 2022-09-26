@@ -1,7 +1,7 @@
 
 # Data Source `scalr_variables`
 
-Retrieves the details of a variables.
+Retrieves the details of variables.
 
 ## Example Usage
 
@@ -26,7 +26,6 @@ data "scalr_variables" "vars" {
 
 ## Attribute Reference
 
-All arguments plus:
 
 * `variables` - The list of Scalr variables with all attributes.
 
