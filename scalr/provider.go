@@ -80,6 +80,7 @@ func Provider() terraform.ResourceProvider {
 			"scalr_workspace":               dataSourceScalrWorkspace(),
 			"scalr_workspace_ids":           dataSourceScalrWorkspaceIDs(),
 			"scalr_variable":                dataSourceScalrVariable(),
+			"scalr_variables":               dataSourceScalrVariables(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
