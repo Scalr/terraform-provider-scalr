@@ -68,7 +68,6 @@ func TestAccPolicyGroupDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.scalr_policy_group.test", "vcs_repo.0.branch"),
 					resource.TestCheckResourceAttrSet("data.scalr_policy_group.test", "policies.#"),
 					resource.TestCheckResourceAttrSet("data.scalr_policy_group.test", "environments.#"),
-					resource.TestCheckResourceAttrSet("data.scalr_policy_group.test", "workspaces.#"),
 				),
 			},
 			{

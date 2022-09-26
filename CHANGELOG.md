@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `scalr_policy_group` data source: remove environments include from policy groups ([172](https://github.com/Scalr/terraform-provider-scalr/pull/172))
 
+### Removed
+
+- `scalr_policy_group` data source: remove `workspaces` attribute ([173](https://github.com/Scalr/terraform-provider-scalr/pull/173))
+- `scalr_policy_group` resource: remove `workspaces` attribute ([173](https://github.com/Scalr/terraform-provider-scalr/pull/173))
+
 ## [1.0.0-rc36] - 2022-08-19
 
 ### Added
