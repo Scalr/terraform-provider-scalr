@@ -18,22 +18,27 @@ func dataSourceScalrVariable() *schema.Resource {
 			"key": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"category": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"account_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"environment_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"workspace_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			// computed attributes
 			"hcl": {
@@ -100,6 +105,9 @@ func dataSourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error
 
 	d.SetId(variable.ID)
 
+	if variable.Account != nil {
+		d.Set("environment_id", variable.Account.ID)
+	}
 	if variable.Environment != nil {
 		d.Set("environment_id", variable.Environment.ID)
 	}
@@ -107,6 +115,8 @@ func dataSourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error
 		d.Set("workspace_id", variable.Workspace.ID)
 	}
 
+	d.Set("key", variable.Key)
+	d.Set("category", variable.Category)
 	d.Set("hcl", variable.HCL)
 	d.Set("sensitive", variable.Sensitive)
 	d.Set("final", variable.Final)
