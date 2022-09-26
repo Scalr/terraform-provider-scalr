@@ -15,20 +15,18 @@ func dataSourceScalrVariable() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			// required arguments
 			"key": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"category": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"account_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
-			// optional arguments
 			"environment_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -66,9 +64,17 @@ func dataSourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error
 	filters := scalr.VariableFilter{}
 	options := scalr.VariableListOptions{Filter: &filters}
 
-	filters.Key = scalr.String(d.Get("key").(string))
-	filters.Category = scalr.String(d.Get("category").(string))
-	filters.Account = scalr.String(d.Get("account_id").(string))
+	if keyI, ok := d.GetOk("key"); ok {
+		filters.Key = scalr.String(keyI.(string))
+	}
+
+	if categoryI, ok := d.GetOk("category"); ok {
+		filters.Category = scalr.String(categoryI.(string))
+	}
+
+	if accountI, ok := d.GetOk("account_id"); ok {
+		filters.Account = scalr.String(accountI.(string))
+	}
 
 	if envIdI, ok := d.GetOk("environment_id"); ok {
 		filters.Environment = scalr.String(envIdI.(string))
