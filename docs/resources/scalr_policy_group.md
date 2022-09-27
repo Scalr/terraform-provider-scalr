@@ -41,7 +41,6 @@ All arguments plus:
 * `error_message` - A detailed error if Scalr failed to process the policy group.
 * `policies` - A list of the OPA policies the group verifies each run.
 * `environments` - A list of the environments the policy group is linked to.
-* `workspaces` - A list of the workspaces this policy group verifies runs for.
 
 The `policies` list contains definitions of OPA policies in the following form:
 
