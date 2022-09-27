@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **New data source:**  `scalr_variable` ([#176](https://github.com/Scalr/terraform-provider-scalr/pull/176))
 - **New data source:**  `scalr_variables` ([#176](https://github.com/Scalr/terraform-provider-scalr/pull/176))
+- `scalr_environment`: added new attribute `tag_ids` ([#174](https://github.com/Scalr/terraform-provider-scalr/pull/174))
+- `data.scalr_environment`: added new attribute `tag_ids` ([#174](https://github.com/Scalr/terraform-provider-scalr/pull/174))
 
 ### Fixed
 
