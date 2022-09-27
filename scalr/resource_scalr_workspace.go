@@ -20,7 +20,7 @@ func resourceScalrWorkspace() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
-		SchemaVersion: 4,
+		SchemaVersion: 5,
 		StateUpgraders: []schema.StateUpgrader{
 			{
 				Type:    resourceScalrWorkspaceResourceV0().CoreConfigSchema().ImpliedType(),
@@ -41,6 +41,11 @@ func resourceScalrWorkspace() *schema.Resource {
 				Type:    resourceScalrWorkspaceResourceV3().CoreConfigSchema().ImpliedType(),
 				Upgrade: resourceScalrWorkspaceStateUpgradeV3,
 				Version: 3,
+			},
+			{
+				Type:    resourceScalrWorkspaceResourceV4().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceScalrWorkspaceStateUpgradeV4,
+				Version: 4,
 			},
 		},
 
@@ -157,6 +162,12 @@ func resourceScalrWorkspace() *schema.Resource {
 			"has_resources": {
 				Type:     schema.TypeBool,
 				Computed: true,
+			},
+
+			"queue_all_runs": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
 			},
 
 			"vcs_repo": {
@@ -280,10 +291,11 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 
 	// Create a new options struct.
 	options := scalr.WorkspaceCreateOptions{
-		Name:        scalr.String(name),
-		AutoApply:   scalr.Bool(d.Get("auto_apply").(bool)),
-		Environment: &scalr.Environment{ID: environmentID},
-		Hooks:       &scalr.HooksOptions{},
+		Name:         scalr.String(name),
+		AutoApply:    scalr.Bool(d.Get("auto_apply").(bool)),
+		Environment:  &scalr.Environment{ID: environmentID},
+		Hooks:        &scalr.HooksOptions{},
+		QueueAllRuns: scalr.Bool(d.Get("queue_all_runs").(bool)),
 	}
 
 	// Process all configured options.
@@ -432,6 +444,7 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("working_directory", workspace.WorkingDirectory)
 	d.Set("environment_id", workspace.Environment.ID)
 	d.Set("has_resources", workspace.HasResources)
+	d.Set("queue_all_runs", workspace.QueueAllRuns)
 	d.Set("var_files", workspace.VarFiles)
 
 	if workspace.RunOperationTimeout != nil {
@@ -516,7 +529,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	id := d.Id()
 
-	if d.HasChange("name") || d.HasChange("auto_apply") ||
+	if d.HasChange("name") || d.HasChange("auto_apply") || d.HasChange("queue_all_runs") ||
 		d.HasChange("terraform_version") || d.HasChange("working_directory") ||
 		d.HasChange("vcs_repo") || d.HasChange("operations") || d.HasChange("execution_mode") ||
 		d.HasChange("vcs_provider_id") || d.HasChange("agent_pool_id") ||
@@ -524,8 +537,9 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		d.HasChange("run_operation_timeout") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
-			Name:      scalr.String(d.Get("name").(string)),
-			AutoApply: scalr.Bool(d.Get("auto_apply").(bool)),
+			Name:         scalr.String(d.Get("name").(string)),
+			AutoApply:    scalr.Bool(d.Get("auto_apply").(bool)),
+			QueueAllRuns: scalr.Bool(d.Get("queue_all_runs").(bool)),
 			Hooks: &scalr.HooksOptions{
 				PreInit:   scalr.String(""),
 				PrePlan:   scalr.String(""),

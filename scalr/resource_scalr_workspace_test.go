@@ -34,6 +34,8 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "queue_all_runs", "true"),
+					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
@@ -100,6 +102,8 @@ func TestAccScalrWorkspace_monorepo(t *testing.T) {
 						"scalr_workspace.test", "name", "workspace-monorepo"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "queue_all_runs", "false"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
 					resource.TestCheckResourceAttr(
@@ -643,6 +647,7 @@ resource "scalr_workspace" "test" {
   name                  = "workspace-monorepo"
   environment_id 		= scalr_environment.test.id
   working_directory     = "/db"
+  queue_all_runs        = false
 }`)
 }
 

@@ -67,6 +67,11 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Computed: true,
 			},
 
+			"queue_all_runs": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+
 			"hooks": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -177,6 +182,7 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("terraform_version", workspace.TerraformVersion)
 	d.Set("working_directory", workspace.WorkingDirectory)
 	d.Set("has_resources", workspace.HasResources)
+	d.Set("queue_all_runs", workspace.QueueAllRuns)
 
 	if workspace.ModuleVersion != nil {
 		d.Set("module_version_id", workspace.ModuleVersion.ID)
