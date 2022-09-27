@@ -26,6 +26,7 @@ resource "scalr_environment" "test" {
 * `cloud_credentials` - (Optional) List of the environment cloud-credentials IDs, in the format `cred-<RANDOM STRING>`.
 * `policy_groups` - (Optional) List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.
 * `default_provider_configurations` - (Optional) List of IDs of provider configurations, used in the environment workspaces by default.
+* `tag_ids` - (Optional) List of tag IDs associated with the environment.
 
 ## Attributes
 
