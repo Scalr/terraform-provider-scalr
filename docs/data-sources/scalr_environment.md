@@ -30,6 +30,7 @@ All arguments plus:
 * `status` - The status of an environment. 
 * `cloud_credentials` - List of the environment cloud-credentials IDs, in the format `cred-<RANDOM STRING>`.
 * `policy_groups` - List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.
+* `tag_ids` - List of tag IDs associated with the environment.
 
 The `created_by` block contains:
 
