@@ -24,6 +24,7 @@ func TestAccScalrVariableDataSource(t *testing.T) {
 					resource.TestCheckResourceAttr("data.scalr_variable.workspace_hostname", "sensitive", "false"),
 					resource.TestCheckResourceAttr("data.scalr_variable.workspace_hostname", "description", "The hostname of scalr workspace."),
 					resource.TestCheckResourceAttr("data.scalr_variable.workspace_hostname", "final", "false"),
+					resource.TestCheckResourceAttr("data.scalr_variable.workspace_hostname", "account_id", defaultAccount),
 					testAccCheckEqualID("data.scalr_variable.secret", "scalr_variable.secret"),
 					resource.TestCheckResourceAttr("data.scalr_variable.secret", "hcl", "false"),
 					resource.TestCheckResourceAttr("data.scalr_variable.secret", "sensitive", "true"),

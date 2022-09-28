@@ -106,7 +106,7 @@ func dataSourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error
 	d.SetId(variable.ID)
 
 	if variable.Account != nil {
-		d.Set("environment_id", variable.Account.ID)
+		d.Set("account_id", variable.Account.ID)
 	}
 	if variable.Environment != nil {
 		d.Set("environment_id", variable.Environment.ID)
