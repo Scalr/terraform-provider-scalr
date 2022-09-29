@@ -160,6 +160,8 @@ func TestAccScalrVariable_update(t *testing.T) {
 						"scalr_variable.test", "sensitive", "false"),
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "description", "Test update"),
+					resource.TestCheckResourceAttr(
+						"scalr_variable.test", "account_id", defaultAccount),
 				),
 			},
 
