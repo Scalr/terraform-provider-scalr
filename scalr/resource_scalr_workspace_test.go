@@ -347,6 +347,21 @@ func TestAccScalrWorkspace_providerConfiguration(t *testing.T) {
 	})
 }
 
+func TestAccScalrWorkspace_emptyHooks(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrWorkspaceEmptyHooks(rInt),
+			},
+		},
+	})
+}
+
 func testAccCheckScalrWorkspaceExists(
 	n string, workspace *scalr.Workspace) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -618,6 +633,21 @@ resource scalr_environment test {
 }
 %s
 `
+
+func testAccScalrWorkspaceEmptyHooks(rInt int) string {
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
+resource scalr_workspace test {
+  name                   = "workspace-test"
+  environment_id         = scalr_environment.test.id
+  hooks {
+    pre_init   = ""
+    pre_plan   = ""
+    post_plan  = ""
+    pre_apply  = ""
+    post_apply = ""
+  }
+}`)
+}
 
 func testAccScalrWorkspaceBasic(rInt int) string {
 	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `

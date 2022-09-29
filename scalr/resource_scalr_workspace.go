@@ -3,10 +3,11 @@ package scalr
 import (
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+
 	scalr "github.com/scalr/go-scalr"
 )
 
@@ -483,6 +484,14 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 			"post_plan":  workspace.Hooks.PostPlan,
 			"pre_apply":  workspace.Hooks.PreApply,
 			"post_apply": workspace.Hooks.PostApply,
+		})
+	} else if _, ok := d.GetOk("hooks"); ok {
+		hooks = append(hooks, map[string]interface{}{
+			"pre_init":   "",
+			"pre_plan":   "",
+			"post_plan":  "",
+			"pre_apply":  "",
+			"post_apply": "",
 		})
 	}
 	d.Set("hooks", hooks)
