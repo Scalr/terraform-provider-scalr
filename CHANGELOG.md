@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `scalr_workspace`: added new attribute `queue_all_runs` ([#178](https://github.com/Scalr/terraform-provider-scalr/pull/178))
+- `scalr_workspace`: added new attribute `auto_queue_runs` ([#178](https://github.com/Scalr/terraform-provider-scalr/pull/178))
 - `scalr_environment`: added new attribute `tag_ids` ([#174](https://github.com/Scalr/terraform-provider-scalr/pull/174))
 - `data.scalr_environment`: added new attribute `tag_ids` ([#174](https://github.com/Scalr/terraform-provider-scalr/pull/174))
 

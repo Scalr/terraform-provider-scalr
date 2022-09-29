@@ -34,7 +34,7 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "queue_all_runs", "true"),
+						"scalr_workspace.test", "auto_queue_runs", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
 					resource.TestCheckResourceAttr(
@@ -103,7 +103,7 @@ func TestAccScalrWorkspace_monorepo(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "queue_all_runs", "false"),
+						"scalr_workspace.test", "auto_queue_runs", "false"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
 					resource.TestCheckResourceAttr(
@@ -631,6 +631,7 @@ resource scalr_workspace test {
   auto_apply             = true
   run_operation_timeout = 18
   var_files      = ["test1.tfvars", "test2.tfvars"]
+  auto_queue_runs = true
   hooks {
     pre_init   = "./scripts/pre-init.sh"
     pre_plan   = "./scripts/pre-plan.sh"
@@ -647,7 +648,7 @@ resource "scalr_workspace" "test" {
   name                  = "workspace-monorepo"
   environment_id 		= scalr_environment.test.id
   working_directory     = "/db"
-  queue_all_runs        = false
+  auto_queue_runs        = false
 }`)
 }
 
@@ -657,6 +658,7 @@ resource "scalr_workspace" "test" {
   name                   = "renamed-out-of-band"
   environment_id         = scalr_environment.test.id
   auto_apply             = true
+  auto_queue_runs        = true
   run_operation_timeout = 18
   hooks {
     pre_init   = "./scripts/pre-init.sh"

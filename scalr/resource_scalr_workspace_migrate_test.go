@@ -1,7 +1,6 @@
 package scalr
 
 import (
-	"context"
 	"github.com/scalr/go-scalr"
 	"testing"
 )
@@ -108,31 +107,5 @@ func testResourceScalrWorkspaceStateDataV4Operations() map[string]interface{} {
 func TestResourceScalrWorkspaceStateUpgradeV3(t *testing.T) {
 	expected := testResourceScalrWorkspaceStateDataV4Operations()
 	actual, err := resourceScalrWorkspaceStateUpgradeV3(testResourceScalrWorkspaceStateDataV3Operations(), nil)
-	assertCorrectState(t, err, actual, expected)
-}
-
-func testResourceScalrWorkspaceStateDataV4() map[string]interface{} {
-	return map[string]interface{}{
-		"id":             "ws-1234567890",
-		"queue_all_runs": true,
-	}
-}
-
-func testResourceScalrWorkspaceStateDataV4Before() map[string]interface{} {
-	return map[string]interface{}{
-		"id": "ws-1234567890",
-	}
-}
-
-func TestResourceScalrWorkspaceStateUpgradeV4(t *testing.T) {
-	client := testScalrClient(t)
-	name := "test"
-	client.Workspaces.Create(context.Background(), scalr.WorkspaceCreateOptions{
-		ID:          "ws-1234567890",
-		Name:        &name,
-		Environment: &scalr.Environment{ID: "my-org"},
-	})
-	expected := testResourceScalrWorkspaceStateDataV4()
-	actual, err := resourceScalrWorkspaceStateUpgradeV4(testResourceScalrWorkspaceStateDataV4Before(), client)
 	assertCorrectState(t, err, actual, expected)
 }

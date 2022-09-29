@@ -12,7 +12,6 @@ type workspaceNamesKey struct {
 
 type mockWorkspaces struct {
 	workspaceNames map[workspaceNamesKey]*scalr.Workspace
-	ids            map[string]*scalr.Workspace
 }
 
 type mockVariables struct {
@@ -22,7 +21,6 @@ type mockVariables struct {
 func newMockWorkspaces() *mockWorkspaces {
 	return &mockWorkspaces{
 		workspaceNames: make(map[workspaceNamesKey]*scalr.Workspace),
-		ids:            make(map[string]*scalr.Workspace),
 	}
 }
 
@@ -43,11 +41,9 @@ func (m *mockWorkspaces) Create(ctx context.Context, options scalr.WorkspaceCrea
 		Environment: &scalr.Environment{
 			ID: options.Environment.ID,
 		},
-		QueueAllRuns: true,
 	}
 
 	m.workspaceNames[workspaceNamesKey{options.Environment.ID, *options.Name}] = ws
-	m.ids[options.ID] = ws
 
 	return ws, nil
 }
@@ -82,13 +78,7 @@ func (m *mockWorkspaces) Read(ctx context.Context, environment string, workspace
 }
 
 func (m *mockWorkspaces) ReadByID(ctx context.Context, workspaceID string) (*scalr.Workspace, error) {
-	v := m.ids[workspaceID]
-
-	if v == nil {
-		return nil, scalr.ErrResourceNotFound
-	}
-
-	return v, nil
+	panic("not implemented")
 }
 
 func (m *mockWorkspaces) Update(ctx context.Context, workspaceID string, options scalr.WorkspaceUpdateOptions) (*scalr.Workspace, error) {
