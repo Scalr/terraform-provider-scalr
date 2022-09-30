@@ -17,7 +17,7 @@ data "scalr_variable" "test_var" {
 
 ## Argument Reference
 
-* `key` - (Optional) The name of a Scalr variable.
+* `key` - (Required) The name of a Scalr variable.
 * `category` - (Optional) The category of a Scalr variable.
 * `account_id` - (Optional) ID of the account, in the format `acc-<RANDOM STRING>`
 * `envrironment_id` - (Optional) The identifier of the Scalr environment, in the format `env-<RANDOM STRING>`. Used to shrink the scope of the variable in case the variable name exists in multiple environments.
