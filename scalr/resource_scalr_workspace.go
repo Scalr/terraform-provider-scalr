@@ -78,7 +78,7 @@ func resourceScalrWorkspace() *schema.Resource {
 				Default:  false,
 			},
 
-			"auto_force_run": {
+			"force_latest_run": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
@@ -286,11 +286,11 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 
 	// Create a new options struct.
 	options := scalr.WorkspaceCreateOptions{
-		Name:         scalr.String(name),
-		AutoApply:    scalr.Bool(d.Get("auto_apply").(bool)),
-		AutoForceRun: scalr.Bool(d.Get("auto_force_run").(bool)),
-		Environment:  &scalr.Environment{ID: environmentID},
-		Hooks:        &scalr.HooksOptions{},
+		Name:           scalr.String(name),
+		AutoApply:      scalr.Bool(d.Get("auto_apply").(bool)),
+		ForceLatestRun: scalr.Bool(d.Get("force_latest_run").(bool)),
+		Environment:    &scalr.Environment{ID: environmentID},
+		Hooks:          &scalr.HooksOptions{},
 	}
 
 	// Process all configured options.
@@ -433,7 +433,7 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	// Update the config.
 	d.Set("name", workspace.Name)
 	d.Set("auto_apply", workspace.AutoApply)
-	d.Set("auto_force_run", workspace.AutoForceRun)
+	d.Set("force_latest_run", workspace.ForceLatestRun)
 	d.Set("operations", workspace.Operations)
 	d.Set("execution_mode", workspace.ExecutionMode)
 	d.Set("terraform_version", workspace.TerraformVersion)
@@ -524,7 +524,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	id := d.Id()
 
-	if d.HasChange("name") || d.HasChange("auto_apply") || d.HasChange("auto_force_run") ||
+	if d.HasChange("name") || d.HasChange("auto_apply") || d.HasChange("force_latest_run") ||
 		d.HasChange("terraform_version") || d.HasChange("working_directory") ||
 		d.HasChange("vcs_repo") || d.HasChange("operations") || d.HasChange("execution_mode") ||
 		d.HasChange("vcs_provider_id") || d.HasChange("agent_pool_id") ||
@@ -532,9 +532,9 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		d.HasChange("run_operation_timeout") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
-			Name:         scalr.String(d.Get("name").(string)),
-			AutoApply:    scalr.Bool(d.Get("auto_apply").(bool)),
-			AutoForceRun: scalr.Bool(d.Get("auto_force_run").(bool)),
+			Name:           scalr.String(d.Get("name").(string)),
+			AutoApply:      scalr.Bool(d.Get("auto_apply").(bool)),
+			ForceLatestRun: scalr.Bool(d.Get("force_latest_run").(bool)),
 			Hooks: &scalr.HooksOptions{
 				PreInit:   scalr.String(""),
 				PrePlan:   scalr.String(""),
