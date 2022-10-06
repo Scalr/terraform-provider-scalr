@@ -630,7 +630,7 @@ func syncArguments(providerConfigurationId string, custom map[string]interface{}
 
 	var toDelete []string
 	for name, currentArgument := range currentArguments {
-		_, exists := configArgumentsCreateOptions[name];
+		configArgumentCreateOption, exists := configArgumentsCreateOptions[name];
 		if !exists {
 			toDelete = append(toDelete, currentArgument.ID)
 		} else if currentArgument.Sensitive == true && *configArgumentCreateOption.Sensitive == false {
