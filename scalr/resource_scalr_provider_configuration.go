@@ -641,9 +641,20 @@ func syncArguments(providerConfigurationId string, custom map[string]interface{}
 		ctx,
 		client,
 		providerConfigurationId,
+		nil,
+		nil,
+		&toDelete,
+	)
+	if err {
+		return err
+	}
+	_, _, _, err = changeParameters(
+		ctx,
+		client,
+		providerConfigurationId,
 		&toCreate,
 		&toUpdate,
-		&toDelete,
+		nil,
 	)
 	return err
 
