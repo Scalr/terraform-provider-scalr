@@ -614,9 +614,7 @@ func syncArguments(providerConfigurationId string, custom map[string]interface{}
 	var toUpdate []scalr.ProviderConfigurationParameterUpdateOptions
 	for name, configArgumentCreateOption := range configArgumentsCreateOptions {
 		currentArgument, exists := currentArguments[name]
-		if !exists {
-			toCreate = append(toCreate, configArgumentCreateOption)
-		} else if currentArgument.Sensitive && !(*configArgumentCreateOption.Sensitive) {
+		if !exists || currentArgument.Sensitive && !(*configArgumentCreateOption.Sensitive) {
 			toCreate = append(toCreate, configArgumentCreateOption)
 		} else if currentArgument.Value != *configArgumentCreateOption.Value || currentArgument.Sensitive != *configArgumentCreateOption.Sensitive || currentArgument.Description != *configArgumentCreateOption.Description {
 			toUpdate = append(toUpdate, scalr.ProviderConfigurationParameterUpdateOptions{
@@ -631,9 +629,7 @@ func syncArguments(providerConfigurationId string, custom map[string]interface{}
 	var toDelete []string
 	for name, currentArgument := range currentArguments {
 		configArgumentCreateOption, exists := configArgumentsCreateOptions[name]
-		if !exists {
-			toDelete = append(toDelete, currentArgument.ID)
-		} else if currentArgument.Sensitive && !(*configArgumentCreateOption.Sensitive) {
+		if !exists || currentArgument.Sensitive && !(*configArgumentCreateOption.Sensitive) {
 			toDelete = append(toDelete, currentArgument.ID)
 		}
 	}
