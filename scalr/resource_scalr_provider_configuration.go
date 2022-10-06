@@ -645,7 +645,7 @@ func syncArguments(providerConfigurationId string, custom map[string]interface{}
 		nil,
 		&toDelete,
 	)
-	if err {
+	if err != nil {
 		return err
 	}
 	_, _, _, err = changeParameters(
