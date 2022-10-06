@@ -3,10 +3,11 @@ package scalr
 import (
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+
 	scalr "github.com/scalr/go-scalr"
 )
 
@@ -73,12 +74,6 @@ func resourceScalrWorkspace() *schema.Resource {
 			},
 
 			"auto_apply": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-			},
-
-			"force_latest_run": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
@@ -163,6 +158,12 @@ func resourceScalrWorkspace() *schema.Resource {
 			"has_resources": {
 				Type:     schema.TypeBool,
 				Computed: true,
+			},
+
+			"auto_queue_runs": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  nil,
 			},
 
 			"vcs_repo": {
@@ -291,6 +292,7 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		ForceLatestRun: scalr.Bool(d.Get("force_latest_run").(bool)),
 		Environment:    &scalr.Environment{ID: environmentID},
 		Hooks:          &scalr.HooksOptions{},
+		AutoQueueRuns:  scalr.Bool(d.Get("auto_queue_runs").(bool)),
 	}
 
 	// Process all configured options.
@@ -440,6 +442,7 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("working_directory", workspace.WorkingDirectory)
 	d.Set("environment_id", workspace.Environment.ID)
 	d.Set("has_resources", workspace.HasResources)
+	d.Set("auto_queue_runs", workspace.AutoQueueRuns)
 	d.Set("var_files", workspace.VarFiles)
 
 	if workspace.RunOperationTimeout != nil {
@@ -492,6 +495,14 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 			"pre_apply":  workspace.Hooks.PreApply,
 			"post_apply": workspace.Hooks.PostApply,
 		})
+	} else if _, ok := d.GetOk("hooks"); ok {
+		hooks = append(hooks, map[string]interface{}{
+			"pre_init":   "",
+			"pre_plan":   "",
+			"post_plan":  "",
+			"pre_apply":  "",
+			"post_apply": "",
+		})
 	}
 	d.Set("hooks", hooks)
 
@@ -524,8 +535,8 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	id := d.Id()
 
-	if d.HasChange("name") || d.HasChange("auto_apply") || d.HasChange("force_latest_run") ||
-		d.HasChange("terraform_version") || d.HasChange("working_directory") ||
+	if d.HasChange("name") || d.HasChange("auto_apply") || d.HasChange("auto_queue_runs") ||
+		d.HasChange("terraform_version") || d.HasChange("working_directory") || d.HasChange("force_latest_run") ||
 		d.HasChange("vcs_repo") || d.HasChange("operations") || d.HasChange("execution_mode") ||
 		d.HasChange("vcs_provider_id") || d.HasChange("agent_pool_id") ||
 		d.HasChange("hooks") || d.HasChange("module_version_id") || d.HasChange("var_files") ||
@@ -535,6 +546,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 			Name:           scalr.String(d.Get("name").(string)),
 			AutoApply:      scalr.Bool(d.Get("auto_apply").(bool)),
 			ForceLatestRun: scalr.Bool(d.Get("force_latest_run").(bool)),
+			AutoQueueRuns:  scalr.Bool(d.Get("auto_queue_runs").(bool)),
 			Hooks: &scalr.HooksOptions{
 				PreInit:   scalr.String(""),
 				PrePlan:   scalr.String(""),

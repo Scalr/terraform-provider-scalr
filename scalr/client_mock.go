@@ -68,6 +68,10 @@ func (m *mockVariables) Read(ctx context.Context, varID string) (*scalr.Variable
 	return v, nil
 }
 
+func (m *mockVariables) List(ctx context.Context, options scalr.VariableListOptions) (*scalr.VariableList, error) {
+	panic("not implemented")
+}
+
 func (m *mockWorkspaces) Read(ctx context.Context, environment string, workspace string) (*scalr.Workspace, error) {
 	w := m.workspaceNames[workspaceNamesKey{environment, workspace}]
 	if w == nil {
