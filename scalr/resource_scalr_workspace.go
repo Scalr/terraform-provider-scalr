@@ -79,6 +79,12 @@ func resourceScalrWorkspace() *schema.Resource {
 				Default:  false,
 			},
 
+			"force_latest_run": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
 			"var_files": {
 				Type:     schema.TypeList,
 				Optional: true,
