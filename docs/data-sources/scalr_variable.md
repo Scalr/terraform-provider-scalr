@@ -8,7 +8,7 @@ Retrieves the details of a variable.
 ```hcl
 data "scalr_variable" "test_var" {
   key = "key"
-  category = "cat"
+  category = "terraform"
   account_id = "acc-tgobtsrgo3rlks8"
   envrironment_id = "env-sv0425034857d22"
   workspace_id = "ws-tlbp7litrs55vgg"
