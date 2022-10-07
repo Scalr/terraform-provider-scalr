@@ -17,8 +17,7 @@ func dataSourceScalrVariable() *schema.Resource {
 			},
 			"key": {
 				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Required: true,
 			},
 			"category": {
 				Type:     schema.TypeString,
@@ -69,9 +68,7 @@ func dataSourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error
 	filters := scalr.VariableFilter{}
 	options := scalr.VariableListOptions{Filter: &filters}
 
-	if keyI, ok := d.GetOk("key"); ok {
-		filters.Key = scalr.String(keyI.(string))
-	}
+	filters.Key = scalr.String(d.Get("key").(string))
 
 	if categoryI, ok := d.GetOk("category"); ok {
 		filters.Category = scalr.String(categoryI.(string))
@@ -115,7 +112,6 @@ func dataSourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error
 		d.Set("workspace_id", variable.Workspace.ID)
 	}
 
-	d.Set("key", variable.Key)
 	d.Set("category", variable.Category)
 	d.Set("hcl", variable.HCL)
 	d.Set("sensitive", variable.Sensitive)
