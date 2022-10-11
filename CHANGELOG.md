@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `scalr_workspace`: added new attribute `auto_queue_runs` ([#178](https://github.com/Scalr/terraform-provider-scalr/pull/178))
+
+### Required
+
+- scalr-server >= `8.39.0`
+
+## [1.0.0-rc37] - 2022-10-07
+
+### Added
+
 - **New data source:**  `scalr_variable` ([#176](https://github.com/Scalr/terraform-provider-scalr/pull/176))
 - **New data source:**  `scalr_variables` ([#176](https://github.com/Scalr/terraform-provider-scalr/pull/176))
 - `scalr_environment`: added new attribute `tag_ids` ([#174](https://github.com/Scalr/terraform-provider-scalr/pull/174))
@@ -24,6 +33,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `scalr_policy_group` data source: remove `workspaces` attribute ([173](https://github.com/Scalr/terraform-provider-scalr/pull/173))
 - `scalr_policy_group` resource: remove `workspaces` attribute ([173](https://github.com/Scalr/terraform-provider-scalr/pull/173))
+
+### Required
+
+- scalr-server >= `8.37.0`
 
 ## [1.0.0-rc36] - 2022-08-19
 
@@ -512,7 +525,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc36...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc37...HEAD
+[1.0.0-rc37]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc37
 [1.0.0-rc36]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc36
 [1.0.0-rc35]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc35
 [1.0.0-rc34]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc34

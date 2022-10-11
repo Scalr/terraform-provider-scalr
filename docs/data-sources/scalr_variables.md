@@ -1,15 +1,15 @@
 
 # Data Source `scalr_variables`
 
-Retrieves the details of variables.
+Retrieves the list of variables by the given filters.
 
 ## Example Usage
 
 ```hcl
 data "scalr_variables" "vars" {
   keys = ["key1", "key2", "key3"]
-  category = "cat"
-  account_id = "acc-tgobtsrgo3rlks8" # ignore global scope variables
+  category = "terraform" # or shell
+  account_id = "acc-tgobtsrgo3rlks8"
   envrironment_ids = ["env-sv0425034857d22", "null"]
   workspace_ids = ["ws-tlbp7litrs55vgg", "null"]
 }
@@ -17,7 +17,7 @@ data "scalr_variables" "vars" {
 
 ## Argument Reference
 
-* `keys` - (Optional) A list of names to be used in the query used in a Scalr variable name filter.
+* `keys` - (Optional) A list of keys to be used in the query used in a Scalr variable name filter.
 * `category` - (Optional) The category of a Scalr variable.
 * `account_id` - (Optional) ID of the account, in the format `acc-<RANDOM STRING>`
 * `envrironment_ids` - (Optional) A list of identifiers of the Scalr environments, in the format `env-<RANDOM STRING>`. Used to shrink the variable's scope in case the variable name exists in multiple environments.
