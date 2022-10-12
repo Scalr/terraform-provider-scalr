@@ -484,7 +484,7 @@ func testAccCheckScalrWorkspaceRename(environmentName, workspaceName string) fun
 		w, err := scalrClient.Workspaces.Update(
 			context.Background(),
 			ws.ID,
-			scalr.WorkspaceUpdateOptions{Name: scalr.String("renamed-out-of-band")},
+			scalr.WorkspaceUpdateOptions{Name: scalr.String("renamed-out-of-band"), AutoQueueRuns: scalr.Bool(true)},
 		)
 		if err != nil {
 			log.Fatalf("Could not rename the workspace out of band: %v", err)
