@@ -257,6 +257,29 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 						"scalr_workspace.test", "hooks.0.pre_apply", "./scripts/pre-apply_updated.sh"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.post_apply", "./scripts/post-apply_updated.sh"),
+					func(s *terraform.State) error {
+						scalrClient := testAccProvider.Meta().(*scalr.Client)
+
+						rs, ok := s.RootModule().Resources["scalr_workspace.test"]
+						if !ok {
+							return fmt.Errorf("Not found: %s", "scalr_workspace.test")
+						}
+
+						if rs.Primary.ID == "" {
+							return fmt.Errorf("No instance ID is set")
+						}
+
+						// Get the workspace
+						w, err := scalrClient.Workspaces.ReadByID(ctx, rs.Primary.ID)
+						if err != nil {
+							return err
+						}
+						if w.AutoQueueRuns != nil {
+							return fmt.Errorf("AutoQueueRuns were not reset")
+						}
+
+						return nil
+					},
 				),
 			},
 

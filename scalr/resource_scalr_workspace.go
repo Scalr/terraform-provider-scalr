@@ -287,11 +287,13 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 
 	// Create a new options struct.
 	options := scalr.WorkspaceCreateOptions{
-		Name:          scalr.String(name),
-		AutoApply:     scalr.Bool(d.Get("auto_apply").(bool)),
-		Environment:   &scalr.Environment{ID: environmentID},
-		Hooks:         &scalr.HooksOptions{},
-		AutoQueueRuns: scalr.Bool(d.Get("auto_queue_runs").(bool)),
+		Name:        scalr.String(name),
+		AutoApply:   scalr.Bool(d.Get("auto_apply").(bool)),
+		Environment: &scalr.Environment{ID: environmentID},
+		Hooks:       &scalr.HooksOptions{},
+	}
+	if AutoQueueRunsI, ok := d.GetOk("auto_queue_runs"); ok {
+		options.AutoQueueRuns = scalr.Bool(AutoQueueRunsI.(bool))
 	}
 
 	// Process all configured options.
@@ -541,9 +543,8 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		d.HasChange("run_operation_timeout") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
-			Name:          scalr.String(d.Get("name").(string)),
-			AutoApply:     scalr.Bool(d.Get("auto_apply").(bool)),
-			AutoQueueRuns: scalr.Bool(d.Get("auto_queue_runs").(bool)),
+			Name:      scalr.String(d.Get("name").(string)),
+			AutoApply: scalr.Bool(d.Get("auto_apply").(bool)),
 			Hooks: &scalr.HooksOptions{
 				PreInit:   scalr.String(""),
 				PrePlan:   scalr.String(""),
@@ -551,6 +552,9 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 				PreApply:  scalr.String(""),
 				PostApply: scalr.String(""),
 			},
+		}
+		if AutoQueueRunsI, ok := d.GetOk("auto_queue_runs"); ok {
+			options.AutoQueueRuns = scalr.Bool(AutoQueueRunsI.(bool))
 		}
 
 		// Process all configured options.
