@@ -167,9 +167,17 @@ func resourceScalrWorkspace() *schema.Resource {
 			},
 
 			"auto_queue_runs": {
-				Type:     schema.TypeBool,
+				Type:     schema.TypeString,
 				Optional: true,
-				Default:  nil,
+				ValidateFunc: validation.StringInSlice(
+					[]string{
+						string(scalr.AutoQueueRunsModeDefault),
+						string(scalr.AutoQueueRunsModeEnabled),
+						string(scalr.AutoQueueRunsModeDisabled),
+					},
+					false,
+				),
+				Computed: true,
 			},
 
 			"vcs_repo": {
@@ -298,7 +306,6 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		ForceLatestRun: scalr.Bool(d.Get("force_latest_run").(bool)),
 		Environment:    &scalr.Environment{ID: environmentID},
 		Hooks:          &scalr.HooksOptions{},
-		AutoQueueRuns:  scalr.Bool(d.Get("auto_queue_runs").(bool)),
 	}
 
 	// Process all configured options.
@@ -309,6 +316,12 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 	if executionMode, ok := d.GetOk("execution_mode"); ok {
 		options.ExecutionMode = scalr.WorkspaceExecutionModePtr(
 			scalr.WorkspaceExecutionMode(executionMode.(string)),
+		)
+	}
+
+	if executionMode, ok := d.GetOk("auto_queue_runs"); ok {
+		options.AutoQueueRuns = scalr.AutoQueueRunsModePtr(
+			scalr.WorkspaceAutoQueueRuns(executionMode.(string)),
 		)
 	}
 
@@ -552,7 +565,6 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 			Name:           scalr.String(d.Get("name").(string)),
 			AutoApply:      scalr.Bool(d.Get("auto_apply").(bool)),
 			ForceLatestRun: scalr.Bool(d.Get("force_latest_run").(bool)),
-			AutoQueueRuns:  scalr.Bool(d.Get("auto_queue_runs").(bool)),
 			Hooks: &scalr.HooksOptions{
 				PreInit:   scalr.String(""),
 				PrePlan:   scalr.String(""),
@@ -570,6 +582,12 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		if executionMode, ok := d.GetOk("execution_mode"); ok {
 			options.ExecutionMode = scalr.WorkspaceExecutionModePtr(
 				scalr.WorkspaceExecutionMode(executionMode.(string)),
+			)
+		}
+
+		if executionMode, ok := d.GetOk("auto_queue_runs"); ok {
+			options.AutoQueueRuns = scalr.AutoQueueRunsModePtr(
+				scalr.WorkspaceAutoQueueRuns(executionMode.(string)),
 			)
 		}
 

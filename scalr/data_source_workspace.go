@@ -73,7 +73,7 @@ func dataSourceScalrWorkspace() *schema.Resource {
 			},
 
 			"auto_queue_runs": {
-				Type:     schema.TypeBool,
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 
