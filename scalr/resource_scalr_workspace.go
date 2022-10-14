@@ -319,9 +319,9 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		)
 	}
 
-	if executionMode, ok := d.GetOk("auto_queue_runs"); ok {
+	if autoQueueRunsI, ok := d.GetOk("auto_queue_runs"); ok {
 		options.AutoQueueRuns = scalr.AutoQueueRunsModePtr(
-			scalr.WorkspaceAutoQueueRuns(executionMode.(string)),
+			scalr.WorkspaceAutoQueueRuns(autoQueueRunsI.(string)),
 		)
 	}
 
@@ -585,9 +585,9 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 			)
 		}
 
-		if executionMode, ok := d.GetOk("auto_queue_runs"); ok {
+		if autoQueueRunsI, ok := d.GetOk("auto_queue_runs"); ok {
 			options.AutoQueueRuns = scalr.AutoQueueRunsModePtr(
-				scalr.WorkspaceAutoQueueRuns(executionMode.(string)),
+				scalr.WorkspaceAutoQueueRuns(autoQueueRunsI.(string)),
 			)
 		}
 
