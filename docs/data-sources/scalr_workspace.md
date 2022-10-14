@@ -37,7 +37,7 @@ All arguments plus:
 * `vcs_repo` - If a workspace is linked to a VCS repository this block shows the details, otherwise `{}`
 * `created_by` - Details of the user that created the workspace.
 * `has_resources` - The presence of active terraform resources in the current state version.
-* `auto_queue_runs` - Indicates if runs have to be queued automatically when a new configuration version is uploaded. Default - only on VCS changes.
+* `auto_queue_runs` - Indicates if runs have to be queued automatically when a new configuration version is uploaded. Supported values are `default` (only on VCS changes), `enabled`, `disabled`.
 * `hooks` - List of custom hooks in a workspace.
 
   The `hooks` block supports:
