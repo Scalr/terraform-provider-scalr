@@ -171,13 +171,13 @@ func resourceScalrWorkspace() *schema.Resource {
 				Optional: true,
 				ValidateFunc: validation.StringInSlice(
 					[]string{
-						string(scalr.AutoQueueRunsModeDefault),
-						string(scalr.AutoQueueRunsModeEnabled),
-						string(scalr.AutoQueueRunsModeDisabled),
+						string(scalr.AutoQueueRunsModeSkipFirst),
+						string(scalr.AutoQueueRunsModeAlways),
+						string(scalr.AutoQueueRunsModeNever),
 					},
 					false,
 				),
-				Default: string(scalr.AutoQueueRunsModeDefault),
+				Default: string(scalr.AutoQueueRunsModeSkipFirst),
 			},
 
 			"vcs_repo": {

@@ -34,7 +34,7 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "auto_queue_runs", string(scalr.AutoQueueRunsModeEnabled)),
+						"scalr_workspace.test", "auto_queue_runs", string(scalr.AutoQueueRunsModeAlways)),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
 					resource.TestCheckResourceAttr(
@@ -103,7 +103,7 @@ func TestAccScalrWorkspace_monorepo(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "auto_queue_runs", string(scalr.AutoQueueRunsModeDisabled)),
+						"scalr_workspace.test", "auto_queue_runs", string(scalr.AutoQueueRunsModeNever)),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
 					resource.TestCheckResourceAttr(
@@ -139,7 +139,7 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "auto_queue_runs", string(scalr.AutoQueueRunsModeEnabled)),
+						"scalr_workspace.test", "auto_queue_runs", string(scalr.AutoQueueRunsModeAlways)),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 					resource.TestCheckResourceAttr(
@@ -172,7 +172,7 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "auto_queue_runs", string(scalr.AutoQueueRunsModeEnabled)),
+						"scalr_workspace.test", "auto_queue_runs", string(scalr.AutoQueueRunsModeAlways)),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", ""),
 					resource.TestCheckResourceAttr(
@@ -210,7 +210,7 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "auto_queue_runs", string(scalr.AutoQueueRunsModeEnabled)),
+						"scalr_workspace.test", "auto_queue_runs", string(scalr.AutoQueueRunsModeAlways)),
 					resource.TestCheckResourceAttr("scalr_workspace.test", "working_directory", ""),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "run_operation_timeout", "18"),
@@ -667,7 +667,7 @@ resource scalr_workspace test {
   auto_apply             = true
   run_operation_timeout = 18
   var_files      = ["test1.tfvars", "test2.tfvars"]
-  auto_queue_runs = "enabled"
+  auto_queue_runs = "always"
   hooks {
     pre_init   = "./scripts/pre-init.sh"
     pre_plan   = "./scripts/pre-plan.sh"
@@ -684,7 +684,7 @@ resource "scalr_workspace" "test" {
   name                  = "workspace-monorepo"
   environment_id 		= scalr_environment.test.id
   working_directory     = "/db"
-  auto_queue_runs       = "disabled"
+  auto_queue_runs       = "never"
 }`)
 }
 
@@ -695,7 +695,7 @@ resource "scalr_workspace" "test" {
   environment_id         = scalr_environment.test.id
   auto_apply             = true
   run_operation_timeout = 18
-  auto_queue_runs       = "enabled"
+  auto_queue_runs       = "always"
   hooks {
     pre_init   = "./scripts/pre-init.sh"
     pre_plan   = "./scripts/pre-plan.sh"
