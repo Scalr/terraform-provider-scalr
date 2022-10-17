@@ -37,7 +37,14 @@ All arguments plus:
 * `vcs_repo` - If a workspace is linked to a VCS repository this block shows the details, otherwise `{}`
 * `created_by` - Details of the user that created the workspace.
 * `has_resources` - The presence of active terraform resources in the current state version.
-* `auto_queue_runs` - Indicates if runs have to be queued automatically when a new configuration version is uploaded.
+* `auto_queue_runs` - Indicates if runs have to be queued automatically when a new configuration version is uploaded. 
+
+  Supported values are `skip_first`, `always`, `never`:
+
+  * `skip_first` - after the very first configuration version is uploaded into the workspace the run will not be triggered. But the following configurations will do. This is the default behavior.
+  * `always` - runs will be triggered automatically on every upload of the configuration version.
+  * `never` - configuration versions are uploaded into the workspace, but runs will not be triggered.
+     
 * `hooks` - List of custom hooks in a workspace.
 
   The `hooks` block supports:
