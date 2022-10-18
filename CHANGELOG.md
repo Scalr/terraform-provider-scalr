@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `scalr_workspace`: added new attribute `force_latest_run` ([#177](https://github.com/Scalr/terraform-provider-scalr/pull/177))
 - `scalr_workspace`: added new attribute `auto_queue_runs` ([#178](https://github.com/Scalr/terraform-provider-scalr/pull/178))
 
 ### Required

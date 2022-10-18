@@ -42,6 +42,11 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Computed: true,
 			},
 
+			"force_latest_run": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+
 			"operations": {
 				Type:     schema.TypeBool,
 				Computed: true,
@@ -68,7 +73,7 @@ func dataSourceScalrWorkspace() *schema.Resource {
 			},
 
 			"auto_queue_runs": {
-				Type:     schema.TypeBool,
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 
@@ -177,6 +182,7 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 
 	// Update the config.
 	d.Set("auto_apply", workspace.AutoApply)
+	d.Set("force_latest_run", workspace.ForceLatestRun)
 	d.Set("operations", workspace.Operations)
 	d.Set("execution_mode", workspace.ExecutionMode)
 	d.Set("terraform_version", workspace.TerraformVersion)

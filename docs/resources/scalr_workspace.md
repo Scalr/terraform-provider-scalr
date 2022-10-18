@@ -94,8 +94,16 @@ resource "scalr_workspace" "cli-driven" {
 * `name` - (Required) Name of the workspace.
 * `environment_id` - (Required) ID of the environment, in the format `env-<RANDOM STRING>`.
 * `auto_apply` - (Optional) Set (true/false) to configure if `terraform apply` should automatically run when `terraform plan` ends without error. Default `false`.
+* `force_latest_run` - (Optional) Set (true/false) to configure if latest new run will be automatically raised in priority. Default `false`.
 * `operations` - Deprecated. Use `execution-mode` instead.
-* `auto_queue_runs` - (Optional) Indicates if runs have to be queued automatically when a new configuration version is uploaded.
+* `auto_queue_runs` - Indicates if runs have to be queued automatically when a new configuration version is uploaded.
+
+  Supported values are `skip_first`, `always`, `never`:
+
+  * `skip_first` - after the very first configuration version is uploaded into the workspace the run will not be triggered. But the following configurations will do. This is the default behavior.
+  * `always` - runs will be triggered automatically on every upload of the configuration version.
+  * `never` - configuration versions are uploaded into the workspace, but runs will not be triggered.
+
 * `execution-mode` - (Optional) Which execution mode to use. Valid values are `remote` and `local`. When set to `local`, the workspace will be used for state storage only. Defaults to `remote` (not set, backend default is used).
 * `terraform_version` - (Optional) The version of Terraform to use for this workspace. Defaults to the latest available version.
 * `working_directory` - (Optional) A relative path that Terraform will be run in. Defaults to the root of the repository `""`.
