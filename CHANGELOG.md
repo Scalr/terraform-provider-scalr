@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `module_verion`: data source: change relation from latest-module-version to module-version  ([#181](https://github.com/Scalr/terraform-provider-scalr/pull/181))
 
+### Changed
+
+- `execution_mode`: Updated documentation to fix a typo for the execution_mode attribute in the `scalr_workspace` resource. It was incorrectly spelled execution-mode
+
 ## [1.0.0-rc38] - 2022-10-20
 
 ### Added
