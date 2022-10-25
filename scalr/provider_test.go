@@ -19,6 +19,12 @@ var noInstanceIdErr = fmt.Errorf("No instance ID is set")
 var GITHUB_TOKEN = os.Getenv("GITHUB_TOKEN")
 
 func init() {
+	revizorToken := os.Getenv("ORG_ADMIN_TOKEN")
+	//default github action token don't suitable for our provider use personall access token instead
+	if revizorToken != "" {
+		GITHUB_TOKEN = revizorToken
+	}
+
 	testAccProvider = Provider().(*schema.Provider)
 	testAccProviders = map[string]terraform.ResourceProvider{
 		"scalr": testAccProvider,
@@ -105,11 +111,6 @@ func testAccPreCheck(t *testing.T) {
 func testVcsAccGithubTokenPreCheck(t *testing.T) {
 	testAccPreCheck(t)
 	if GITHUB_TOKEN == "" {
-		//Default GitHub action token don't have access to other repositories
-		GITHUB_TOKEN = os.Getenv("ORG_ADMIN_TOKEN")
-		if GITHUB_TOKEN == "" {
-			t.Skip("Please set GITHUB_TOKEN to run this test")
-		}
-
+		t.Skip("Please set GITHUB_TOKEN to run this test")
 	}
 }
