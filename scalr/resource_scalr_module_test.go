@@ -7,14 +7,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/scalr/go-scalr"
 )
 
 func TestAccScalrModule_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			//TODO:ape delete skip after SCALRCORE-19891
-			t.Skip("Working on personal token but not working with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
 		Providers:    testAccProviders,
@@ -66,8 +63,6 @@ func TestAccScalrModule_basic(t *testing.T) {
 func TestAccScalrModule_import(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			//TODO:ape delete skip after SCALRCORE-19891
-			t.Skip("Working on personal token but not working with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
 		Providers:    testAccProviders,

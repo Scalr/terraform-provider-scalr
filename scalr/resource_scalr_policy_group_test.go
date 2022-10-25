@@ -8,7 +8,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/scalr/go-scalr"
 )
 
 const (
@@ -21,8 +20,6 @@ func TestAccPolicyGroup_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			// TODO: delete skip after SCALRCORE-19891
-			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
 		Providers:    testAccProviders,
@@ -74,8 +71,6 @@ func TestAccPolicyGroup_update(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			// TODO: delete skip after SCALRCORE-19891
-			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
 		Providers:    testAccProviders,
@@ -165,8 +160,6 @@ func TestAccPolicyGroup_renamed(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			// TODO: delete skip after SCALRCORE-19891
-			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
 		Providers:    testAccProviders,
@@ -256,8 +249,6 @@ func TestAccPolicyGroup_import(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			// TODO: delete skip after SCALRCORE-19891
-			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
 		Providers:    testAccProviders,

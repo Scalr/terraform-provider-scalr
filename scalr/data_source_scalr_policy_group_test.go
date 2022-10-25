@@ -16,8 +16,6 @@ func TestAccPolicyGroupDataSource_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			// TODO: delete skip after SCALRCORE-19891
-			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
 		Providers: testAccProviders,
