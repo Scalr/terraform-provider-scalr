@@ -105,6 +105,11 @@ func testAccPreCheck(t *testing.T) {
 func testVcsAccGithubTokenPreCheck(t *testing.T) {
 	testAccPreCheck(t)
 	if GITHUB_TOKEN == "" {
-		t.Skip("Please set GITHUB_TOKEN to run this test")
+		//Default GitHub action token don't have access to other repositories
+		GITHUB_TOKEN = os.Getenv("ORG_ADMIN_TOKEN")
+		if GITHUB_TOKEN == "" {
+			t.Skip("Please set GITHUB_TOKEN to run this test")
+		}
+
 	}
 }
