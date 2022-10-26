@@ -244,7 +244,7 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeLocal)),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "terraform_version", "0.12.19"),
+						"scalr_workspace.test", "terraform_version", "1.1.9"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", "terraform/test"),
 					resource.TestCheckResourceAttr(
@@ -281,7 +281,7 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeLocal)),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "terraform_version", "0.12.19"),
+						"scalr_workspace.test", "terraform_version", "1.1.9"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", "terraform/test"),
 					resource.TestCheckResourceAttr(
@@ -494,7 +494,7 @@ func testAccCheckScalrWorkspaceAttributesUpdated(
 			return fmt.Errorf("Bad execution mode: %s", workspace.ExecutionMode)
 		}
 
-		if workspace.TerraformVersion != "0.12.19" {
+		if workspace.TerraformVersion != "1.1.9" {
 			return fmt.Errorf("Bad Terraform version: %s", workspace.TerraformVersion)
 		}
 
@@ -714,7 +714,7 @@ resource "scalr_workspace" "test" {
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
   execution_mode        = "%s"
-  terraform_version     = "0.12.19"
+  terraform_version     = "1.1.9"
   working_directory     = "terraform/test"
   run_operation_timeout = 200
   var_files             = ["test1updated.tfvars", "test2updated.tfvars"]
@@ -737,7 +737,7 @@ resource "scalr_workspace" "test" {
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
   execution_mode        = "%s"
-  terraform_version     = "0.12.19"
+  terraform_version     = "1.1.9"
   working_directory     = "terraform/test"
   vcs_repo {
    identifier = "TestRepo/local"
@@ -755,7 +755,7 @@ resource "scalr_workspace" "test" {
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
   execution_mode        = "%s"
-  terraform_version     = "0.12.19"
+  terraform_version     = "1.1.9"
   working_directory     = "terraform/test"
   vcs_provider_id	    = "test_provider_id"
 }`, scalr.WorkspaceExecutionModeLocal),
@@ -770,7 +770,7 @@ resource "scalr_workspace" "test" {
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
   execution_mode        = "%s"
-  terraform_version     = "0.12.19"
+  terraform_version     = "1.1.9"
   working_directory     = "terraform/test"
 }`, scalr.WorkspaceExecutionModeLocal),
 	)
@@ -784,7 +784,7 @@ resource "scalr_workspace" "test" {
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
   execution_mode        = "%s"
-  terraform_version     = "0.12.19"
+  terraform_version     = "1.1.9"
   working_directory     = ""
   hooks {
     pre_init   = "./scripts/pre-init_updated.sh"
