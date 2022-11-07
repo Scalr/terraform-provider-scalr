@@ -59,10 +59,11 @@ func resourceScalrEnvironment() *schema.Resource {
 				ForceNew: true,
 			},
 			"cloud_credentials": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:       schema.TypeList,
+				Computed:   true,
+				Optional:   true,
+				Elem:       &schema.Schema{Type: schema.TypeString},
+				Deprecated: "The attribute `cloud_credentials` is deprecated. Use `default_provider_configurations` instead",
 			},
 			"policy_groups": {
 				Type:     schema.TypeList,
