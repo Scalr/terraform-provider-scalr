@@ -292,6 +292,22 @@ func parseTriggerPrefixDefinitions(vcsRepo map[string]interface{}) ([]string, er
 	return triggerPrefixes, nil
 }
 
+func parseVarFilesDefinitions(d *schema.ResourceData) ([]string, error) {
+	varFiles := make([]string, 0)
+
+	varFileIds := d.Get("var_files").([]interface{})
+	err := ValidateIDsDefinitions(varFileIds)
+	if err != nil {
+		return nil, fmt.Errorf("Got error during parsing var files: %s", err.Error())
+	}
+
+	for _, varFileId := range varFileIds {
+		varFiles = append(varFiles, varFileId.(string))
+	}
+
+	return varFiles, nil
+}
+
 func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
@@ -390,13 +406,11 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
-	if v, ok := d.Get("var_files").([]interface{}); ok {
-		varFiles := make([]string, 0)
-		for _, varFile := range v {
-			varFiles = append(varFiles, varFile.(string))
-		}
-		options.VarFiles = varFiles
+	varFiles, err := parseVarFilesDefinitions(d)
+	if err != nil {
+		return err
 	}
+	options.VarFiles = varFiles
 
 	if tagIDs, ok := d.GetOk("tag_ids"); ok {
 		tagIDsList := tagIDs.(*schema.Set).List()
