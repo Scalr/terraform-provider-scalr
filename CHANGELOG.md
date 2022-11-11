@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `module_verion`: data source: change relation from latest-module-version to module-version  ([#181](https://github.com/Scalr/terraform-provider-scalr/pull/181))
 
+### Deprecated
+
+- `scalr_environment`: attribute `cloud_credentials` has been deprecated ([#190](https://github.com/Scalr/terraform-provider-scalr/pull/190))
+
 ## [1.0.0-rc38] - 2022-10-20
 
 ### Added
@@ -43,10 +47,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Required
 
 - scalr-server >= `8.37.0`
-
-### Deprecated
-
-- `scalr_environment`: attribute `cloud_credentials` has been deprecated ([#158](https://github.com/Scalr/terraform-provider-scalr/pull/158))
 
 ## [1.0.0-rc36] - 2022-08-19
 
