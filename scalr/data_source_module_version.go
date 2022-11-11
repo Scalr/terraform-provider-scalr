@@ -47,10 +47,10 @@ func dataSourceModuleVersionRead(d *schema.ResourceData, meta interface{}) error
 		version = v.(string)
 		mv, err = scalrClient.ModuleVersions.ReadBySemanticVersion(ctx, module.ID, version)
 	} else {
-		if module.LatestModuleVersion == nil {
+		if module.ModuleVersion == nil {
 			return errors.New("The module has no version tags")
 		}
-		mv, err = scalrClient.ModuleVersions.Read(ctx, module.LatestModuleVersion.ID)
+		mv, err = scalrClient.ModuleVersions.Read(ctx, module.ModuleVersion.ID)
 	}
 
 	if err != nil {

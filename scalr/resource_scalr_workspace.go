@@ -79,6 +79,12 @@ func resourceScalrWorkspace() *schema.Resource {
 				Default:  false,
 			},
 
+			"force_latest_run": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
 			"var_files": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -161,9 +167,17 @@ func resourceScalrWorkspace() *schema.Resource {
 			},
 
 			"auto_queue_runs": {
-				Type:     schema.TypeBool,
+				Type:     schema.TypeString,
 				Optional: true,
-				Default:  nil,
+				ValidateFunc: validation.StringInSlice(
+					[]string{
+						string(scalr.AutoQueueRunsModeSkipFirst),
+						string(scalr.AutoQueueRunsModeAlways),
+						string(scalr.AutoQueueRunsModeNever),
+					},
+					false,
+				),
+				Default: string(scalr.AutoQueueRunsModeSkipFirst),
 			},
 
 			"vcs_repo": {
@@ -287,11 +301,11 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 
 	// Create a new options struct.
 	options := scalr.WorkspaceCreateOptions{
-		Name:          scalr.String(name),
-		AutoApply:     scalr.Bool(d.Get("auto_apply").(bool)),
-		Environment:   &scalr.Environment{ID: environmentID},
-		Hooks:         &scalr.HooksOptions{},
-		AutoQueueRuns: scalr.Bool(d.Get("auto_queue_runs").(bool)),
+		Name:           scalr.String(name),
+		AutoApply:      scalr.Bool(d.Get("auto_apply").(bool)),
+		ForceLatestRun: scalr.Bool(d.Get("force_latest_run").(bool)),
+		Environment:    &scalr.Environment{ID: environmentID},
+		Hooks:          &scalr.HooksOptions{},
 	}
 
 	// Process all configured options.
@@ -302,6 +316,12 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 	if executionMode, ok := d.GetOk("execution_mode"); ok {
 		options.ExecutionMode = scalr.WorkspaceExecutionModePtr(
 			scalr.WorkspaceExecutionMode(executionMode.(string)),
+		)
+	}
+
+	if autoQueueRunsI, ok := d.GetOk("auto_queue_runs"); ok {
+		options.AutoQueueRuns = scalr.AutoQueueRunsModePtr(
+			scalr.WorkspaceAutoQueueRuns(autoQueueRunsI.(string)),
 		)
 	}
 
@@ -434,6 +454,7 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 	// Update the config.
 	d.Set("name", workspace.Name)
 	d.Set("auto_apply", workspace.AutoApply)
+	d.Set("force_latest_run", workspace.ForceLatestRun)
 	d.Set("operations", workspace.Operations)
 	d.Set("execution_mode", workspace.ExecutionMode)
 	d.Set("terraform_version", workspace.TerraformVersion)
@@ -534,16 +555,16 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 	id := d.Id()
 
 	if d.HasChange("name") || d.HasChange("auto_apply") || d.HasChange("auto_queue_runs") ||
-		d.HasChange("terraform_version") || d.HasChange("working_directory") ||
+		d.HasChange("terraform_version") || d.HasChange("working_directory") || d.HasChange("force_latest_run") ||
 		d.HasChange("vcs_repo") || d.HasChange("operations") || d.HasChange("execution_mode") ||
 		d.HasChange("vcs_provider_id") || d.HasChange("agent_pool_id") ||
 		d.HasChange("hooks") || d.HasChange("module_version_id") || d.HasChange("var_files") ||
 		d.HasChange("run_operation_timeout") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
-			Name:          scalr.String(d.Get("name").(string)),
-			AutoApply:     scalr.Bool(d.Get("auto_apply").(bool)),
-			AutoQueueRuns: scalr.Bool(d.Get("auto_queue_runs").(bool)),
+			Name:           scalr.String(d.Get("name").(string)),
+			AutoApply:      scalr.Bool(d.Get("auto_apply").(bool)),
+			ForceLatestRun: scalr.Bool(d.Get("force_latest_run").(bool)),
 			Hooks: &scalr.HooksOptions{
 				PreInit:   scalr.String(""),
 				PrePlan:   scalr.String(""),
@@ -561,6 +582,12 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		if executionMode, ok := d.GetOk("execution_mode"); ok {
 			options.ExecutionMode = scalr.WorkspaceExecutionModePtr(
 				scalr.WorkspaceExecutionMode(executionMode.(string)),
+			)
+		}
+
+		if autoQueueRunsI, ok := d.GetOk("auto_queue_runs"); ok {
+			options.AutoQueueRuns = scalr.AutoQueueRunsModePtr(
+				scalr.WorkspaceAutoQueueRuns(autoQueueRunsI.(string)),
 			)
 		}
 
