@@ -609,13 +609,11 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 			options.TerraformVersion = scalr.String(tfVersion.(string))
 		}
 
-		if v, ok := d.Get("var_files").([]interface{}); ok {
-			varFiles := make([]string, 0)
-			for _, varFile := range v {
-				varFiles = append(varFiles, varFile.(string))
-			}
-			options.VarFiles = varFiles
+		varFiles, err := parseVarFilesDefinitions(d)
+		if err != nil {
+			return err
 		}
+		options.VarFiles = varFiles
 
 		options.WorkingDirectory = scalr.String(d.Get("working_directory").(string))
 
@@ -675,7 +673,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		log.Printf("[DEBUG] Update workspace %s", id)
-		_, err := scalrClient.Workspaces.Update(ctx, id, options)
+		_, err = scalrClient.Workspaces.Update(ctx, id, options)
 		if err != nil {
 			return fmt.Errorf(
 				"Error updating workspace %s: %v", id, err)
