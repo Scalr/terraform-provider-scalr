@@ -88,7 +88,10 @@ func resourceScalrWorkspace() *schema.Resource {
 			"var_files": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: validation.NoZeroValues,
+				},
 			},
 
 			"operations": {
@@ -292,22 +295,6 @@ func parseTriggerPrefixDefinitions(vcsRepo map[string]interface{}) ([]string, er
 	return triggerPrefixes, nil
 }
 
-func parseVarFilesDefinitions(d *schema.ResourceData) ([]string, error) {
-	varFiles := make([]string, 0)
-
-	varFileIds := d.Get("var_files").([]interface{})
-	err := ValidateIDsDefinitions(varFileIds)
-	if err != nil {
-		return nil, fmt.Errorf("Got error during parsing var files: %s", err.Error())
-	}
-
-	for _, varFileId := range varFileIds {
-		varFiles = append(varFiles, varFileId.(string))
-	}
-
-	return varFiles, nil
-}
-
 func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) error {
 	scalrClient := meta.(*scalr.Client)
 
@@ -406,11 +393,13 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
-	varFiles, err := parseVarFilesDefinitions(d)
-	if err != nil {
-		return err
+	if v, ok := d.Get("var_files").([]interface{}); ok {
+		varFiles := make([]string, 0)
+		for _, varFile := range v {
+			varFiles = append(varFiles, varFile.(string))
+		}
+		options.VarFiles = varFiles
 	}
-	options.VarFiles = varFiles
 
 	if tagIDs, ok := d.GetOk("tag_ids"); ok {
 		tagIDsList := tagIDs.(*schema.Set).List()
@@ -609,11 +598,13 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 			options.TerraformVersion = scalr.String(tfVersion.(string))
 		}
 
-		varFiles, err := parseVarFilesDefinitions(d)
-		if err != nil {
-			return err
+		if v, ok := d.Get("var_files").([]interface{}); ok {
+			varFiles := make([]string, 0)
+			for _, varFile := range v {
+				varFiles = append(varFiles, varFile.(string))
+			}
+			options.VarFiles = varFiles
 		}
-		options.VarFiles = varFiles
 
 		options.WorkingDirectory = scalr.String(d.Get("working_directory").(string))
 
@@ -673,7 +664,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		log.Printf("[DEBUG] Update workspace %s", id)
-		_, err = scalrClient.Workspaces.Update(ctx, id, options)
+		_, err := scalrClient.Workspaces.Update(ctx, id, options)
 		if err != nil {
 			return fmt.Errorf(
 				"Error updating workspace %s: %v", id, err)
