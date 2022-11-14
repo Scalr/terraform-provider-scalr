@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `module_verion`: data source: change relation from latest-module-version to module-version  ([#181](https://github.com/Scalr/terraform-provider-scalr/pull/181))
 
+### Fixed
+
+- panic when creating workspace with empty var file value ([#191](https://github.com/Scalr/terraform-provider-scalr/pull/191))
+
 ### Deprecated
 
 - `scalr_environment`: attribute `cloud_credentials` has been deprecated ([#190](https://github.com/Scalr/terraform-provider-scalr/pull/190))
