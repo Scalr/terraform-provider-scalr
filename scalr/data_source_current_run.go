@@ -62,7 +62,7 @@ func dataSourceScalrCurrentRun() *schema.Resource {
 										Computed: true,
 									},
 									"author": {
-										Type:     schema.TypeMap,
+										Type:     schema.TypeList,
 										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -152,8 +152,10 @@ func dataSourceScalrCurrentRunRead(ctx context.Context, d *schema.ResourceData, 
 				{
 					"sha":     run.VcsRevision.CommitSha,
 					"message": run.VcsRevision.CommitMessage,
-					"author": map[string]interface{}{
-						"username": run.VcsRevision.SenderUsername,
+					"author": []interface{}{
+						map[string]string{
+							"username": run.VcsRevision.SenderUsername,
+						},
 					},
 				},
 			}

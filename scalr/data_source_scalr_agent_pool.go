@@ -35,8 +35,6 @@ func dataSourceScalrAgentPool() *schema.Resource {
 			"workspace_ids": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MinItems: 0,
-				MaxItems: 128,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
