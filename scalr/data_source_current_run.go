@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	scalr "github.com/scalr/go-scalr"
 )
 

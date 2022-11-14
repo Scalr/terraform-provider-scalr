@@ -12,9 +12,9 @@ import (
 
 	version "github.com/hashicorp/go-version"
 	"github.com/hashicorp/hcl"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/logging"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	svchost "github.com/hashicorp/terraform-svchost"
 	"github.com/hashicorp/terraform-svchost/auth"
 	"github.com/hashicorp/terraform-svchost/disco"
