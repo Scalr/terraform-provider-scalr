@@ -1,6 +1,7 @@
 package scalr
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -18,7 +19,7 @@ func resourceScalrVariable() *schema.Resource {
 		Update: resourceScalrVariableUpdate,
 		Delete: resourceScalrVariableDelete,
 		CustomizeDiff: customdiff.All(
-			func(d *schema.ResourceDiff, meta interface{}) error {
+			func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
 				// Reject change for key if variable is sensitive
 				old, new := d.GetChange("key")
 				sensitive := d.Get("sensitive")

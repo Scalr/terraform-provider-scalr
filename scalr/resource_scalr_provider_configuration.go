@@ -20,7 +20,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 		Update: resourceScalrProviderConfigurationUpdate,
 		Delete: resourceScalrProviderConfigurationDelete,
 		CustomizeDiff: customdiff.All(
-			func(d *schema.ResourceDiff, meta interface{}) error {
+			func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
 				changedProviderNames := 0
 				providerNameAttrs := []string{"aws", "google", "azurerm", "scalr", "custom"}
 				for _, providerNameAttr := range providerNameAttrs {

@@ -1,6 +1,7 @@
 package scalr
 
 import (
+	"context"
 	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -40,7 +41,7 @@ func resourceScalrRoleResourceV0() *schema.Resource {
 	}
 }
 
-func resourceScalrRoleStateUpgradeV0(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceScalrRoleStateUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	permissionsSet := make(map[string]bool)
 	for _, perm := range rawState["permissions"].([]interface{}) {
 		permissionsSet[perm.(string)] = true

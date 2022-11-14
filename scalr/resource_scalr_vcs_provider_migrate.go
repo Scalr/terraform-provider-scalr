@@ -1,6 +1,7 @@
 package scalr
 
 import (
+	"context"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/scalr/go-scalr"
@@ -48,7 +49,7 @@ func resourceScalrVcsProviderV0() *schema.Resource {
 	}
 }
 
-func resourceScalrVcsProviderStateUpgradeV0(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceScalrVcsProviderStateUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	rawState["username"] = ""
 	return rawState, nil
 }
