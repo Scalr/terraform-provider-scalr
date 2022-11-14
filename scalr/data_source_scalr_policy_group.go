@@ -1,16 +1,17 @@
 package scalr
 
 import (
-	"fmt"
+	"context"
 	"log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	scalr "github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrPolicyGroup() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrPolicyGroupRead,
+		ReadContext: dataSourceScalrPolicyGroupRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -90,7 +91,7 @@ func dataSourceScalrPolicyGroup() *schema.Resource {
 	}
 }
 
-func dataSourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrPolicyGroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// required fields
@@ -106,11 +107,11 @@ func dataSourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) er
 
 	pgl, err := scalrClient.PolicyGroups.List(ctx, options)
 	if err != nil {
-		return fmt.Errorf("error retrieving policy group: %v", err)
+		return diag.Errorf("error retrieving policy group: %v", err)
 	}
 
 	if pgl.TotalCount == 0 {
-		return fmt.Errorf("policy group %s/%s not found", accountID, name)
+		return diag.Errorf("policy group %s/%s not found", accountID, name)
 	}
 
 	pg := pgl.Items[0]

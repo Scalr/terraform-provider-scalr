@@ -1,17 +1,18 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	scalr "github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrEndpoint() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrEndpointRead,
+		ReadContext: dataSourceScalrEndpointRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -63,7 +64,7 @@ func dataSourceScalrEndpoint() *schema.Resource {
 	}
 }
 
-func dataSourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrEndpointRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get the ID
@@ -71,11 +72,11 @@ func dataSourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error
 	endpointName := d.Get("name").(string)
 
 	if endpointID == "" && endpointName == "" {
-		return fmt.Errorf("At least one argument 'id' or 'name' is required, but no definitions was found")
+		return diag.Errorf("At least one argument 'id' or 'name' is required, but no definitions was found")
 	}
 
 	if endpointID != "" && endpointName != "" {
-		return fmt.Errorf("Attributes 'name' and 'id' can not be set at the same time")
+		return diag.Errorf("Attributes 'name' and 'id' can not be set at the same time")
 	}
 
 	accountID := d.Get("account_id").(string)
@@ -99,9 +100,9 @@ func dataSourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error
 
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Could not find endpoint %s: %v", endpointID, err)
+			return diag.Errorf("Could not find endpoint %s: %v", endpointID, err)
 		}
-		return fmt.Errorf("Error retrieving endpoint: %v", err)
+		return diag.Errorf("Error retrieving endpoint: %v", err)
 	}
 
 	// Update the config.

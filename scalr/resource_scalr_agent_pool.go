@@ -1,8 +1,9 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -11,10 +12,10 @@ import (
 
 func resourceScalrAgentPool() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrAgentPoolCreate,
-		Read:   resourceScalrAgentPoolRead,
-		Update: resourceScalrAgentPoolUpdate,
-		Delete: resourceScalrAgentPoolDelete,
+		CreateContext: resourceScalrAgentPoolCreate,
+		ReadContext:   resourceScalrAgentPoolRead,
+		UpdateContext: resourceScalrAgentPoolUpdate,
+		DeleteContext: resourceScalrAgentPoolDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -39,7 +40,7 @@ func resourceScalrAgentPool() *schema.Resource {
 	}
 }
 
-func resourceScalrAgentPoolCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAgentPoolCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	var envID string
 
@@ -62,14 +63,14 @@ func resourceScalrAgentPoolCreate(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Create agent pool %s for account: %s environment: %s", name, accountID, envID)
 	agentPool, err := scalrClient.AgentPools.Create(ctx, options)
 	if err != nil {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Error creating agent pool %s for account %s environment %s: %v", name, accountID, envID, err)
 	}
 	d.SetId(agentPool.ID)
-	return resourceScalrAgentPoolRead(d, meta)
+	return resourceScalrAgentPoolRead(ctx, d, meta)
 }
 
-func resourceScalrAgentPoolRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 	log.Printf("[DEBUG] Read configuration of agent pool: %s", id)
@@ -80,7 +81,7 @@ func resourceScalrAgentPoolRead(d *schema.ResourceData, meta interface{}) error 
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error reading configuration of agent pool %s: %v", id, err)
+		return diag.Errorf("Error reading configuration of agent pool %s: %v", id, err)
 	}
 
 	// Update the config.
@@ -95,7 +96,7 @@ func resourceScalrAgentPoolRead(d *schema.ResourceData, meta interface{}) error 
 	return nil
 }
 
-func resourceScalrAgentPoolUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAgentPoolUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
@@ -109,15 +110,15 @@ func resourceScalrAgentPoolUpdate(d *schema.ResourceData, meta interface{}) erro
 		log.Printf("[DEBUG] Update agent pool %s", id)
 		_, err := scalrClient.AgentPools.Update(ctx, id, options)
 		if err != nil {
-			return fmt.Errorf(
+			return diag.Errorf(
 				"Error updating agentPool %s: %v", id, err)
 		}
 	}
 
-	return resourceScalrAgentPoolRead(d, meta)
+	return resourceScalrAgentPoolRead(ctx, d, meta)
 }
 
-func resourceScalrAgentPoolDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAgentPoolDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 
@@ -127,7 +128,7 @@ func resourceScalrAgentPoolDelete(d *schema.ResourceData, meta interface{}) erro
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Error deleting agent pool %s: %v", id, err)
 	}
 

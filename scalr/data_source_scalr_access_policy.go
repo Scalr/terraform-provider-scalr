@@ -1,17 +1,18 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	scalr "github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrAccessPolicy() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrAccessPolicyRead,
+		ReadContext: dataSourceScalrAccessPolicyRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -65,7 +66,7 @@ func dataSourceScalrAccessPolicy() *schema.Resource {
 	}
 }
 
-func dataSourceScalrAccessPolicyRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrAccessPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Get("id").(string)
 
@@ -74,9 +75,9 @@ func dataSourceScalrAccessPolicyRead(d *schema.ResourceData, meta interface{}) e
 
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("AccessPolicy '%s' not found", id)
+			return diag.Errorf("AccessPolicy '%s' not found", id)
 		}
-		return fmt.Errorf("Error reading configuration of access policy %s: %v", id, err)
+		return diag.Errorf("Error reading configuration of access policy %s: %v", id, err)
 	}
 
 	var subject [1]interface{}
@@ -92,7 +93,7 @@ func dataSourceScalrAccessPolicyRead(d *schema.ResourceData, meta interface{}) e
 		subjectEl["type"] = ServiceAccount
 		subjectEl["id"] = ap.ServiceAccount.ID
 	} else {
-		return fmt.Errorf("Unable to extract subject from access policy %s", ap.ID)
+		return diag.Errorf("Unable to extract subject from access policy %s", ap.ID)
 	}
 	subject[0] = subjectEl
 	d.Set("subject", subject)
@@ -110,7 +111,7 @@ func dataSourceScalrAccessPolicyRead(d *schema.ResourceData, meta interface{}) e
 		scopeEl["type"] = Account
 		scopeEl["id"] = ap.Account.ID
 	} else {
-		return fmt.Errorf("Unable to extract scope from access policy %s", ap.ID)
+		return diag.Errorf("Unable to extract scope from access policy %s", ap.ID)
 	}
 	scope[0] = scopeEl
 	d.Set("scope", scope)

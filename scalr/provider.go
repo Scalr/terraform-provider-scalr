@@ -12,6 +12,7 @@ import (
 
 	version "github.com/hashicorp/go-version"
 	"github.com/hashicorp/hcl"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	svchost "github.com/hashicorp/terraform-svchost"
@@ -37,9 +38,6 @@ type Config struct {
 type ConfigHost struct {
 	Services map[string]interface{} `hcl:"services"`
 }
-
-// ctx is used as default context.Context when making Scalr calls.
-var ctx = context.Background()
 
 // Provider returns a terraform.ResourceProvider.
 func Provider() *schema.Provider {
@@ -104,15 +102,15 @@ func Provider() *schema.Provider {
 			"scalr_workspace_run_schedule": resourceScalrWorkspaceRunSchedule(),
 		},
 
-		ConfigureFunc: providerConfigure,
+		ConfigureContextFunc: providerConfigure,
 	}
 }
 
-func providerConfigure(d *schema.ResourceData) (interface{}, error) {
+func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	// Parse the hostname for comparison,
 	hostname, err := svchost.ForComparison(d.Get("hostname").(string))
 	if err != nil {
-		return nil, err
+		return nil, diag.FromErr(err)
 	}
 
 	providerUaString := fmt.Sprintf("terraform-provider-scalr/%s", providerVersion.ProviderVersion)
@@ -139,7 +137,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	// Discover the address.
 	host, err := services.Discover(hostname)
 	if err != nil {
-		return nil, err
+		return nil, diag.FromErr(err)
 	}
 
 	// Get the full service address.
@@ -148,7 +146,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	for _, scalrServiceID := range scalrServiceIDs {
 		service, err := host.ServiceURL(scalrServiceID)
 		if _, ok := err.(*disco.ErrVersionNotSupported); !ok && err != nil {
-			return nil, err
+			return nil, diag.FromErr(err)
 		}
 		// If discoErr is nil we save the first error. When multiple services
 		// are checked, and we found one that didn't give an error we need to
@@ -165,7 +163,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	// When we don't have any constraints errors, also check for discovery
 	// errors before we continue.
 	if discoErr != nil {
-		return nil, discoErr
+		return nil, diag.FromErr(discoErr)
 	}
 
 	// Get the token from the config.
@@ -185,7 +183,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
 	// If we still don't have a token at this point, we return an error.
 	if token == "" {
-		return nil, fmt.Errorf("required token could not be found")
+		return nil, diag.Errorf("required token could not be found")
 	}
 
 	httpClient := scalr.DefaultConfig().HTTPClient
@@ -205,7 +203,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	// Create a new Scalr client.
 	client, err := scalr.NewClient(cfg)
 	if err != nil {
-		return nil, err
+		return nil, diag.FromErr(err)
 	}
 
 	client.RetryServerErrors(true)

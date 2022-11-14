@@ -1,8 +1,9 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -11,10 +12,10 @@ import (
 
 func resourceScalrAgentPoolToken() *schema.Resource {
 	return &schema.Resource{
-		Create:        resourceScalrAgentPoolTokenCreate,
-		Read:          resourceScalrAgentPoolTokenRead,
-		Update:        resourceScalrAgentPoolTokenUpdate,
-		Delete:        resourceScalrAgentPoolTokenDelete,
+		CreateContext: resourceScalrAgentPoolTokenCreate,
+		ReadContext:   resourceScalrAgentPoolTokenRead,
+		UpdateContext: resourceScalrAgentPoolTokenUpdate,
+		DeleteContext: resourceScalrAgentPoolTokenDelete,
 		SchemaVersion: 0,
 		Schema: map[string]*schema.Schema{
 			"description": {
@@ -35,7 +36,7 @@ func resourceScalrAgentPoolToken() *schema.Resource {
 	}
 }
 
-func resourceScalrAgentPoolTokenCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAgentPoolTokenCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get required options
@@ -51,7 +52,7 @@ func resourceScalrAgentPoolTokenCreate(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Create token for agent pool: %s", poolID)
 	token, err := scalrClient.AgentPoolTokens.Create(ctx, poolID, options)
 	if err != nil {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Error creating token for agent pool %s: %v", poolID, err)
 	}
 
@@ -59,16 +60,16 @@ func resourceScalrAgentPoolTokenCreate(d *schema.ResourceData, meta interface{})
 	// the token is returned from API only while creating
 	d.Set("token", token.Token)
 
-	return resourceScalrAgentPoolTokenRead(d, meta)
+	return resourceScalrAgentPoolTokenRead(ctx, d, meta)
 }
 
-func resourceScalrAgentPoolTokenRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAgentPoolTokenRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 	poolID := d.Get("agent_pool_id").(string)
 
 	if poolID == "" {
-		return fmt.Errorf("This resource does not support import")
+		return diag.Errorf("This resource does not support import")
 	}
 
 	log.Printf("[DEBUG] Read configuration of agent pool token: %s", id)
@@ -83,7 +84,7 @@ func resourceScalrAgentPoolTokenRead(d *schema.ResourceData, meta interface{}) e
 				d.SetId("")
 				return nil
 			}
-			return fmt.Errorf("Error reading configuration of agent pool token %s: %v", id, err)
+			return diag.Errorf("Error reading configuration of agent pool token %s: %v", id, err)
 		}
 
 		for _, t := range tokensList.Items {
@@ -108,7 +109,7 @@ func resourceScalrAgentPoolTokenRead(d *schema.ResourceData, meta interface{}) e
 
 }
 
-func resourceScalrAgentPoolTokenUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAgentPoolTokenUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
@@ -123,15 +124,15 @@ func resourceScalrAgentPoolTokenUpdate(d *schema.ResourceData, meta interface{})
 		log.Printf("[DEBUG] Update agent pool token %s", id)
 		_, err := scalrClient.AccessTokens.Update(ctx, id, options)
 		if err != nil {
-			return fmt.Errorf(
+			return diag.Errorf(
 				"Error updating agent pool token %s: %v", id, err)
 		}
 	}
 
-	return resourceScalrAgentPoolTokenRead(d, meta)
+	return resourceScalrAgentPoolTokenRead(ctx, d, meta)
 }
 
-func resourceScalrAgentPoolTokenDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAgentPoolTokenDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 
@@ -141,7 +142,7 @@ func resourceScalrAgentPoolTokenDelete(d *schema.ResourceData, meta interface{})
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Error deleting agent pool token %s: %v", id, err)
 	}
 

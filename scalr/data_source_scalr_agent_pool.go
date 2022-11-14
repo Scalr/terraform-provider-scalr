@@ -1,17 +1,18 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	scalr "github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrAgentPool() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrAgentPoolRead,
+		ReadContext: dataSourceScalrAgentPoolRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
@@ -42,7 +43,7 @@ func dataSourceScalrAgentPool() *schema.Resource {
 	}
 }
 
-func dataSourceScalrAgentPoolRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	var envID string
 
@@ -59,15 +60,15 @@ func dataSourceScalrAgentPoolRead(d *schema.ResourceData, meta interface{}) erro
 
 	agentPoolsList, err := scalrClient.AgentPools.List(ctx, options)
 	if err != nil {
-		return fmt.Errorf("Error retrieving agent pool: %v", err)
+		return diag.Errorf("Error retrieving agent pool: %v", err)
 	}
 
 	if len(agentPoolsList.Items) > 1 {
-		return errors.New("Your query returned more than one result. Please try a more specific search criteria.")
+		return diag.FromErr(errors.New("Your query returned more than one result. Please try a more specific search criteria."))
 	}
 
 	if len(agentPoolsList.Items) == 0 {
-		return fmt.Errorf("Could not find agent pool with name '%s', account_id: '%s', and environment_id: '%s'", name, accountID, envID)
+		return diag.Errorf("Could not find agent pool with name '%s', account_id: '%s', and environment_id: '%s'", name, accountID, envID)
 	}
 
 	agentPool := agentPoolsList.Items[0]

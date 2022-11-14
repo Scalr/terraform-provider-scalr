@@ -1,17 +1,18 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	scalr "github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrWebhook() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrWebhookRead,
+		ReadContext: dataSourceScalrWebhookRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -69,7 +70,7 @@ func dataSourceScalrWebhook() *schema.Resource {
 	}
 }
 
-func dataSourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get IDs
@@ -79,12 +80,12 @@ func dataSourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error 
 
 	if webhookID == "" {
 		if webhookName == "" {
-			return fmt.Errorf("At least one argument 'id' or 'name' is required, but no definitions was found")
+			return diag.Errorf("At least one argument 'id' or 'name' is required, but no definitions was found")
 		} else if accountID == "" {
-			return fmt.Errorf("Argument 'account_id' is required to be set in pair with 'name'")
+			return diag.Errorf("Argument 'account_id' is required to be set in pair with 'name'")
 		}
 	} else if webhookName != "" {
-		return fmt.Errorf("Attributes 'name' and 'id' can not be set at the same time")
+		return diag.Errorf("Attributes 'name' and 'id' can not be set at the same time")
 	}
 
 	var webhook *scalr.Webhook
@@ -106,9 +107,9 @@ func dataSourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error 
 
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Could not find webhook %s: %v", webhookID, err)
+			return diag.Errorf("Could not find webhook %s: %v", webhookID, err)
 		}
-		return fmt.Errorf("Error retrieving webhook: %v", err)
+		return diag.Errorf("Error retrieving webhook: %v", err)
 	}
 
 	// Update the config.

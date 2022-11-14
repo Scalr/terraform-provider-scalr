@@ -1,8 +1,9 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -11,9 +12,9 @@ import (
 
 func resourceScalrRunTrigger() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrRunTriggerCreate,
-		Delete: resourceScalrRunTriggerDelete,
-		Read:   resourceScalrRunTriggerRead,
+		CreateContext: resourceScalrRunTriggerCreate,
+		DeleteContext: resourceScalrRunTriggerDelete,
+		ReadContext:   resourceScalrRunTriggerRead,
 
 		Schema: map[string]*schema.Schema{
 			"downstream_id": {
@@ -30,7 +31,7 @@ func resourceScalrRunTrigger() *schema.Resource {
 	}
 }
 
-func resourceScalrRunTriggerCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrRunTriggerCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	downstreamID := d.Get("downstream_id").(string)
@@ -44,15 +45,15 @@ func resourceScalrRunTriggerCreate(d *schema.ResourceData, meta interface{}) err
 	log.Printf("[DEBUG] Create run trigger with downstream %s and upstream %s", downstreamID, upstreamID)
 	runTrigger, err := scalrClient.RunTriggers.Create(ctx, createOptions)
 	if err != nil {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Error creating run trigger with downstream %s and upstream %s: %v", downstreamID, upstreamID, err)
 	}
 	d.SetId(runTrigger.ID)
-	return resourceScalrRunTriggerRead(d, meta)
+	return resourceScalrRunTriggerRead(ctx, d, meta)
 
 }
 
-func resourceScalrRunTriggerDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrRunTriggerDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
@@ -64,13 +65,13 @@ func resourceScalrRunTriggerDelete(d *schema.ResourceData, meta interface{}) err
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf("Error deleting run trigger %s: %v", id, err)
+		return diag.Errorf("Error deleting run trigger %s: %v", id, err)
 	}
 
 	return nil
 }
 
-func resourceScalrRunTriggerRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrRunTriggerRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
@@ -83,7 +84,7 @@ func resourceScalrRunTriggerRead(d *schema.ResourceData, meta interface{}) error
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error reading configuration of run trigger %s: %v", id, err)
+		return diag.Errorf("Error reading configuration of run trigger %s: %v", id, err)
 	}
 	d.Set("downstream_id", runTrigger.Downstream.ID)
 	d.Set("upstream_id", runTrigger.Upstream.ID)

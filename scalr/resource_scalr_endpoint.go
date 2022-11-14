@@ -1,8 +1,9 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -11,10 +12,10 @@ import (
 
 func resourceScalrEndpoint() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrEndpointCreate,
-		Read:   resourceScalrEndpointRead,
-		Update: resourceScalrEndpointUpdate,
-		Delete: resourceScalrEndpointDelete,
+		CreateContext: resourceScalrEndpointCreate,
+		ReadContext:   resourceScalrEndpointRead,
+		UpdateContext: resourceScalrEndpointUpdate,
+		DeleteContext: resourceScalrEndpointDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -65,7 +66,7 @@ func resourceScalrEndpoint() *schema.Resource {
 	}
 }
 
-func resourceScalrEndpointCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrEndpointCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get attributes.
@@ -76,7 +77,7 @@ func resourceScalrEndpointCreate(d *schema.ResourceData, meta interface{}) error
 	// we don't create endpoints on workspace scope for now
 	_, environment, account, err := getResourceScope(scalrClient, "", environmentID)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Create a new options struct.
@@ -101,15 +102,15 @@ func resourceScalrEndpointCreate(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Create endpoint: %s", name)
 	endpoint, err := scalrClient.Endpoints.Create(ctx, options)
 	if err != nil {
-		return fmt.Errorf("Error creating endpoint %s: %v", name, err)
+		return diag.Errorf("Error creating endpoint %s: %v", name, err)
 	}
 
 	d.SetId(endpoint.ID)
 
-	return resourceScalrEndpointRead(d, meta)
+	return resourceScalrEndpointRead(ctx, d, meta)
 }
 
-func resourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrEndpointRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	endpointID := d.Id()
 
@@ -120,7 +121,7 @@ func resourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error retrieving endpoint: %v", err)
+		return diag.Errorf("Error retrieving endpoint: %v", err)
 	}
 
 	// Update the config.
@@ -136,7 +137,7 @@ func resourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceScalrEndpointUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	var err error
@@ -158,13 +159,13 @@ func resourceScalrEndpointUpdate(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Update endpoint: %s", d.Id())
 	_, err = scalrClient.Endpoints.Update(ctx, d.Id(), options)
 	if err != nil {
-		return fmt.Errorf("Error updating endpoint %s: %v", d.Id(), err)
+		return diag.Errorf("Error updating endpoint %s: %v", d.Id(), err)
 	}
 
-	return resourceScalrEndpointRead(d, meta)
+	return resourceScalrEndpointRead(ctx, d, meta)
 }
 
-func resourceScalrEndpointDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrEndpointDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Delete endpoint: %s", d.Id())
@@ -173,7 +174,7 @@ func resourceScalrEndpointDelete(d *schema.ResourceData, meta interface{}) error
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf("Error deleting endpoint%s: %v", d.Id(), err)
+		return diag.Errorf("Error deleting endpoint%s: %v", d.Id(), err)
 	}
 
 	return nil

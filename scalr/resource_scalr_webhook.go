@@ -1,8 +1,10 @@
 package scalr
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 	"strings"
 
@@ -20,10 +22,10 @@ var (
 
 func resourceScalrWebhook() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrWebhookCreate,
-		Read:   resourceScalrWebhookRead,
-		Update: resourceScalrWebhookUpdate,
-		Delete: resourceScalrWebhookDelete,
+		CreateContext: resourceScalrWebhookCreate,
+		ReadContext:   resourceScalrWebhookRead,
+		UpdateContext: resourceScalrWebhookUpdate,
+		DeleteContext: resourceScalrWebhookDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -142,7 +144,7 @@ func parseEventDefinitions(d *schema.ResourceData) ([]*scalr.EventDefinition, er
 	return eventDefinitions, nil
 }
 
-func resourceScalrWebhookCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWebhookCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get attributes.
@@ -153,12 +155,12 @@ func resourceScalrWebhookCreate(d *schema.ResourceData, meta interface{}) error 
 
 	workspace, environment, account, err := getResourceScope(scalrClient, workspaceID, environmentID)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	eventDefinitions, err := parseEventDefinitions(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Create a new options struct.
@@ -175,15 +177,15 @@ func resourceScalrWebhookCreate(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Create webhook: %s", name)
 	webhook, err := scalrClient.Webhooks.Create(ctx, options)
 	if err != nil {
-		return fmt.Errorf("Error creating webhook %s: %v", name, err)
+		return diag.Errorf("Error creating webhook %s: %v", name, err)
 	}
 
 	d.SetId(webhook.ID)
 
-	return resourceScalrWebhookRead(d, meta)
+	return resourceScalrWebhookRead(ctx, d, meta)
 }
 
-func resourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get the ID
@@ -193,9 +195,9 @@ func resourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error {
 	webhook, err := scalrClient.Webhooks.Read(ctx, webhookID)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Could not find webhook %s: %v", webhookID, err)
+			return diag.Errorf("Could not find webhook %s: %v", webhookID, err)
 		}
-		return fmt.Errorf("Error retrieving webhook: %v", err)
+		return diag.Errorf("Error retrieving webhook: %v", err)
 	}
 
 	// Update the config.
@@ -224,12 +226,12 @@ func resourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceScalrWebhookUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWebhookUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	eventDefinitions, err := parseEventDefinitions(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Create a new options struct.
@@ -243,13 +245,13 @@ func resourceScalrWebhookUpdate(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Update webhook: %s", d.Id())
 	_, err = scalrClient.Webhooks.Update(ctx, d.Id(), options)
 	if err != nil {
-		return fmt.Errorf("Error updating webhook %s: %v", d.Id(), err)
+		return diag.Errorf("Error updating webhook %s: %v", d.Id(), err)
 	}
 
-	return resourceScalrWebhookRead(d, meta)
+	return resourceScalrWebhookRead(ctx, d, meta)
 }
 
-func resourceScalrWebhookDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWebhookDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Delete webhook: %s", d.Id())
@@ -258,7 +260,7 @@ func resourceScalrWebhookDelete(d *schema.ResourceData, meta interface{}) error 
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf("Error deleting webhook %s: %v", d.Id(), err)
+		return diag.Errorf("Error deleting webhook %s: %v", d.Id(), err)
 	}
 
 	return nil

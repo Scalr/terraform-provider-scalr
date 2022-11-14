@@ -1,8 +1,10 @@
 package scalr
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 	"strings"
 
@@ -12,9 +14,9 @@ import (
 
 func resourceScalrPolicyGroupLinkage() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrPolicyGroupLinkageCreate,
-		Read:   resourceScalrPolicyGroupLinkageRead,
-		Delete: resourceScalrPolicyGroupLinkageDelete,
+		CreateContext: resourceScalrPolicyGroupLinkageCreate,
+		ReadContext:   resourceScalrPolicyGroupLinkageRead,
+		DeleteContext: resourceScalrPolicyGroupLinkageDelete,
 		Importer: &schema.ResourceImporter{
 			State: resourceScalrPolicyGroupLinkageImport,
 		},
@@ -53,7 +55,7 @@ func resourceScalrPolicyGroupLinkageImport(d *schema.ResourceData, meta interfac
 	return []*schema.ResourceData{d}, nil
 }
 
-func resourceScalrPolicyGroupLinkageCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrPolicyGroupLinkageCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	pgID := d.Get("policy_group_id").(string)
@@ -66,14 +68,14 @@ func resourceScalrPolicyGroupLinkageCreate(d *schema.ResourceData, meta interfac
 	}
 	err := scalrClient.PolicyGroupEnvironments.Create(ctx, opts)
 	if err != nil {
-		return fmt.Errorf("error creating policy group linkage %s: %v", id, err)
+		return diag.Errorf("error creating policy group linkage %s: %v", id, err)
 	}
 
 	d.SetId(id)
-	return resourceScalrPolicyGroupLinkageRead(d, meta)
+	return resourceScalrPolicyGroupLinkageRead(ctx, d, meta)
 }
 
-func resourceScalrPolicyGroupLinkageRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrPolicyGroupLinkageRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
@@ -85,7 +87,7 @@ func resourceScalrPolicyGroupLinkageRead(d *schema.ResourceData, meta interface{
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("error retrieving policy group linkage %s: %v", id, err)
+		return diag.Errorf("error retrieving policy group linkage %s: %v", id, err)
 	}
 
 	d.Set("policy_group_id", policyGroup.ID)
@@ -94,7 +96,7 @@ func resourceScalrPolicyGroupLinkageRead(d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func resourceScalrPolicyGroupLinkageDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrPolicyGroupLinkageDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
@@ -105,13 +107,13 @@ func resourceScalrPolicyGroupLinkageDelete(d *schema.ResourceData, meta interfac
 			log.Printf("[DEBUG] Policy group linkage %s not found", id)
 			return nil
 		}
-		return fmt.Errorf("error deleting policy group linkage %s: %v", id, err)
+		return diag.Errorf("error deleting policy group linkage %s: %v", id, err)
 	}
 
 	opts := scalr.PolicyGroupEnvironmentDeleteOptions{PolicyGroupID: policyGroup.ID, EnvironmentID: environment.ID}
 	err = scalrClient.PolicyGroupEnvironments.Delete(ctx, opts)
 	if err != nil {
-		return fmt.Errorf("error deleting policy group linkage %s: %v", id, err)
+		return diag.Errorf("error deleting policy group linkage %s: %v", id, err)
 	}
 
 	return nil

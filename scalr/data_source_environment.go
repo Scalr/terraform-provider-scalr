@@ -1,17 +1,18 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	scalr "github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrEnvironment() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceEnvironmentRead,
+		ReadContext: dataSourceEnvironmentRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
@@ -74,18 +75,18 @@ func dataSourceScalrEnvironment() *schema.Resource {
 		}}
 }
 
-func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	envID := d.Get("id").(string)
 	environmentName := d.Get("name").(string)
 
 	if envID == "" && environmentName == "" {
-		return fmt.Errorf("At least one argument 'id' or 'name' is required, but no definitions was found")
+		return diag.Errorf("At least one argument 'id' or 'name' is required, but no definitions was found")
 	}
 
 	if envID != "" && environmentName != "" {
-		return fmt.Errorf("Attributes 'name' and 'id' can not be set at the same time")
+		return diag.Errorf("Attributes 'name' and 'id' can not be set at the same time")
 	}
 
 	accountID := d.Get("account_id").(string)
@@ -110,9 +111,9 @@ func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Environment '%s' not found", envID)
+			return diag.Errorf("Environment '%s' not found", envID)
 		}
-		return fmt.Errorf("Error retrieving environment: %v", err)
+		return diag.Errorf("Error retrieving environment: %v", err)
 	}
 	// Update the configuration.
 	d.Set("name", environment.Name)

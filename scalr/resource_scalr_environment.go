@@ -1,8 +1,10 @@
 package scalr
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -11,10 +13,10 @@ import (
 
 func resourceScalrEnvironment() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrEnvironmentCreate,
-		Read:   resourceScalrEnvironmentRead,
-		Delete: resourceScalrEnvironmentDelete,
-		Update: resourceScalrEnvironmentUpdate,
+		CreateContext: resourceScalrEnvironmentCreate,
+		ReadContext:   resourceScalrEnvironmentRead,
+		DeleteContext: resourceScalrEnvironmentDelete,
+		UpdateContext: resourceScalrEnvironmentUpdate,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -116,18 +118,18 @@ func parsePolicyGroupDefinitions(d *schema.ResourceData) ([]*scalr.PolicyGroup, 
 	return policyGroups, nil
 }
 
-func resourceScalrEnvironmentCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	name := d.Get("name").(string)
 	accountID := d.Get("account_id").(string)
 	cloudCredentials, err := parseCloudCredentialDefinitions(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	policyGroups, err := parsePolicyGroupDefinitions(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	options := scalr.EnvironmentCreateOptions{
@@ -158,14 +160,14 @@ func resourceScalrEnvironmentCreate(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Create Environment %s for account: %s", name, accountID)
 	environment, err := scalrClient.Environments.Create(ctx, options)
 	if err != nil {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Error creating Environment %s for account %s: %v", name, accountID, err)
 	}
 	d.SetId(environment.ID)
-	return resourceScalrEnvironmentRead(d, meta)
+	return resourceScalrEnvironmentRead(ctx, d, meta)
 }
 
-func resourceScalrEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	environmentID := d.Id()
@@ -179,7 +181,7 @@ func resourceScalrEnvironmentRead(d *schema.ResourceData, meta interface{}) erro
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error reading environment %s: %v", environmentID, err)
+		return diag.Errorf("Error reading environment %s: %v", environmentID, err)
 	}
 
 	// Update the configuration.
@@ -231,17 +233,17 @@ func resourceScalrEnvironmentRead(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func resourceScalrEnvironmentUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	var err error
 	cloudCredentials, err := parseCloudCredentialDefinitions(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	policyGroups, err := parsePolicyGroupDefinitions(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Create a new options struct.
@@ -266,7 +268,7 @@ func resourceScalrEnvironmentUpdate(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Update environment: %s", d.Id())
 	_, err = scalrClient.Environments.Update(ctx, d.Id(), options)
 	if err != nil {
-		return fmt.Errorf("Error updating environment %s: %v", d.Id(), err)
+		return diag.Errorf("Error updating environment %s: %v", d.Id(), err)
 	}
 
 	if d.HasChange("tag_ids") {
@@ -279,7 +281,7 @@ func resourceScalrEnvironmentUpdate(d *schema.ResourceData, meta interface{}) er
 		if len(tagsToAdd) > 0 {
 			err := scalrClient.EnvironmentTags.Add(ctx, d.Id(), tagsToAdd)
 			if err != nil {
-				return fmt.Errorf(
+				return diag.Errorf(
 					"Error adding tags to environment %s: %v", d.Id(), err)
 			}
 		}
@@ -287,16 +289,16 @@ func resourceScalrEnvironmentUpdate(d *schema.ResourceData, meta interface{}) er
 		if len(tagsToDelete) > 0 {
 			err := scalrClient.EnvironmentTags.Delete(ctx, d.Id(), tagsToDelete)
 			if err != nil {
-				return fmt.Errorf(
+				return diag.Errorf(
 					"Error deleting tags from environment %s: %v", d.Id(), err)
 			}
 		}
 	}
 
-	return resourceScalrEnvironmentRead(d, meta)
+	return resourceScalrEnvironmentRead(ctx, d, meta)
 }
 
-func resourceScalrEnvironmentDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	environmentID := d.Id()
 
@@ -306,7 +308,7 @@ func resourceScalrEnvironmentDelete(d *schema.ResourceData, meta interface{}) er
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Error deleting environment %s: %v", environmentID, err)
 	}
 

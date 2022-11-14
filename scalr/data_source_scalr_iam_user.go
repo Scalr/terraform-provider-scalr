@@ -1,16 +1,17 @@
 package scalr
 
 import (
-	"fmt"
+	"context"
 	"log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	scalr "github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrIamUser() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrIamUserRead,
+		ReadContext: dataSourceScalrIamUserRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -47,7 +48,7 @@ func dataSourceScalrIamUser() *schema.Resource {
 	}
 }
 
-func dataSourceScalrIamUserRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrIamUserRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// required fields
@@ -60,11 +61,11 @@ func dataSourceScalrIamUserRead(d *schema.ResourceData, meta interface{}) error 
 
 	ul, err := scalrClient.Users.List(ctx, options)
 	if err != nil {
-		return fmt.Errorf("error retrieving iam user: %v", err)
+		return diag.Errorf("error retrieving iam user: %v", err)
 	}
 
 	if ul.TotalCount == 0 {
-		return fmt.Errorf("iam user %s not found", email)
+		return diag.Errorf("iam user %s not found", email)
 	}
 
 	u := ul.Items[0]

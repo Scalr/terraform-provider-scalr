@@ -1,11 +1,12 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"log"
 	"os"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	scalr "github.com/scalr/go-scalr"
 )
@@ -18,7 +19,7 @@ const (
 // https://iacp.docs.scalr.com/en/latest/working-with-iacp/opa.html#policy-checking-process
 func dataSourceScalrCurrentRun() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrCurrentRunRead,
+		ReadContext: dataSourceScalrCurrentRunRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
@@ -100,7 +101,7 @@ func dataSourceScalrCurrentRun() *schema.Resource {
 	}
 }
 
-func dataSourceScalrCurrentRunRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrCurrentRunRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	runID, exists := os.LookupEnv(currentRunIDEnvVar)
@@ -114,18 +115,18 @@ func dataSourceScalrCurrentRunRead(d *schema.ResourceData, meta interface{}) err
 	run, err := scalrClient.Runs.Read(ctx, runID)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Could not find run %s", runID)
+			return diag.Errorf("Could not find run %s", runID)
 		}
-		return fmt.Errorf("Error retrieving run: %v", err)
+		return diag.Errorf("Error retrieving run: %v", err)
 	}
 
 	log.Printf("[DEBUG] Read workspace of run: %s", runID)
 	workspace, err := scalrClient.Workspaces.ReadByID(ctx, run.Workspace.ID)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Could not find workspace %s", run.Workspace.ID)
+			return diag.Errorf("Could not find workspace %s", run.Workspace.ID)
 		}
-		return fmt.Errorf("Error retrieving workspace: %v", err)
+		return diag.Errorf("Error retrieving workspace: %v", err)
 	}
 
 	// Update the config

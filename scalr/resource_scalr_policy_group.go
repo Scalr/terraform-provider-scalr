@@ -1,8 +1,9 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -11,10 +12,10 @@ import (
 
 func resourceScalrPolicyGroup() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrPolicyGroupCreate,
-		Read:   resourceScalrPolicyGroupRead,
-		Update: resourceScalrPolicyGroupUpdate,
-		Delete: resourceScalrPolicyGroupDelete,
+		CreateContext: resourceScalrPolicyGroupCreate,
+		ReadContext:   resourceScalrPolicyGroupRead,
+		UpdateContext: resourceScalrPolicyGroupUpdate,
+		DeleteContext: resourceScalrPolicyGroupDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -98,7 +99,7 @@ func resourceScalrPolicyGroup() *schema.Resource {
 	}
 }
 
-func resourceScalrPolicyGroupCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrPolicyGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get required options
@@ -131,14 +132,14 @@ func resourceScalrPolicyGroupCreate(d *schema.ResourceData, meta interface{}) er
 
 	pg, err := scalrClient.PolicyGroups.Create(ctx, opts)
 	if err != nil {
-		return fmt.Errorf("error creating policy group: %v", err)
+		return diag.Errorf("error creating policy group: %v", err)
 	}
 
 	d.SetId(pg.ID)
-	return resourceScalrPolicyGroupRead(d, meta)
+	return resourceScalrPolicyGroupRead(ctx, d, meta)
 }
 
-func resourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrPolicyGroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
@@ -150,7 +151,7 @@ func resourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) erro
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("error reading configuration of policy group %s: %v", id, err)
+		return diag.Errorf("error reading configuration of policy group %s: %v", id, err)
 	}
 
 	// Update the configuration.
@@ -189,7 +190,7 @@ func resourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func resourceScalrPolicyGroupUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrPolicyGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
@@ -223,14 +224,14 @@ func resourceScalrPolicyGroupUpdate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[DEBUG] Update policy group %s", id)
 		_, err := scalrClient.PolicyGroups.Update(ctx, id, opts)
 		if err != nil {
-			return fmt.Errorf("error updating policy group %s: %v", id, err)
+			return diag.Errorf("error updating policy group %s: %v", id, err)
 		}
 	}
 
-	return resourceScalrPolicyGroupRead(d, meta)
+	return resourceScalrPolicyGroupRead(ctx, d, meta)
 }
 
-func resourceScalrPolicyGroupDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrPolicyGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 
@@ -241,7 +242,7 @@ func resourceScalrPolicyGroupDelete(d *schema.ResourceData, meta interface{}) er
 			log.Printf("[DEBUG] Policy group %s not found", id)
 			return nil
 		}
-		return fmt.Errorf("error deleting policy group %s: %v", id, err)
+		return diag.Errorf("error deleting policy group %s: %v", id, err)
 	}
 
 	return nil

@@ -1,8 +1,9 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -11,7 +12,7 @@ import (
 
 func dataSourceScalrWorkspace() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrWorkspaceRead,
+		ReadContext: dataSourceScalrWorkspaceRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -164,7 +165,7 @@ func dataSourceScalrWorkspace() *schema.Resource {
 	}
 }
 
-func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get the name and environment_id.
@@ -175,9 +176,9 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 	workspace, err := scalrClient.Workspaces.Read(ctx, environmentID, name)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Could not find workspace %s/%s", environmentID, name)
+			return diag.Errorf("Could not find workspace %s/%s", environmentID, name)
 		}
-		return fmt.Errorf("Error retrieving workspace: %v", err)
+		return diag.Errorf("Error retrieving workspace: %v", err)
 	}
 
 	// Update the config.

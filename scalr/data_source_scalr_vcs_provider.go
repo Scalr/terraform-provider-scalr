@@ -1,15 +1,15 @@
 package scalr
 
 import (
-	"fmt"
-
+	"context"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	scalr "github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrVcsProvider() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrVcsProviderRead,
+		ReadContext: dataSourceScalrVcsProviderRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
@@ -47,7 +47,7 @@ func dataSourceScalrVcsProvider() *schema.Resource {
 		}}
 }
 
-func dataSourceScalrVcsProviderRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	options := scalr.VcsProvidersListOptions{}
 
@@ -71,15 +71,15 @@ func dataSourceScalrVcsProviderRead(d *schema.ResourceData, meta interface{}) er
 	vcsProviders, err := scalrClient.VcsProviders.List(ctx, options)
 
 	if err != nil {
-		return fmt.Errorf("Error retrieving vcs provider: %s.", err)
+		return diag.Errorf("Error retrieving vcs provider: %s.", err)
 	}
 
 	if vcsProviders.TotalCount > 1 {
-		return fmt.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
+		return diag.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
 	}
 
 	if vcsProviders.TotalCount == 0 {
-		return fmt.Errorf("Could not find vcs provider matching you query.")
+		return diag.Errorf("Could not find vcs provider matching you query.")
 	}
 
 	vcsProvider := vcsProviders.Items[0]

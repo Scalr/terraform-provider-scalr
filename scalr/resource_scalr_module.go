@@ -1,8 +1,9 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -11,9 +12,9 @@ import (
 
 func resourceScalrModule() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrModuleCreate,
-		Read:   resourceScalrModuleRead,
-		Delete: resourceScalrModuleDelete,
+		CreateContext: resourceScalrModuleCreate,
+		ReadContext:   resourceScalrModuleRead,
+		DeleteContext: resourceScalrModuleDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -79,7 +80,7 @@ func resourceScalrModule() *schema.Resource {
 	}
 }
 
-func resourceScalrModuleCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrModuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	vcsRepo := d.Get("vcs_repo").([]interface{})[0].(map[string]interface{})
@@ -104,7 +105,7 @@ func resourceScalrModuleCreate(d *schema.ResourceData, meta interface{}) error {
 
 	if envID, ok := d.GetOk("environment_id"); ok {
 		if opt.Account == nil {
-			return fmt.Errorf("The attribute account_id is required with environment_id attribute")
+			return diag.Errorf("The attribute account_id is required with environment_id attribute")
 		}
 
 		opt.Environment = &scalr.Environment{ID: envID.(string)}
@@ -112,14 +113,14 @@ func resourceScalrModuleCreate(d *schema.ResourceData, meta interface{}) error {
 
 	m, err := scalrClient.Modules.Create(ctx, opt)
 	if err != nil {
-		return fmt.Errorf("Error creating module: %v", err)
+		return diag.Errorf("Error creating module: %v", err)
 	}
 
 	d.SetId(m.ID)
-	return resourceScalrModuleRead(d, meta)
+	return resourceScalrModuleRead(ctx, d, meta)
 }
 
-func resourceScalrModuleRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrModuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 	log.Printf("[DEBUG] Read configuration of module: %s", id)
@@ -130,7 +131,7 @@ func resourceScalrModuleRead(d *schema.ResourceData, meta interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error reading configuration of module %s: %v", id, err)
+		return diag.Errorf("Error reading configuration of module %s: %v", id, err)
 	}
 
 	// Update the config.
@@ -155,7 +156,7 @@ func resourceScalrModuleRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceScalrModuleDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrModuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 
@@ -165,7 +166,7 @@ func resourceScalrModuleDelete(d *schema.ResourceData, meta interface{}) error {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf("Error deleting module %s: %v", id, err)
+		return diag.Errorf("Error deleting module %s: %v", id, err)
 	}
 
 	return nil

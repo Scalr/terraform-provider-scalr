@@ -1,16 +1,17 @@
 package scalr
 
 import (
-	"fmt"
+	"context"
 	"log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	scalr "github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrRole() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrRoleRead,
+		ReadContext: dataSourceScalrRoleRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -45,7 +46,7 @@ func dataSourceScalrRole() *schema.Resource {
 	}
 }
 
-func dataSourceScalrRoleRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrRoleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// required fields
@@ -61,16 +62,16 @@ func dataSourceScalrRoleRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Read configuration of role: %s/%s", accountId, name)
 	roles, err := scalrClient.Roles.List(ctx, options)
 	if err != nil {
-		return fmt.Errorf("Error retrieving role: %s/%s", accountId, name)
+		return diag.Errorf("Error retrieving role: %s/%s", accountId, name)
 	}
 
 	// Unlikely situation, but still
 	if roles.TotalCount > 1 {
-		return fmt.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
+		return diag.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
 	}
 
 	if roles.TotalCount == 0 {
-		return fmt.Errorf("Could not find role %s/%s", accountId, name)
+		return diag.Errorf("Could not find role %s/%s", accountId, name)
 	}
 
 	role := roles.Items[0]

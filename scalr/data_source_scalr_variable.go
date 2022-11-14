@@ -1,15 +1,15 @@
 package scalr
 
 import (
-	"fmt"
-
+	"context"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	scalr "github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrVariable() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrVariableRead,
+		ReadContext: dataSourceScalrVariableRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
@@ -63,7 +63,7 @@ func dataSourceScalrVariable() *schema.Resource {
 		}}
 }
 
-func dataSourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	filters := scalr.VariableFilter{}
 	options := scalr.VariableListOptions{Filter: &filters}
@@ -87,15 +87,15 @@ func dataSourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error
 
 	variables, err := scalrClient.Variables.List(ctx, options)
 	if err != nil {
-		return fmt.Errorf("Error retrieving Scalr variable: %s.", err)
+		return diag.Errorf("Error retrieving Scalr variable: %s.", err)
 	}
 
 	if variables.TotalCount > 1 {
-		return fmt.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
+		return diag.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
 	}
 
 	if variables.TotalCount == 0 {
-		return fmt.Errorf("Could not find a Scalr variable matching you query.")
+		return diag.Errorf("Could not find a Scalr variable matching you query.")
 	}
 
 	variable := variables.Items[0]

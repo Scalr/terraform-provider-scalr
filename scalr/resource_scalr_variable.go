@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -14,10 +15,10 @@ import (
 
 func resourceScalrVariable() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrVariableCreate,
-		Read:   resourceScalrVariableRead,
-		Update: resourceScalrVariableUpdate,
-		Delete: resourceScalrVariableDelete,
+		CreateContext: resourceScalrVariableCreate,
+		ReadContext:   resourceScalrVariableRead,
+		UpdateContext: resourceScalrVariableUpdate,
+		DeleteContext: resourceScalrVariableDelete,
 		CustomizeDiff: customdiff.All(
 			func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
 				// Reject change for key if variable is sensitive
@@ -133,7 +134,7 @@ func resourceScalrVariable() *schema.Resource {
 	}
 }
 
-func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrVariableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get key and category.
@@ -156,13 +157,13 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 	if workspaceID, ok := d.GetOk("workspace_id"); ok {
 		ws, err := scalrClient.Workspaces.ReadByID(ctx, workspaceID.(string))
 		if err != nil {
-			return fmt.Errorf(
+			return diag.Errorf(
 				"Error retrieving workspace %s: %v", workspaceID, err)
 		}
 		options.Workspace = ws
 	} else {
 		if category == scalr.CategoryTerraform {
-			return fmt.Errorf("Attribute 'workspace_id' is required for variable with category 'terraform'.")
+			return diag.Errorf("Attribute 'workspace_id' is required for variable with category 'terraform'.")
 		}
 	}
 
@@ -170,7 +171,7 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 	if environmentId, ok := d.GetOk("environment_id"); ok {
 		env, err := scalrClient.Environments.Read(ctx, environmentId.(string))
 		if err != nil {
-			return fmt.Errorf(
+			return diag.Errorf(
 				"Error retrieving environment %s: %v", environmentId, err)
 		}
 		options.Environment = env
@@ -187,15 +188,15 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Description: %s", *options.Description)
 	variable, err := scalrClient.Variables.Create(ctx, options)
 	if err != nil {
-		return fmt.Errorf("Error creating %s variable %s: %v", category, key, err)
+		return diag.Errorf("Error creating %s variable %s: %v", category, key, err)
 	}
 
 	d.SetId(variable.ID)
 
-	return resourceScalrVariableRead(d, meta)
+	return resourceScalrVariableRead(ctx, d, meta)
 }
 
-func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Read variable: %s", d.Id())
@@ -206,7 +207,7 @@ func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error reading variable %s: %v", d.Id(), err)
+		return diag.Errorf("Error reading variable %s: %v", d.Id(), err)
 	}
 
 	// Update config.
@@ -241,7 +242,7 @@ func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceScalrVariableUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrVariableUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Create a new options struct.
@@ -258,13 +259,13 @@ func resourceScalrVariableUpdate(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Update variable: %s", d.Id())
 	_, err := scalrClient.Variables.Update(ctx, d.Id(), options)
 	if err != nil {
-		return fmt.Errorf("Error updating variable %s: %v", d.Id(), err)
+		return diag.Errorf("Error updating variable %s: %v", d.Id(), err)
 	}
 
-	return resourceScalrVariableRead(d, meta)
+	return resourceScalrVariableRead(ctx, d, meta)
 }
 
-func resourceScalrVariableDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrVariableDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Delete variable: %s", d.Id())
@@ -273,7 +274,7 @@ func resourceScalrVariableDelete(d *schema.ResourceData, meta interface{}) error
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf("Error deleting variable%s: %v", d.Id(), err)
+		return diag.Errorf("Error deleting variable%s: %v", d.Id(), err)
 	}
 
 	return nil
