@@ -106,7 +106,7 @@ func dataSourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta
 		if accountID != "" {
 			options.Account = &accountID
 		}
-		environment, err = GetEnvironmentByName(options, scalrClient)
+		environment, err = GetEnvironmentByName(ctx, options, scalrClient)
 	}
 
 	if err != nil {

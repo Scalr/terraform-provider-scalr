@@ -102,7 +102,7 @@ func dataSourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, met
 		if accountID != "" {
 			options.Account = &accountID
 		}
-		webhook, err = GetWebhookByName(options, scalrClient)
+		webhook, err = GetWebhookByName(ctx, options, scalrClient)
 	}
 
 	if err != nil {

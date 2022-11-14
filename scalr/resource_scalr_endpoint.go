@@ -75,7 +75,7 @@ func resourceScalrEndpointCreate(ctx context.Context, d *schema.ResourceData, me
 	// Get scope
 	environmentID := d.Get("environment_id").(string)
 	// we don't create endpoints on workspace scope for now
-	_, environment, account, err := getResourceScope(scalrClient, "", environmentID)
+	_, environment, account, err := getResourceScope(ctx, scalrClient, "", environmentID)
 	if err != nil {
 		return diag.FromErr(err)
 	}

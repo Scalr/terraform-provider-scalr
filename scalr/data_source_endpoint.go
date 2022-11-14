@@ -95,7 +95,7 @@ func dataSourceScalrEndpointRead(ctx context.Context, d *schema.ResourceData, me
 		if accountID != "" {
 			options.Account = &accountID
 		}
-		endpoint, err = GetEndpointByName(options, scalrClient)
+		endpoint, err = GetEndpointByName(ctx, options, scalrClient)
 	}
 
 	if err != nil {

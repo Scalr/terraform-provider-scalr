@@ -68,7 +68,7 @@ func resourceScalrVariableStateUpgradeV0(ctx context.Context, rawState map[strin
 		// so we can skip V0->V1 the migration.
 		return rawState, nil
 	}
-	id, err := fetchWorkspaceID(humanID, scalrClient)
+	id, err := fetchWorkspaceID(ctx, humanID, scalrClient)
 	if err != nil {
 		return nil, fmt.Errorf("Error reading configuration of workspace %s: %v", humanID, err)
 	}
