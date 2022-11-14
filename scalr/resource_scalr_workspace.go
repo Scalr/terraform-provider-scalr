@@ -88,7 +88,10 @@ func resourceScalrWorkspace() *schema.Resource {
 			"var_files": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: validation.NoZeroValues,
+				},
 			},
 
 			"operations": {
