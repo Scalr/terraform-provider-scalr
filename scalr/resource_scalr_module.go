@@ -16,7 +16,7 @@ func resourceScalrModule() *schema.Resource {
 		ReadContext:   resourceScalrModuleRead,
 		DeleteContext: resourceScalrModuleDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
 			"name": {

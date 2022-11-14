@@ -18,7 +18,7 @@ func resourceScalrAccountAllowedIps() *schema.Resource {
 		UpdateContext: resourceScalrAccountAllowedIpsUpdate,
 		DeleteContext: resourceScalrAccountAllowedIpsDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

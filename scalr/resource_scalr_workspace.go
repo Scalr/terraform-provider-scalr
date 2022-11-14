@@ -20,7 +20,7 @@ func resourceScalrWorkspace() *schema.Resource {
 		UpdateContext: resourceScalrWorkspaceUpdate,
 		DeleteContext: resourceScalrWorkspaceDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		SchemaVersion: 4,
@@ -527,7 +527,7 @@ func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, met
 	}
 	d.Set("hooks", hooks)
 
-	providerConfigurationLinks, err := getProviderConfigurationWorkspaceLinks(scalrClient, id)
+	providerConfigurationLinks, err := getProviderConfigurationWorkspaceLinks(ctx, scalrClient, id)
 	if err != nil {
 		return diag.Errorf("Error reading provider configuration links of workspace %s: %v", id, err)
 	}
@@ -688,7 +688,7 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 			}
 		}
 
-		currentLinks, err := getProviderConfigurationWorkspaceLinks(scalrClient, id)
+		currentLinks, err := getProviderConfigurationWorkspaceLinks(ctx, scalrClient, id)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -743,7 +743,7 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 }
 
 func getProviderConfigurationWorkspaceLinks(
-	scalrClient *scalr.Client, workspaceId string,
+	ctx context.Context, scalrClient *scalr.Client, workspaceId string,
 ) (workspaceLinks []*scalr.ProviderConfigurationLink, err error) {
 	linkListOption := scalr.ProviderConfigurationLinksListOptions{Include: "provider-configuration"}
 	for {

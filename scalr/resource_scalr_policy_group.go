@@ -17,7 +17,7 @@ func resourceScalrPolicyGroup() *schema.Resource {
 		UpdateContext: resourceScalrPolicyGroupUpdate,
 		DeleteContext: resourceScalrPolicyGroupDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

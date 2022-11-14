@@ -18,7 +18,7 @@ func resourceScalrIamTeam() *schema.Resource {
 		UpdateContext: resourceScalrIamTeamUpdate,
 		DeleteContext: resourceScalrIamTeamDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

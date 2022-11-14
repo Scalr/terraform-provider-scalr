@@ -17,7 +17,7 @@ func resourceScalrWorkspaceRunSchedule() *schema.Resource {
 		UpdateContext: resourceScalrWorkspaceRunScheduleUpdate,
 		DeleteContext: resourceScalrWorkspaceRunScheduleDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceScalrWorkspaceRunScheduleImport,
+			StateContext: resourceScalrWorkspaceRunScheduleImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -135,8 +135,8 @@ func resourceScalrWorkspaceRunScheduleDelete(ctx context.Context, d *schema.Reso
 	return nil
 }
 
-func resourceScalrWorkspaceRunScheduleImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	err := resourceScalrWorkspaceRunScheduleRead(d, meta)
+func resourceScalrWorkspaceRunScheduleImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	err := resourceScalrWorkspaceRunScheduleRead(ctx, d, meta)
 
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving workspace run schedule %s: %v", d.Id(), err)

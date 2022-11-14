@@ -37,7 +37,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 			},
 		),
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		SchemaVersion: 0,
 		Schema: map[string]*schema.Schema{
@@ -561,7 +561,7 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 	if v, ok := d.GetOk("custom"); d.HasChange("custom") && ok {
 		custom := v.([]interface{})[0].(map[string]interface{})
 
-		err := syncArguments(id, custom, scalrClient)
+		err := syncArguments(ctx, id, custom, scalrClient)
 		if err != nil {
 			return diag.Errorf(
 				"Error updating provider configuration %s arguments: %v", id, err)
@@ -571,7 +571,7 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 	return resourceScalrProviderConfigurationRead(ctx, d, meta)
 }
 
-func syncArguments(providerConfigurationId string, custom map[string]interface{}, client *scalr.Client) error {
+func syncArguments(ctx context.Context, providerConfigurationId string, custom map[string]interface{}, client *scalr.Client) error {
 	providerName := custom["provider_name"].(string)
 	configArgumentsCreateOptions := make(map[string]scalr.ProviderConfigurationParameterCreateOptions)
 	for _, v := range custom["argument"].(*schema.Set).List() {

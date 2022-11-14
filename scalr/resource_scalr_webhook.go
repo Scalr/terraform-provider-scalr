@@ -27,7 +27,7 @@ func resourceScalrWebhook() *schema.Resource {
 		UpdateContext: resourceScalrWebhookUpdate,
 		DeleteContext: resourceScalrWebhookDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -73,7 +73,7 @@ func resourceScalrWebhook() *schema.Resource {
 }
 
 // remove after https://scalr-labs.atlassian.net/browse/SCALRCORE-16234
-func getResourceScope(scalrClient *scalr.Client, workspaceID string, environmentID string) (*scalr.Workspace, *scalr.Environment, *scalr.Account, error) {
+func getResourceScope(ctx context.Context, scalrClient *scalr.Client, workspaceID string, environmentID string) (*scalr.Workspace, *scalr.Environment, *scalr.Account, error) {
 
 	// Resource scope
 	var workspace *scalr.Workspace
@@ -153,7 +153,7 @@ func resourceScalrWebhookCreate(ctx context.Context, d *schema.ResourceData, met
 	workspaceID := d.Get("workspace_id").(string)
 	environmentID := d.Get("environment_id").(string)
 
-	workspace, environment, account, err := getResourceScope(scalrClient, workspaceID, environmentID)
+	workspace, environment, account, err := getResourceScope(ctx, scalrClient, workspaceID, environmentID)
 	if err != nil {
 		return diag.FromErr(err)
 	}

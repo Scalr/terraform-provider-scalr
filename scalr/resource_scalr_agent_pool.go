@@ -17,7 +17,7 @@ func resourceScalrAgentPool() *schema.Resource {
 		UpdateContext: resourceScalrAgentPoolUpdate,
 		DeleteContext: resourceScalrAgentPoolDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		SchemaVersion: 0,
 		Schema: map[string]*schema.Schema{

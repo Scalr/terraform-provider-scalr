@@ -18,7 +18,7 @@ func resourceScalrVcsProvider() *schema.Resource {
 		UpdateContext: resourceScalrVcsProviderUpdate,
 		DeleteContext: resourceVcsProviderDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		SchemaVersion: 1,
 		StateUpgraders: []schema.StateUpgrader{

@@ -18,7 +18,7 @@ func resourceScalrPolicyGroupLinkage() *schema.Resource {
 		ReadContext:   resourceScalrPolicyGroupLinkageRead,
 		DeleteContext: resourceScalrPolicyGroupLinkageDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceScalrPolicyGroupLinkageImport,
+			StateContext: resourceScalrPolicyGroupLinkageImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -36,12 +36,12 @@ func resourceScalrPolicyGroupLinkage() *schema.Resource {
 	}
 }
 
-func resourceScalrPolicyGroupLinkageImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceScalrPolicyGroupLinkageImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
 
-	policyGroup, environment, err := getLinkedResources(id, scalrClient)
+	policyGroup, environment, err := getLinkedResources(ctx, id, scalrClient)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil, fmt.Errorf("policy group linkage %s not found", id)
@@ -80,7 +80,7 @@ func resourceScalrPolicyGroupLinkageRead(ctx context.Context, d *schema.Resource
 
 	id := d.Id()
 
-	policyGroup, environment, err := getLinkedResources(id, scalrClient)
+	policyGroup, environment, err := getLinkedResources(ctx, id, scalrClient)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			log.Printf("[DEBUG] Policy group linkage %s not found", id)
@@ -101,7 +101,7 @@ func resourceScalrPolicyGroupLinkageDelete(ctx context.Context, d *schema.Resour
 
 	id := d.Id()
 
-	policyGroup, environment, err := getLinkedResources(id, scalrClient)
+	policyGroup, environment, err := getLinkedResources(ctx, id, scalrClient)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			log.Printf("[DEBUG] Policy group linkage %s not found", id)
@@ -121,7 +121,7 @@ func resourceScalrPolicyGroupLinkageDelete(ctx context.Context, d *schema.Resour
 
 // getLinkedResources verifies existence of the linkage
 // and returns associated policy group and environment.
-func getLinkedResources(id string, scalrClient *scalr.Client) (
+func getLinkedResources(ctx context.Context, id string, scalrClient *scalr.Client) (
 	policyGroup *scalr.PolicyGroup, environment *scalr.Environment, err error,
 ) {
 	pgID, envID, err := unpackPolicyGroupLinkageID(id)

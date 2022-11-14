@@ -18,7 +18,7 @@ func resourceScalrEnvironment() *schema.Resource {
 		DeleteContext: resourceScalrEnvironmentDelete,
 		UpdateContext: resourceScalrEnvironmentUpdate,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

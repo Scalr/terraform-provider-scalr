@@ -49,7 +49,7 @@ func resourceScalrAccessPolicy() *schema.Resource {
 		UpdateContext: resourceScalrAccessPolicyUpdate,
 		DeleteContext: resourceScalrAccessPolicyDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		SchemaVersion: 0,
 		Schema: map[string]*schema.Schema{
