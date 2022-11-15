@@ -23,7 +23,7 @@ resource "scalr_environment" "test" {
 * `name` - (Required) Name of the environment.
 * `account_id` - (Required) ID of the environment account, in the format `acc-<RANDOM STRING>`
 * `cost_estimation_enabled` - (Optional) Set (true/false) to enable/disable cost estimation for the environment. Default `true`.
-* `cloud_credentials` - Deprecated and will be removed at 2023-01-12. Use `default_provider_configurations` instead.
+* `cloud_credentials` - (Optional) Deprecated and will be removed in Q1 2023 (Specific date will be announced separately). Use `default_provider_configurations` instead.
 * `policy_groups` - (Optional) List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.
 * `default_provider_configurations` - (Optional) List of IDs of provider configurations, used in the environment workspaces by default.
 * `tag_ids` - (Optional) List of tag IDs associated with the environment.
