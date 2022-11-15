@@ -17,8 +17,8 @@ func TestAccScalrModule_basic(t *testing.T) {
 			t.Skip("Working on personal token but not working with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrModuleDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrModuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrModulesOnAllScopes(),
@@ -70,8 +70,8 @@ func TestAccScalrModule_import(t *testing.T) {
 			t.Skip("Working on personal token but not working with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrModuleDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrModuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrModule(),

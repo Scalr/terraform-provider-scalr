@@ -20,9 +20,9 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckProviderConfigurationResourceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationCustomConfig(rName),
@@ -102,9 +102,9 @@ func TestAccProviderConfiguration_aws(t *testing.T) {
 	accessKeyId, secretAccessKey, roleArn, externalId := getAwsTestingCreds(t)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckProviderConfigurationResourceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationAwsConfig(rName, accessKeyId, secretAccessKey, roleArn, externalId),
@@ -149,9 +149,9 @@ func TestAccProviderConfiguration_scalr(t *testing.T) {
 	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckProviderConfigurationResourceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationScalrConfig(rName),
@@ -194,9 +194,9 @@ func TestAccProviderConfiguration_google(t *testing.T) {
 	credentials, project := getGoogleTestingCreds(t)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckProviderConfigurationResourceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationGoogleConfig(rName, credentials, project),
@@ -241,9 +241,9 @@ func TestAccProviderConfiguration_azurerm(t *testing.T) {
 	armClientId, armClientSecret, armSubscription, armTenantId := getAzureTestingCreds(t)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckProviderConfigurationResourceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationAzurermConfig(rName, armClientId, armClientSecret, armSubscription, armTenantId),

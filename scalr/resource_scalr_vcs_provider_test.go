@@ -14,8 +14,8 @@ func TestAccVcsProvider_basic(t *testing.T) {
 	provider := &scalr.VcsProvider{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testVcsAccGithubTokenPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testVcsAccGithubTokenPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVcsProviderConfig(),
@@ -52,9 +52,9 @@ func TestAccVcsProvider_basic(t *testing.T) {
 func TestAccVcsProvider_globalScope(t *testing.T) {
 	provider := &scalr.VcsProvider{}
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testVcsAccGithubTokenPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrVcsProviderDestroy,
+		PreCheck:          func() { testVcsAccGithubTokenPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrVcsProviderDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -77,9 +77,9 @@ func TestAccVcsProvider_globalScope(t *testing.T) {
 
 func TestAccScalrVcsProvider_import(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testVcsAccGithubTokenPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrVcsProviderDestroy,
+		PreCheck:          func() { testVcsAccGithubTokenPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrVcsProviderDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVcsProviderConfig(),

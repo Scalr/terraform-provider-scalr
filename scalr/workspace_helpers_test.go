@@ -40,7 +40,7 @@ func TestFetchWorkspaceID(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, err := fetchWorkspaceID(test.def, client)
+			got, err := fetchWorkspaceID(ctx, test.def, client)
 
 			if (err != nil) != test.err {
 				t.Fatalf("expected error is %t, got %v", test.err, err)

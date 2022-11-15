@@ -20,7 +20,7 @@ func TestAccPolicyGroupDataSource_basic(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupConfig(rInt),

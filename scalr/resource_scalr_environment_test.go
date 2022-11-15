@@ -17,9 +17,9 @@ func TestAccEnvironment_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrEnvironmentDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrEnvironmentDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEnvironmentConfig(rInt),
@@ -46,9 +46,9 @@ func TestAccEnvironment_update(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrEnvironmentDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrEnvironmentDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEnvironmentConfig(rInt),
@@ -89,9 +89,9 @@ func TestAccEnvironmentWithProviderConfigurations_update(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrEnvironmentDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrEnvironmentDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEnvironmentWithProviderConfigurationsConfig(rInt),

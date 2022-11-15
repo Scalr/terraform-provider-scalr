@@ -27,9 +27,9 @@ func TestAccScalrVariable_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrVariableDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVariableOnGlobalScope(rInt),
@@ -73,9 +73,9 @@ func TestAccScalrVariable_basic(t *testing.T) {
 func TestAccScalrVariable_defaults(t *testing.T) {
 	rInt := GetRandomInteger()
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrVariableDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVariableOnGlobalScope(rInt),
@@ -100,9 +100,9 @@ func TestAccScalrVariable_scopes(t *testing.T) {
 	variable := &scalr.Variable{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrVariableDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVariableOnAllScopes(rInt),
@@ -117,9 +117,9 @@ func TestAccScalrVariable_notTerraformOnMultiscope(t *testing.T) {
 	r := regexp.MustCompile("Attribute 'workspace_id' is required for variable with category 'terraform'.")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrVariableDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrVariableNotTerraformOnMultiscope(rInt),
@@ -134,9 +134,9 @@ func TestAccScalrVariable_update(t *testing.T) {
 	variable := &scalr.Variable{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrVariableDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVariableOnWorkspaceScope(rInt),
@@ -205,9 +205,9 @@ func TestAccScalrVariable_update(t *testing.T) {
 func TestAccScalrVariable_import(t *testing.T) {
 	rInt := GetRandomInteger()
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrVariableDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVariableOnWorkspaceScope(rInt),

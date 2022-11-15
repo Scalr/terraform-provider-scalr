@@ -17,9 +17,9 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceBasic(rInt),
@@ -68,8 +68,8 @@ func TestAccScalrWorkspace_create_missed_vcs_attr(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrWorkspaceMissedVcsProvider(rInt),
@@ -88,9 +88,9 @@ func TestAccScalrWorkspace_monorepo(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceMonorepo(rInt),
@@ -120,9 +120,9 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceBasic(rInt),
@@ -195,9 +195,9 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceBasic(rInt),
@@ -307,9 +307,9 @@ func TestAccScalrWorkspace_import(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceBasic(rInt),
@@ -329,9 +329,9 @@ func TestAccScalrWorkspace_providerConfiguration(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceProviderConfiguration(rInt),
@@ -361,9 +361,9 @@ func TestAccScalrWorkspace_emptyHooks(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceEmptyHooks(rInt),
@@ -511,7 +511,7 @@ func testAccCheckScalrWorkspaceProviderConfigurations(
 	return func(s *terraform.State) error {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
-		links, err := getProviderConfigurationWorkspaceLinks(scalrClient, workspace.ID)
+		links, err := getProviderConfigurationWorkspaceLinks(ctx, scalrClient, workspace.ID)
 		if err != nil {
 			return fmt.Errorf("Error retrieving provider configuration links: %v", err)
 		}
@@ -565,7 +565,7 @@ func testAccCheckScalrWorkspaceProviderConfigurationsUpdated(
 	return func(s *terraform.State) error {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
-		links, err := getProviderConfigurationWorkspaceLinks(scalrClient, workspace.ID)
+		links, err := getProviderConfigurationWorkspaceLinks(ctx, scalrClient, workspace.ID)
 		if err != nil {
 			return fmt.Errorf("Error retrieving provider configuration links: %v", err)
 		}

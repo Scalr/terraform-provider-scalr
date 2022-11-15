@@ -21,9 +21,9 @@ func TestAccScalrAgentPoolToken_basic(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrAgentPoolTokenDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrAgentPoolTokenDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAgentPoolTokenBasic(pool),
@@ -47,9 +47,9 @@ func TestAccScalrAgentPoolToken_changed_outside(t *testing.T) {
 	token := &scalr.AgentPoolToken{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrAgentPoolTokenDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrAgentPoolTokenDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAgentPoolTokenBasic(pool),
@@ -81,9 +81,9 @@ func TestAccScalrAgentPoolToken_update(t *testing.T) {
 	token := &scalr.AgentPoolToken{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrAgentPoolTokenDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrAgentPoolTokenDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAgentPoolTokenBasic(pool),

@@ -19,9 +19,9 @@ func TestAccScalrAccessPolicy_basic(t *testing.T) {
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrAccessPolicyDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrAccessPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAccessPolicyBasic(rInt),
@@ -44,8 +44,8 @@ func TestAccScalrAccessPolicy_bad_scope(t *testing.T) {
 	rg, _ := regexp.Compile(`scope.0.type must be one of \[workspace, environment, account\], got: universe`)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrAccessPolicyBadScope(),
@@ -59,8 +59,8 @@ func TestAccScalrAccessPolicy_bad_subject(t *testing.T) {
 	rg, _ := regexp.Compile(`subject.0.type must be one of \[user, team, service_account\], got: grandpa`)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrAccessPolicyBadSubject(),
@@ -75,9 +75,9 @@ func TestAccScalrAccessPolicy_changed_outside(t *testing.T) {
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrAccessPolicyDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrAccessPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAccessPolicyBasic(rInt),
@@ -114,9 +114,9 @@ func TestAccScalrAccessPolicy_update(t *testing.T) {
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrAccessPolicyDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrAccessPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAccessPolicyBasic(rInt),
@@ -158,9 +158,9 @@ func TestAccScalrAccessPolicy_import(t *testing.T) {
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrAccessPolicyDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrAccessPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAccessPolicyBasic(rInt),

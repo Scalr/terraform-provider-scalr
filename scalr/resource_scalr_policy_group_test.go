@@ -25,8 +25,8 @@ func TestAccPolicyGroup_basic(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPolicyGroupDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckPolicyGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupBasicConfig(rInt),
@@ -78,8 +78,8 @@ func TestAccPolicyGroup_update(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPolicyGroupDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckPolicyGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupBasicConfig(rInt),
@@ -169,8 +169,8 @@ func TestAccPolicyGroup_renamed(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPolicyGroupDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckPolicyGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupBasicConfig(rInt),
@@ -260,8 +260,8 @@ func TestAccPolicyGroup_import(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPolicyGroupDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckPolicyGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupBasicConfig(rInt),

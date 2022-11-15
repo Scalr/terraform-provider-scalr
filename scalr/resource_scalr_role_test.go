@@ -16,9 +16,9 @@ func TestAccScalrRole_basic(t *testing.T) {
 	role := &scalr.Role{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrRoleDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrRoleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrRoleBasic(),
@@ -40,9 +40,9 @@ func TestAccScalrRole_renamed(t *testing.T) {
 	role := &scalr.Role{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrRoleDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrRoleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrRoleBasic(),
@@ -77,9 +77,9 @@ func TestAccScalrRole_update(t *testing.T) {
 	role := &scalr.Role{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrRoleDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrRoleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrRoleBasic(),
@@ -117,9 +117,9 @@ func TestAccScalrRole_update(t *testing.T) {
 func TestAccScalrRole_import(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrRoleDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrRoleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrRoleBasic(),

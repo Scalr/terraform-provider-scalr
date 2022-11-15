@@ -19,7 +19,7 @@ func TestAccModuleVersionDataSource_basic(t *testing.T) {
 			t.Skip("Working on personal token but not working with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAccountModule(rInt),
@@ -63,7 +63,7 @@ func waitForModuleVersions(environmentName string) func() {
 			Name: &environmentName,
 		}
 
-		env, err := GetEnvironmentByName(options, scalrClient)
+		env, err := GetEnvironmentByName(ctx, options, scalrClient)
 		if err != nil {
 			log.Fatalf("Got error during environment fetching: %v", err)
 			return

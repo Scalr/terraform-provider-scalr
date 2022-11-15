@@ -14,9 +14,9 @@ func TestAccScalrRunTriggersDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRunTriggerDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckRunTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRunTrigger_basic(rInt),

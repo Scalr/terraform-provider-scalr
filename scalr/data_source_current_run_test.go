@@ -15,7 +15,7 @@ func TestAccCurrentRun_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                  func() { testAccPreCheck(t) },
-		Providers:                 testAccProviders,
+		ProviderFactories:         testAccProviderFactories,
 		PreventPostDestroyRefresh: true,
 		Steps: []resource.TestStep{
 			{
@@ -50,7 +50,7 @@ func launchRun(environmentName, workspaceName string) func() {
 		options := GetEnvironmentByNameOptions{
 			Name: &environmentName,
 		}
-		env, err := GetEnvironmentByName(options, scalrClient)
+		env, err := GetEnvironmentByName(ctx, options, scalrClient)
 		if err != nil {
 			log.Fatalf("Got error during environment fetching: %v", err)
 			return

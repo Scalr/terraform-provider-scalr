@@ -17,9 +17,9 @@ func TestAccScalrIamTeam_basic(t *testing.T) {
 	team := &scalr.Team{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrIamTeamDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrIamTeamDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrIamTeamBasic(rInt),
@@ -44,9 +44,9 @@ func TestAccScalrIamTeam_renamed(t *testing.T) {
 	team := &scalr.Team{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrIamTeamDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrIamTeamDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrIamTeamBasic(rInt),
@@ -82,9 +82,9 @@ func TestAccScalrIamTeam_update(t *testing.T) {
 	team := &scalr.Team{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrIamTeamDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrIamTeamDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrIamTeamBasic(rInt),
@@ -122,9 +122,9 @@ func TestAccScalrIamTeam_import(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrIamTeamDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrIamTeamDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrIamTeamBasic(rInt),
