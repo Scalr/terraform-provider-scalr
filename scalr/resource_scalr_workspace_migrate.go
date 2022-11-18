@@ -114,7 +114,7 @@ func resourceScalrWorkspaceResourceV0() *schema.Resource {
 	}
 }
 
-func resourceScalrWorkspaceStateUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceScalrWorkspaceStateUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
 	if _, ok := rawState["external_id"]; !ok {
 		// Due to migration drift, schema-versionV0 can already contain 'id' field,
 		// so we can skip V0->V1 the migration.
@@ -217,7 +217,7 @@ func resourceScalrWorkspaceResourceV1() *schema.Resource {
 	}
 }
 
-func resourceScalrWorkspaceStateUpgradeV1(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceScalrWorkspaceStateUpgradeV1(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
 	if rawState["vcs_repo"] != nil {
 		vcsRepos := rawState["vcs_repo"].([]interface{})
 		if len(vcsRepos) == 0 {
@@ -329,7 +329,7 @@ func resourceScalrWorkspaceResourceV2() *schema.Resource {
 	}
 }
 
-func resourceScalrWorkspaceStateUpgradeV2(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceScalrWorkspaceStateUpgradeV2(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
 	delete(rawState, "queue_all_runs")
 	return rawState, nil
 }
@@ -528,7 +528,7 @@ func resourceScalrWorkspaceResourceV3() *schema.Resource {
 	}
 }
 
-func resourceScalrWorkspaceStateUpgradeV3(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceScalrWorkspaceStateUpgradeV3(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
 	if rawState["operations"].(bool) {
 		rawState["execution_mode"] = scalr.WorkspaceExecutionModeRemote
 	} else {

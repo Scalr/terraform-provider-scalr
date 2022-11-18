@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrIamTeam() *schema.Resource {
@@ -74,10 +74,10 @@ func dataSourceScalrIamTeamRead(ctx context.Context, d *schema.ResourceData, met
 	t := tl.Items[0]
 
 	// Update the configuration.
-	d.Set("description", t.Description)
-	d.Set("identity_provider_id", t.IdentityProvider.ID)
+	_ = d.Set("description", t.Description)
+	_ = d.Set("identity_provider_id", t.IdentityProvider.ID)
 	if t.Account != nil {
-		d.Set("account_id", t.Account.ID)
+		_ = d.Set("account_id", t.Account.ID)
 	}
 
 	var users []string
@@ -86,7 +86,7 @@ func dataSourceScalrIamTeamRead(ctx context.Context, d *schema.ResourceData, met
 			users = append(users, u.ID)
 		}
 	}
-	d.Set("users", users)
+	_ = d.Set("users", users)
 
 	d.SetId(t.ID)
 

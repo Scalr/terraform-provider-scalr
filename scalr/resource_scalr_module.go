@@ -135,22 +135,22 @@ func resourceScalrModuleRead(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	// Update the config.
-	d.Set("name", m.Name)
-	d.Set("provider", m.Provider)
-	d.Set("status", m.Status)
-	d.Set("source", m.Source)
-	d.Set("vcs_repo", []map[string]interface{}{{
+	_ = d.Set("name", m.Name)
+	_ = d.Set("provider", m.Provider)
+	_ = d.Set("status", m.Status)
+	_ = d.Set("source", m.Source)
+	_ = d.Set("vcs_repo", []map[string]interface{}{{
 		"identifier": m.VCSRepo.Identifier,
 		"path":       m.VCSRepo.Path,
 		"tag_prefix": m.VCSRepo.TagPrefix,
 	}})
-	d.Set("vcs_provider_id", m.VcsProvider.ID)
+	_ = d.Set("vcs_provider_id", m.VcsProvider.ID)
 
 	if m.Account != nil {
-		d.Set("account_id", m.Account.ID)
+		_ = d.Set("account_id", m.Account.ID)
 	}
 	if m.Environment != nil {
-		d.Set("environment_id", m.Environment.ID)
+		_ = d.Set("environment_id", m.Environment.ID)
 	}
 
 	return nil

@@ -49,8 +49,8 @@ func resourceScalrTagRead(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	// Update config.
-	d.Set("name", tag.Name)
-	d.Set("account_id", tag.Account.ID)
+	_ = d.Set("name", tag.Name)
+	_ = d.Set("account_id", tag.Account.ID)
 
 	return nil
 }

@@ -145,7 +145,7 @@ func testAccScalrModule() string {
 	  }
 	  vcs_provider_id = scalr_vcs_provider.test.id
 }
-`, string(scalr.Github), GITHUB_TOKEN)
+`, string(scalr.Github), githubToken)
 }
 
 func testAccScalrModulesOnAllScopes() string {
@@ -190,5 +190,5 @@ func testAccScalrModulesOnAllScopes() string {
 		  }
 		  vcs_provider_id = scalr_vcs_provider.test.id
 		}
-`, rInd, string(scalr.Github), GITHUB_TOKEN, defaultAccount)
+`, rInd, string(scalr.Github), githubToken, defaultAccount)
 }

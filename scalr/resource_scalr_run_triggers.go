@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrRunTrigger() *schema.Resource {
@@ -86,8 +86,8 @@ func resourceScalrRunTriggerRead(ctx context.Context, d *schema.ResourceData, me
 		}
 		return diag.Errorf("Error reading configuration of run trigger %s: %v", id, err)
 	}
-	d.Set("downstream_id", runTrigger.Downstream.ID)
-	d.Set("upstream_id", runTrigger.Upstream.ID)
+	_ = d.Set("downstream_id", runTrigger.Downstream.ID)
+	_ = d.Set("upstream_id", runTrigger.Upstream.ID)
 
 	return nil
 }

@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func TestAccScalrRunTriggersDataSource_basic(t *testing.T) {
@@ -19,7 +19,7 @@ func TestAccScalrRunTriggersDataSource_basic(t *testing.T) {
 		CheckDestroy:      testAccCheckRunTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRunTrigger_basic(rInt),
+				Config: testAccRunTriggerConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRunTriggerExists("scalr_run_trigger.foobar", runTrigger),
 					testAccCheckRunTriggerAttributes(runTrigger, "scalr_environment.test"),
@@ -50,7 +50,7 @@ func testAccCheckRunTriggerDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccRunTrigger_basic(rInt int) string {
+func testAccRunTriggerConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
   name       = "test-env-%d"

@@ -49,7 +49,7 @@ func resourceScalrVcsProviderV0() *schema.Resource {
 	}
 }
 
-func resourceScalrVcsProviderStateUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceScalrVcsProviderStateUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
 	rawState["username"] = ""
 	return rawState, nil
 }

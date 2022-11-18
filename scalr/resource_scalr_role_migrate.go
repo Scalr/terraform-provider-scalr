@@ -41,7 +41,7 @@ func resourceScalrRoleResourceV0() *schema.Resource {
 	}
 }
 
-func resourceScalrRoleStateUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceScalrRoleStateUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
 	permissionsSet := make(map[string]bool)
 	for _, perm := range rawState["permissions"].([]interface{}) {
 		permissionsSet[perm.(string)] = true

@@ -16,7 +16,7 @@ func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrVcsProviderDataSourceConfigAllFilters(rInt, GITHUB_TOKEN),
+				Config: testAccScalrVcsProviderDataSourceConfigAllFilters(rInt, githubToken),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.scalr_vcs_provider.test", "id"),
 					resource.TestCheckResourceAttr(
@@ -30,7 +30,7 @@ func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccScalrVcsProviderDataSourceConfigFilterByName(rInt, GITHUB_TOKEN),
+				Config: testAccScalrVcsProviderDataSourceConfigFilterByName(rInt, githubToken),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.scalr_vcs_provider.test", "id"),
 					resource.TestCheckResourceAttr(

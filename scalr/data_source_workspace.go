@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrWorkspace() *schema.Resource {
@@ -182,21 +182,21 @@ func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	// Update the config.
-	d.Set("auto_apply", workspace.AutoApply)
-	d.Set("force_latest_run", workspace.ForceLatestRun)
-	d.Set("operations", workspace.Operations)
-	d.Set("execution_mode", workspace.ExecutionMode)
-	d.Set("terraform_version", workspace.TerraformVersion)
-	d.Set("working_directory", workspace.WorkingDirectory)
-	d.Set("has_resources", workspace.HasResources)
-	d.Set("auto_queue_runs", workspace.AutoQueueRuns)
+	_ = d.Set("auto_apply", workspace.AutoApply)
+	_ = d.Set("force_latest_run", workspace.ForceLatestRun)
+	_ = d.Set("operations", workspace.Operations)
+	_ = d.Set("execution_mode", workspace.ExecutionMode)
+	_ = d.Set("terraform_version", workspace.TerraformVersion)
+	_ = d.Set("working_directory", workspace.WorkingDirectory)
+	_ = d.Set("has_resources", workspace.HasResources)
+	_ = d.Set("auto_queue_runs", workspace.AutoQueueRuns)
 
 	if workspace.ModuleVersion != nil {
-		d.Set("module_version_id", workspace.ModuleVersion.ID)
+		_ = d.Set("module_version_id", workspace.ModuleVersion.ID)
 	}
 
 	if workspace.VcsProvider != nil {
-		d.Set("vcs_provider_id", workspace.VcsProvider.ID)
+		_ = d.Set("vcs_provider_id", workspace.VcsProvider.ID)
 	}
 
 	var createdBy []interface{}
@@ -207,7 +207,7 @@ func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, m
 			"full_name": workspace.CreatedBy.FullName,
 		})
 	}
-	d.Set("created_by", createdBy)
+	_ = d.Set("created_by", createdBy)
 
 	var vcsRepo []interface{}
 	if workspace.VCSRepo != nil {
@@ -219,7 +219,7 @@ func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, m
 		}
 		vcsRepo = append(vcsRepo, vcsConfig)
 	}
-	d.Set("vcs_repo", vcsRepo)
+	_ = d.Set("vcs_repo", vcsRepo)
 
 	var hooks []interface{}
 	if workspace.Hooks != nil {
@@ -231,7 +231,7 @@ func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, m
 			"post_apply": workspace.Hooks.PostApply,
 		})
 	}
-	d.Set("hooks", hooks)
+	_ = d.Set("hooks", hooks)
 
 	var tags []string
 	if len(workspace.Tags) != 0 {
@@ -239,7 +239,7 @@ func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, m
 			tags = append(tags, tag.ID)
 		}
 	}
-	d.Set("tag_ids", tags)
+	_ = d.Set("tag_ids", tags)
 
 	d.SetId(workspace.ID)
 

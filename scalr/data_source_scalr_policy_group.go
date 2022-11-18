@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrPolicyGroup() *schema.Resource {
@@ -117,12 +117,12 @@ func dataSourceScalrPolicyGroupRead(ctx context.Context, d *schema.ResourceData,
 	pg := pgl.Items[0]
 
 	// Update the configuration.
-	d.Set("status", pg.Status)
-	d.Set("error_message", pg.ErrorMessage)
-	d.Set("opa_version", pg.OpaVersion)
+	_ = d.Set("status", pg.Status)
+	_ = d.Set("error_message", pg.ErrorMessage)
+	_ = d.Set("opa_version", pg.OpaVersion)
 
 	if pg.VcsProvider != nil {
-		d.Set("vcs_provider_id", pg.VcsProvider.ID)
+		_ = d.Set("vcs_provider_id", pg.VcsProvider.ID)
 	}
 
 	var vcsRepo []interface{}
@@ -134,7 +134,7 @@ func dataSourceScalrPolicyGroupRead(ctx context.Context, d *schema.ResourceData,
 		}
 		vcsRepo = append(vcsRepo, vcsConfig)
 	}
-	d.Set("vcs_repo", vcsRepo)
+	_ = d.Set("vcs_repo", vcsRepo)
 
 	var policies []map[string]interface{}
 	if len(pg.Policies) != 0 {
@@ -146,7 +146,7 @@ func dataSourceScalrPolicyGroupRead(ctx context.Context, d *schema.ResourceData,
 			})
 		}
 	}
-	d.Set("policies", policies)
+	_ = d.Set("policies", policies)
 
 	var envs []string
 	if len(pg.Environments) != 0 {
@@ -154,7 +154,7 @@ func dataSourceScalrPolicyGroupRead(ctx context.Context, d *schema.ResourceData,
 			envs = append(envs, env.ID)
 		}
 	}
-	d.Set("environments", envs)
+	_ = d.Set("environments", envs)
 
 	d.SetId(pg.ID)
 

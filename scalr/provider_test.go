@@ -17,8 +17,7 @@ import (
 var testAccProvider *schema.Provider
 var testAccProviderFactories map[string]func() (*schema.Provider, error)
 var noInstanceIdErr = fmt.Errorf("No instance ID is set")
-
-var GITHUB_TOKEN = os.Getenv("GITHUB_TOKEN")
+var githubToken = os.Getenv("githubToken")
 
 // ctx is used as default context.Context when making API calls.
 var ctx = context.Background()
@@ -115,7 +114,7 @@ func testAccPreCheck(t *testing.T) {
 
 func testVcsAccGithubTokenPreCheck(t *testing.T) {
 	testAccPreCheck(t)
-	if GITHUB_TOKEN == "" {
-		t.Skip("Please set GITHUB_TOKEN to run this test")
+	if githubToken == "" {
+		t.Skip("Please set githubToken to run this test")
 	}
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrVariable() *schema.Resource {
@@ -103,21 +103,21 @@ func dataSourceScalrVariableRead(ctx context.Context, d *schema.ResourceData, me
 	d.SetId(variable.ID)
 
 	if variable.Account != nil {
-		d.Set("account_id", variable.Account.ID)
+		_ = d.Set("account_id", variable.Account.ID)
 	}
 	if variable.Environment != nil {
-		d.Set("environment_id", variable.Environment.ID)
+		_ = d.Set("environment_id", variable.Environment.ID)
 	}
 	if variable.Workspace != nil {
-		d.Set("workspace_id", variable.Workspace.ID)
+		_ = d.Set("workspace_id", variable.Workspace.ID)
 	}
 
-	d.Set("category", variable.Category)
-	d.Set("hcl", variable.HCL)
-	d.Set("sensitive", variable.Sensitive)
-	d.Set("final", variable.Final)
-	d.Set("value", variable.Value)
-	d.Set("description", variable.Description)
+	_ = d.Set("category", variable.Category)
+	_ = d.Set("hcl", variable.HCL)
+	_ = d.Set("sensitive", variable.Sensitive)
+	_ = d.Set("final", variable.Final)
+	_ = d.Set("value", variable.Value)
+	_ = d.Set("description", variable.Description)
 
 	return nil
 }

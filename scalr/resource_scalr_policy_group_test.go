@@ -351,7 +351,7 @@ resource "scalr_policy_group" "test" {
     path       = "%s"
   }
 }
-`, rInt, string(scalr.Github), GITHUB_TOKEN, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
+`, rInt, string(scalr.Github), githubToken, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
 }
 
 func testAccPolicyGroupUpdateConfig(rInt int) string {
@@ -371,7 +371,7 @@ resource "scalr_policy_group" "test" {
     path       = "%s"
   }
 }
-`, rInt, string(scalr.Github), GITHUB_TOKEN, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
+`, rInt, string(scalr.Github), githubToken, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
 }
 
 func testAccPolicyGroupRenamedConfig(rInt int) string {
@@ -391,5 +391,5 @@ resource "scalr_policy_group" "test" {
     path       = "%s"
   }
 }
-`, rInt, string(scalr.Github), GITHUB_TOKEN, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
+`, rInt, string(scalr.Github), githubToken, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
 }

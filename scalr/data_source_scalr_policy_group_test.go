@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func TestAccPolicyGroupDataSource_basic(t *testing.T) {
@@ -134,7 +134,7 @@ resource "scalr_policy_group" "test" {
     path       = "%s"
   }
 }
-`, rInt, string(scalr.Github), GITHUB_TOKEN, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
+`, rInt, string(scalr.Github), githubToken, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
 }
 
 func testAccPolicyGroupDataSourceConfig(rInt int) string {

@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func TestAccScalrAccessPolicy_basic(t *testing.T) {
@@ -41,7 +41,7 @@ func TestAccScalrAccessPolicy_basic(t *testing.T) {
 }
 
 func TestAccScalrAccessPolicy_bad_scope(t *testing.T) {
-	rg, _ := regexp.Compile(`scope.0.type must be one of \[workspace, environment, account\], got: universe`)
+	rg, _ := regexp.Compile(`scope.0.type must be one of \[workspace, environment, account], got: universe`)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -56,7 +56,7 @@ func TestAccScalrAccessPolicy_bad_scope(t *testing.T) {
 }
 
 func TestAccScalrAccessPolicy_bad_subject(t *testing.T) {
-	rg, _ := regexp.Compile(`subject.0.type must be one of \[user, team, service_account\], got: grandpa`)
+	rg, _ := regexp.Compile(`subject.0.type must be one of \[user, team, service_account], got: grandpa`)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },

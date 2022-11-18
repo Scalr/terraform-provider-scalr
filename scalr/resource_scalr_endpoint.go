@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrEndpoint() *schema.Resource {
@@ -125,12 +125,12 @@ func resourceScalrEndpointRead(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	// Update the config.
-	d.Set("name", endpoint.Name)
-	d.Set("timeout", endpoint.Timeout)
-	d.Set("max_attempts", endpoint.MaxAttempts)
-	d.Set("secret_key", endpoint.SecretKey)
+	_ = d.Set("name", endpoint.Name)
+	_ = d.Set("timeout", endpoint.Timeout)
+	_ = d.Set("max_attempts", endpoint.MaxAttempts)
+	_ = d.Set("secret_key", endpoint.SecretKey)
 	if endpoint.Environment != nil {
-		d.Set("environment_id", endpoint.Environment.ID)
+		_ = d.Set("environment_id", endpoint.Environment.ID)
 	}
 	d.SetId(endpointID)
 

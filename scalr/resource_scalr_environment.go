@@ -8,7 +8,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrEnvironment() *schema.Resource {
@@ -185,16 +185,16 @@ func resourceScalrEnvironmentRead(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	// Update the configuration.
-	d.Set("name", environment.Name)
-	d.Set("account_id", environment.Account.ID)
-	d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)
-	d.Set("status", environment.Status)
+	_ = d.Set("name", environment.Name)
+	_ = d.Set("account_id", environment.Account.ID)
+	_ = d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)
+	_ = d.Set("status", environment.Status)
 
 	defaultProviderConfigurations := make([]string, 0)
 	for _, providerConfiguration := range environment.DefaultProviderConfigurations {
 		defaultProviderConfigurations = append(defaultProviderConfigurations, providerConfiguration.ID)
 	}
-	d.Set("default_provider_configurations", defaultProviderConfigurations)
+	_ = d.Set("default_provider_configurations", defaultProviderConfigurations)
 
 	var createdBy []interface{}
 	if environment.CreatedBy != nil {
@@ -204,23 +204,23 @@ func resourceScalrEnvironmentRead(ctx context.Context, d *schema.ResourceData, m
 			"full_name": environment.CreatedBy.FullName,
 		})
 	}
-	d.Set("created_by", createdBy)
+	_ = d.Set("created_by", createdBy)
 
-	cloudCredentials := []string{}
+	cloudCredentials := make([]string, 0)
 	if environment.CloudCredentials != nil {
 		for _, creds := range environment.CloudCredentials {
 			cloudCredentials = append(cloudCredentials, creds.ID)
 		}
 	}
-	d.Set("cloud_credentials", cloudCredentials)
+	_ = d.Set("cloud_credentials", cloudCredentials)
 
-	policyGroups := []string{}
+	policyGroups := make([]string, 0)
 	if environment.PolicyGroups != nil {
 		for _, group := range environment.PolicyGroups {
 			policyGroups = append(policyGroups, group.ID)
 		}
 	}
-	d.Set("policy_groups", policyGroups)
+	_ = d.Set("policy_groups", policyGroups)
 
 	var tagIDs []string
 	if len(environment.Tags) != 0 {
@@ -228,7 +228,7 @@ func resourceScalrEnvironmentRead(ctx context.Context, d *schema.ResourceData, m
 			tagIDs = append(tagIDs, tag.ID)
 		}
 	}
-	d.Set("tag_ids", tagIDs)
+	_ = d.Set("tag_ids", tagIDs)
 
 	return nil
 }

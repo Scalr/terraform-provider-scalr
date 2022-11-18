@@ -81,8 +81,8 @@ func resourceScalrWorkspaceRunScheduleRead(ctx context.Context, d *schema.Resour
 	}
 
 	// Update the config.
-	d.Set("apply_schedule", workspace.ApplySchedule)
-	d.Set("destroy_schedule", workspace.DestroySchedule)
+	_ = d.Set("apply_schedule", workspace.ApplySchedule)
+	_ = d.Set("destroy_schedule", workspace.DestroySchedule)
 
 	d.SetId(workspace.ID)
 

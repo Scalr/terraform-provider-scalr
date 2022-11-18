@@ -8,7 +8,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrIamTeam() *schema.Resource {
@@ -117,11 +117,11 @@ func resourceScalrIamTeamRead(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	// Update the configuration.
-	d.Set("name", t.Name)
-	d.Set("description", t.Description)
-	d.Set("identity_provider_id", t.IdentityProvider.ID)
+	_ = d.Set("name", t.Name)
+	_ = d.Set("description", t.Description)
+	_ = d.Set("identity_provider_id", t.IdentityProvider.ID)
 	if t.Account != nil {
-		d.Set("account_id", t.Account.ID)
+		_ = d.Set("account_id", t.Account.ID)
 	}
 
 	var users []string
@@ -130,7 +130,7 @@ func resourceScalrIamTeamRead(ctx context.Context, d *schema.ResourceData, meta 
 			users = append(users, u.ID)
 		}
 	}
-	d.Set("users", users)
+	_ = d.Set("users", users)
 
 	return nil
 }

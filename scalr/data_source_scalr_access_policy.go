@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrAccessPolicy() *schema.Resource {
@@ -94,7 +94,7 @@ func dataSourceScalrAccessPolicyRead(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("Unable to extract subject from access policy %s", ap.ID)
 	}
 	subject[0] = subjectEl
-	d.Set("subject", subject)
+	_ = d.Set("subject", subject)
 
 	var scope [1]interface{}
 	scopeEl := make(map[string]interface{})
@@ -112,15 +112,15 @@ func dataSourceScalrAccessPolicyRead(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("Unable to extract scope from access policy %s", ap.ID)
 	}
 	scope[0] = scopeEl
-	d.Set("scope", scope)
+	_ = d.Set("scope", scope)
 
 	roleIds := make([]interface{}, 0)
 	for _, role := range ap.Roles {
 		roleIds = append(roleIds, role.ID)
 	}
 
-	d.Set("role_ids", roleIds)
-	d.Set("is_system", ap.IsSystem)
+	_ = d.Set("role_ids", roleIds)
+	_ = d.Set("is_system", ap.IsSystem)
 	d.SetId(ap.ID)
 
 	return nil

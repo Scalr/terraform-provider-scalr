@@ -9,10 +9,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
-const NUM_PARALLEL = 10
+const numParallel = 10
 
 func resourceScalrProviderConfiguration() *schema.Resource {
 	return &schema.Resource{
@@ -332,7 +332,9 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 	if len(createArgumentOptions) != 0 {
 		_, err = createParameters(ctx, scalrClient, providerConfiguration.ID, &createArgumentOptions)
 		if err != nil {
-			defer scalrClient.ProviderConfigurations.Delete(ctx, providerConfiguration.ID)
+			defer func(ctx context.Context, configurationID string) {
+				_ = scalrClient.ProviderConfigurations.Delete(ctx, configurationID)
+			}(ctx, providerConfiguration.ID)
 			return diag.Errorf(
 				"Error creating provider configuration %s for account %s: %v", name, accountID, err)
 		}
@@ -354,19 +356,19 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 		return diag.Errorf("Error reading provider configuration %s: %v", id, err)
 	}
 
-	d.Set("name", providerConfiguration.Name)
-	d.Set("account_id", providerConfiguration.Account.ID)
-	d.Set("export_shell_variables", providerConfiguration.ExportShellVariables)
+	_ = d.Set("name", providerConfiguration.Name)
+	_ = d.Set("account_id", providerConfiguration.Account.ID)
+	_ = d.Set("export_shell_variables", providerConfiguration.ExportShellVariables)
 
 	if providerConfiguration.IsShared {
 		allEnvironments := []string{"*"}
-		d.Set("environments", allEnvironments)
+		_ = d.Set("environments", allEnvironments)
 	} else {
 		environmentIDs := make([]string, 0)
 		for _, environment := range providerConfiguration.Environments {
 			environmentIDs = append(environmentIDs, environment.ID)
 		}
-		d.Set("environments", environmentIDs)
+		_ = d.Set("environments", environmentIDs)
 	}
 
 	switch providerConfiguration.ProviderName {
@@ -393,7 +395,7 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 			aws["external_id"] = providerConfiguration.AwsExternalId
 		}
 
-		d.Set("aws", []map[string]interface{}{aws})
+		_ = d.Set("aws", []map[string]interface{}{aws})
 	case "google":
 		google := make(map[string]interface{})
 
@@ -404,12 +406,12 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 			google["project"] = providerConfiguration.GoogleProject
 		}
 
-		d.Set("google", []map[string]interface{}{google})
+		_ = d.Set("google", []map[string]interface{}{google})
 	case "scalr":
 		stateScalrParameters := d.Get("scalr").([]interface{})[0].(map[string]interface{})
 		stateToken := stateScalrParameters["token"].(string)
 
-		d.Set("scalr", []map[string]interface{}{
+		_ = d.Set("scalr", []map[string]interface{}{
 			{
 				"hostname": providerConfiguration.ScalrHostname,
 				"token":    stateToken,
@@ -419,7 +421,7 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 		stateAzurermParameters := d.Get("azurerm").([]interface{})[0].(map[string]interface{})
 		stateClientSecret := stateAzurermParameters["client_secret"].(string)
 
-		d.Set("azurerm", []map[string]interface{}{
+		_ = d.Set("azurerm", []map[string]interface{}{
 			{
 				"client_id":       providerConfiguration.AzurermClientId,
 				"client_secret":   stateClientSecret,
@@ -453,7 +455,7 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 
 			currentArguments = append(currentArguments, currentArgument)
 		}
-		d.Set("custom", []map[string]interface{}{
+		_ = d.Set("custom", []map[string]interface{}{
 			{
 				"provider_name": providerConfiguration.ProviderName,
 				"argument":      currentArguments,
@@ -739,11 +741,11 @@ func changeParameters(
 	}()
 
 	var wg sync.WaitGroup
-	wg.Add(NUM_PARALLEL)
+	wg.Add(numParallel)
 
 	resultCh := make(chan result)
 
-	for i := 0; i < NUM_PARALLEL; i++ {
+	for i := 0; i < numParallel; i++ {
 		go func() {
 			for t := range inputCh {
 				if t.createOption != nil {

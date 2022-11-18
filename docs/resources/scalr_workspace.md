@@ -8,7 +8,7 @@ Manage the state of workspaces in Scalr. Create, update and destroy
 Basic usage:
 
 ### VCS-driven
-```javascript
+```hcl
 data "scalr_vcs_provider" test {
   name = "vcs-name"
   account_id = "acc-xxxx" # in case if user has access to more than one account
@@ -45,7 +45,7 @@ resource "scalr_workspace" "vcs-driven" {
 
 ### Module-driven
 
-```javascript
+```hcl
 data "scalr_environment" test {
   name = "env-name"
   # account_id = "acc-xxxx" # Optional, in case if user has access to more than one account
@@ -75,7 +75,7 @@ resource "scalr_workspace" "example" {
 
 ### CLI-driven
 
-```javascript
+```hcl
 data "scalr_environment" test {
   name = "env-name"
   # account_id = "acc-xxxx" # Optional, in case if user has access to more than one account

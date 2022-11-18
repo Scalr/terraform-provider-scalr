@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	version "github.com/hashicorp/go-version"
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
@@ -18,7 +18,7 @@ import (
 	svchost "github.com/hashicorp/terraform-svchost"
 	"github.com/hashicorp/terraform-svchost/auth"
 	"github.com/hashicorp/terraform-svchost/disco"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 	providerVersion "github.com/scalr/terraform-provider-scalr/version"
 )
 
@@ -106,7 +106,7 @@ func Provider() *schema.Provider {
 	}
 }
 
-func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	// Parse the hostname for comparison,
 	hostname, err := svchost.ForComparison(d.Get("hostname").(string))
 	if err != nil {

@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrAccountAllowedIps() *schema.Resource {
@@ -90,8 +90,8 @@ func resourceScalrAccountAllowedIpsRead(ctx context.Context, d *schema.ResourceD
 	}
 
 	// Update the config.
-	d.Set("allowed_ips", account.AllowedIPs)
-	d.Set("account_id", accountID)
+	_ = d.Set("allowed_ips", account.AllowedIPs)
+	_ = d.Set("account_id", accountID)
 
 	return nil
 }

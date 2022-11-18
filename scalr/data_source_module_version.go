@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceModuleVersion() *schema.Resource {
@@ -63,6 +63,6 @@ func dataSourceModuleVersionRead(ctx context.Context, d *schema.ResourceData, me
 	log.Printf("[DEBUG] Download module version by source %s version: %s", source, version)
 
 	d.SetId(mv.ID)
-	d.Set("version", mv.Version)
+	_ = d.Set("version", mv.Version)
 	return nil
 }

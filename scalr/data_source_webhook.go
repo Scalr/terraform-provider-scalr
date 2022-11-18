@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrWebhook() *schema.Resource {
@@ -113,26 +113,26 @@ func dataSourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	// Update the config.
-	d.Set("name", webhook.Name)
-	d.Set("enabled", webhook.Enabled)
-	d.Set("last_triggered_at", webhook.LastTriggeredAt)
+	_ = d.Set("name", webhook.Name)
+	_ = d.Set("enabled", webhook.Enabled)
+	_ = d.Set("last_triggered_at", webhook.LastTriggeredAt)
 
-	events := []string{}
+	events := make([]string, 0)
 	if webhook.Events != nil {
 		for _, event := range webhook.Events {
 			events = append(events, event.ID)
 		}
 	}
-	d.Set("events", events)
+	_ = d.Set("events", events)
 
 	if webhook.Workspace != nil {
-		d.Set("workspace_id", webhook.Workspace.ID)
+		_ = d.Set("workspace_id", webhook.Workspace.ID)
 	}
 	if webhook.Environment != nil {
-		d.Set("environment_id", webhook.Environment.ID)
+		_ = d.Set("environment_id", webhook.Environment.ID)
 	}
 	if webhook.Endpoint != nil {
-		d.Set("endpoint_id", webhook.Endpoint.ID)
+		_ = d.Set("endpoint_id", webhook.Endpoint.ID)
 	}
 	d.SetId(webhook.ID)
 

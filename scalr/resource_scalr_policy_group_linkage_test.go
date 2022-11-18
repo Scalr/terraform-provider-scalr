@@ -152,5 +152,5 @@ resource "scalr_policy_group_linkage" "test" {
   policy_group_id = scalr_policy_group.test.id
   environment_id  = scalr_environment.test.id
 }
-`, defaultAccount, rInt, string(scalr.Github), GITHUB_TOKEN, policyGroupVcsRepoID, policyGroupVcsRepoPath)
+`, defaultAccount, rInt, string(scalr.Github), githubToken, policyGroupVcsRepoID, policyGroupVcsRepoPath)
 }

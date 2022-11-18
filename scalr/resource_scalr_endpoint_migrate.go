@@ -50,7 +50,7 @@ func resourceScalrEndpointResourceV0() *schema.Resource {
 	}
 }
 
-func resourceScalrEndpointStateUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceScalrEndpointStateUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
 	delete(rawState, "http_method")
 	return rawState, nil
 }

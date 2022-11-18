@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrAgentPool() *schema.Resource {
@@ -78,7 +78,7 @@ func dataSourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, m
 		}
 
 		log.Printf("[DEBUG] agent pool %s workspaces: %+v", agentPool.ID, workspaces)
-		d.Set("workspace_ids", workspaces)
+		_ = d.Set("workspace_ids", workspaces)
 	}
 	d.SetId(agentPool.ID)
 

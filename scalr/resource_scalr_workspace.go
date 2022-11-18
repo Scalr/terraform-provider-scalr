@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrWorkspace() *schema.Resource {
@@ -454,35 +454,35 @@ func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	// Update the config.
-	d.Set("name", workspace.Name)
-	d.Set("auto_apply", workspace.AutoApply)
-	d.Set("force_latest_run", workspace.ForceLatestRun)
-	d.Set("operations", workspace.Operations)
-	d.Set("execution_mode", workspace.ExecutionMode)
-	d.Set("terraform_version", workspace.TerraformVersion)
-	d.Set("working_directory", workspace.WorkingDirectory)
-	d.Set("environment_id", workspace.Environment.ID)
-	d.Set("has_resources", workspace.HasResources)
-	d.Set("auto_queue_runs", workspace.AutoQueueRuns)
-	d.Set("var_files", workspace.VarFiles)
+	_ = d.Set("name", workspace.Name)
+	_ = d.Set("auto_apply", workspace.AutoApply)
+	_ = d.Set("force_latest_run", workspace.ForceLatestRun)
+	_ = d.Set("operations", workspace.Operations)
+	_ = d.Set("execution_mode", workspace.ExecutionMode)
+	_ = d.Set("terraform_version", workspace.TerraformVersion)
+	_ = d.Set("working_directory", workspace.WorkingDirectory)
+	_ = d.Set("environment_id", workspace.Environment.ID)
+	_ = d.Set("has_resources", workspace.HasResources)
+	_ = d.Set("auto_queue_runs", workspace.AutoQueueRuns)
+	_ = d.Set("var_files", workspace.VarFiles)
 
 	if workspace.RunOperationTimeout != nil {
-		d.Set("run_operation_timeout", &workspace.RunOperationTimeout)
+		_ = d.Set("run_operation_timeout", &workspace.RunOperationTimeout)
 	}
 
 	if workspace.VcsProvider != nil {
-		d.Set("vcs_provider_id", workspace.VcsProvider.ID)
+		_ = d.Set("vcs_provider_id", workspace.VcsProvider.ID)
 	}
 
 	if workspace.AgentPool != nil {
-		d.Set("agent_pool_id", workspace.AgentPool.ID)
+		_ = d.Set("agent_pool_id", workspace.AgentPool.ID)
 	}
 
 	var mv string
 	if workspace.ModuleVersion != nil {
 		mv = workspace.ModuleVersion.ID
 	}
-	d.Set("module_version_id", mv)
+	_ = d.Set("module_version_id", mv)
 
 	var createdBy []interface{}
 	if workspace.CreatedBy != nil {
@@ -492,7 +492,7 @@ func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, met
 			"full_name": workspace.CreatedBy.FullName,
 		})
 	}
-	d.Set("created_by", createdBy)
+	_ = d.Set("created_by", createdBy)
 
 	var vcsRepo []interface{}
 	if workspace.VCSRepo != nil {
@@ -505,7 +505,7 @@ func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, met
 			"ingress_submodules": workspace.VCSRepo.IngressSubmodules,
 		})
 	}
-	d.Set("vcs_repo", vcsRepo)
+	_ = d.Set("vcs_repo", vcsRepo)
 
 	var hooks []interface{}
 	if workspace.Hooks != nil {
@@ -525,7 +525,7 @@ func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, met
 			"post_apply": "",
 		})
 	}
-	d.Set("hooks", hooks)
+	_ = d.Set("hooks", hooks)
 
 	providerConfigurationLinks, err := getProviderConfigurationWorkspaceLinks(ctx, scalrClient, id)
 	if err != nil {
@@ -538,7 +538,7 @@ func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, met
 			"alias": link.Alias,
 		})
 	}
-	d.Set("provider_configuration", providerConfigurations)
+	_ = d.Set("provider_configuration", providerConfigurations)
 
 	var tagIDs []string
 	if len(workspace.Tags) != 0 {
@@ -546,7 +546,7 @@ func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, met
 			tagIDs = append(tagIDs, tag.ID)
 		}
 	}
-	d.Set("tag_ids", tagIDs)
+	_ = d.Set("tag_ids", tagIDs)
 
 	return nil
 }

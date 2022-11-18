@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrVariables() *schema.Resource {
@@ -174,7 +174,7 @@ func dataSourceScalrVariablesRead(ctx context.Context, d *schema.ResourceData, m
 		}
 		options.PageNumber = page.NextPage
 	}
-	d.Set("variables", variables)
+	_ = d.Set("variables", variables)
 	d.SetId(fmt.Sprintf("%d", schema.HashString(strings.Join(ids, ""))))
 
 	return nil

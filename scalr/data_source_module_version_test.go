@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func TestAccModuleVersionDataSource_basic(t *testing.T) {
@@ -118,7 +118,7 @@ func testAccScalrAccountModule(rInt int) string {
 		  }
 		  vcs_provider_id = scalr_vcs_provider.test.id
 		}
-`, defaultAccount, rInt, string(scalr.Github), GITHUB_TOKEN)
+`, defaultAccount, rInt, string(scalr.Github), githubToken)
 }
 
 func testAccModuleVersionDataSourceConfig(rInt int) string {

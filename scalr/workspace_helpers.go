@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 // fetchWorkspaceID returns the id for a workspace

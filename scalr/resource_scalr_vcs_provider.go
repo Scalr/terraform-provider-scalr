@@ -121,12 +121,12 @@ func resourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData, m
 	if err != nil {
 		return diag.Errorf("Error retrieving vcs provider: %v", err)
 	}
-	d.Set("name", provider.Name)
-	d.Set("url", provider.Url)
-	d.Set("vcs_type", provider.VcsType)
-	d.Set("username", provider.Username)
+	_ = d.Set("name", provider.Name)
+	_ = d.Set("url", provider.Url)
+	_ = d.Set("vcs_type", provider.VcsType)
+	_ = d.Set("username", provider.Username)
 	if provider.Account != nil {
-		d.Set("account_id", provider.Account.ID)
+		_ = d.Set("account_id", provider.Account.ID)
 	}
 
 	return nil

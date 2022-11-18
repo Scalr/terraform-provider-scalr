@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrAgentPoolToken() *schema.Resource {
@@ -58,7 +58,7 @@ func resourceScalrAgentPoolTokenCreate(ctx context.Context, d *schema.ResourceDa
 
 	d.SetId(token.ID)
 	// the token is returned from API only while creating
-	d.Set("token", token.Token)
+	_ = d.Set("token", token.Token)
 
 	return resourceScalrAgentPoolTokenRead(ctx, d, meta)
 }
@@ -89,7 +89,7 @@ func resourceScalrAgentPoolTokenRead(ctx context.Context, d *schema.ResourceData
 
 		for _, t := range tokensList.Items {
 			if t.ID == id {
-				d.Set("description", t.Description)
+				_ = d.Set("description", t.Description)
 				return nil
 			}
 		}

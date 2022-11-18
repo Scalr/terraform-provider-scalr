@@ -28,7 +28,7 @@ func TestAccVcsProvider_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccScalrVcsProviderUpdate(GITHUB_TOKEN, scalr.Github),
+				Config: testAccScalrVcsProviderUpdate(githubToken, scalr.Github),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrVcsProviderExists("scalr_vcs_provider.test", provider),
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "name", "updated-github-vcs-provider"),
@@ -42,7 +42,7 @@ func TestAccVcsProvider_basic(t *testing.T) {
 				ExpectError: regexp.MustCompile("Invalid access token"),
 			},
 			{
-				Config:      testAccScalrVcsProviderUpdate(GITHUB_TOKEN, scalr.Gitlab),
+				Config:      testAccScalrVcsProviderUpdate(githubToken, scalr.Gitlab),
 				ExpectError: regexp.MustCompile("Invalid access token"),
 			},
 		},
@@ -63,7 +63,7 @@ func TestAccVcsProvider_globalScope(t *testing.T) {
 						vcs_type="github"
                         token="%s"
 					}
-				`, GITHUB_TOKEN),
+				`, githubToken),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrVcsProviderExists("scalr_vcs_provider.test", provider),
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "name", "global-github-vcs-provider"),
@@ -147,7 +147,7 @@ resource "scalr_vcs_provider" "test" {
   account_id     = "%s"
   vcs_type="github"
   token = "%s"
-}`, defaultAccount, GITHUB_TOKEN)
+}`, defaultAccount, githubToken)
 }
 
 func testAccScalrVcsProviderUpdate(token string, vcsType scalr.VcsType) string {

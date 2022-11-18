@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrRole() *schema.Resource {
@@ -77,9 +77,9 @@ func dataSourceScalrRoleRead(ctx context.Context, d *schema.ResourceData, meta i
 	role := roles.Items[0]
 
 	// Update the config.
-	d.Set("id", role.ID)
-	d.Set("is_system", role.IsSystem)
-	d.Set("description", role.Description)
+	_ = d.Set("id", role.ID)
+	_ = d.Set("is_system", role.IsSystem)
+	_ = d.Set("description", role.Description)
 	d.SetId(role.ID)
 
 	if len(role.Permissions) != 0 {
@@ -88,7 +88,7 @@ func dataSourceScalrRoleRead(ctx context.Context, d *schema.ResourceData, meta i
 		for _, permission := range role.Permissions {
 			permissionNames = append(permissionNames, permission.ID)
 		}
-		d.Set("permissions", permissionNames)
+		_ = d.Set("permissions", permissionNames)
 	}
 
 	return nil

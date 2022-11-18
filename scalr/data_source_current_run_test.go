@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func TestAccCurrentRun_basic(t *testing.T) {
@@ -24,7 +24,7 @@ func TestAccCurrentRun_basic(t *testing.T) {
 			},
 			{
 				PreConfig: func() {
-					os.Unsetenv(currentRunIDEnvVar)
+					_ = os.Unsetenv(currentRunIDEnvVar)
 				},
 				Config:      testAccCurrentRunDataSourceConfig(rInt),
 				PlanOnly:    true,
@@ -86,7 +86,7 @@ func launchRun(environmentName, workspaceName string) func() {
 			log.Fatalf("Error creating run: %v", err)
 		}
 
-		os.Setenv(currentRunIDEnvVar, run.ID)
+		_ = os.Setenv(currentRunIDEnvVar, run.ID)
 	}
 }
 

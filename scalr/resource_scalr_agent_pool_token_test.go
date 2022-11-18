@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func TestAccScalrAgentPoolToken_basic(t *testing.T) {
@@ -61,7 +61,7 @@ func TestAccScalrAgentPoolToken_changed_outside(t *testing.T) {
 			},
 
 			{
-				PreConfig: testAccCheckScalrAgentPoolTokenChangedOutside(pool, token),
+				PreConfig: testAccCheckScalrAgentPoolTokenChangedOutside(token),
 				Config:    testAccScalrAgentPoolTokenChangedOutside(pool),
 				PlanOnly:  true,
 				Check: resource.ComposeTestCheckFunc(
@@ -136,7 +136,7 @@ func testAccCheckScalrAgentPoolTokenExists(resId string, pool scalr.AgentPool, t
 	}
 }
 
-func testAccCheckScalrAgentPoolTokenChangedOutside(pool scalr.AgentPool, token *scalr.AgentPoolToken) func() {
+func testAccCheckScalrAgentPoolTokenChangedOutside(token *scalr.AgentPoolToken) func() {
 	return func() {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 

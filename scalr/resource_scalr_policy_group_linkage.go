@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrPolicyGroupLinkage() *schema.Resource {
@@ -49,8 +49,8 @@ func resourceScalrPolicyGroupLinkageImport(ctx context.Context, d *schema.Resour
 		return nil, fmt.Errorf("error retrieving policy group linkage %s: %v", id, err)
 	}
 
-	d.Set("policy_group_id", policyGroup.ID)
-	d.Set("environment_id", environment.ID)
+	_ = d.Set("policy_group_id", policyGroup.ID)
+	_ = d.Set("environment_id", environment.ID)
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -90,8 +90,8 @@ func resourceScalrPolicyGroupLinkageRead(ctx context.Context, d *schema.Resource
 		return diag.Errorf("error retrieving policy group linkage %s: %v", id, err)
 	}
 
-	d.Set("policy_group_id", policyGroup.ID)
-	d.Set("environment_id", environment.ID)
+	_ = d.Set("policy_group_id", policyGroup.ID)
+	_ = d.Set("environment_id", environment.ID)
 
 	return nil
 }

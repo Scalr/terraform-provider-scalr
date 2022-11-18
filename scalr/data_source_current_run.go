@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 const (
@@ -129,13 +129,13 @@ func dataSourceScalrCurrentRunRead(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	// Update the config
-	d.Set("source", run.Source)
-	d.Set("message", run.Message)
-	d.Set("is_destroy", run.IsDestroy)
-	d.Set("is_dry", run.Apply == nil)
+	_ = d.Set("source", run.Source)
+	_ = d.Set("message", run.Message)
+	_ = d.Set("is_destroy", run.IsDestroy)
+	_ = d.Set("is_dry", run.Apply == nil)
 
-	d.Set("workspace_name", workspace.Name)
-	d.Set("environment_id", workspace.Environment.ID)
+	_ = d.Set("workspace_name", workspace.Name)
+	_ = d.Set("environment_id", workspace.Environment.ID)
 
 	if workspace.VCSRepo != nil {
 		log.Printf("[DEBUG] Read vcs revision attributes of run: %s", runID)
@@ -160,7 +160,7 @@ func dataSourceScalrCurrentRunRead(ctx context.Context, d *schema.ResourceData, 
 			}
 		}
 
-		d.Set("vcs", append(vcsConfig, vcs))
+		_ = d.Set("vcs", append(vcsConfig, vcs))
 	}
 
 	d.SetId(runID)

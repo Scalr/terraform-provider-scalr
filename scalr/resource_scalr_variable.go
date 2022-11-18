@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrVariable() *schema.Resource {
@@ -22,10 +22,10 @@ func resourceScalrVariable() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
 				// Reject change for key if variable is sensitive
-				old, new := d.GetChange("key")
+				oldValue, newValue := d.GetChange("key")
 				sensitive := d.Get("sensitive")
 
-				if sensitive.(bool) && (old.(string) != "" && old.(string) != new.(string)) {
+				if sensitive.(bool) && (oldValue.(string) != "" && oldValue.(string) != newValue.(string)) {
 					return fmt.Errorf("Error changing 'key' attribute for variable %s: immutable for sensitive variable", d.Id())
 				}
 				return nil
@@ -211,32 +211,32 @@ func resourceScalrVariableRead(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	// Update config.
-	d.Set("key", variable.Key)
-	d.Set("category", string(variable.Category))
-	d.Set("hcl", variable.HCL)
-	d.Set("sensitive", variable.Sensitive)
-	d.Set("description", variable.Description)
-	d.Set("final", variable.Final)
+	_ = d.Set("key", variable.Key)
+	_ = d.Set("category", string(variable.Category))
+	_ = d.Set("hcl", variable.HCL)
+	_ = d.Set("sensitive", variable.Sensitive)
+	_ = d.Set("description", variable.Description)
+	_ = d.Set("final", variable.Final)
 	_, exists := d.GetOk("force")
 	if !exists {
-		d.Set("force", false)
+		_ = d.Set("force", false)
 	}
 
 	if variable.Workspace != nil {
-		d.Set("workspace_id", variable.Workspace.ID)
+		_ = d.Set("workspace_id", variable.Workspace.ID)
 	}
 
 	if variable.Environment != nil {
-		d.Set("environment_id", variable.Environment.ID)
+		_ = d.Set("environment_id", variable.Environment.ID)
 	}
 
 	if variable.Account != nil {
-		d.Set("account_id", variable.Account.ID)
+		_ = d.Set("account_id", variable.Account.ID)
 	}
 
 	// Only set the value if it's not sensitive, as otherwise it will be empty.
 	if !variable.Sensitive {
-		d.Set("value", variable.Value)
+		_ = d.Set("value", variable.Value)
 	}
 
 	return nil

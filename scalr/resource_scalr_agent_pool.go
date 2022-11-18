@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrAgentPool() *schema.Resource {
@@ -85,13 +85,13 @@ func resourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	// Update the config.
-	d.Set("name", agentPool.Name)
-	d.Set("account_id", agentPool.Account.ID)
+	_ = d.Set("name", agentPool.Name)
+	_ = d.Set("account_id", agentPool.Account.ID)
 
 	if agentPool.Environment != nil {
-		d.Set("environment_id", agentPool.Environment.ID)
+		_ = d.Set("environment_id", agentPool.Environment.ID)
 	} else {
-		d.Set("environment_id", nil)
+		_ = d.Set("environment_id", nil)
 	}
 	return nil
 }

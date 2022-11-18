@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 const cloudCredential = "cred-suh84u5bfnjaa0g"
@@ -200,12 +200,12 @@ func testAccCheckScalrEnvironmentProviderConfigurations(environment *scalr.Envir
 		if len(environment.DefaultProviderConfigurations) != 1 {
 			return fmt.Errorf("Bad default provider configurations: %v", environment.DefaultProviderConfigurations)
 		}
-		provider_configuration, err := scalrClient.ProviderConfigurations.Read(ctx, environment.DefaultProviderConfigurations[0].ID)
+		providerConfiguration, err := scalrClient.ProviderConfigurations.Read(ctx, environment.DefaultProviderConfigurations[0].ID)
 		if err != nil {
 			return err
 		}
-		if provider_configuration.ProviderName != "consul" {
-			return fmt.Errorf("Bad default provider configurations: %s", provider_configuration.ProviderName)
+		if providerConfiguration.ProviderName != "consul" {
+			return fmt.Errorf("Bad default provider configurations: %s", providerConfiguration.ProviderName)
 		}
 		return nil
 	}
@@ -217,12 +217,12 @@ func testAccCheckScalrEnvironmentProviderConfigurationsUpdate(environment *scalr
 		if len(environment.DefaultProviderConfigurations) != 1 {
 			return fmt.Errorf("Bad default provider configurations: %v", environment.DefaultProviderConfigurations)
 		}
-		provider_configuration, err := scalrClient.ProviderConfigurations.Read(ctx, environment.DefaultProviderConfigurations[0].ID)
+		providerConfiguration, err := scalrClient.ProviderConfigurations.Read(ctx, environment.DefaultProviderConfigurations[0].ID)
 		if err != nil {
 			return err
 		}
-		if provider_configuration.ProviderName != "kubernetes" {
-			return fmt.Errorf("Bad default provider configurations: %s", provider_configuration.ProviderName)
+		if providerConfiguration.ProviderName != "kubernetes" {
+			return fmt.Errorf("Bad default provider configurations: %s", providerConfiguration.ProviderName)
 		}
 		return nil
 	}

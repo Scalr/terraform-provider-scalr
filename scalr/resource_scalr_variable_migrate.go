@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrVariableResourceV0() *schema.Resource {
@@ -151,7 +151,7 @@ func resourceScalrVariableResourceV1() *schema.Resource {
 	}
 }
 
-func resourceScalrVariableStateUpgradeV1(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceScalrVariableStateUpgradeV1(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
 	varCategory := rawState["category"].(string)
 	if varCategory == string(scalr.CategoryEnv) {
 		varCategory = string(scalr.CategoryShell)

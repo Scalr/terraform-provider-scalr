@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"time"
 
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func init() {
