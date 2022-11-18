@@ -124,7 +124,6 @@ func resourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData, m
 	d.Set("name", provider.Name)
 	d.Set("url", provider.Url)
 	d.Set("vcs_type", provider.VcsType)
-	d.Set("auth_type", provider.AuthType)
 	d.Set("username", provider.Username)
 	if provider.Account != nil {
 		d.Set("account_id", provider.Account.ID)
