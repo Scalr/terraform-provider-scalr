@@ -73,11 +73,11 @@ func TestAccScalrWorkspace_create_missed_vcs_attr(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrWorkspaceMissedVcsProvider(rInt),
-				ExpectError: regexp.MustCompile("config is invalid: \"vcs_repo\": all of `vcs_provider_id,vcs_repo` must be specified"),
+				ExpectError: regexp.MustCompile("\"vcs_repo\": all of `vcs_provider_id,vcs_repo` must be specified"),
 			},
 			{
 				Config:      testAccScalrWorkspaceMissedVcsRepo(rInt),
-				ExpectError: regexp.MustCompile("config is invalid: \"vcs_provider_id\": all of `vcs_provider_id,vcs_repo` must be specified"),
+				ExpectError: regexp.MustCompile("\"vcs_provider_id\": all of `vcs_provider_id,vcs_repo` must be specified"),
 			},
 		},
 	})

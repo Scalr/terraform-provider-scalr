@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -19,15 +20,16 @@ func TestAccCurrentRun_basic(t *testing.T) {
 		PreventPostDestroyRefresh: true,
 		Steps: []resource.TestStep{
 			{
+				Config: testAccCurrentRunInitConfig(rInt),
+			},
+			{
 				PreConfig: func() {
 					os.Unsetenv(currentRunIDEnvVar)
 				},
-				Config: testAccCurrentRunDataSourceConfig(rInt),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckNoResourceAttr("data.scalr_current_run.test", "id"),
-				),
+				Config:      testAccCurrentRunDataSourceConfig(rInt),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile("Current run is not set"),
 			},
-
 			{
 				PreConfig: launchRun(fmt.Sprintf("test-env-%d", rInt), fmt.Sprintf("test-ws-%d", rInt)),
 				Config:    testAccCurrentRunDataSourceConfig(rInt),
@@ -88,7 +90,7 @@ func launchRun(environmentName, workspaceName string) func() {
 	}
 }
 
-func testAccCurrentRunDataSourceConfig(rInt int) string {
+func testAccCurrentRunInitConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
   name       = "test-env-%[1]d"
@@ -99,7 +101,9 @@ resource scalr_workspace test {
   name       = "test-ws-%[1]d"
   environment_id = scalr_environment.test.id
 }
+`, rInt, defaultAccount)
+}
 
-data scalr_current_run test {
-}`, rInt, defaultAccount)
+func testAccCurrentRunDataSourceConfig(rInt int) string {
+	return testAccCurrentRunInitConfig(rInt) + "data scalr_current_run test {}"
 }

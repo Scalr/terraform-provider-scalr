@@ -107,8 +107,7 @@ func dataSourceScalrCurrentRunRead(ctx context.Context, d *schema.ResourceData, 
 	runID, exists := os.LookupEnv(currentRunIDEnvVar)
 	if !exists {
 		log.Printf("[DEBUG] %s is not set", currentRunIDEnvVar)
-		d.SetId("")
-		return nil
+		return diag.Errorf("Current run is not set")
 	}
 
 	log.Printf("[DEBUG] Read configuration of run: %s", runID)
