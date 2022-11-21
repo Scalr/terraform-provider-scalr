@@ -72,12 +72,12 @@ func Provider() *schema.Provider {
 			"scalr_provider_configurations": dataSourceScalrProviderConfigurations(),
 			"scalr_role":                    dataSourceScalrRole(),
 			"scalr_tag":                     dataSourceScalrTag(),
+			"scalr_variable":                dataSourceScalrVariable(),
+			"scalr_variables":               dataSourceScalrVariables(),
 			"scalr_vcs_provider":            dataSourceScalrVcsProvider(),
 			"scalr_webhook":                 dataSourceScalrWebhook(),
 			"scalr_workspace":               dataSourceScalrWorkspace(),
 			"scalr_workspace_ids":           dataSourceScalrWorkspaceIDs(),
-			"scalr_variable":                dataSourceScalrVariable(),
-			"scalr_variables":               dataSourceScalrVariables(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -93,12 +93,12 @@ func Provider() *schema.Provider {
 			"scalr_policy_group_linkage":   resourceScalrPolicyGroupLinkage(),
 			"scalr_provider_configuration": resourceScalrProviderConfiguration(),
 			"scalr_role":                   resourceScalrRole(),
+			"scalr_run_trigger":            resourceScalrRunTrigger(),
 			"scalr_tag":                    resourceScalrTag(),
 			"scalr_variable":               resourceScalrVariable(),
 			"scalr_vcs_provider":           resourceScalrVcsProvider(),
 			"scalr_webhook":                resourceScalrWebhook(),
 			"scalr_workspace":              resourceScalrWorkspace(),
-			"scalr_run_trigger":            resourceScalrRunTrigger(),
 			"scalr_workspace_run_schedule": resourceScalrWorkspaceRunSchedule(),
 		},
 
