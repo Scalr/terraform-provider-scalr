@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - panic when creating workspace with empty var file value ([#191](https://github.com/Scalr/terraform-provider-scalr/pull/191))
+- typo in documentation of `scalr_variable` data-source `environment_id` parameter ([#193](https://github.com/Scalr/terraform-provider-scalr/pull/193))
 
 ## [1.0.0-rc38] - 2022-10-20
 
