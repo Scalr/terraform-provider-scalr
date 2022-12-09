@@ -7,11 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `data.scalr_current_run` now results in plan error if no current run info is present ([#192](https://github.com/Scalr/terraform-provider-scalr/pull/192))
+- `data.scalr_current_run`: changed type of `vcs.commit.author` attribute from TypeMap to TypeList ([#192](https://github.com/Scalr/terraform-provider-scalr/pull/192))
+- dropped support of Terraform 0.11 and below ([#192](https://github.com/Scalr/terraform-provider-scalr/pull/192))
+
 ## [1.0.0] - 2022-12-02
 
 ### Added
 
-- `module_verion`: data source: change relation from latest-module-version to module-version  ([#181](https://github.com/Scalr/terraform-provider-scalr/pull/181))
+- `module_version`: data source: change relation from latest-module-version to module-version ([#181](https://github.com/Scalr/terraform-provider-scalr/pull/181))
 
 ### Fixed
 

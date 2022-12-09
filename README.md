@@ -59,6 +59,28 @@ Export `SCALR_HOSTNAME` and `SCALR_TOKEN` environment variables.
 Execute `VER=7.7.7 make install`. This will build the provider binary and install it to the user's provider directory (see `GNUMakefile`).
 The `terraform init` now will find the correct provider version.
 
+### Debugging provider
+
+Start provider process by your IDE or debugger with `-debug` flag set.
+
+```shell
+./terraform-provider-scalr -debug=true
+```
+
+It will print output like the following:
+
+```text
+Provider started, to attach Terraform set the TF_REATTACH_PROVIDERS env var:
+
+        TF_REATTACH_PROVIDERS='{"registry.scalr.io/scalr/scalr":{"Protocol":"grpc","Pid":30636,"Test":true,"Addr":{"Network":"unix","String":"/var/folders/8g/knswsjzs623b63ln4m9wxf180000gn/T/plugin4288941537"}}}'
+```
+
+Either export it, or prefix every Terraform command with it.
+- Terraform will not start the provider process; instead, it will attach to your process
+- the provider will no longer be restarted once per walk of the Terraform graph; instead the same provider process will be reused until the command is completed
+
+For more info refer to the [documentation](https://developer.hashicorp.com/terraform/plugin/debugging#debugger-based-debugging).
+
 ### Using a local copy of go-scalr
 This provider uses [go-scalr](https://github.com/Scalr/go-scalr) to call the Scalr API.
 
