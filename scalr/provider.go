@@ -122,7 +122,7 @@ func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, 
 	credsSrc := credentialsSource(config)
 	services := disco.NewWithCredentialsSource(credsSrc)
 	services.SetUserAgent(providerUaString)
-	services.Transport = logging.NewTransport("Scalr Service Discovery", services.Transport)
+	services.Transport = logging.NewLoggingHTTPTransport(services.Transport)
 
 	// Add any static host configurations service discovery object.
 	for userHost, hostConfig := range config.Hosts {
@@ -187,7 +187,7 @@ func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, 
 	}
 
 	httpClient := scalr.DefaultConfig().HTTPClient
-	httpClient.Transport = logging.NewTransport("Scalr", httpClient.Transport)
+	httpClient.Transport = logging.NewLoggingHTTPTransport(httpClient.Transport)
 
 	headers := make(http.Header)
 	headers.Add("User-Agent", providerUaString)
