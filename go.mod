@@ -5,7 +5,7 @@ require (
 	github.com/hashicorp/hcl v0.0.0-20180404174102-ef8a98b0bbce
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.24.1
 	github.com/hashicorp/terraform-svchost v0.0.0-20200729002733-f050f53b9734
-	github.com/scalr/go-scalr v0.0.0-20221018111344-50c95bd1d8a5
+	github.com/scalr/go-scalr v0.0.0-20221209124324-6ef42b863ac9
 )
 
 require (
@@ -59,4 +59,4 @@ require (
 	google.golang.org/protobuf v1.28.1 // indirect
 )
 
-go 1.17
+go 1.18
