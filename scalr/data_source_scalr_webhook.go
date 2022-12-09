@@ -17,15 +17,17 @@ func dataSourceScalrWebhook() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 
 			"id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				AtLeastOneOf: []string{"name"},
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"id"},
 			},
 
 			"enabled": {
@@ -50,9 +52,10 @@ func dataSourceScalrWebhook() *schema.Resource {
 			},
 
 			"account_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				RequiredWith: []string{"name"},
 			},
 
 			"environment_id": {
@@ -77,16 +80,6 @@ func dataSourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, met
 	webhookID := d.Get("id").(string)
 	webhookName := d.Get("name").(string)
 	accountID := d.Get("account_id").(string)
-
-	if webhookID == "" {
-		if webhookName == "" {
-			return diag.Errorf("At least one argument 'id' or 'name' is required, but no definitions was found")
-		} else if accountID == "" {
-			return diag.Errorf("Argument 'account_id' is required to be set in pair with 'name'")
-		}
-	} else if webhookName != "" {
-		return diag.Errorf("Attributes 'name' and 'id' can not be set at the same time")
-	}
 
 	var webhook *scalr.Webhook
 	var err error

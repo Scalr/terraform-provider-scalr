@@ -1,34 +1,33 @@
 package main
 
 import (
-	"context"
 	"flag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
-	"github.com/scalr/terraform-provider-scalr/scalr"
 	"log"
-	"os"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
+
+	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 const (
-	scalrProviderName = "registry.scalr.io/scalr/scalr"
+	scalrProviderAddr = "registry.scalr.io/scalr/scalr"
 )
 
 func main() {
-	var debugMode bool
-	ctx := context.Background()
-
-	flag.BoolVar(&debugMode, "debug", false, "Start provider in debug mode.")
+	var isDebug bool
+	flag.BoolVar(&isDebug, "debug", false, "Start provider in debug mode.")
 	flag.Parse()
 
-	if debugMode {
-		err := plugin.Debug(ctx, scalrProviderName,
-			&plugin.ServeOpts{
-				ProviderFunc: scalr.Provider,
-			})
-		log.Printf("[ERROR] Could not start the debug server: %v", err)
-		os.Exit(1)
-	} else {
-		plugin.Serve(&plugin.ServeOpts{
-			ProviderFunc: scalr.Provider})
-	}
+	// Remove any date and time prefix in log package function output to
+	// prevent duplicate timestamp and incorrect log level setting
+	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
+
+	schema.DescriptionKind = schema.StringMarkdown
+
+	plugin.Serve(&plugin.ServeOpts{
+		ProviderFunc: scalr.Provider,
+		ProviderAddr: scalrProviderAddr,
+		Debug:        isDebug,
+	})
 }

@@ -17,15 +17,17 @@ func dataSourceScalrEndpoint() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 
 			"id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				AtLeastOneOf: []string{"name"},
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"id"},
 			},
 
 			"max_attempts": {
@@ -70,14 +72,6 @@ func dataSourceScalrEndpointRead(ctx context.Context, d *schema.ResourceData, me
 	// Get the ID
 	endpointID := d.Get("id").(string)
 	endpointName := d.Get("name").(string)
-
-	if endpointID == "" && endpointName == "" {
-		return diag.Errorf("At least one argument 'id' or 'name' is required, but no definitions was found")
-	}
-
-	if endpointID != "" && endpointName != "" {
-		return diag.Errorf("Attributes 'name' and 'id' can not be set at the same time")
-	}
 
 	accountID := d.Get("account_id").(string)
 
