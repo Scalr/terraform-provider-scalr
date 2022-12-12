@@ -286,7 +286,7 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 						"scalr_workspace.test", "working_directory", "terraform/test"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "run_operation_timeout", "0"),
-					resource.TestCheckNoResourceAttr("scalr_workspace.test", "hooks"),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "hooks.#", "0"),
 				),
 			},
 

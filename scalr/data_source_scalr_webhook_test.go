@@ -22,6 +22,16 @@ func TestAccWebhookDataSource_basic(t *testing.T) {
 		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
+				Config:      testAccWebhookNeitherNameNorIdSetConfig(),
+				ExpectError: regexp.MustCompile("\"id\": one of `id,name` must be specified"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      testAccWebhookBothNameAndIdSetConfig(),
+				ExpectError: regexp.MustCompile("\"name\": conflicts with id"),
+				PlanOnly:    true,
+			},
+			{
 				Config: testAccWebhookDataSourceConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
@@ -55,16 +65,6 @@ func TestAccWebhookDataSource_basic(t *testing.T) {
 			{
 				Config:      testAccWebhookDataSourceNotFoundByNameConfig(),
 				ExpectError: regexp.MustCompile("Webhook with name 'webhook-foo-bar-baz' not found or user unauthorized"),
-				PlanOnly:    true,
-			},
-			{
-				Config:      testAccWebhookNeitherNameNorIdSetConfig(),
-				ExpectError: regexp.MustCompile("At least one argument 'id' or 'name' is required, but no definitions was found"),
-				PlanOnly:    true,
-			},
-			{
-				Config:      testAccWebhookBothNameAndIdSetConfig(),
-				ExpectError: regexp.MustCompile("Attributes 'name' and 'id' can not be set at the same time"),
 				PlanOnly:    true,
 			},
 		},

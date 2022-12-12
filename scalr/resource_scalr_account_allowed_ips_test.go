@@ -72,7 +72,7 @@ func TestAccScalrAccountAllowedIps_import(t *testing.T) {
 }
 
 func TestAccScalrAccountAllowedIps_empty(t *testing.T) {
-	rg, _ := regexp.Compile(`Attribute supports 1 item minimum, config has 0 declared`)
+	rg, _ := regexp.Compile(`Attribute allowed_ips requires 1 item minimum, but config has only 0`)
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviderFactories,
