@@ -23,8 +23,6 @@ jobs:
     runs-on: ubuntu-latest
     name: acc-tests
     env:
-      REVIZOR_URL: ${{ secrets.REVIZOR_URL }}
-      REVIZOR_TOKEN: ${{ secrets.REVIZOR_TOKEN }}
       ORG_ADMIN_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
       SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
       API_BRANCH: ${{ github.event.inputs.api-branch }}
@@ -32,18 +30,76 @@ jobs:
       PY_REQ: ${{ github.event.inputs.py-req }}
       UPSTREAM_ID: ${{ github.run_number }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-go@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
         with:
           go-version: "1.17"
+      - name: Clone fatmouse repo
+        uses: actions/checkout@v3
+        with:
+          repository: Scalr/fatmouse
+          path: fatmouse
+          token: ${{ secrets.GH_PAT }}
+      - id: auth
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+      - name: Copy secrets
+        shell: bash
+        run: |
+          echo "::group::Copy secrets"
+          mkdir ~/.scalr-labs
+          gsutil cp gs://drone_bucket/prod/private.d/.secrets.yaml fatmouse/tacobell/.secrets.yaml
+          gsutil cp gs://drone_bucket/prod/private.d/github.json ~/.scalr-labs/github.json
+          echo "::endgroup::"
+      - name: Configure docker
+        shell: bash
+        run: gcloud auth configure-docker eu.gcr.io
+      - name: Pull python builder
+        shell: bash
+        run: |
+          echo "::group::Pull python builder image"
+          docker pull eu.gcr.io/development-156220/fatmouse/python-builder:master
+          docker tag eu.gcr.io/development-156220/fatmouse/python-builder:master fatmouse/python-builder:master
+          echo "::endgroup::"
+      - name: Get current job log URL
+        uses: Tiryoh/gha-jobid-action@v0
+        id: get-job-id
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          job_name: ${{ github.job }}
+      - name: Generate run tag
+        shell: bash
+        run: echo "RUN_TAG=${{ github.workflow }}-${{ github.job }}-${{ github.run_number }}" >> $GITHUB_ENV
       - name: Create container
         id: create
-        uses: Scalr/gh-action-revizor@master
-        with:
-          command: create
+        shell: bash
+        run: |
+          if [ ${{ env.API_BRANCH }} = "master" ] && [ ${{ env.DB_BRANCH }} = "master" ]; then
+              BRANCHES=""
+          else
+              BRANCHES="--fatmouse-branch ${{ env.API_BRANCH }} --scalr-branch ${{ env.DB_BRANCH }}"
+          fi
+          docker run --rm \
+          -e GITHUB_WORKSPACE=true \
+          -e GITHUB_OUTPUT=/fatmouse/output \
+          -w /fatmouse \
+          -v $PWD/fatmouse:/fatmouse \
+          -v $GITHUB_OUTPUT:/fatmouse/output \
+          -v ~/.scalr-labs:/etc/scalr-labs \
+          fatmouse/python-builder:master python -u clickfile.py te up ${BRANCHES} \
+          --run-url ${{ steps.get-job-id.outputs.html_url }} \
+          --dedicated ${{ env.RUN_TAG }}
+      - name: Get Scalr hostname
+        shell: bash
+        run: |
+          SCALR_HOST=${{ steps.create.outputs.host }}
+          echo "SCALR_HOSTNAME=${SCALR_HOST/https:\/\//}" >> $GITHUB_ENV
       - name: Run acceptance tests
         env:
-          SCALR_HOSTNAME: ${{ steps.create.outputs.hostname }}
+          SCALR_HOSTNAME: ${{ env.SCALR_HOSTNAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TEST_AWS_ACCESS_KEY: ${{ secrets.TEST_AWS_ACCESS_KEY }}
           TEST_AWS_SECRET_KEY: ${{ secrets.TEST_AWS_SECRET_KEY }}
@@ -56,11 +112,16 @@ jobs:
         run: make testacc
       - name: Delete container
         id: delete
-        if: ${{ always() && steps.create.outputs.container_id }}
-        uses: Scalr/gh-action-revizor@master
-        with:
-          command: delete
-          container_id: ${{ steps.create.outputs.container_id }}
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          docker run --rm \
+          -w /fatmouse \
+          -v $PWD/fatmouse:/fatmouse \
+          -v ~/.scalr-labs:/etc/scalr-labs \
+          fatmouse/python-builder:master \
+          python -u clickfile.py te rm \
+          --no-wait ${{ env.RUN_TAG }}
       - name: Notify upstream about success
         if: ${{ success() }}
         run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=success run_id=${{ github.run_id }}
