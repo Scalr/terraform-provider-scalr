@@ -77,6 +77,7 @@ jobs:
         id: create
         shell: bash
         run: |
+          echo "::group::Create test app"
           if [ ${{ env.API_BRANCH }} = "master" ] && [ ${{ env.DB_BRANCH }} = "master" ]; then
               BRANCHES=""
           else
@@ -92,6 +93,7 @@ jobs:
           fatmouse/python-builder:master python -u clickfile.py te up ${BRANCHES} \
           --run-url ${{ steps.get-job-id.outputs.html_url }} \
           --dedicated ${{ env.RUN_TAG }}
+          echo "::endgroup::"
       - name: Get Scalr hostname
         shell: bash
         run: |
@@ -115,6 +117,7 @@ jobs:
         if: ${{ always() }}
         shell: bash
         run: |
+          echo "::group::Delete test app"
           docker run --rm \
           -w /fatmouse \
           -v $PWD/fatmouse:/fatmouse \
@@ -122,6 +125,7 @@ jobs:
           fatmouse/python-builder:master \
           python -u clickfile.py te rm \
           --no-wait ${{ env.RUN_TAG }}
+          echo "::endgroup::"
       - name: Notify upstream about success
         if: ${{ success() }}
         run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=success run_id=${{ github.run_id }}
