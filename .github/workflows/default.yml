@@ -58,21 +58,17 @@ jobs:
       - name: Copy secrets
         shell: bash
         run: |
-          echo "::group::Copy secrets"
           mkdir ~/.scalr-labs
           gsutil cp gs://drone_bucket/prod/private.d/.secrets.yaml fatmouse/tacobell/.secrets.yaml
           gsutil cp gs://drone_bucket/prod/private.d/github.json ~/.scalr-labs/github.json
-          echo "::endgroup::"
       - name: Configure docker
         shell: bash
         run: gcloud auth configure-docker eu.gcr.io
       - name: Pull python builder
         shell: bash
         run: |
-          echo "::group::Pull python builder image"
           docker pull eu.gcr.io/development-156220/fatmouse/python-builder:master
           docker tag eu.gcr.io/development-156220/fatmouse/python-builder:master fatmouse/python-builder:master
-          echo "::endgroup::"
       - name: Get current job log URL
         uses: Tiryoh/gha-jobid-action@v0
         id: get-job-id
@@ -81,12 +77,17 @@ jobs:
           job_name: ${{ github.job }}
       - name: Generate run tag
         shell: bash
-        run: echo "RUN_TAG=${{ github.workflow }}-${{ github.job }}-${{ github.run_number }}" >> $GITHUB_ENV
+        run: |
+          if [ ${{ github.run_attempt }} = 1 ]; then
+            RERUN_SUFFIX=""
+          else
+            RERUN_SUFFIX=$(echo -${{ github.run_attempt }})
+          fi
+        echo "RUN_TAG=${{ github.workflow }}-${{ github.job }}-${{ github.run_number }}${RERUN_SUFFIX}" >> $GITHUB_ENV
       - name: Create container
         id: create
         shell: bash
         run: |
-          echo "::group::Create test app"
           if [ -z ${{ env.API_BRANCH }} ] || [ -z ${{ env.DB_BRANCH }} ]; then
               BRANCHES=""
           else
@@ -102,7 +103,6 @@ jobs:
           fatmouse/python-builder:master python -u clickfile.py te up ${BRANCHES} \
           --run-url ${{ steps.get-job-id.outputs.html_url }} \
           --dedicated ${{ env.RUN_TAG }}
-          echo "::endgroup::"
       - name: Get Scalr hostname
         shell: bash
         run: |
@@ -134,7 +134,6 @@ jobs:
         if: ${{ always() }}
         shell: bash
         run: |
-          echo "::group::Delete test app"
           docker run --rm \
           -w /fatmouse \
           -v $PWD/fatmouse:/fatmouse \
@@ -142,7 +141,6 @@ jobs:
           fatmouse/python-builder:master \
           python -u clickfile.py te rm \
           --no-wait ${{ env.RUN_TAG }}
-          echo "::endgroup::"
   upload-dev:
     name: upload-dev
     needs: [lint, unit-tests, acc-tests]
