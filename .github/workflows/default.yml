@@ -83,15 +83,15 @@ jobs:
           else
             RERUN_SUFFIX=$(echo -${{ github.run_attempt }})
           fi
-        echo "RUN_TAG=${{ github.workflow }}-${{ github.job }}-${{ github.run_number }}${RERUN_SUFFIX}" >> $GITHUB_ENV
+          echo "RUN_TAG=${{ github.workflow }}-${{ github.job }}-${{ github.run_number }}${RERUN_SUFFIX}" >> $GITHUB_ENV
       - name: Create container
         id: create
         shell: bash
         run: |
           if [ -z ${{ env.API_BRANCH }} ] || [ -z ${{ env.DB_BRANCH }} ]; then
-              BRANCHES=""
+            BRANCHES=""
           else
-              BRANCHES="--fatmouse-branch ${{ env.API_BRANCH }} --scalr-branch ${{ env.DB_BRANCH }}"
+            BRANCHES="--fatmouse-branch ${{ env.API_BRANCH }} --scalr-branch ${{ env.DB_BRANCH }}"
           fi
           docker run --rm \
           -e GITHUB_WORKSPACE=true \

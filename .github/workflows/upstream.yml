@@ -58,8 +58,10 @@ jobs:
       - name: Pull python builder
         shell: bash
         run: |
+          echo "::group::Pull python builder image"
           docker pull eu.gcr.io/development-156220/fatmouse/python-builder:master
           docker tag eu.gcr.io/development-156220/fatmouse/python-builder:master fatmouse/python-builder:master
+          echo "::endgroup::"
       - name: Get current job log URL
         uses: Tiryoh/gha-jobid-action@v0
         id: get-job-id
@@ -74,15 +76,15 @@ jobs:
           else
             RERUN_SUFFIX=$(echo -${{ github.run_attempt }})
           fi
-        echo "RUN_TAG=${{ github.workflow }}-${{ github.job }}-${{ github.run_number }}${RERUN_SUFFIX}" >> $GITHUB_ENV
+          echo "RUN_TAG=${{ github.workflow }}-${{ github.job }}-${{ github.run_number }}${RERUN_SUFFIX}" >> $GITHUB_ENV
       - name: Create container
         id: create
         shell: bash
         run: |
           if [ ${{ env.API_BRANCH }} = "master" ] && [ ${{ env.DB_BRANCH }} = "master" ]; then
-              BRANCHES=""
+            BRANCHES=""
           else
-              BRANCHES="--fatmouse-branch ${{ env.API_BRANCH }} --scalr-branch ${{ env.DB_BRANCH }}"
+            BRANCHES="--fatmouse-branch ${{ env.API_BRANCH }} --scalr-branch ${{ env.DB_BRANCH }}"
           fi
           docker run --rm \
           -e GITHUB_WORKSPACE=true \
