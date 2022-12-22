@@ -102,7 +102,9 @@ jobs:
           -v ~/.scalr-labs:/etc/scalr-labs \
           fatmouse/python-builder:master python -u clickfile.py te up ${BRANCHES} \
           --run-url ${{ steps.get-job-id.outputs.html_url }} \
-          --dedicated ${{ env.RUN_TAG }}
+          --cpu=1 \
+          --ram=2G \
+          ${{ env.RUN_TAG }}
       - name: Get Scalr hostname
         shell: bash
         run: |
