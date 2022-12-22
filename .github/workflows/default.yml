@@ -83,7 +83,7 @@ jobs:
           else
             RERUN_SUFFIX=$(echo -${{ github.run_attempt }})
           fi
-          echo "RUN_TAG=${{ github.workflow }}-${{ github.job }}-${{ github.run_number }}${RERUN_SUFFIX}" >> $GITHUB_ENV
+          echo "RUN_TAG=e2e-${{ github.workflow }}-${{ github.job }}-${{ github.run_number }}${RERUN_SUFFIX}" >> $GITHUB_ENV
       - name: Create container
         id: create
         shell: bash
