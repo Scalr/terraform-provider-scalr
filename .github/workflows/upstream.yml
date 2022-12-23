@@ -81,11 +81,18 @@ jobs:
         id: create
         shell: bash
         run: |
-          if [ ${{ env.API_BRANCH }} = "master" ] && [ ${{ env.DB_BRANCH }} = "master" ]; then
-            BRANCHES=""
+          if [ ${{ env.API_BRANCH }} = "master" ]; then
+            FATMOUSE_BRANCH=""
           else
-            BRANCHES="--fatmouse-branch ${{ env.API_BRANCH }} --scalr-branch ${{ env.DB_BRANCH }}"
+            FATMOUSE_BRANCH="--fatmouse-branch ${{ env.API_BRANCH }}"
           fi
+
+          if [ ${{ env.DB_BRANCH }} = "master" ]; then
+            SCALR_BRANCH=""
+          else
+            SCALR_BRANCH="--scalr-branch ${{ env.DB_BRANCH }}"
+          fi
+
           docker run --rm \
           -e GITHUB_WORKSPACE=true \
           -e GITHUB_OUTPUT=/fatmouse/output \
@@ -93,7 +100,8 @@ jobs:
           -v $PWD/fatmouse:/fatmouse \
           -v $GITHUB_OUTPUT:/fatmouse/output \
           -v ~/.scalr-labs:/etc/scalr-labs \
-          fatmouse/python-builder:master python -u clickfile.py te up ${BRANCHES} \
+          fatmouse/python-builder:master python -u clickfile.py te up \
+          ${FATMOUSE_BRANCH} ${SCALR_BRANCH} \
           --run-url ${{ steps.get-job-id.outputs.html_url }} \
           --cpu=1 \
           --ram=2G \
