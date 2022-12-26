@@ -99,6 +99,12 @@ jobs:
           else
             SCALR_BRANCH="--scalr-branch ${{ env.DB_BRANCH }}"
           fi
+          
+          if [ ${{ env.API_BRANCH }} = "staging" ]; then
+            IMAGE="--scalr-server-image-tag staging"
+          else
+            IMAGE=""
+          fi
 
           docker run --rm \
           -e GITHUB_WORKSPACE=true \
@@ -108,7 +114,7 @@ jobs:
           -v $GITHUB_OUTPUT:/fatmouse/output \
           -v ~/.scalr-labs:/etc/scalr-labs \
           fatmouse/python-builder:master python -u clickfile.py te up \
-          ${FATMOUSE_BRANCH} ${SCALR_BRANCH} \
+          ${FATMOUSE_BRANCH} ${SCALR_BRANCH} ${IMAGE} \
           --run-url ${{ steps.get-job-id.outputs.html_url }} \
           --cpu=1 \
           --ram=2G \
