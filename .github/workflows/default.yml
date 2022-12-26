@@ -99,8 +99,8 @@ jobs:
           else
             SCALR_BRANCH="--scalr-branch ${{ env.DB_BRANCH }}"
           fi
-          
-          if [ ${{ env.API_BRANCH }} = "staging" ]; then
+
+          if [ "${{ env.API_BRANCH }}" = "staging" ]; then
             IMAGE="--scalr-server-image-tag staging"
           else
             IMAGE=""
