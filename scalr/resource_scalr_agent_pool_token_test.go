@@ -6,9 +6,9 @@ import (
 	"log"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/scalr/go-scalr"
 )
 
 func TestAccScalrAgentPoolToken_basic(t *testing.T) {
@@ -21,9 +21,9 @@ func TestAccScalrAgentPoolToken_basic(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrAgentPoolTokenDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrAgentPoolTokenDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAgentPoolTokenBasic(pool),
@@ -47,9 +47,9 @@ func TestAccScalrAgentPoolToken_changed_outside(t *testing.T) {
 	token := &scalr.AgentPoolToken{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrAgentPoolTokenDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrAgentPoolTokenDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAgentPoolTokenBasic(pool),
@@ -61,7 +61,7 @@ func TestAccScalrAgentPoolToken_changed_outside(t *testing.T) {
 			},
 
 			{
-				PreConfig: testAccCheckScalrAgentPoolTokenChangedOutside(pool, token),
+				PreConfig: testAccCheckScalrAgentPoolTokenChangedOutside(token),
 				Config:    testAccScalrAgentPoolTokenChangedOutside(pool),
 				PlanOnly:  true,
 				Check: resource.ComposeTestCheckFunc(
@@ -81,9 +81,9 @@ func TestAccScalrAgentPoolToken_update(t *testing.T) {
 	token := &scalr.AgentPoolToken{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrAgentPoolTokenDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrAgentPoolTokenDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAgentPoolTokenBasic(pool),
@@ -136,7 +136,7 @@ func testAccCheckScalrAgentPoolTokenExists(resId string, pool scalr.AgentPool, t
 	}
 }
 
-func testAccCheckScalrAgentPoolTokenChangedOutside(pool scalr.AgentPool, token *scalr.AgentPoolToken) func() {
+func testAccCheckScalrAgentPoolTokenChangedOutside(token *scalr.AgentPoolToken) func() {
 	return func() {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 

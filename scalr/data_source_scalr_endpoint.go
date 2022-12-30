@@ -1,30 +1,33 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrEndpoint() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrEndpointRead,
+		ReadContext: dataSourceScalrEndpointRead,
 
 		Schema: map[string]*schema.Schema{
 
 			"id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				AtLeastOneOf: []string{"name"},
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"id"},
 			},
 
 			"max_attempts": {
@@ -63,20 +66,12 @@ func dataSourceScalrEndpoint() *schema.Resource {
 	}
 }
 
-func dataSourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrEndpointRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get the ID
 	endpointID := d.Get("id").(string)
 	endpointName := d.Get("name").(string)
-
-	if endpointID == "" && endpointName == "" {
-		return fmt.Errorf("At least one argument 'id' or 'name' is required, but no definitions was found")
-	}
-
-	if endpointID != "" && endpointName != "" {
-		return fmt.Errorf("Attributes 'name' and 'id' can not be set at the same time")
-	}
 
 	accountID := d.Get("account_id").(string)
 
@@ -94,24 +89,24 @@ func dataSourceScalrEndpointRead(d *schema.ResourceData, meta interface{}) error
 		if accountID != "" {
 			options.Account = &accountID
 		}
-		endpoint, err = GetEndpointByName(options, scalrClient)
+		endpoint, err = GetEndpointByName(ctx, options, scalrClient)
 	}
 
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Could not find endpoint %s: %v", endpointID, err)
+			return diag.Errorf("Could not find endpoint %s: %v", endpointID, err)
 		}
-		return fmt.Errorf("Error retrieving endpoint: %v", err)
+		return diag.Errorf("Error retrieving endpoint: %v", err)
 	}
 
 	// Update the config.
-	d.Set("name", endpoint.Name)
-	d.Set("timeout", endpoint.Timeout)
-	d.Set("max_attempts", endpoint.MaxAttempts)
-	d.Set("secret_key", endpoint.SecretKey)
-	d.Set("url", endpoint.Url)
+	_ = d.Set("name", endpoint.Name)
+	_ = d.Set("timeout", endpoint.Timeout)
+	_ = d.Set("max_attempts", endpoint.MaxAttempts)
+	_ = d.Set("secret_key", endpoint.SecretKey)
+	_ = d.Set("url", endpoint.Url)
 	if endpoint.Environment != nil {
-		d.Set("environment_id", endpoint.Environment.ID)
+		_ = d.Set("environment_id", endpoint.Environment.ID)
 	}
 	d.SetId(endpoint.ID)
 

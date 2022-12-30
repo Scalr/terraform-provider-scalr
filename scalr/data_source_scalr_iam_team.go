@@ -1,15 +1,15 @@
 package scalr
 
 import (
-	"fmt"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"context"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrIamTeam() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrIamTeamRead,
+		ReadContext: dataSourceScalrIamTeamRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -41,7 +41,7 @@ func dataSourceScalrIamTeam() *schema.Resource {
 	}
 }
 
-func dataSourceScalrIamTeamRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrIamTeamRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	var accountID string
 
@@ -58,15 +58,15 @@ func dataSourceScalrIamTeamRead(d *schema.ResourceData, meta interface{}) error 
 
 	tl, err := scalrClient.Teams.List(ctx, options)
 	if err != nil {
-		return fmt.Errorf("Error retrieving iam team: %v", err)
+		return diag.Errorf("Error retrieving iam team: %v", err)
 	}
 
 	if tl.TotalCount == 0 {
-		return fmt.Errorf("Could not find iam team with name %q, account_id: %q", name, accountID)
+		return diag.Errorf("Could not find iam team with name %q, account_id: %q", name, accountID)
 	}
 
 	if tl.TotalCount > 1 {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Your query returned more than one result. Please try a more specific search criteria.",
 		)
 	}
@@ -74,10 +74,10 @@ func dataSourceScalrIamTeamRead(d *schema.ResourceData, meta interface{}) error 
 	t := tl.Items[0]
 
 	// Update the configuration.
-	d.Set("description", t.Description)
-	d.Set("identity_provider_id", t.IdentityProvider.ID)
+	_ = d.Set("description", t.Description)
+	_ = d.Set("identity_provider_id", t.IdentityProvider.ID)
 	if t.Account != nil {
-		d.Set("account_id", t.Account.ID)
+		_ = d.Set("account_id", t.Account.ID)
 	}
 
 	var users []string
@@ -86,7 +86,7 @@ func dataSourceScalrIamTeamRead(d *schema.ResourceData, meta interface{}) error 
 			users = append(users, u.ID)
 		}
 	}
-	d.Set("users", users)
+	_ = d.Set("users", users)
 
 	d.SetId(t.ID)
 

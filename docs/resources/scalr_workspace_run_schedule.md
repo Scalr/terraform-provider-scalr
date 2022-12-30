@@ -7,7 +7,7 @@ Allows workspace admins to automate the configuration of recurring runs for a wo
 
 Basic usage:
 
-```javascript
+```hcl
 data scalr_environment "current" {
   account_id = "acc-12345"
   name = "dev"

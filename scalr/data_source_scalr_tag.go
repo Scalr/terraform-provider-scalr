@@ -1,15 +1,16 @@
 package scalr
 
 import (
-	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"context"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/scalr/go-scalr"
 	"log"
 )
 
 func dataSourceScalrTag() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrTagRead,
+		ReadContext: dataSourceScalrTagRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
@@ -27,7 +28,7 @@ func dataSourceScalrTag() *schema.Resource {
 	}
 }
 
-func dataSourceScalrTagRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrTagRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get the name and account_id.
@@ -42,16 +43,16 @@ func dataSourceScalrTagRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Read tag: %s/%s", accountID, name)
 	tags, err := scalrClient.Tags.List(ctx, options)
 	if err != nil {
-		return fmt.Errorf("Error retrieving tag: %v", err)
+		return diag.Errorf("Error retrieving tag: %v", err)
 	}
 
 	// Unlikely
 	if tags.TotalCount > 1 {
-		return fmt.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
+		return diag.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
 	}
 
 	if tags.TotalCount == 0 {
-		return fmt.Errorf("Could not find tag %s/%s", accountID, name)
+		return diag.Errorf("Could not find tag %s/%s", accountID, name)
 	}
 
 	tag := tags.Items[0]

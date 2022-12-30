@@ -17,7 +17,7 @@ data "scalr_endpoint" "example" {
 }
 ```
 
-```javascript
+```hcl
 data "scalr_endpoint" "example" {
   name = "endpoint_name"
 }

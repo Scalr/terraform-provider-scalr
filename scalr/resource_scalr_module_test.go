@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
 )
 
@@ -17,8 +17,8 @@ func TestAccScalrModule_basic(t *testing.T) {
 			t.Skip("Working on personal token but not working with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrModuleDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrModuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrModulesOnAllScopes(),
@@ -70,8 +70,8 @@ func TestAccScalrModule_import(t *testing.T) {
 			t.Skip("Working on personal token but not working with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrModuleDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrModuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrModule(),
@@ -145,7 +145,7 @@ func testAccScalrModule() string {
 	  }
 	  vcs_provider_id = scalr_vcs_provider.test.id
 }
-`, string(scalr.Github), GITHUB_TOKEN)
+`, string(scalr.Github), githubToken)
 }
 
 func testAccScalrModulesOnAllScopes() string {
@@ -190,5 +190,5 @@ func testAccScalrModulesOnAllScopes() string {
 		  }
 		  vcs_provider_id = scalr_vcs_provider.test.id
 		}
-`, rInd, string(scalr.Github), GITHUB_TOKEN, defaultAccount)
+`, rInd, string(scalr.Github), githubToken, defaultAccount)
 }

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccEndpointDataSource_basic(t *testing.T) {
@@ -18,9 +18,19 @@ func TestAccEndpointDataSource_basic(t *testing.T) {
 	cutRInt := strconv.Itoa(rInt)[:len(strconv.Itoa(rInt))-1]
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
+			{
+				Config:      testAccEndpointNeitherNameNorIdSetConfig(),
+				ExpectError: regexp.MustCompile("\"id\": one of `id,name` must be specified"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      testAccEndpointBothNameAndIdSetConfig(),
+				ExpectError: regexp.MustCompile("\"name\": conflicts with id"),
+				PlanOnly:    true,
+			},
 			{
 				Config: testAccEndpointDataSourceConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -63,16 +73,6 @@ func TestAccEndpointDataSource_basic(t *testing.T) {
 			{
 				Config:      testAccEndpointDataSourceNotFoundByNameConfig(),
 				ExpectError: regexp.MustCompile("Endpoint with name 'endpoint-foo-bar-baz' not found or user unauthorized"),
-				PlanOnly:    true,
-			},
-			{
-				Config:      testAccEndpointNeitherNameNorIdSetConfig(),
-				ExpectError: regexp.MustCompile("At least one argument 'id' or 'name' is required, but no definitions was found"),
-				PlanOnly:    true,
-			},
-			{
-				Config:      testAccEndpointBothNameAndIdSetConfig(),
-				ExpectError: regexp.MustCompile("Attributes 'name' and 'id' can not be set at the same time"),
 				PlanOnly:    true,
 			},
 		},

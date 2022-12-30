@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccEnvironmentDataSource_basic(t *testing.T) {
@@ -21,9 +21,19 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 	cuttedRInt := strconv.Itoa(rInt)[:len(strconv.Itoa(rInt))-1]
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
+			{
+				Config:      testAccEnvironmentNeitherNameNorIdSetConfig(),
+				ExpectError: regexp.MustCompile("\"id\": one of `id,name` must be specified"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      testAccEnvironmentBothNameAndIdSetConfig(),
+				ExpectError: regexp.MustCompile("\"name\": conflicts with id"),
+				PlanOnly:    true,
+			},
 			{
 				Config: testAccEnvironmentDataSourceConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -64,16 +74,6 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 			{
 				Config:      testAccEnvironmentDataSourceNotFoundByNameConfig(),
 				ExpectError: regexp.MustCompile("Environment with name 'env-foo-bar-baz' not found or user unauthorized"),
-				PlanOnly:    true,
-			},
-			{
-				Config:      testAccEnvironmentNeitherNameNorIdSetConfig(),
-				ExpectError: regexp.MustCompile("At least one argument 'id' or 'name' is required, but no definitions was found"),
-				PlanOnly:    true,
-			},
-			{
-				Config:      testAccEnvironmentBothNameAndIdSetConfig(),
-				ExpectError: regexp.MustCompile("Attributes 'name' and 'id' can not be set at the same time"),
 				PlanOnly:    true,
 			},
 		},

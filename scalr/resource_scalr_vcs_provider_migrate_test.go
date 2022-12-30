@@ -22,6 +22,6 @@ func testResourceScalrVcsProviderStateDataV1() map[string]interface{} {
 
 func TestResourceScalrVcsProviderStateUpgradeV0(t *testing.T) {
 	expected := testResourceScalrVcsProviderStateDataV1()
-	actual, err := resourceScalrVcsProviderStateUpgradeV0(testResourceScalrVcsProviderStateDataV0(), nil)
+	actual, err := resourceScalrVcsProviderStateUpgradeV0(ctx, testResourceScalrVcsProviderStateDataV0(), nil)
 	assertCorrectState(t, err, actual, expected)
 }

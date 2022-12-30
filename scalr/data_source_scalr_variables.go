@@ -1,16 +1,18 @@
 package scalr
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrVariables() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrVariablesRead,
+		ReadContext: dataSourceScalrVariablesRead,
 		Schema: map[string]*schema.Schema{
 			"variables": {
 				Type:     schema.TypeSet,
@@ -95,7 +97,7 @@ func dataSourceScalrVariables() *schema.Resource {
 		}}
 }
 
-func dataSourceScalrVariablesRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrVariablesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	filters := scalr.VariableFilter{}
 	options := scalr.VariableListOptions{Filter: &filters}
@@ -140,7 +142,7 @@ func dataSourceScalrVariablesRead(d *schema.ResourceData, meta interface{}) erro
 	for {
 		page, err := scalrClient.Variables.List(ctx, options)
 		if err != nil {
-			return fmt.Errorf("Error retrieving Scalr variables: %v", err)
+			return diag.Errorf("Error retrieving Scalr variables: %v", err)
 		}
 
 		for _, variable := range page.Items {
@@ -172,7 +174,7 @@ func dataSourceScalrVariablesRead(d *schema.ResourceData, meta interface{}) erro
 		}
 		options.PageNumber = page.NextPage
 	}
-	d.Set("variables", variables)
+	_ = d.Set("variables", variables)
 	d.SetId(fmt.Sprintf("%d", schema.HashString(strings.Join(ids, ""))))
 
 	return nil

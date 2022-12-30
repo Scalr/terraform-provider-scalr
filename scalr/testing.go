@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 const defaultAccount = "acc-svrcncgh453bi8g"

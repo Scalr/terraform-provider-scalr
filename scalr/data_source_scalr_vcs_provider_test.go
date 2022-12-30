@@ -5,18 +5,18 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testVcsAccGithubTokenPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testVcsAccGithubTokenPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrVcsProviderDataSourceConfigAllFilters(rInt, GITHUB_TOKEN),
+				Config: testAccScalrVcsProviderDataSourceConfigAllFilters(rInt, githubToken),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.scalr_vcs_provider.test", "id"),
 					resource.TestCheckResourceAttr(
@@ -30,7 +30,7 @@ func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccScalrVcsProviderDataSourceConfigFilterByName(rInt, GITHUB_TOKEN),
+				Config: testAccScalrVcsProviderDataSourceConfigFilterByName(rInt, githubToken),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.scalr_vcs_provider.test", "id"),
 					resource.TestCheckResourceAttr(

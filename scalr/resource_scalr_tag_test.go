@@ -3,8 +3,8 @@ package scalr
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
 	"log"
 	"testing"
@@ -14,9 +14,9 @@ func TestAccScalrTag_basic(t *testing.T) {
 	tag := &scalr.Tag{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrTagDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrTagDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrTagBasic(),
@@ -33,9 +33,9 @@ func TestAccScalrTag_basic(t *testing.T) {
 func TestAccScalrTag_import(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrTagDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrTagDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrTagBasic(),
@@ -54,9 +54,9 @@ func TestAccScalrTag_update(t *testing.T) {
 	tag := &scalr.Tag{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrTagDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrTagDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrTagBasic(),
@@ -83,9 +83,9 @@ func TestAccScalrTag_renamed(t *testing.T) {
 	tag := &scalr.Tag{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrTagDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrTagDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrTagBasic(),

@@ -1,38 +1,44 @@
 package scalr
 
 import (
+	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"os"
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-svchost/disco"
 	"github.com/scalr/terraform-provider-scalr/version"
 )
 
-var testAccProviders map[string]terraform.ResourceProvider
 var testAccProvider *schema.Provider
+var testAccProviderFactories map[string]func() (*schema.Provider, error)
 var noInstanceIdErr = fmt.Errorf("No instance ID is set")
+var githubToken = os.Getenv("githubToken")
 
-var GITHUB_TOKEN = os.Getenv("GITHUB_TOKEN")
+// ctx is used as default context.Context when making API calls.
+var ctx = context.Background()
 
 func init() {
-	testAccProvider = Provider().(*schema.Provider)
-	testAccProviders = map[string]terraform.ResourceProvider{
-		"scalr": testAccProvider,
+	testAccProvider = Provider()
+	testAccProviderFactories = map[string]func() (*schema.Provider, error){
+		"scalr": func() (*schema.Provider, error) {
+			return testAccProvider, nil
+		},
 	}
 }
 
 func TestProvider(t *testing.T) {
-	if err := Provider().(*schema.Provider).InternalValidate(); err != nil {
+	if err := Provider().InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 }
 
 func TestProvider_impl(t *testing.T) {
-	var _ terraform.ResourceProvider = Provider()
+	var _ = Provider()
 }
 
 func TestProvider_versionConstraints(t *testing.T) {
@@ -97,14 +103,18 @@ func TestProvider_versionConstraints(t *testing.T) {
 
 func testAccPreCheck(t *testing.T) {
 	// The credentials must be provided by the CLI config file for testing.
-	if err := Provider().Configure(&terraform.ResourceConfig{}); err != nil {
-		t.Fatalf("err: %s", err)
+	if diags := Provider().Configure(context.Background(), &terraform.ResourceConfig{}); diags.HasError() {
+		for _, d := range diags {
+			if d.Severity == diag.Error {
+				t.Fatalf("err: %s", d.Summary)
+			}
+		}
 	}
 }
 
 func testVcsAccGithubTokenPreCheck(t *testing.T) {
 	testAccPreCheck(t)
-	if GITHUB_TOKEN == "" {
-		t.Skip("Please set GITHUB_TOKEN to run this test")
+	if githubToken == "" {
+		t.Skip("Please set githubToken to run this test")
 	}
 }

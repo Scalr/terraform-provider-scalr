@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
 )
 
@@ -20,8 +20,8 @@ func TestAccPolicyGroupLinkage_basic(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPolicyGroupLinkageDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckPolicyGroupLinkageDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupLinkageBasicConfig(rInt),
@@ -56,8 +56,8 @@ func TestAccPolicyGroupLinkage_import(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPolicyGroupLinkageDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckPolicyGroupLinkageDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupLinkageBasicConfig(rInt),
@@ -88,7 +88,7 @@ func testAccCheckPolicyGroupLinkageExists(
 			return fmt.Errorf("no instance ID is set")
 		}
 
-		pg, env, err := getLinkedResources(rs.Primary.ID, scalrClient)
+		pg, env, err := getLinkedResources(ctx, rs.Primary.ID, scalrClient)
 		if err != nil {
 			return err
 		}
@@ -112,7 +112,7 @@ func testAccCheckPolicyGroupLinkageDestroy(s *terraform.State) error {
 			return fmt.Errorf("no instance ID is set")
 		}
 
-		_, _, err := getLinkedResources(rs.Primary.ID, scalrClient)
+		_, _, err := getLinkedResources(ctx, rs.Primary.ID, scalrClient)
 		if err == nil {
 			return fmt.Errorf("policy group linkage %s still exists", rs.Primary.ID)
 		}
@@ -152,5 +152,5 @@ resource "scalr_policy_group_linkage" "test" {
   policy_group_id = scalr_policy_group.test.id
   environment_id  = scalr_environment.test.id
 }
-`, defaultAccount, rInt, string(scalr.Github), GITHUB_TOKEN, policyGroupVcsRepoID, policyGroupVcsRepoPath)
+`, defaultAccount, rInt, string(scalr.Github), githubToken, policyGroupVcsRepoID, policyGroupVcsRepoPath)
 }

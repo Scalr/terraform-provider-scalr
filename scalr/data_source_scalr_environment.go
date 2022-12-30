@@ -1,27 +1,30 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrEnvironment() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceEnvironmentRead,
+		ReadContext: dataSourceEnvironmentRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				AtLeastOneOf: []string{"name"},
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"id"},
 			},
 			"cost_estimation_enabled": {
 				Type:     schema.TypeBool,
@@ -74,20 +77,11 @@ func dataSourceScalrEnvironment() *schema.Resource {
 		}}
 }
 
-func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	envID := d.Get("id").(string)
 	environmentName := d.Get("name").(string)
-
-	if envID == "" && environmentName == "" {
-		return fmt.Errorf("At least one argument 'id' or 'name' is required, but no definitions was found")
-	}
-
-	if envID != "" && environmentName != "" {
-		return fmt.Errorf("Attributes 'name' and 'id' can not be set at the same time")
-	}
-
 	accountID := d.Get("account_id").(string)
 
 	var environment *scalr.Environment
@@ -105,20 +99,20 @@ func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 		if accountID != "" {
 			options.Account = &accountID
 		}
-		environment, err = GetEnvironmentByName(options, scalrClient)
+		environment, err = GetEnvironmentByName(ctx, options, scalrClient)
 	}
 
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Environment '%s' not found", envID)
+			return diag.Errorf("Environment '%s' not found", envID)
 		}
-		return fmt.Errorf("Error retrieving environment: %v", err)
+		return diag.Errorf("Error retrieving environment: %v", err)
 	}
 	// Update the configuration.
-	d.Set("name", environment.Name)
-	d.Set("account_id", environment.Account.ID)
-	d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)
-	d.Set("status", environment.Status)
+	_ = d.Set("name", environment.Name)
+	_ = d.Set("account_id", environment.Account.ID)
+	_ = d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)
+	_ = d.Set("status", environment.Status)
 
 	var createdBy []interface{}
 	if environment.CreatedBy != nil {
@@ -128,21 +122,21 @@ func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 			"full_name": environment.CreatedBy.FullName,
 		})
 	}
-	d.Set("created_by", createdBy)
-	cloudCredentials := []string{}
+	_ = d.Set("created_by", createdBy)
+	cloudCredentials := make([]string, 0)
 	if environment.CloudCredentials != nil {
 		for _, creds := range environment.CloudCredentials {
 			cloudCredentials = append(cloudCredentials, creds.ID)
 		}
 	}
-	d.Set("cloud_credentials", cloudCredentials)
-	policyGroups := []string{}
+	_ = d.Set("cloud_credentials", cloudCredentials)
+	policyGroups := make([]string, 0)
 	if environment.PolicyGroups != nil {
 		for _, group := range environment.PolicyGroups {
 			policyGroups = append(policyGroups, group.ID)
 		}
 	}
-	d.Set("policy_groups", policyGroups)
+	_ = d.Set("policy_groups", policyGroups)
 
 	var tags []string
 	if len(environment.Tags) != 0 {
@@ -150,7 +144,7 @@ func dataSourceEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
 			tags = append(tags, tag.ID)
 		}
 	}
-	d.Set("tag_ids", tags)
+	_ = d.Set("tag_ids", tags)
 
 	d.SetId(environment.ID)
 	return nil

@@ -19,6 +19,6 @@ func testResourceScalrEndpointStateDataV1() map[string]interface{} {
 
 func TestResourceScalrEndpointStateUpgradeV0(t *testing.T) {
 	expected := testResourceScalrEndpointStateDataV1()
-	actual, err := resourceScalrEndpointStateUpgradeV0(testResourceScalrEndpointStateDataV0(), nil)
+	actual, err := resourceScalrEndpointStateUpgradeV0(ctx, testResourceScalrEndpointStateDataV0(), nil)
 	assertCorrectState(t, err, actual, expected)
 }

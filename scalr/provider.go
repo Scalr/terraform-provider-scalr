@@ -10,15 +10,15 @@ import (
 	"sort"
 	"strings"
 
-	version "github.com/hashicorp/go-version"
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/hcl"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/logging"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	svchost "github.com/hashicorp/terraform-svchost"
 	"github.com/hashicorp/terraform-svchost/auth"
 	"github.com/hashicorp/terraform-svchost/disco"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 	providerVersion "github.com/scalr/terraform-provider-scalr/version"
 )
 
@@ -39,11 +39,8 @@ type ConfigHost struct {
 	Services map[string]interface{} `hcl:"services"`
 }
 
-// ctx is used as default context.Context when making Scalr calls.
-var ctx = context.Background()
-
 // Provider returns a terraform.ResourceProvider.
-func Provider() terraform.ResourceProvider {
+func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"hostname": {
@@ -75,12 +72,12 @@ func Provider() terraform.ResourceProvider {
 			"scalr_provider_configurations": dataSourceScalrProviderConfigurations(),
 			"scalr_role":                    dataSourceScalrRole(),
 			"scalr_tag":                     dataSourceScalrTag(),
+			"scalr_variable":                dataSourceScalrVariable(),
+			"scalr_variables":               dataSourceScalrVariables(),
 			"scalr_vcs_provider":            dataSourceScalrVcsProvider(),
 			"scalr_webhook":                 dataSourceScalrWebhook(),
 			"scalr_workspace":               dataSourceScalrWorkspace(),
 			"scalr_workspace_ids":           dataSourceScalrWorkspaceIDs(),
-			"scalr_variable":                dataSourceScalrVariable(),
-			"scalr_variables":               dataSourceScalrVariables(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -96,24 +93,24 @@ func Provider() terraform.ResourceProvider {
 			"scalr_policy_group_linkage":   resourceScalrPolicyGroupLinkage(),
 			"scalr_provider_configuration": resourceScalrProviderConfiguration(),
 			"scalr_role":                   resourceScalrRole(),
+			"scalr_run_trigger":            resourceScalrRunTrigger(),
 			"scalr_tag":                    resourceScalrTag(),
 			"scalr_variable":               resourceScalrVariable(),
 			"scalr_vcs_provider":           resourceScalrVcsProvider(),
 			"scalr_webhook":                resourceScalrWebhook(),
 			"scalr_workspace":              resourceScalrWorkspace(),
-			"scalr_run_trigger":            resourceScalrRunTrigger(),
 			"scalr_workspace_run_schedule": resourceScalrWorkspaceRunSchedule(),
 		},
 
-		ConfigureFunc: providerConfigure,
+		ConfigureContextFunc: providerConfigure,
 	}
 }
 
-func providerConfigure(d *schema.ResourceData) (interface{}, error) {
+func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	// Parse the hostname for comparison,
 	hostname, err := svchost.ForComparison(d.Get("hostname").(string))
 	if err != nil {
-		return nil, err
+		return nil, diag.FromErr(err)
 	}
 
 	providerUaString := fmt.Sprintf("terraform-provider-scalr/%s", providerVersion.ProviderVersion)
@@ -125,7 +122,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	credsSrc := credentialsSource(config)
 	services := disco.NewWithCredentialsSource(credsSrc)
 	services.SetUserAgent(providerUaString)
-	services.Transport = logging.NewTransport("Scalr Service Discovery", services.Transport)
+	services.Transport = logging.NewLoggingHTTPTransport(services.Transport)
 
 	// Add any static host configurations service discovery object.
 	for userHost, hostConfig := range config.Hosts {
@@ -140,7 +137,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	// Discover the address.
 	host, err := services.Discover(hostname)
 	if err != nil {
-		return nil, err
+		return nil, diag.FromErr(err)
 	}
 
 	// Get the full service address.
@@ -149,7 +146,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	for _, scalrServiceID := range scalrServiceIDs {
 		service, err := host.ServiceURL(scalrServiceID)
 		if _, ok := err.(*disco.ErrVersionNotSupported); !ok && err != nil {
-			return nil, err
+			return nil, diag.FromErr(err)
 		}
 		// If discoErr is nil we save the first error. When multiple services
 		// are checked, and we found one that didn't give an error we need to
@@ -166,7 +163,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	// When we don't have any constraints errors, also check for discovery
 	// errors before we continue.
 	if discoErr != nil {
-		return nil, discoErr
+		return nil, diag.FromErr(discoErr)
 	}
 
 	// Get the token from the config.
@@ -186,11 +183,11 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
 	// If we still don't have a token at this point, we return an error.
 	if token == "" {
-		return nil, fmt.Errorf("required token could not be found")
+		return nil, diag.Errorf("required token could not be found")
 	}
 
 	httpClient := scalr.DefaultConfig().HTTPClient
-	httpClient.Transport = logging.NewTransport("Scalr", httpClient.Transport)
+	httpClient.Transport = logging.NewLoggingHTTPTransport(httpClient.Transport)
 
 	headers := make(http.Header)
 	headers.Add("User-Agent", providerUaString)
@@ -206,7 +203,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	// Create a new Scalr client.
 	client, err := scalr.NewClient(cfg)
 	if err != nil {
-		return nil, err
+		return nil, diag.FromErr(err)
 	}
 
 	client.RetryServerErrors(true)

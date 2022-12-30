@@ -1,17 +1,18 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrWorkspace() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrWorkspaceRead,
+		ReadContext: dataSourceScalrWorkspaceRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -164,7 +165,7 @@ func dataSourceScalrWorkspace() *schema.Resource {
 	}
 }
 
-func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get the name and environment_id.
@@ -175,27 +176,27 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 	workspace, err := scalrClient.Workspaces.Read(ctx, environmentID, name)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Could not find workspace %s/%s", environmentID, name)
+			return diag.Errorf("Could not find workspace %s/%s", environmentID, name)
 		}
-		return fmt.Errorf("Error retrieving workspace: %v", err)
+		return diag.Errorf("Error retrieving workspace: %v", err)
 	}
 
 	// Update the config.
-	d.Set("auto_apply", workspace.AutoApply)
-	d.Set("force_latest_run", workspace.ForceLatestRun)
-	d.Set("operations", workspace.Operations)
-	d.Set("execution_mode", workspace.ExecutionMode)
-	d.Set("terraform_version", workspace.TerraformVersion)
-	d.Set("working_directory", workspace.WorkingDirectory)
-	d.Set("has_resources", workspace.HasResources)
-	d.Set("auto_queue_runs", workspace.AutoQueueRuns)
+	_ = d.Set("auto_apply", workspace.AutoApply)
+	_ = d.Set("force_latest_run", workspace.ForceLatestRun)
+	_ = d.Set("operations", workspace.Operations)
+	_ = d.Set("execution_mode", workspace.ExecutionMode)
+	_ = d.Set("terraform_version", workspace.TerraformVersion)
+	_ = d.Set("working_directory", workspace.WorkingDirectory)
+	_ = d.Set("has_resources", workspace.HasResources)
+	_ = d.Set("auto_queue_runs", workspace.AutoQueueRuns)
 
 	if workspace.ModuleVersion != nil {
-		d.Set("module_version_id", workspace.ModuleVersion.ID)
+		_ = d.Set("module_version_id", workspace.ModuleVersion.ID)
 	}
 
 	if workspace.VcsProvider != nil {
-		d.Set("vcs_provider_id", workspace.VcsProvider.ID)
+		_ = d.Set("vcs_provider_id", workspace.VcsProvider.ID)
 	}
 
 	var createdBy []interface{}
@@ -206,7 +207,7 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 			"full_name": workspace.CreatedBy.FullName,
 		})
 	}
-	d.Set("created_by", createdBy)
+	_ = d.Set("created_by", createdBy)
 
 	var vcsRepo []interface{}
 	if workspace.VCSRepo != nil {
@@ -218,7 +219,7 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 		}
 		vcsRepo = append(vcsRepo, vcsConfig)
 	}
-	d.Set("vcs_repo", vcsRepo)
+	_ = d.Set("vcs_repo", vcsRepo)
 
 	var hooks []interface{}
 	if workspace.Hooks != nil {
@@ -230,7 +231,7 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 			"post_apply": workspace.Hooks.PostApply,
 		})
 	}
-	d.Set("hooks", hooks)
+	_ = d.Set("hooks", hooks)
 
 	var tags []string
 	if len(workspace.Tags) != 0 {
@@ -238,7 +239,7 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 			tags = append(tags, tag.ID)
 		}
 	}
-	d.Set("tag_ids", tags)
+	_ = d.Set("tag_ids", tags)
 
 	d.SetId(workspace.ID)
 

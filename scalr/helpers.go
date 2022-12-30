@@ -1,11 +1,12 @@
 package scalr
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"time"
 
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func init() {
@@ -18,7 +19,7 @@ type GetEnvironmentByNameOptions struct {
 	Include *string
 }
 
-func GetEnvironmentByName(options GetEnvironmentByNameOptions, scalrClient *scalr.Client) (*scalr.Environment, error) {
+func GetEnvironmentByName(ctx context.Context, options GetEnvironmentByNameOptions, scalrClient *scalr.Client) (*scalr.Environment, error) {
 	listOptions := scalr.EnvironmentListOptions{
 		Name:    options.Name,
 		Account: options.Account,
@@ -60,7 +61,7 @@ type GetEndpointByNameOptions struct {
 	Account *string
 }
 
-func GetEndpointByName(options GetEndpointByNameOptions, scalrClient *scalr.Client) (*scalr.Endpoint, error) {
+func GetEndpointByName(ctx context.Context, options GetEndpointByNameOptions, scalrClient *scalr.Client) (*scalr.Endpoint, error) {
 	listOptions := scalr.EndpointListOptions{
 		Name:    options.Name,
 		Account: options.Account,
@@ -101,7 +102,7 @@ type GetWebhookByNameOptions struct {
 	Account *string
 }
 
-func GetWebhookByName(options GetWebhookByNameOptions, scalrClient *scalr.Client) (*scalr.Webhook, error) {
+func GetWebhookByName(ctx context.Context, options GetWebhookByNameOptions, scalrClient *scalr.Client) (*scalr.Webhook, error) {
 	listOptions := scalr.WebhookListOptions{
 		Name:    options.Name,
 		Account: options.Account,
