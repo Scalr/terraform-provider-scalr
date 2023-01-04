@@ -7,11 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **New data source:**  `scalr_current_account` ([#199](https://github.com/Scalr/terraform-provider-scalr/pull/199))
+
 ### Changed
 
 - `data.scalr_current_run` now results in plan error if no current run info is present ([#192](https://github.com/Scalr/terraform-provider-scalr/pull/192))
 - `data.scalr_current_run`: changed type of `vcs.commit.author` attribute from TypeMap to TypeList ([#192](https://github.com/Scalr/terraform-provider-scalr/pull/192))
 - dropped support of Terraform 0.11 and below ([#192](https://github.com/Scalr/terraform-provider-scalr/pull/192))
+- `account_id` attribute in resources and datasources now is optional where it was required before.
+If it's not explicitly set in the configuration, the default value is taken from environment
+variable `SCALR_ACCOUNT_ID`. The variable is set automatically for all runs on Scalr backend.
+Note: resources where `account_id` was optional are left intact and behave as before.
+
+### Required
+
+- scalr-server >= `8.51.0`
+
 
 ## [1.0.0] - 2022-12-02
 

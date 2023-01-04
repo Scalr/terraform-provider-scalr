@@ -15,7 +15,7 @@ data "scalr_tag" "example" {
 ## Arguments
 
 * `name` - (Required) The name of the tag.
-* `account_id` - (Required) The ID of the Scalr account, in the format `acc-<RANDOM STRING>`
+* `account_id` - (Optional) The ID of the Scalr account, in the format `acc-<RANDOM STRING>`
 
 ## Attributes
 

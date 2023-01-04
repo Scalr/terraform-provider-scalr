@@ -21,7 +21,7 @@ resource "scalr_environment" "test" {
 ## Argument Reference
 
 * `name` - (Required) Name of the environment.
-* `account_id` - (Required) ID of the environment account, in the format `acc-<RANDOM STRING>`
+* `account_id` - (Optional) ID of the environment account, in the format `acc-<RANDOM STRING>`
 * `cost_estimation_enabled` - (Optional) Set (true/false) to enable/disable cost estimation for the environment. Default `true`.
 * `cloud_credentials` - (Optional) Deprecated. Use `default_provider_configurations` instead.
 * `policy_groups` - (Optional) List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.

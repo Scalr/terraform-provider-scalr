@@ -62,9 +62,11 @@ func resourceScalrPolicyGroup() *schema.Resource {
 				},
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
+				ForceNew:    true,
 			},
 			"vcs_provider_id": {
 				Type:     schema.TypeString,

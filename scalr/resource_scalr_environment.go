@@ -56,9 +56,11 @@ func resourceScalrEnvironment() *schema.Resource {
 				},
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
+				ForceNew:    true,
 			},
 			"cloud_credentials": {
 				Type:       schema.TypeList,

@@ -17,7 +17,7 @@ resource "scalr_tag" "example" {
 ## Argument Reference
 
 * `name` - (Required) Name of the tag.
-* `account_id` - (Required) ID of the environment account, in the format `acc-<RANDOM STRING>`
+* `account_id` - (Optional) ID of the environment account, in the format `acc-<RANDOM STRING>`
 
 ## Attributes
 
