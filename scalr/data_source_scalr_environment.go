@@ -55,9 +55,10 @@ func dataSourceScalrEnvironment() *schema.Resource {
 				},
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"cloud_credentials": {
 				Type:     schema.TypeList,
@@ -94,10 +95,8 @@ func dataSourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta
 		log.Printf("[DEBUG] Read configuration of environment: %s", environmentName)
 		options := GetEnvironmentByNameOptions{
 			Name:    &environmentName,
+			Account: &accountID,
 			Include: scalr.String("created-by"),
-		}
-		if accountID != "" {
-			options.Account = &accountID
 		}
 		environment, err = GetEnvironmentByName(ctx, options, scalrClient)
 	}
@@ -110,7 +109,6 @@ func dataSourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta
 	}
 	// Update the configuration.
 	_ = d.Set("name", environment.Name)
-	_ = d.Set("account_id", environment.Account.ID)
 	_ = d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)
 	_ = d.Set("status", environment.Status)
 

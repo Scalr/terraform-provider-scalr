@@ -31,9 +31,11 @@ func resourceScalrIamTeam() *schema.Resource {
 				Optional: true,
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
+				ForceNew:    true,
 			},
 			"identity_provider_id": {
 				Type:     schema.TypeString,
@@ -70,6 +72,7 @@ func resourceScalrIamTeamCreate(ctx context.Context, d *schema.ResourceData, met
 	scalrClient := meta.(*scalr.Client)
 
 	name := d.Get("name").(string)
+	accountID := d.Get("account_id").(string)
 
 	users, err := parseUserDefinitions(d)
 	if err != nil {
@@ -77,16 +80,14 @@ func resourceScalrIamTeamCreate(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	opts := scalr.TeamCreateOptions{
-		Name:  scalr.String(name),
-		Users: users,
+		Name:    &name,
+		Account: &scalr.Account{ID: accountID},
+		Users:   users,
 	}
 
 	// Optional attributes
 	if desc, ok := d.GetOk("description"); ok {
 		opts.Description = scalr.String(desc.(string))
-	}
-	if accID, ok := d.GetOk("account_id"); ok {
-		opts.Account = &scalr.Account{ID: accID.(string)}
 	}
 	if idpID, ok := d.GetOk("identity_provider_id"); ok {
 		opts.IdentityProvider = &scalr.IdentityProvider{ID: idpID.(string)}

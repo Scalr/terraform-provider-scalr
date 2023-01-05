@@ -55,6 +55,7 @@ func dataSourceScalrWebhook() *schema.Resource {
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
+				DefaultFunc:  scalrAccountIDDefaultFunc,
 				RequiredWith: []string{"name"},
 			},
 
@@ -90,10 +91,8 @@ func dataSourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, met
 	} else {
 		log.Printf("[DEBUG] Read configuration of webhook: %s", webhookName)
 		options := GetWebhookByNameOptions{
-			Name: &webhookName,
-		}
-		if accountID != "" {
-			options.Account = &accountID
+			Name:    &webhookName,
+			Account: &accountID,
 		}
 		webhook, err = GetWebhookByName(ctx, options, scalrClient)
 	}

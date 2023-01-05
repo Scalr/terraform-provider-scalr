@@ -67,9 +67,11 @@ func resourceScalrModule() *schema.Resource {
 				ForceNew: true,
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
+				ForceNew:    true,
 			},
 			"environment_id": {
 				Type:     schema.TypeString,
@@ -95,19 +97,12 @@ func resourceScalrModuleCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	opt := scalr.ModuleCreateOptions{
+		Account:     &scalr.Account{ID: d.Get("account_id").(string)},
 		VCSRepo:     vcsOpt,
 		VcsProvider: &scalr.VcsProvider{ID: d.Get("vcs_provider_id").(string)},
 	}
 
-	if accID, ok := d.GetOk("account_id"); ok {
-		opt.Account = &scalr.Account{ID: accID.(string)}
-	}
-
 	if envID, ok := d.GetOk("environment_id"); ok {
-		if opt.Account == nil {
-			return diag.Errorf("The attribute account_id is required with environment_id attribute")
-		}
-
 		opt.Environment = &scalr.Environment{ID: envID.(string)}
 	}
 

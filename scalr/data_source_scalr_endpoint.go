@@ -32,7 +32,7 @@ func dataSourceScalrEndpoint() *schema.Resource {
 
 			"max_attempts": {
 				Type:     schema.TypeInt,
-				Optional: true,
+				Computed: true,
 			},
 
 			"secret_key": {
@@ -52,15 +52,15 @@ func dataSourceScalrEndpoint() *schema.Resource {
 			},
 
 			"account_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 
 			"environment_id": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Optional: true,
 			},
 		},
 	}
@@ -84,10 +84,8 @@ func dataSourceScalrEndpointRead(ctx context.Context, d *schema.ResourceData, me
 	} else {
 		log.Printf("[DEBUG] Read configuration of endpoint: %s", endpointName)
 		options := GetEndpointByNameOptions{
-			Name: &endpointName,
-		}
-		if accountID != "" {
-			options.Account = &accountID
+			Name:    &endpointName,
+			Account: &accountID,
 		}
 		endpoint, err = GetEndpointByName(ctx, options, scalrClient)
 	}

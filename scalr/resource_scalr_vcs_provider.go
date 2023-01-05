@@ -63,10 +63,11 @@ func resourceScalrVcsProvider() *schema.Resource {
 				Optional: true,
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
+				ForceNew:    true,
 			},
 		},
 	}
@@ -83,6 +84,7 @@ func resourceScalrVcsProviderCreate(ctx context.Context, d *schema.ResourceData,
 		VcsType:  vcsType,
 		Token:    token,
 		AuthType: "personal_token",
+		Account:  &scalr.Account{ID: d.Get("account_id").(string)},
 	}
 
 	// Get the url
@@ -93,13 +95,6 @@ func resourceScalrVcsProviderCreate(ctx context.Context, d *schema.ResourceData,
 	// Get the username
 	if username, ok := d.GetOk("username"); ok {
 		options.Username = scalr.String(username.(string))
-	}
-
-	// Get the account
-	if accountId, ok := d.GetOk("account_id"); ok {
-		options.Account = &scalr.Account{
-			ID: accountId.(string),
-		}
 	}
 
 	log.Printf("[DEBUG] Create vcs provider: %s", name)
