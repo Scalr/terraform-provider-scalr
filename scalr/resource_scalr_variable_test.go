@@ -32,11 +32,11 @@ func TestAccScalrVariable_basic(t *testing.T) {
 		CheckDestroy:      testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrVariableOnGlobalScope(rInt),
+				Config: testAccScalrVariableOnAccountScopeImplicit(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrVariableExists("scalr_variable.test", variable),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "key", fmt.Sprintf("var_on_global_%d", rInt)),
+						"scalr_variable.test", "key", fmt.Sprintf("var_on_account_%d", rInt)),
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "value", "test"),
 					resource.TestCheckResourceAttr(
@@ -44,18 +44,18 @@ func TestAccScalrVariable_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "sensitive", "false"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "description", "Test on global scope"),
+						"scalr_variable.test", "description", "Test on account scope"),
 				),
 			},
 
 			// Test creation of sensitive variable
 			{
 				PreConfig: func() { rInt++ },
-				Config:    testAccScalrVariableOnGlobalScopeSensitive(rInt),
+				Config:    testAccScalrVariableOnAccountScopeSensitive(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrVariableExists("scalr_variable.test", variable),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "key", fmt.Sprintf("var_on_global_%d", rInt)),
+						"scalr_variable.test", "key", fmt.Sprintf("var_on_account_%d", rInt)),
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "value", "test"),
 					resource.TestCheckResourceAttr(
@@ -63,7 +63,7 @@ func TestAccScalrVariable_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "sensitive", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "description", "Test on global scope sensitive"),
+						"scalr_variable.test", "description", "Test on account scope sensitive"),
 				),
 			},
 		},
@@ -78,7 +78,7 @@ func TestAccScalrVariable_defaults(t *testing.T) {
 		CheckDestroy:      testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrVariableOnGlobalScope(rInt),
+				Config: testAccScalrVariableOnAccountScopeImplicit(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "hcl", "false"),
@@ -89,7 +89,7 @@ func TestAccScalrVariable_defaults(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "final", "false"),
 					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "description", "Test on global scope"),
+						"scalr_variable.test", "description", "Test on account scope"),
 				),
 			},
 		},
@@ -251,13 +251,13 @@ func testAccCheckScalrVariableExists(
 
 func testAccCheckScalrVariableOnScopes(v *scalr.Variable) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		// Check on global scope
-		err := variableFromState(s, "scalr_variable.on_global", v)
+		// Check on account (implicit) scope
+		err := variableFromState(s, "scalr_variable.on_account_implicit", v)
 		if err != nil {
 			return err
 		}
-		if v.Account != nil || v.Environment != nil || v.Workspace != nil {
-			return fmt.Errorf("Variable %s not on global scope.", v.ID)
+		if v.Account == nil || v.Environment != nil || v.Workspace != nil {
+			return fmt.Errorf("Variable %s not on account scope.", v.ID)
 		}
 		// Check on account scope
 		err = variableFromState(s, "scalr_variable.on_account", v)
@@ -365,24 +365,24 @@ func testAccCheckScalrVariableDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccScalrVariableOnGlobalScope(rInt int) string {
+func testAccScalrVariableOnAccountScopeImplicit(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_variable test {
-  key          = "var_on_global_%d"
+  key          = "var_on_account_%d"
   value        = "test"
   category     = "shell"
-  description  = "Test on global scope"
+  description  = "Test on account scope"
 }`, rInt)
 }
 
-func testAccScalrVariableOnGlobalScopeSensitive(rInt int) string {
+func testAccScalrVariableOnAccountScopeSensitive(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_variable test {
-  key          = "var_on_global_%d"
+  key          = "var_on_account_%d"
   value        = "test"
   category     = "shell"
   sensitive    = true
-  description  = "Test on global scope sensitive"
+  description  = "Test on account scope sensitive"
 }`, rInt)
 }
 
@@ -441,8 +441,8 @@ resource scalr_workspace test {
   environment_id = scalr_environment.test.id
 }
 
-resource scalr_variable on_global {
-  key          = "var_on_global_%[1]d"
+resource scalr_variable on_account_implicit {
+  key          = "var_on_acc_impl_%[1]d"
   value        = "test"
   category     = "shell"
 }
