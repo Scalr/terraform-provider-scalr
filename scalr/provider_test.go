@@ -110,6 +110,8 @@ func testAccPreCheck(t *testing.T) {
 			}
 		}
 	}
+	// Set env variable to allow `account_id` compute the default value
+	_ = os.Setenv(currentAccountIDEnvVar, defaultAccount)
 }
 
 func testVcsAccGithubTokenPreCheck(t *testing.T) {
