@@ -52,11 +52,10 @@ func dataSourceScalrWebhook() *schema.Resource {
 			},
 
 			"account_id": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Optional:     true,
-				DefaultFunc:  scalrAccountIDDefaultFunc,
-				RequiredWith: []string{"name"},
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 
 			"environment_id": {

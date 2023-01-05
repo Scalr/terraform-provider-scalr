@@ -29,7 +29,7 @@ func TestAccScalrRoleDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.scalr_role.user", "name", "user"),
 					resource.TestCheckResourceAttrSet("data.scalr_role.user", "description"),
 					resource.TestCheckResourceAttr("data.scalr_role.user", "is_system", "true"),
-					resource.TestCheckNoResourceAttr("data.scalr_role.user", "account_id"),
+					resource.TestCheckResourceAttr("data.scalr_role.user", "account_id", ""),
 				),
 			},
 		},
