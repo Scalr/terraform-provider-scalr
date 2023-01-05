@@ -19,7 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `account_id` attribute in resources and datasources is optional now.
 If it's not explicitly set in the configuration, the default value is taken from environment
 variable `SCALR_ACCOUNT_ID`. The variable is set automatically for all runs on Scalr backend.
-Note: resources where `account_id` was already optional are left intact and behave as before.
 ([#199](https://github.com/Scalr/terraform-provider-scalr/pull/199))
 
 ### Required
