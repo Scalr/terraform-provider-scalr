@@ -3,6 +3,8 @@ package scalr
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/scalr/go-scalr"
+	"regexp"
 	"testing"
 )
 
@@ -14,28 +16,93 @@ func TestAccScalrServiceAccountDataSource_basic(t *testing.T) {
 		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrServiceAccountDataSourceConfig(rInt),
+				Config:      testAccScalrServiceAccountDataSourceMissingRequiredConfig(),
+				ExpectError: regexp.MustCompile("\"id\": one of `email,id` must be specified"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      testAccScalrServiceAccountDataSourceConflictingArgumentsConfig(),
+				ExpectError: regexp.MustCompile("\"email\": conflicts with id"),
+				PlanOnly:    true,
+			},
+			{
+				Config: testAccScalrServiceAccountDataSourceByIDConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.scalr_service_account.test", "id"),
 					resource.TestCheckResourceAttrPair(
 						"data.scalr_service_account.test", "email",
 						"scalr_service_account.test", "email",
 					),
-					resource.TestCheckResourceAttr("data.scalr_service_account.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("data.scalr_service_account.test", "created_by.#", "1"),
+					resource.TestCheckResourceAttr(
+						"data.scalr_service_account.test", "description", fmt.Sprintf("desc-%d", rInt),
+					),
+					resource.TestCheckResourceAttr(
+						"data.scalr_service_account.test", "account_id", defaultAccount,
+					),
+					resource.TestCheckResourceAttr(
+						"data.scalr_service_account.test", "created_by.#", "1",
+					),
+				),
+			},
+			{
+				Config: testAccScalrServiceAccountDataSourceByEmailConfig(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair(
+						"data.scalr_service_account.test", "id",
+						"scalr_service_account.test", "id",
+					),
+					resource.TestCheckResourceAttrPair(
+						"data.scalr_service_account.test", "email",
+						"scalr_service_account.test", "email",
+					),
+					resource.TestCheckResourceAttr(
+						"data.scalr_service_account.test", "description", fmt.Sprintf("desc-%d", rInt),
+					),
+					resource.TestCheckResourceAttr(
+						"data.scalr_service_account.test", "account_id", defaultAccount,
+					),
+					resource.TestCheckResourceAttr(
+						"data.scalr_service_account.test", "created_by.#", "1",
+					),
 				),
 			},
 		},
 	})
 }
 
-func testAccScalrServiceAccountDataSourceConfig(rInt int) string {
+func testAccScalrServiceAccountDataSourceByIDConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_service_account test {
-  name       = "test-sa-%d"
+  name        = "test-sa-%d"
+  description = "desc-%[1]d"
+  status      = "%[2]s"
 }
 
 data scalr_service_account test {
-  email      = scalr_service_account.test.email
-}`, rInt)
+  id = scalr_service_account.test.id
+}`, rInt, scalr.ServiceAccountStatusActive)
+}
+
+func testAccScalrServiceAccountDataSourceByEmailConfig(rInt int) string {
+	return fmt.Sprintf(`
+resource scalr_service_account test {
+  name        = "test-sa-%d"
+  description = "desc-%[1]d"
+  status      = "%[2]s"
+}
+
+data scalr_service_account test {
+  email = scalr_service_account.test.email
+}`, rInt, scalr.ServiceAccountStatusInactive)
+}
+
+func testAccScalrServiceAccountDataSourceMissingRequiredConfig() string {
+	return `data scalr_service_account test {}`
+}
+
+func testAccScalrServiceAccountDataSourceConflictingArgumentsConfig() string {
+	return `data scalr_service_account test {
+		id = "foo"
+		email = "bar"
+	}`
 }

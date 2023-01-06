@@ -13,12 +13,24 @@ func dataSourceScalrServiceAccount() *schema.Resource {
 		ReadContext: dataSourceScalrServiceAccountRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				AtLeastOneOf: []string{"email"},
+			},
+			"email": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"id"},
+			},
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"email": {
+			"status": {
 				Type:     schema.TypeString,
-				Required: true,
+				Computed: true,
 			},
 			"account_id": {
 				Type:        schema.TypeString,
@@ -53,31 +65,43 @@ func dataSourceScalrServiceAccount() *schema.Resource {
 func dataSourceScalrServiceAccountRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
+	saID := d.Get("id").(string)
 	email := d.Get("email").(string)
 	accountID := d.Get("account_id").(string)
 
-	options := scalr.ServiceAccountListOptions{
-		Email:   scalr.String(email),
-		Account: scalr.String(accountID),
-		Include: scalr.String("created-by"),
-	}
+	var sa *scalr.ServiceAccount
+	var err error
 
-	log.Printf("[DEBUG] Read service account: %s/%s", accountID, email)
-	sas, err := scalrClient.ServiceAccounts.List(ctx, options)
-	if err != nil {
-		return diag.Errorf("Error retrieving service account: %v", err)
-	}
+	if saID != "" {
+		log.Printf("[DEBUG] Read service account with ID: %s", saID)
+		sa, err = scalrClient.ServiceAccounts.Read(ctx, saID)
+		if err != nil {
+			return diag.Errorf("Error retrieving service account: %v", err)
+		}
+	} else {
+		options := scalr.ServiceAccountListOptions{
+			Email:   scalr.String(email),
+			Account: scalr.String(accountID),
+			Include: scalr.String("created-by"),
+		}
 
-	// Unlikely
-	if sas.TotalCount > 1 {
-		return diag.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
-	}
+		log.Printf("[DEBUG] Read service account: %s/%s", accountID, email)
+		sas, err := scalrClient.ServiceAccounts.List(ctx, options)
+		if err != nil {
+			return diag.Errorf("Error retrieving service account: %v", err)
+		}
 
-	if sas.TotalCount == 0 {
-		return diag.Errorf("Could not find service account %s/%s", accountID, email)
-	}
+		// Unlikely
+		if sas.TotalCount > 1 {
+			return diag.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
+		}
 
-	sa := sas.Items[0]
+		if sas.TotalCount == 0 {
+			return diag.Errorf("Could not find service account %s/%s", accountID, email)
+		}
+
+		sa = sas.Items[0]
+	}
 
 	var createdBy []interface{}
 	if sa.CreatedBy != nil {
@@ -87,6 +111,9 @@ func dataSourceScalrServiceAccountRead(ctx context.Context, d *schema.ResourceDa
 			"full_name": sa.CreatedBy.FullName,
 		})
 	}
+	_ = d.Set("email", sa.Email)
+	_ = d.Set("description", sa.Description)
+	_ = d.Set("status", sa.Status)
 	_ = d.Set("created_by", createdBy)
 
 	d.SetId(sa.ID)
