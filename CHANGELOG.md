@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **New data source:**  `scalr_current_account` ([#199](https://github.com/Scalr/terraform-provider-scalr/pull/199))
+- **New data source:**  `scalr_service_account` ([#200](https://github.com/Scalr/terraform-provider-scalr/pull/200))
+- **New resource:**  `scalr_service_account` ([#200](https://github.com/Scalr/terraform-provider-scalr/pull/200))
 
 ### Changed
 
