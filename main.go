@@ -10,6 +10,8 @@ import (
 	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
+//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
+
 const (
 	scalrProviderAddr = "registry.scalr.io/scalr/scalr"
 )
