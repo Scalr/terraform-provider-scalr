@@ -61,6 +61,7 @@ func Provider() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"scalr_access_policy":           dataSourceScalrAccessPolicy(),
 			"scalr_agent_pool":              dataSourceScalrAgentPool(),
+			"scalr_current_account":         dataSourceScalrCurrentAccount(),
 			"scalr_current_run":             dataSourceScalrCurrentRun(),
 			"scalr_endpoint":                dataSourceScalrEndpoint(),
 			"scalr_environment":             dataSourceScalrEnvironment(),

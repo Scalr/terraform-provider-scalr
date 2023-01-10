@@ -95,7 +95,7 @@ resource "scalr_provider_configuration" "kubernetes" {
 
 ## Argument Reference
 
-* `account_id` - (Required) The account that owns the object, specified as an ID.
+* `account_id` - (Optional) The account that owns the object, specified as an ID.
 * `name` - (Required) The name of the Scalr provider configuration. This field is unique for the account.
 * `export_shell_variables` - (Optional) Export provider variables into the run environment. This option is available for built-in (Scalr, AWS, AzureRM, Google) providers only.
 * `environments` - (Optional) The list of environment identifiers that the provider configuration is shared to. Use `["*"]` to share with all environments.

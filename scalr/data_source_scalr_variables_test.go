@@ -27,7 +27,12 @@ func TestAccScalrVariablesDataSource(t *testing.T) {
 					),
 					testCheckResourceVarsInDatasource(
 						"data.scalr_variables.account",
-						[]string{"scalr_variable.workspace2_host", "scalr_variable.workspace_host", "scalr_variable.secret"},
+						[]string{
+							"scalr_variable.workspace2_host",
+							"scalr_variable.workspace_host",
+							"scalr_variable.secret",
+							"scalr_variable.address",
+						},
 					),
 					testCheckResourceVarsInDatasource(
 						"data.scalr_variables.workspace",

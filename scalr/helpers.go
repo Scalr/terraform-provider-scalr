@@ -2,12 +2,16 @@ package scalr
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/scalr/go-scalr"
 )
+
+const currentAccountIDEnvVar = "SCALR_ACCOUNT_ID"
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
@@ -158,4 +162,20 @@ func InterfaceArrToTagRelationArr(arr []interface{}) []*scalr.TagRelation {
 		tags[i] = &scalr.TagRelation{ID: id.(string)}
 	}
 	return tags
+}
+
+func getDefaultScalrAccountID() (string, bool) {
+	if v := os.Getenv(currentAccountIDEnvVar); v != "" {
+		return v, true
+	}
+	return "", false
+}
+
+func scalrAccountIDDefaultFunc() (interface{}, error) {
+	if accID, ok := getDefaultScalrAccountID(); ok {
+		return accID, nil
+	}
+	return nil, errors.New("Default value for `account_id` could not be computed." +
+		"\nIf you are using Scalr Provider for local runs, please set the attribute in resources explicitly," +
+		"\nor export `SCALR_ACCOUNT_ID` environment variable prior the run.")
 }

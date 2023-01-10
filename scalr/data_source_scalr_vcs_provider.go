@@ -31,9 +31,10 @@ func dataSourceScalrVcsProvider() *schema.Resource {
 				Optional: true,
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"environment_id": {
 				Type:     schema.TypeString,
@@ -49,14 +50,12 @@ func dataSourceScalrVcsProvider() *schema.Resource {
 
 func dataSourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
-	options := scalr.VcsProvidersListOptions{}
+	options := scalr.VcsProvidersListOptions{
+		Account: scalr.String(d.Get("account_id").(string)),
+	}
 
 	if name, ok := d.GetOk("name"); ok {
 		options.Query = scalr.String(name.(string))
-	}
-
-	if accountId, ok := d.GetOk("account_id"); ok {
-		options.Account = scalr.String(accountId.(string))
 	}
 
 	if envId, ok := d.GetOk("environment_id"); ok {
@@ -93,7 +92,6 @@ func dataSourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData,
 	_ = d.Set("vcs_type", vcsProvider.VcsType)
 	_ = d.Set("name", vcsProvider.Name)
 	_ = d.Set("url", vcsProvider.Url)
-	_ = d.Set("account_id", vcsProvider.Account.ID)
 	_ = d.Set("environments", envIds)
 	d.SetId(vcsProvider.ID)
 

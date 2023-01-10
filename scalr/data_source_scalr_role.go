@@ -23,8 +23,10 @@ func dataSourceScalrRole() *schema.Resource {
 				Required: true,
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 
 			"is_system": {
@@ -51,12 +53,11 @@ func dataSourceScalrRoleRead(ctx context.Context, d *schema.ResourceData, meta i
 
 	// required fields
 	name := d.Get("name").(string)
+	accountId := d.Get("account_id").(string)
 
-	options := scalr.RoleListOptions{Name: name}
-
-	var accountId interface{} = "global"
-	if accountId, ok := d.GetOk("account_id"); ok {
-		options.Account = scalr.String(accountId.(string))
+	options := scalr.RoleListOptions{
+		Name:    name,
+		Account: scalr.String("in:null," + accountId),
 	}
 
 	log.Printf("[DEBUG] Read configuration of role: %s/%s", accountId, name)
@@ -89,6 +90,10 @@ func dataSourceScalrRoleRead(ctx context.Context, d *schema.ResourceData, meta i
 			permissionNames = append(permissionNames, permission.ID)
 		}
 		_ = d.Set("permissions", permissionNames)
+	}
+
+	if role.Account == nil {
+		_ = d.Set("account_id", nil)
 	}
 
 	return nil

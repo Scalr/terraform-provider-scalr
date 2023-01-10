@@ -20,8 +20,10 @@ func dataSourceScalrProviderConfigurations() *schema.Resource {
 				Computed: true,
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"name": {
 				Type:     schema.TypeString,
