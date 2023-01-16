@@ -29,6 +29,9 @@ func TestAccScalrServiceAccountDataSource_basic(t *testing.T) {
 				Config: testAccScalrServiceAccountDataSourceByIDConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.scalr_service_account.test", "id"),
+					resource.TestCheckResourceAttr(
+						"data.scalr_service_account.test", "name", fmt.Sprintf("test-sa-%d", rInt),
+					),
 					resource.TestCheckResourceAttrPair(
 						"data.scalr_service_account.test", "email",
 						"scalr_service_account.test", "email",
@@ -50,6 +53,9 @@ func TestAccScalrServiceAccountDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(
 						"data.scalr_service_account.test", "id",
 						"scalr_service_account.test", "id",
+					),
+					resource.TestCheckResourceAttr(
+						"data.scalr_service_account.test", "name", fmt.Sprintf("test-sa-%d", rInt),
 					),
 					resource.TestCheckResourceAttrPair(
 						"data.scalr_service_account.test", "email",
