@@ -24,6 +24,7 @@ Arguments `id` and `email` are both optional, specify at least one of them to ob
 
 All arguments plus:
 
+* `name` - Name of the service account.
 * `description` - Description of the service account.
 * `status` - The status of the service account.
 * `created_by` - Details of the user that created the service account.
