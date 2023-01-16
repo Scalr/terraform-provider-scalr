@@ -18,6 +18,10 @@ func dataSourceScalrServiceAccount() *schema.Resource {
 				Computed:     true,
 				AtLeastOneOf: []string{"email"},
 			},
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"email": {
 				Type:          schema.TypeString,
 				Optional:      true,
@@ -111,6 +115,7 @@ func dataSourceScalrServiceAccountRead(ctx context.Context, d *schema.ResourceDa
 			"full_name": sa.CreatedBy.FullName,
 		})
 	}
+	_ = d.Set("name", sa.Name)
 	_ = d.Set("email", sa.Email)
 	_ = d.Set("description", sa.Description)
 	_ = d.Set("status", sa.Status)
