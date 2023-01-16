@@ -22,13 +22,14 @@ resource "scalr_service_account" "example" {
 * `description` - (Optional) Description of the service account.
 * `status` - (Optional) The status of the service account. Valid values are `Active` and `Inactive`.
 Defaults to `Active`.
-* `account_id` - (Optional) ID of the environment account, in the format `acc-<RANDOM STRING>`
+* `account_id` - (Optional) ID of the account, in the format `acc-<RANDOM STRING>`.
 
 ## Attributes
 
 All arguments plus:
 
 * `id` - The identifier of the service account in the format `sa-<RANDOM STRING>`.
+* `email` - The email of the service account.
 * `created_by` - Details of the user that created the service account.
 
 The `created_by` block contains:
