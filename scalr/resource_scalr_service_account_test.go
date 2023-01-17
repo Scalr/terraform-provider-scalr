@@ -72,10 +72,8 @@ func TestAccScalrServiceAccount_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrServiceAccountBasic(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"scalr_service_account.test", "name", fmt.Sprintf("test-sa-%d", rInt),
-					),
+				Check: resource.TestCheckResourceAttr(
+					"scalr_service_account.test", "name", fmt.Sprintf("test-sa-%d", rInt),
 				),
 			},
 			{

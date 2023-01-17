@@ -12,7 +12,7 @@ import (
 )
 
 func TestAccScalrAgentPoolToken_basic(t *testing.T) {
-	token := &scalr.AgentPoolToken{}
+	token := &scalr.AccessToken{}
 
 	var pool scalr.AgentPool
 	if isAccTest() {
@@ -44,7 +44,7 @@ func TestAccScalrAgentPoolToken_changed_outside(t *testing.T) {
 		pool = createPool(t)
 		defer deletePool(t, pool)
 	}
-	token := &scalr.AgentPoolToken{}
+	token := &scalr.AccessToken{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -78,7 +78,7 @@ func TestAccScalrAgentPoolToken_update(t *testing.T) {
 		pool = createPool(t)
 		defer deletePool(t, pool)
 	}
-	token := &scalr.AgentPoolToken{}
+	token := &scalr.AccessToken{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -104,7 +104,7 @@ func TestAccScalrAgentPoolToken_update(t *testing.T) {
 	})
 }
 
-func testAccCheckScalrAgentPoolTokenExists(resId string, pool scalr.AgentPool, token *scalr.AgentPoolToken) resource.TestCheckFunc {
+func testAccCheckScalrAgentPoolTokenExists(resId string, pool scalr.AgentPool, token *scalr.AccessToken) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
@@ -118,7 +118,7 @@ func testAccCheckScalrAgentPoolTokenExists(resId string, pool scalr.AgentPool, t
 		}
 
 		// Get the token
-		l, err := scalrClient.AgentPoolTokens.List(ctx, pool.ID, scalr.AgentPoolTokenListOptions{})
+		l, err := scalrClient.AgentPoolTokens.List(ctx, pool.ID, scalr.AccessTokenListOptions{})
 		if err != nil {
 			return err
 		}
@@ -136,7 +136,7 @@ func testAccCheckScalrAgentPoolTokenExists(resId string, pool scalr.AgentPool, t
 	}
 }
 
-func testAccCheckScalrAgentPoolTokenChangedOutside(token *scalr.AgentPoolToken) func() {
+func testAccCheckScalrAgentPoolTokenChangedOutside(token *scalr.AccessToken) func() {
 	return func() {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
@@ -197,7 +197,7 @@ func testAccCheckScalrAgentPoolTokenDestroy(s *terraform.State) error {
 		poolID := rs.Primary.Attributes["agent_pool_id"]
 
 		// the agent pool must be deleted along with token
-		l, _ := scalrClient.AgentPoolTokens.List(ctx, poolID, scalr.AgentPoolTokenListOptions{})
+		l, _ := scalrClient.AgentPoolTokens.List(ctx, poolID, scalr.AccessTokenListOptions{})
 		if len(l.Items) > 0 {
 			return fmt.Errorf("AgentPoolToken %s still exists", rs.Primary.ID)
 		}
