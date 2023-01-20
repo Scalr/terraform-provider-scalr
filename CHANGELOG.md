@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2023-01-20
+
 ### Added
 
 - **New data source:**  `scalr_current_account` ([#199](https://github.com/Scalr/terraform-provider-scalr/pull/199))
@@ -26,7 +28,7 @@ variable `SCALR_ACCOUNT_ID`. The variable is set automatically for all runs on S
 
 ### Required
 
-- scalr-server >= `8.51.0`
+- scalr-server >= `8.52.0`
 
 
 ## [1.0.0] - 2022-12-02
@@ -566,7 +568,9 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc38...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.1
+[1.0.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0
 [1.0.0-rc38]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc38
 [1.0.0-rc37]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc37
 [1.0.0-rc36]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc36
