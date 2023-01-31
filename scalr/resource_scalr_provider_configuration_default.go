@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -66,10 +65,7 @@ func resourceScalrProviderConfigurationDefaultCreate(ctx context.Context, d *sch
 		EnvironmentID:           environmentID,
 		ProviderConfigurationID: providerConfigurationID,
 	}
-	// log for debug
-	log.Printf("[DEBUG] Create provider configuration default: %s", id)
 	err := scalrClient.ProviderConfigurationDefaults.Create(ctx, opts)
-	log.Print("[DEBUG] Createed provider configuration default: %s", id)
 	if err != nil {
 		return diag.FromErr(err)
 	}
