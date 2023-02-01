@@ -40,7 +40,7 @@ func resourceScalrProviderConfigurationDefaultImport(ctx context.Context, d *sch
 
 	id := d.Id()
 
-	providerConfiguration, environment, err := getLinkedResources2(ctx, id, scalrClient)
+	providerConfiguration, environment, err := getPCDLinkedResources(ctx, id, scalrClient)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil, fmt.Errorf("provider configuration default %s not found", id)
@@ -80,7 +80,7 @@ func resourceScalrProviderConfigurationDefaultRead(ctx context.Context, d *schem
 
 	id := d.Id()
 
-	providerConfiguration, environment, err := getLinkedResources2(ctx, id, scalrClient)
+	providerConfiguration, environment, err := getPCDLinkedResources(ctx, id, scalrClient)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			d.SetId("")
@@ -114,7 +114,7 @@ func resourceScalrProviderConfigurationDefaultDelete(ctx context.Context, d *sch
 	return nil
 }
 
-func getLinkedResources2(ctx context.Context, id string, scalrClient *scalr.Client) (*scalr.ProviderConfiguration, *scalr.Environment, error) {
+func getPCDLinkedResources(ctx context.Context, id string, scalrClient *scalr.Client) (*scalr.ProviderConfiguration, *scalr.Environment, error) {
 	environmentID, providerConfigurationID, err := parseID(id)
 	if err != nil {
 		return nil, nil, err
