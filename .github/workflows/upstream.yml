@@ -9,6 +9,7 @@ on:
       api-branch:
         description: "API Branch"
         required: true
+        default: "master"
       db-branch:
         description: "DB Branch"
         required: false
@@ -39,6 +40,7 @@ jobs:
         with:
           repository: Scalr/fatmouse
           path: fatmouse
+          ref: ${{ env.API_BRANCH }}
           token: ${{ secrets.GH_PAT }}
       - id: auth
         uses: google-github-actions/auth@v0
