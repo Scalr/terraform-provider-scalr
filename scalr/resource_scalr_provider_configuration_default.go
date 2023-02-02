@@ -134,21 +134,10 @@ func getPCDLinkedResources(ctx context.Context, id string, scalrClient *scalr.Cl
 }
 
 func parseID(id string) (string, string, error) {
-	parts := splitID(id)
+	parts := strings.Split(id, "/")
 	if len(parts) != 2 {
 		return "", "", fmt.Errorf("invalid ID %q: expected {environment_id}/{provider_configuration_id}", id)
 	}
 
 	return parts[0], parts[1], nil
-}
-
-func splitID(id string) []string {
-	return split(id, "/")
-}
-
-func split(s, sep string) []string {
-	if s == "" {
-		return nil
-	}
-	return strings.Split(s, sep)
 }
