@@ -104,7 +104,7 @@ go get github.com/scalr/go-scalr@develop
 $ make test
 ```
 #### Acceptance tests
-You will need to set up the environment variables for your Scalr installation. For example:
+You will need to set up the environment variables for your Scalr installation. For example
 ```sh
 export SCALR_HOSTNAME=abcdef.scalr.com
 export SCALR_TOKEN=.....
