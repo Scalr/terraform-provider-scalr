@@ -96,6 +96,9 @@ func resourceScalrProviderConfigurationDefaultCreate(ctx context.Context, d *sch
 		DefaultProviderConfigurations: environment.DefaultProviderConfigurations,
 	}
 	_, err = scalrClient.Environments.Update(ctx, environment.ID, updateOpts)
+	if err != nil {
+		return diag.Errorf("Error updating environment %s: %v", environment.ID, err)
+	}
 	d.SetId(id)
 
 	return resourceScalrProviderConfigurationDefaultRead(ctx, d, meta)

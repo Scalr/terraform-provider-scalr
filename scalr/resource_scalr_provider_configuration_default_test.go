@@ -2,6 +2,7 @@ package scalr
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -26,6 +27,43 @@ func TestAccProviderConfigurationDefault_basic(t *testing.T) {
 						"scalr_provider_configuration_default.test",
 					),
 				),
+			},
+		},
+	})
+}
+
+func TestAccProviderConfigurationDefaultInvalidEnvironmentId(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckProviderConfigurationDefaultDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccProviderConfigurationDefaultInvalidEnvironmentIdConfig(rInt),
+				ExpectError: regexp.MustCompile("Environment \"invalid\" not found"),
+			},
+		},
+	})
+
+}
+
+func TestAccProviderConfigurationDefaultInvalidProviderConfigurationId(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckProviderConfigurationDefaultDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccProviderConfigurationDefaultInvalidProviderConfigurationIdConfig(rInt),
+				ExpectError: regexp.MustCompile("Provider configuration \"invalid\" not found"),
 			},
 		},
 	})
@@ -139,6 +177,82 @@ resource "scalr_provider_configuration" "test" {
 
 resource "scalr_provider_configuration_default" "test" {
 	  provider_configuration_id = scalr_provider_configuration.test.id
+	  environment_id = scalr_environment.test.id
+}
+`, defaultAccount, rInt, rInt)
+}
+
+func testAccProviderConfigurationDefaultInvalidEnvironmentIdConfig(rInt int) string {
+	return fmt.Sprintf(`
+
+locals {
+  account_id = "%s"
+}
+
+resource "scalr_environment" "test" {
+  name       = "test-env-%d"
+  account_id = local.account_id
+}
+
+resource "scalr_provider_configuration" "test" {
+  name = "test-%d"	
+  account_id = local.account_id
+  environments = [scalr_environment.test.id]
+  custom {
+	provider_name = "kubernetes"
+    argument {
+	  name        = "config_path"
+	  value       = "~/.kube/config"
+	  sensitive   = true
+	  description = "A path to a kube config file."
+      }
+    argument {
+	  name  = "host"
+	  value = "my-host"
+  }
+   }
+}
+
+resource "scalr_provider_configuration_default" "test" {
+	  provider_configuration_id = scalr_provider_configuration.test.id
+	  environment_id = "invalid"
+}
+`, defaultAccount, rInt, rInt)
+}
+
+func testAccProviderConfigurationDefaultInvalidProviderConfigurationIdConfig(rInt int) string {
+	return fmt.Sprintf(`
+
+locals {
+  account_id = "%s"
+}
+
+resource "scalr_environment" "test" {
+  name       = "test-env-%d"
+  account_id = local.account_id
+}
+
+resource "scalr_provider_configuration" "test" {
+  name = "test-%d"	
+  account_id = local.account_id
+  environments = [scalr_environment.test.id]
+  custom {
+	provider_name = "kubernetes"
+    argument {
+	  name        = "config_path"
+	  value       = "~/.kube/config"
+	  sensitive   = true
+	  description = "A path to a kube config file."
+      }
+    argument {
+	  name  = "host"
+	  value = "my-host"
+  }
+   }
+}
+
+resource "scalr_provider_configuration_default" "test" {
+	  provider_configuration_id = "invalid"
 	  environment_id = scalr_environment.test.id
 }
 `, defaultAccount, rInt, rInt)
