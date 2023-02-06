@@ -161,7 +161,7 @@ func resourceScalrProviderConfigurationDefaultDelete(ctx context.Context, d *sch
 	}
 
 	if !found {
-		return diag.Errorf("Provider configuration is not in the list of default provider configurations", providerConfigurationID, environmentID)
+		return diag.Errorf("Provider configuration %q is not in environment %q default provider configuration", providerConfigurationID, environmentID)
 	}
 
 	updateOpts := scalr.EnvironmentUpdateOptions{
