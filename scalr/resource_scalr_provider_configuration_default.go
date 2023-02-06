@@ -61,15 +61,41 @@ func resourceScalrProviderConfigurationDefaultCreate(ctx context.Context, d *sch
 	environmentID := d.Get("environment_id").(string)
 	id := fmt.Sprintf("%s/%s", environmentID, providerConfigurationID)
 
-	opts := scalr.ProviderConfigurationDefaultsCreateOptions{
-		EnvironmentID:           environmentID,
-		ProviderConfigurationID: providerConfigurationID,
-	}
-	err := scalrClient.ProviderConfigurationDefaults.Create(ctx, opts)
-	if err != nil {
-		return diag.FromErr(err)
+	if !validStringID(&environmentID) {
+		return diag.Errorf("invalid value for environment ID: %q", environmentID)
 	}
 
+	if !validStringID(&providerConfigurationID) {
+		return diag.Errorf("invalid value for provider configuration ID: %q", providerConfigurationID)
+	}
+
+	environment, err := scalrClient.Environments.Read(ctx, environmentID)
+	if err != nil {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
+			return diag.Errorf("Environment %q not found", environmentID)
+		}
+		return diag.Errorf("error retrieving environment %s: %v", environmentID, err)
+	}
+
+	providerConfiguration, err := scalrClient.ProviderConfigurations.Read(ctx, providerConfigurationID)
+	if err != nil {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
+			return diag.Errorf("Provider configuration %q not found", providerConfigurationID)
+		}
+		return diag.Errorf("Error retrieving provider configuration %s: %v", providerConfigurationID, err)
+	}
+
+	for _, pc := range environment.DefaultProviderConfigurations {
+		if pc.ID == providerConfigurationID {
+			return diag.Errorf("Provider configuration %q is already in environment %q default provider configuration", providerConfigurationID, environmentID)
+		}
+	}
+
+	environment.DefaultProviderConfigurations = append(environment.DefaultProviderConfigurations, &scalr.ProviderConfiguration{ID: providerConfiguration.ID})
+	updateOpts := scalr.EnvironmentUpdateOptions{
+		DefaultProviderConfigurations: environment.DefaultProviderConfigurations,
+	}
+	_, err = scalrClient.Environments.Update(ctx, environment.ID, updateOpts)
 	d.SetId(id)
 
 	return resourceScalrProviderConfigurationDefaultRead(ctx, d, meta)
@@ -92,6 +118,14 @@ func resourceScalrProviderConfigurationDefaultRead(ctx context.Context, d *schem
 	_ = d.Set("provider_configuration_id", providerConfiguration.ID)
 	_ = d.Set("environment_id", environment.ID)
 
+	for _, pc := range environment.DefaultProviderConfigurations {
+		if pc.ID == providerConfiguration.ID {
+			return nil
+		}
+	}
+
+	d.SetId("")
+
 	return nil
 }
 
@@ -101,14 +135,42 @@ func resourceScalrProviderConfigurationDefaultDelete(ctx context.Context, d *sch
 	providerConfigurationID := d.Get("provider_configuration_id").(string)
 	environmentID := d.Get("environment_id").(string)
 
-	opts := scalr.ProviderConfigurationDefaultsDeleteOptions{
-		EnvironmentID:           environmentID,
-		ProviderConfigurationID: providerConfigurationID,
+	if !validStringID(&environmentID) {
+		return diag.Errorf("invalid value for environment ID: %q", environmentID)
 	}
 
-	err := scalrClient.ProviderConfigurationDefaults.Delete(ctx, opts)
+	if !validStringID(&providerConfigurationID) {
+		return diag.Errorf("invalid value for provider configuration ID: %q", providerConfigurationID)
+	}
+
+	environment, err := scalrClient.Environments.Read(ctx, environmentID)
 	if err != nil {
-		return diag.FromErr(err)
+		if errors.Is(err, scalr.ErrResourceNotFound) {
+			return diag.Errorf("Environment %q not found", environmentID)
+		}
+		return diag.Errorf("error retrieving environment %s: %v", environmentID, err)
+	}
+
+	found := false
+	for i, pc := range environment.DefaultProviderConfigurations {
+		if pc.ID == providerConfigurationID {
+			environment.DefaultProviderConfigurations = append(environment.DefaultProviderConfigurations[:i], environment.DefaultProviderConfigurations[i+1:]...)
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return diag.Errorf("Provider configuration is not in the list of default provider configurations", providerConfigurationID, environmentID)
+	}
+
+	updateOpts := scalr.EnvironmentUpdateOptions{
+		DefaultProviderConfigurations: environment.DefaultProviderConfigurations,
+	}
+
+	_, err = scalrClient.Environments.Update(ctx, environment.ID, updateOpts)
+	if err != nil {
+		return diag.Errorf("Error removing provider configuration %s from environment %s default provider configuration: %v", providerConfigurationID, environmentID, err)
 	}
 
 	return nil
