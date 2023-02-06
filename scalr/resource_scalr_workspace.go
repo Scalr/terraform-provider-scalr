@@ -182,6 +182,7 @@ func resourceScalrWorkspace() *schema.Resource {
 					},
 					false,
 				),
+				Computed: true,
 			},
 
 			"vcs_repo": {
