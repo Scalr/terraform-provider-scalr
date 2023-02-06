@@ -182,7 +182,6 @@ func resourceScalrWorkspace() *schema.Resource {
 					},
 					false,
 				),
-				Default: string(scalr.AutoQueueRunsModeSkipFirst),
 			},
 
 			"vcs_repo": {
