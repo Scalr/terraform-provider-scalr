@@ -6,10 +6,13 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"strings"
+	"sync"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/scalr/go-scalr"
 )
+
+var resourceScalrProviderConfigurationDefaultMutex sync.Mutex
 
 func resourceScalrProviderConfigurationDefault() *schema.Resource {
 	return &schema.Resource{
@@ -55,6 +58,8 @@ func resourceScalrProviderConfigurationDefaultImport(ctx context.Context, d *sch
 }
 
 func resourceScalrProviderConfigurationDefaultCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	resourceScalrProviderConfigurationDefaultMutex.Lock()
+	defer resourceScalrProviderConfigurationDefaultMutex.Unlock()
 	scalrClient := meta.(*scalr.Client)
 
 	providerConfigurationID := d.Get("provider_configuration_id").(string)
