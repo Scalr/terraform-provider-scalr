@@ -26,7 +26,7 @@ Provider configuration should be in list of environment identifiers that the pro
 
 All arguments plus:
 
-* `id` - The ID of the provider configuration defaults.
+* `id` - The ID of the provider configuration default.
   
 ## Import
 
