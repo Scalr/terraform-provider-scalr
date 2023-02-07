@@ -32,6 +32,6 @@ To import provider configuration defaults use combined ID in the form `<environm
 
 ```shell
 
-terraform import scalr_provider_configuration_defaults.example env-svrdqa8d7mhaimo/pcfg-xxxxxxxx
+terraform import scalr_provider_configuration_default.example env-xxxxxxxx/pcfg-xxxxxxxx
 
 ```
