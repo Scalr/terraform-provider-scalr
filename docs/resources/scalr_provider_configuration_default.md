@@ -18,8 +18,8 @@ resource "scalr_provider_configuration_default" "example" {
 * `provider_configuration_id` - (Required) ID of the provider configuration, in the format `pcfg-<RANDOM STRING>`. 
 
 Note:
-Provider configuration should be in list of environment identifiers that the provider configuration is shared to.
-
+To make the provider configuration default, it must be shared with the specified environment.
+See the definition of the resource [`scalr_provider_configuration`](scalr_provider_configuration.md) and attribute `environments` to learn more.
 ## Attribute Reference
 
 All arguments plus:
