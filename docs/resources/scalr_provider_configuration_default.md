@@ -7,7 +7,7 @@ Manage defaults or provider configurations for environments in Scalr. Create and
 
 ```hcl
 
-resource "scalr_provider_configuration_defaults" "example" {
+resource "scalr_provider_configuration_default" "example" {
   environment_id = "env-xxxxxxxx"
   provider_configuration_id = "pcfg-xxxxxxxx"
 }
