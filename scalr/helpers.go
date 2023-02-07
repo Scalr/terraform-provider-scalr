@@ -6,16 +6,12 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	"regexp"
 	"time"
 
 	"github.com/scalr/go-scalr"
 )
 
 const currentAccountIDEnvVar = "SCALR_ACCOUNT_ID"
-
-// A regular expression used to validate common string ID patterns.
-var reStringID = regexp.MustCompile(`^[a-zA-Z0-9\-\._]+$`)
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
@@ -158,12 +154,6 @@ func ValidateIDsDefinitions(d []interface{}) error {
 		}
 	}
 	return nil
-}
-
-// validStringID checks if the given string pointer is non-nil and
-// contains a typical string identifier.
-func validStringID(v *string) bool {
-	return v != nil && reStringID.MatchString(*v)
 }
 
 func InterfaceArrToTagRelationArr(arr []interface{}) []*scalr.TagRelation {

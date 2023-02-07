@@ -61,14 +61,6 @@ func resourceScalrProviderConfigurationDefaultCreate(ctx context.Context, d *sch
 	environmentID := d.Get("environment_id").(string)
 	id := fmt.Sprintf("%s/%s", environmentID, providerConfigurationID)
 
-	if !validStringID(&environmentID) {
-		return diag.Errorf("invalid value for environment ID: %q", environmentID)
-	}
-
-	if !validStringID(&providerConfigurationID) {
-		return diag.Errorf("invalid value for provider configuration ID: %q", providerConfigurationID)
-	}
-
 	environment, err := scalrClient.Environments.Read(ctx, environmentID)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
@@ -138,14 +130,6 @@ func resourceScalrProviderConfigurationDefaultDelete(ctx context.Context, d *sch
 	providerConfigurationID := d.Get("provider_configuration_id").(string)
 	environmentID := d.Get("environment_id").(string)
 
-	if !validStringID(&environmentID) {
-		return diag.Errorf("invalid value for environment ID: %q", environmentID)
-	}
-
-	if !validStringID(&providerConfigurationID) {
-		return diag.Errorf("invalid value for provider configuration ID: %q", providerConfigurationID)
-	}
-
 	environment, err := scalrClient.Environments.Read(ctx, environmentID)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
@@ -180,7 +164,7 @@ func resourceScalrProviderConfigurationDefaultDelete(ctx context.Context, d *sch
 }
 
 func getPCDLinkedResources(ctx context.Context, id string, scalrClient *scalr.Client) (*scalr.ProviderConfiguration, *scalr.Environment, error) {
-	environmentID, providerConfigurationID, err := parseID(id)
+	environmentID, providerConfigurationID, err := parseProviderConfigurationDefaultID(id)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -198,7 +182,7 @@ func getPCDLinkedResources(ctx context.Context, id string, scalrClient *scalr.Cl
 	return providerConfiguration, environment, nil
 }
 
-func parseID(id string) (string, string, error) {
+func parseProviderConfigurationDefaultID(id string) (string, string, error) {
 	parts := strings.Split(id, "/")
 	if len(parts) != 2 {
 		return "", "", fmt.Errorf("invalid ID %q: expected {environment_id}/{provider_configuration_id}", id)

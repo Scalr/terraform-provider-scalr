@@ -244,14 +244,6 @@ github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/scalr/go-scalr v0.0.0-20230113121456-acdac16a6fc8 h1:qcqhjq3rVK/NBLdB/TboYWCqmAUvmcoiDn65BqLHi/c=
 github.com/scalr/go-scalr v0.0.0-20230113121456-acdac16a6fc8/go.mod h1:p34SHb25YRvbgft7SUjSDYESeoQhWzAlxGXId/BbaSE=
-github.com/scalr/go-scalr v0.0.0-20230131094422-33c7862fee13 h1:H53KbLQrEqvAo+DrdVX0CzemiNw58Bwiz7bD4cb/+vQ=
-github.com/scalr/go-scalr v0.0.0-20230131094422-33c7862fee13/go.mod h1:p34SHb25YRvbgft7SUjSDYESeoQhWzAlxGXId/BbaSE=
-github.com/scalr/go-scalr v0.0.0-20230201091459-5f92202e826f h1:pP7qpxt5Hhu8QtvLXuTcV2o0MhRqjrGv+YfaKOCIudc=
-github.com/scalr/go-scalr v0.0.0-20230201091459-5f92202e826f/go.mod h1:p34SHb25YRvbgft7SUjSDYESeoQhWzAlxGXId/BbaSE=
-github.com/scalr/go-scalr v0.0.0-20230202103640-8a6518059e27 h1:BVw4jv9CioVhcIXmhA1OpsV4/vp38dFfN/v5dZ0tYXg=
-github.com/scalr/go-scalr v0.0.0-20230202103640-8a6518059e27/go.mod h1:p34SHb25YRvbgft7SUjSDYESeoQhWzAlxGXId/BbaSE=
-github.com/scalr/go-scalr v0.0.0-20230206100026-8d8d36e52230 h1:NTpaqj6qzKMB/9P0jfVgGTcRpaowz6DXKASDUC85H8k=
-github.com/scalr/go-scalr v0.0.0-20230206100026-8d8d36e52230/go.mod h1:p34SHb25YRvbgft7SUjSDYESeoQhWzAlxGXId/BbaSE=
 github.com/sebdah/goldie v1.0.0/go.mod h1:jXP4hmWywNEwZzhMuv2ccnqTSFpuq8iyQhtQdkkZBH4=
 github.com/sergi/go-diff v1.1.0/go.mod h1:STckp+ISIX8hZLjrqAeVduY0gWCT9IjLuqbuNXdaHfM=
 github.com/sergi/go-diff v1.2.0 h1:XU+rvMAioB0UC3q1MFrIQy4Vo5/4VsRDQQXHsEya6xQ=
