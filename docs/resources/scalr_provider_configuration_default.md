@@ -28,7 +28,7 @@ All arguments plus:
   
 ## Import
 
-To import provider configuration defaults use combined ID in the form `<environment_id>/<provider_configuration_id>` as the import ID. For example:
+To import provider configuration default use combined ID in the form `<environment_id>/<provider_configuration_id>` as the import ID. For example:
 
 ```shell
 
