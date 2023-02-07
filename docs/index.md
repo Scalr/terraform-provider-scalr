@@ -1,4 +1,7 @@
 ---
+title: "Scalr Terraform Provider"
+excerpt: "The Scalr provider is used to interact with the many resources supported by Scalr."
+category: "6380b9efad50240652eec1fc"
 layout: "scalr"
 page_title: "Provider: Scalr"
 sidebar_current: "docs-scalr-index"
