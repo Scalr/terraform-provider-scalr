@@ -130,6 +130,8 @@ func resourceScalrProviderConfigurationDefaultRead(ctx context.Context, d *schem
 }
 
 func resourceScalrProviderConfigurationDefaultDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	resourceScalrProviderConfigurationDefaultMutex.Lock()
+	defer resourceScalrProviderConfigurationDefaultMutex.Unlock()
 	scalrClient := meta.(*scalr.Client)
 
 	providerConfigurationID := d.Get("provider_configuration_id").(string)
