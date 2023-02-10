@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+**New resource:**  `scalr_provider_configuration_default` ([#205](https://github.com/Scalr/terraform-provider-scalr/pull/205))
+
 ### Changed
 `scalr_workspace`: delete default value for `auto_queue_runs` attribute ([#209](https://github.com/Scalr/terraform-provider-scalr/pull/209))
 
