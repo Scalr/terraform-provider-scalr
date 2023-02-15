@@ -88,6 +88,7 @@ jobs:
         id: create
         shell: bash
         run: |
+          echo "::group::Analyze branches"
           if [ -z ${{ env.API_BRANCH }} ]; then
             FATMOUSE_BRANCH=""
           else
@@ -103,8 +104,15 @@ jobs:
           if [ "${{ env.API_BRANCH }}" = "staging" ]; then
             IMAGE="--scalr-server-image-tag staging"
           else
-            IMAGE=""
+              API_BRANCH=${{ env.API_BRANCH }}
+              NORMALIZED_BRANCH=$(echo $API_BRANCH | tr / - | tr '[:upper:]' '[:lower:]')
+              if docker manifest inspect eu.gcr.io/development-156220/fatmouse/scalr-server-te:${NORMALIZED_BRANCH} ; then
+                  IMAGE="--scalr-server-image-tag ${NORMALIZED_BRANCH}"
+              else
+                  IMAGE=""
+              fi
           fi
+          echo "::endgroup::"
 
           docker run --rm \
           -e GITHUB_WORKSPACE=true \
