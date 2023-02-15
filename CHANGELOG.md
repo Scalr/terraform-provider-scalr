@@ -8,10 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-**New resource:**  `scalr_provider_configuration_default` ([#205](https://github.com/Scalr/terraform-provider-scalr/pull/205))
+- **New resource:**  `scalr_provider_configuration_default` ([#205](https://github.com/Scalr/terraform-provider-scalr/pull/205))
 
 ### Changed
-`scalr_workspace`: delete default value for `auto_queue_runs` attribute ([#209](https://github.com/Scalr/terraform-provider-scalr/pull/209))
+- `scalr_workspace`: delete default value for `auto_queue_runs` attribute ([#209](https://github.com/Scalr/terraform-provider-scalr/pull/209))
+- `execution_mode`: Updated documentation to fix a typo for the execution_mode attribute in the `scalr_workspace` resource. It was incorrectly spelled execution-mode
 
 ## [1.0.1] - 2023-01-20
 

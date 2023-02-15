@@ -100,7 +100,7 @@ func resourceScalrWorkspace() *schema.Resource {
 				Type:       schema.TypeBool,
 				Optional:   true,
 				Computed:   true,
-				Deprecated: "The attribute `operations` is deprecated. Use `execution-mode` instead",
+				Deprecated: "The attribute `operations` is deprecated. Use `execution_mode` instead",
 			},
 
 			"execution_mode": {
