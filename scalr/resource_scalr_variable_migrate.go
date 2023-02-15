@@ -1,12 +1,13 @@
 package scalr
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrVariableResourceV0() *schema.Resource {
@@ -58,7 +59,7 @@ func resourceScalrVariableResourceV0() *schema.Resource {
 	}
 }
 
-func resourceScalrVariableStateUpgradeV0(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceScalrVariableStateUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	scalrClient := meta.(*scalr.Client)
 
 	humanID := rawState["workspace_id"].(string)
@@ -67,7 +68,7 @@ func resourceScalrVariableStateUpgradeV0(rawState map[string]interface{}, meta i
 		// so we can skip V0->V1 the migration.
 		return rawState, nil
 	}
-	id, err := fetchWorkspaceID(humanID, scalrClient)
+	id, err := fetchWorkspaceID(ctx, humanID, scalrClient)
 	if err != nil {
 		return nil, fmt.Errorf("Error reading configuration of workspace %s: %v", humanID, err)
 	}
@@ -150,7 +151,7 @@ func resourceScalrVariableResourceV1() *schema.Resource {
 	}
 }
 
-func resourceScalrVariableStateUpgradeV1(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceScalrVariableStateUpgradeV1(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
 	varCategory := rawState["category"].(string)
 	if varCategory == string(scalr.CategoryEnv) {
 		varCategory = string(scalr.CategoryShell)
@@ -238,7 +239,7 @@ func resourceScalrVariableResourceV2() *schema.Resource {
 	}
 }
 
-func resourceScalrVariableStateUpgradeV2(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceScalrVariableStateUpgradeV2(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	scalrClient := meta.(*scalr.Client)
 
 	varID := rawState["id"].(string)

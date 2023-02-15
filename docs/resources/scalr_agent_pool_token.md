@@ -25,11 +25,3 @@ All arguments plus:
 
 * `id` - The ID of the token.
 * `token` - The token of the agent pool.
-
-## Import
-
-To import agent pool's token use token ID as the import ID. For example:
-
-```shell
-terraform import scalr_agent_pool_token.default at-xxxxxxxxx
-```

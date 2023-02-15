@@ -1,17 +1,18 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceModuleVersion() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceModuleVersionRead,
+		ReadContext: dataSourceModuleVersionRead,
 		Schema: map[string]*schema.Schema{
 			"source": {
 				Type:     schema.TypeString,
@@ -28,16 +29,16 @@ func dataSourceModuleVersion() *schema.Resource {
 		}}
 }
 
-func dataSourceModuleVersionRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceModuleVersionRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	source := d.Get("source").(string)
 	module, err := scalrClient.Modules.ReadBySource(ctx, source)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Could not find module with source %s", source)
+			return diag.Errorf("Could not find module with source %s", source)
 		}
-		return fmt.Errorf("Error retrieving module: %v", err)
+		return diag.Errorf("Error retrieving module: %v", err)
 	}
 	log.Printf("[DEBUG] Download module by source: %s", source)
 
@@ -48,20 +49,20 @@ func dataSourceModuleVersionRead(d *schema.ResourceData, meta interface{}) error
 		mv, err = scalrClient.ModuleVersions.ReadBySemanticVersion(ctx, module.ID, version)
 	} else {
 		if module.ModuleVersion == nil {
-			return errors.New("The module has no version tags")
+			return diag.FromErr(errors.New("The module has no version tags"))
 		}
 		mv, err = scalrClient.ModuleVersions.Read(ctx, module.ModuleVersion.ID)
 	}
 
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Could not find module with source %s  and version %s", source, version)
+			return diag.Errorf("Could not find module with source %s  and version %s", source, version)
 		}
-		return fmt.Errorf("Error retrieving module version: %v", err)
+		return diag.Errorf("Error retrieving module version: %v", err)
 	}
 	log.Printf("[DEBUG] Download module version by source %s version: %s", source, version)
 
 	d.SetId(mv.ID)
-	d.Set("version", mv.Version)
+	_ = d.Set("version", mv.Version)
 	return nil
 }

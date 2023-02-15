@@ -48,18 +48,18 @@ func testResourceScalrRoleStateDataV1ExistingPerm() map[string]interface{} {
 
 func TestResourceScalrRoleStateUpgradeV0(t *testing.T) {
 	expected := testResourceScalrRoleStateDataV1()
-	actual, err := resourceScalrRoleStateUpgradeV0(testResourceScalrRoleStateDataV0(), nil)
+	actual, err := resourceScalrRoleStateUpgradeV0(ctx, testResourceScalrRoleStateDataV0(), nil)
 	assertCorrectState(t, err, actual, expected)
 }
 
 func TestResourceScalrRoleStateUpgradeV0NoGlobalScope(t *testing.T) {
 	expected := testResourceScalrRoleStateDataV1NoGlobalScope()
-	actual, err := resourceScalrRoleStateUpgradeV0(testResourceScalrRoleStateDataV0NoGlobalScope(), nil)
+	actual, err := resourceScalrRoleStateUpgradeV0(ctx, testResourceScalrRoleStateDataV0NoGlobalScope(), nil)
 	assertCorrectState(t, err, actual, expected)
 }
 
 func TestResourceScalrRoleStateUpgradeV0ExistingPermission(t *testing.T) {
 	expected := testResourceScalrRoleStateDataV1ExistingPerm()
-	actual, err := resourceScalrRoleStateUpgradeV0(testResourceScalrRoleStateDataV0ExistingPerm(), nil)
+	actual, err := resourceScalrRoleStateUpgradeV0(ctx, testResourceScalrRoleStateDataV0ExistingPerm(), nil)
 	assertCorrectState(t, err, actual, expected)
 }

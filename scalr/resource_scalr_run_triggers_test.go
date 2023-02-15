@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/scalr/go-scalr"
 )
 
 func TestAccScalrRunTriggersDataSource_basic(t *testing.T) {
@@ -14,12 +14,12 @@ func TestAccScalrRunTriggersDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRunTriggerDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckRunTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRunTrigger_basic(rInt),
+				Config: testAccRunTriggerConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRunTriggerExists("scalr_run_trigger.foobar", runTrigger),
 					testAccCheckRunTriggerAttributes(runTrigger, "scalr_environment.test"),
@@ -50,7 +50,7 @@ func testAccCheckRunTriggerDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccRunTrigger_basic(rInt int) string {
+func testAccRunTriggerConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
   name       = "test-env-%d"

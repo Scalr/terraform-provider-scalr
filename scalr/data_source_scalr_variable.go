@@ -1,15 +1,15 @@
 package scalr
 
 import (
-	"fmt"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"context"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrVariable() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrVariableRead,
+		ReadContext: dataSourceScalrVariableRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
@@ -25,9 +25,10 @@ func dataSourceScalrVariable() *schema.Resource {
 				Computed: true,
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"environment_id": {
 				Type:     schema.TypeString,
@@ -63,19 +64,16 @@ func dataSourceScalrVariable() *schema.Resource {
 		}}
 }
 
-func dataSourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	filters := scalr.VariableFilter{}
 	options := scalr.VariableListOptions{Filter: &filters}
 
 	filters.Key = scalr.String(d.Get("key").(string))
+	filters.Account = scalr.String(d.Get("account_id").(string))
 
 	if categoryI, ok := d.GetOk("category"); ok {
 		filters.Category = scalr.String(categoryI.(string))
-	}
-
-	if accountI, ok := d.GetOk("account_id"); ok {
-		filters.Account = scalr.String(accountI.(string))
 	}
 
 	if envIdI, ok := d.GetOk("environment_id"); ok {
@@ -87,37 +85,34 @@ func dataSourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error
 
 	variables, err := scalrClient.Variables.List(ctx, options)
 	if err != nil {
-		return fmt.Errorf("Error retrieving Scalr variable: %s.", err)
+		return diag.Errorf("Error retrieving Scalr variable: %s.", err)
 	}
 
 	if variables.TotalCount > 1 {
-		return fmt.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
+		return diag.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
 	}
 
 	if variables.TotalCount == 0 {
-		return fmt.Errorf("Could not find a Scalr variable matching you query.")
+		return diag.Errorf("Could not find a Scalr variable matching you query.")
 	}
 
 	variable := variables.Items[0]
 
 	d.SetId(variable.ID)
 
-	if variable.Account != nil {
-		d.Set("account_id", variable.Account.ID)
-	}
 	if variable.Environment != nil {
-		d.Set("environment_id", variable.Environment.ID)
+		_ = d.Set("environment_id", variable.Environment.ID)
 	}
 	if variable.Workspace != nil {
-		d.Set("workspace_id", variable.Workspace.ID)
+		_ = d.Set("workspace_id", variable.Workspace.ID)
 	}
 
-	d.Set("category", variable.Category)
-	d.Set("hcl", variable.HCL)
-	d.Set("sensitive", variable.Sensitive)
-	d.Set("final", variable.Final)
-	d.Set("value", variable.Value)
-	d.Set("description", variable.Description)
+	_ = d.Set("category", variable.Category)
+	_ = d.Set("hcl", variable.HCL)
+	_ = d.Set("sensitive", variable.Sensitive)
+	_ = d.Set("final", variable.Final)
+	_ = d.Set("value", variable.Value)
+	_ = d.Set("description", variable.Description)
 
 	return nil
 }

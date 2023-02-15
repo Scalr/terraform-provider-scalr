@@ -1,15 +1,17 @@
 package scalr
 
 import (
+	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrWorkspaceIDs() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrWorkspaceIDsRead,
+		ReadContext: dataSourceScalrWorkspaceIDsRead,
 
 		Schema: map[string]*schema.Schema{
 			"names": {
@@ -31,7 +33,7 @@ func dataSourceScalrWorkspaceIDs() *schema.Resource {
 	}
 }
 
-func dataSourceScalrWorkspaceIDsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrWorkspaceIDsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get the environment_id.
@@ -52,7 +54,7 @@ func dataSourceScalrWorkspaceIDsRead(d *schema.ResourceData, meta interface{}) e
 	for {
 		wl, err := scalrClient.Workspaces.List(ctx, options)
 		if err != nil {
-			return fmt.Errorf("Error retrieving workspaces: %v", err)
+			return diag.Errorf("Error retrieving workspaces: %v", err)
 		}
 
 		for _, w := range wl.Items {
@@ -70,7 +72,7 @@ func dataSourceScalrWorkspaceIDsRead(d *schema.ResourceData, meta interface{}) e
 		options.PageNumber = wl.NextPage
 	}
 
-	d.Set("ids", ids)
+	_ = d.Set("ids", ids)
 	d.SetId(fmt.Sprintf("%s/%d", environmentID, schema.HashString(id)))
 
 	return nil

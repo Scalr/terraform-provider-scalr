@@ -1,30 +1,33 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrWebhook() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrWebhookRead,
+		ReadContext: dataSourceScalrWebhookRead,
 
 		Schema: map[string]*schema.Schema{
 
 			"id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				AtLeastOneOf: []string{"name"},
 			},
 
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"id"},
 			},
 
 			"enabled": {
@@ -49,9 +52,10 @@ func dataSourceScalrWebhook() *schema.Resource {
 			},
 
 			"account_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 
 			"environment_id": {
@@ -69,23 +73,13 @@ func dataSourceScalrWebhook() *schema.Resource {
 	}
 }
 
-func dataSourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get IDs
 	webhookID := d.Get("id").(string)
 	webhookName := d.Get("name").(string)
 	accountID := d.Get("account_id").(string)
-
-	if webhookID == "" {
-		if webhookName == "" {
-			return fmt.Errorf("At least one argument 'id' or 'name' is required, but no definitions was found")
-		} else if accountID == "" {
-			return fmt.Errorf("Argument 'account_id' is required to be set in pair with 'name'")
-		}
-	} else if webhookName != "" {
-		return fmt.Errorf("Attributes 'name' and 'id' can not be set at the same time")
-	}
 
 	var webhook *scalr.Webhook
 	var err error
@@ -96,42 +90,40 @@ func dataSourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error 
 	} else {
 		log.Printf("[DEBUG] Read configuration of webhook: %s", webhookName)
 		options := GetWebhookByNameOptions{
-			Name: &webhookName,
+			Name:    &webhookName,
+			Account: &accountID,
 		}
-		if accountID != "" {
-			options.Account = &accountID
-		}
-		webhook, err = GetWebhookByName(options, scalrClient)
+		webhook, err = GetWebhookByName(ctx, options, scalrClient)
 	}
 
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Could not find webhook %s: %v", webhookID, err)
+			return diag.Errorf("Could not find webhook %s: %v", webhookID, err)
 		}
-		return fmt.Errorf("Error retrieving webhook: %v", err)
+		return diag.Errorf("Error retrieving webhook: %v", err)
 	}
 
 	// Update the config.
-	d.Set("name", webhook.Name)
-	d.Set("enabled", webhook.Enabled)
-	d.Set("last_triggered_at", webhook.LastTriggeredAt)
+	_ = d.Set("name", webhook.Name)
+	_ = d.Set("enabled", webhook.Enabled)
+	_ = d.Set("last_triggered_at", webhook.LastTriggeredAt)
 
-	events := []string{}
+	events := make([]string, 0)
 	if webhook.Events != nil {
 		for _, event := range webhook.Events {
 			events = append(events, event.ID)
 		}
 	}
-	d.Set("events", events)
+	_ = d.Set("events", events)
 
 	if webhook.Workspace != nil {
-		d.Set("workspace_id", webhook.Workspace.ID)
+		_ = d.Set("workspace_id", webhook.Workspace.ID)
 	}
 	if webhook.Environment != nil {
-		d.Set("environment_id", webhook.Environment.ID)
+		_ = d.Set("environment_id", webhook.Environment.ID)
 	}
 	if webhook.Endpoint != nil {
-		d.Set("endpoint_id", webhook.Endpoint.ID)
+		_ = d.Set("endpoint_id", webhook.Endpoint.ID)
 	}
 	d.SetId(webhook.ID)
 

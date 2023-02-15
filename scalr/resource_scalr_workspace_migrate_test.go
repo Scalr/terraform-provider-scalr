@@ -21,7 +21,7 @@ func testResourceScalrWorkspaceStateDataV1() map[string]interface{} {
 
 func TestResourceScalrWorkspaceStateUpgradeV0(t *testing.T) {
 	expected := testResourceScalrWorkspaceStateDataV1()
-	actual, err := resourceScalrWorkspaceStateUpgradeV0(testResourceScalrWorkspaceStateDataV0(), nil)
+	actual, err := resourceScalrWorkspaceStateUpgradeV0(ctx, testResourceScalrWorkspaceStateDataV0(), nil)
 	assertCorrectState(t, err, actual, expected)
 }
 
@@ -60,13 +60,13 @@ func testResourceScalrWorkspaceStateDataV2NoVcs() map[string]interface{} {
 
 func TestResourceScalrWorkspaceStateUpgradeV1(t *testing.T) {
 	expected := testResourceScalrWorkspaceStateDataV2()
-	actual, err := resourceScalrWorkspaceStateUpgradeV1(testResourceScalrWorkspaceStateDataV1VcsRepo(), nil)
+	actual, err := resourceScalrWorkspaceStateUpgradeV1(ctx, testResourceScalrWorkspaceStateDataV1VcsRepo(), nil)
 	assertCorrectState(t, err, actual, expected)
 }
 
 func TestResourceScalrWorkspaceStateUpgradeV1NoVcs(t *testing.T) {
 	expected := testResourceScalrWorkspaceStateDataV2NoVcs()
-	actual, err := resourceScalrWorkspaceStateUpgradeV1(testResourceScalrWorkspaceStateDataV1(), nil)
+	actual, err := resourceScalrWorkspaceStateUpgradeV1(ctx, testResourceScalrWorkspaceStateDataV1(), nil)
 	assertCorrectState(t, err, actual, expected)
 }
 
@@ -78,7 +78,7 @@ func testResourceScalrWorkspaceStateDataV3() map[string]interface{} {
 
 func TestResourceScalrWorkspaceStateUpgradeV2(t *testing.T) {
 	expected := testResourceScalrWorkspaceStateDataV3()
-	actual, err := resourceScalrWorkspaceStateUpgradeV2(testResourceScalrWorkspaceStateDataV2(), nil)
+	actual, err := resourceScalrWorkspaceStateUpgradeV2(ctx, testResourceScalrWorkspaceStateDataV2(), nil)
 	assertCorrectState(t, err, actual, expected)
 }
 
@@ -106,6 +106,6 @@ func testResourceScalrWorkspaceStateDataV4Operations() map[string]interface{} {
 
 func TestResourceScalrWorkspaceStateUpgradeV3(t *testing.T) {
 	expected := testResourceScalrWorkspaceStateDataV4Operations()
-	actual, err := resourceScalrWorkspaceStateUpgradeV3(testResourceScalrWorkspaceStateDataV3Operations(), nil)
+	actual, err := resourceScalrWorkspaceStateUpgradeV3(ctx, testResourceScalrWorkspaceStateDataV3Operations(), nil)
 	assertCorrectState(t, err, actual, expected)
 }

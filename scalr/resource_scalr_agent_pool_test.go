@@ -6,9 +6,9 @@ import (
 	"log"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/scalr/go-scalr"
 )
 
 func TestAccScalrAgentPool_basic(t *testing.T) {
@@ -16,9 +16,9 @@ func TestAccScalrAgentPool_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrAgentPoolDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrAgentPoolDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAgentPoolBasic(rInt),
@@ -39,9 +39,9 @@ func TestAccScalrAgentPool_renamed(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrAgentPoolDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrAgentPoolDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAgentPoolBasic(rInt),
@@ -71,9 +71,9 @@ func TestAccScalrAgentPool_update(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrAgentPoolDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrAgentPoolDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAgentPoolBasic(rInt),
@@ -100,9 +100,9 @@ func TestAccScalrAgentPool_import(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrAgentPoolDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrAgentPoolDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAgentPoolBasic(rInt),

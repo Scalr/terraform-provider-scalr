@@ -1,21 +1,22 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/scalr/go-scalr"
 	"log"
 )
 
 func resourceScalrTag() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrTagCreate,
-		Read:   resourceScalrTagRead,
-		Update: resourceScalrTagUpdate,
-		Delete: resourceScalrTagDelete,
+		CreateContext: resourceScalrTagCreate,
+		ReadContext:   resourceScalrTagRead,
+		UpdateContext: resourceScalrTagUpdate,
+		DeleteContext: resourceScalrTagDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -24,15 +25,17 @@ func resourceScalrTag() *schema.Resource {
 				Required: true,
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
+				ForceNew:    true,
 			},
 		},
 	}
 }
 
-func resourceScalrTagRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrTagRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 
@@ -44,17 +47,17 @@ func resourceScalrTagRead(d *schema.ResourceData, meta interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error reading tag %s: %v", id, err)
+		return diag.Errorf("Error reading tag %s: %v", id, err)
 	}
 
 	// Update config.
-	d.Set("name", tag.Name)
-	d.Set("account_id", tag.Account.ID)
+	_ = d.Set("name", tag.Name)
+	_ = d.Set("account_id", tag.Account.ID)
 
 	return nil
 }
 
-func resourceScalrTagCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrTagCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get the name and account_id.
@@ -69,15 +72,15 @@ func resourceScalrTagCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Create tag %s for account %s", name, accountID)
 	tag, err := scalrClient.Tags.Create(ctx, options)
 	if err != nil {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Error creating tag %s for account %s: %v", name, accountID, err)
 	}
 	d.SetId(tag.ID)
 
-	return resourceScalrTagRead(d, meta)
+	return resourceScalrTagRead(ctx, d, meta)
 }
 
-func resourceScalrTagUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrTagUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
@@ -89,14 +92,14 @@ func resourceScalrTagUpdate(d *schema.ResourceData, meta interface{}) error {
 		log.Printf("[DEBUG] Update tag %s", id)
 		_, err := scalrClient.Tags.Update(ctx, id, opts)
 		if err != nil {
-			return fmt.Errorf("error updating tag %s: %v", id, err)
+			return diag.Errorf("error updating tag %s: %v", id, err)
 		}
 	}
 
-	return resourceScalrTagRead(d, meta)
+	return resourceScalrTagRead(ctx, d, meta)
 }
 
-func resourceScalrTagDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrTagDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 
@@ -106,7 +109,7 @@ func resourceScalrTagDelete(d *schema.ResourceData, meta interface{}) error {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf("Error deleting tag %s: %v", id, err)
+		return diag.Errorf("Error deleting tag %s: %v", id, err)
 	}
 
 	return nil

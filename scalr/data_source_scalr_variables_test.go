@@ -5,16 +5,15 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccScalrVariablesDataSource(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVariablesDataSourceInitConfig, // depends_on works improperly with data sources
@@ -28,7 +27,12 @@ func TestAccScalrVariablesDataSource(t *testing.T) {
 					),
 					testCheckResourceVarsInDatasource(
 						"data.scalr_variables.account",
-						[]string{"scalr_variable.workspace2_host", "scalr_variable.workspace_host", "scalr_variable.secret"},
+						[]string{
+							"scalr_variable.workspace2_host",
+							"scalr_variable.workspace_host",
+							"scalr_variable.secret",
+							"scalr_variable.address",
+						},
 					),
 					testCheckResourceVarsInDatasource(
 						"data.scalr_variables.workspace",
@@ -67,9 +71,6 @@ func testCheckResourceVarsInDatasource(dsName string, origNames []string) resour
 			if varis == nil {
 				return fmt.Errorf("No primary instance: %s in %s", variableResourceName, ms.Path)
 			}
-			attr2dsKey := func(attr string) string {
-				return "variables." + strconv.Itoa(schema.HashString(varis.ID)) + "." + attr
-			}
 			varAttrs := []string{
 				"category", "hcl", "key", "sensitive", "final", "description", "workspace_id", "environment_id", "account_id",
 			}
@@ -77,10 +78,16 @@ func testCheckResourceVarsInDatasource(dsName string, origNames []string) resour
 				varAttrs = append(varAttrs, "value")
 			}
 
+			varAttrValues := map[string]string{}
 			for _, attr := range varAttrs {
-				if err := resource.TestCheckResourceAttr(dsName, attr2dsKey(attr), varis.Attributes[attr])(s); err != nil {
-					return fmt.Errorf("Error checking %s in data source: %v", variableResourceName, err)
-				}
+				varAttrValues[attr] = varis.Attributes[attr]
+			}
+			if err := resource.TestCheckTypeSetElemNestedAttrs(
+				dsName,
+				"variables.*",
+				varAttrValues,
+			)(s); err != nil {
+				return fmt.Errorf("%q not matched in data source: %v", variableResourceName, err)
 			}
 		}
 		return nil

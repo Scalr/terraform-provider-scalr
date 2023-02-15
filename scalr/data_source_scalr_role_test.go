@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccScalrRoleDataSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrRoleDataSourceConfig(),
@@ -29,7 +29,7 @@ func TestAccScalrRoleDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.scalr_role.user", "name", "user"),
 					resource.TestCheckResourceAttrSet("data.scalr_role.user", "description"),
 					resource.TestCheckResourceAttr("data.scalr_role.user", "is_system", "true"),
-					resource.TestCheckNoResourceAttr("data.scalr_role.user", "account_id"),
+					resource.TestCheckResourceAttr("data.scalr_role.user", "account_id", ""),
 				),
 			},
 		},

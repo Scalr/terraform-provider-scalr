@@ -1,36 +1,38 @@
 package scalr
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrVariable() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrVariableCreate,
-		Read:   resourceScalrVariableRead,
-		Update: resourceScalrVariableUpdate,
-		Delete: resourceScalrVariableDelete,
+		CreateContext: resourceScalrVariableCreate,
+		ReadContext:   resourceScalrVariableRead,
+		UpdateContext: resourceScalrVariableUpdate,
+		DeleteContext: resourceScalrVariableDelete,
 		CustomizeDiff: customdiff.All(
-			func(d *schema.ResourceDiff, meta interface{}) error {
+			func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
 				// Reject change for key if variable is sensitive
-				old, new := d.GetChange("key")
+				oldValue, newValue := d.GetChange("key")
 				sensitive := d.Get("sensitive")
 
-				if sensitive.(bool) && (old.(string) != "" && old.(string) != new.(string)) {
+				if sensitive.(bool) && (oldValue.(string) != "" && oldValue.(string) != newValue.(string)) {
 					return fmt.Errorf("Error changing 'key' attribute for variable %s: immutable for sensitive variable", d.Id())
 				}
 				return nil
 			},
 		),
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		SchemaVersion: 3,
@@ -123,16 +125,17 @@ func resourceScalrVariable() *schema.Resource {
 			},
 
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
+				ForceNew:    true,
 			},
 		},
 	}
 }
 
-func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrVariableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get key and category.
@@ -149,19 +152,20 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 		Sensitive:    scalr.Bool(d.Get("sensitive").(bool)),
 		Final:        scalr.Bool(d.Get("final").(bool)),
 		QueryOptions: &scalr.VariableWriteQueryOptions{Force: scalr.Bool(d.Get("force").(bool))},
+		Account:      &scalr.Account{ID: d.Get("account_id").(string)},
 	}
 
 	// Get and check the workspace.
 	if workspaceID, ok := d.GetOk("workspace_id"); ok {
 		ws, err := scalrClient.Workspaces.ReadByID(ctx, workspaceID.(string))
 		if err != nil {
-			return fmt.Errorf(
+			return diag.Errorf(
 				"Error retrieving workspace %s: %v", workspaceID, err)
 		}
 		options.Workspace = ws
 	} else {
 		if category == scalr.CategoryTerraform {
-			return fmt.Errorf("Attribute 'workspace_id' is required for variable with category 'terraform'.")
+			return diag.Errorf("Attribute 'workspace_id' is required for variable with category 'terraform'.")
 		}
 	}
 
@@ -169,32 +173,25 @@ func resourceScalrVariableCreate(d *schema.ResourceData, meta interface{}) error
 	if environmentId, ok := d.GetOk("environment_id"); ok {
 		env, err := scalrClient.Environments.Read(ctx, environmentId.(string))
 		if err != nil {
-			return fmt.Errorf(
+			return diag.Errorf(
 				"Error retrieving environment %s: %v", environmentId, err)
 		}
 		options.Environment = env
-	}
-
-	// Get the account
-	if accountId, ok := d.GetOk("account_id"); ok {
-		options.Account = &scalr.Account{
-			ID: accountId.(string),
-		}
 	}
 
 	log.Printf("[DEBUG] Create %s variable: %s", category, key)
 	log.Printf("[DEBUG] Description: %s", *options.Description)
 	variable, err := scalrClient.Variables.Create(ctx, options)
 	if err != nil {
-		return fmt.Errorf("Error creating %s variable %s: %v", category, key, err)
+		return diag.Errorf("Error creating %s variable %s: %v", category, key, err)
 	}
 
 	d.SetId(variable.ID)
 
-	return resourceScalrVariableRead(d, meta)
+	return resourceScalrVariableRead(ctx, d, meta)
 }
 
-func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Read variable: %s", d.Id())
@@ -205,42 +202,42 @@ func resourceScalrVariableRead(d *schema.ResourceData, meta interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error reading variable %s: %v", d.Id(), err)
+		return diag.Errorf("Error reading variable %s: %v", d.Id(), err)
 	}
 
 	// Update config.
-	d.Set("key", variable.Key)
-	d.Set("category", string(variable.Category))
-	d.Set("hcl", variable.HCL)
-	d.Set("sensitive", variable.Sensitive)
-	d.Set("description", variable.Description)
-	d.Set("final", variable.Final)
+	_ = d.Set("key", variable.Key)
+	_ = d.Set("category", string(variable.Category))
+	_ = d.Set("hcl", variable.HCL)
+	_ = d.Set("sensitive", variable.Sensitive)
+	_ = d.Set("description", variable.Description)
+	_ = d.Set("final", variable.Final)
 	_, exists := d.GetOk("force")
 	if !exists {
-		d.Set("force", false)
+		_ = d.Set("force", false)
 	}
 
 	if variable.Workspace != nil {
-		d.Set("workspace_id", variable.Workspace.ID)
+		_ = d.Set("workspace_id", variable.Workspace.ID)
 	}
 
 	if variable.Environment != nil {
-		d.Set("environment_id", variable.Environment.ID)
+		_ = d.Set("environment_id", variable.Environment.ID)
 	}
 
 	if variable.Account != nil {
-		d.Set("account_id", variable.Account.ID)
+		_ = d.Set("account_id", variable.Account.ID)
 	}
 
 	// Only set the value if it's not sensitive, as otherwise it will be empty.
 	if !variable.Sensitive {
-		d.Set("value", variable.Value)
+		_ = d.Set("value", variable.Value)
 	}
 
 	return nil
 }
 
-func resourceScalrVariableUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrVariableUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Create a new options struct.
@@ -257,13 +254,13 @@ func resourceScalrVariableUpdate(d *schema.ResourceData, meta interface{}) error
 	log.Printf("[DEBUG] Update variable: %s", d.Id())
 	_, err := scalrClient.Variables.Update(ctx, d.Id(), options)
 	if err != nil {
-		return fmt.Errorf("Error updating variable %s: %v", d.Id(), err)
+		return diag.Errorf("Error updating variable %s: %v", d.Id(), err)
 	}
 
-	return resourceScalrVariableRead(d, meta)
+	return resourceScalrVariableRead(ctx, d, meta)
 }
 
-func resourceScalrVariableDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrVariableDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Delete variable: %s", d.Id())
@@ -272,7 +269,7 @@ func resourceScalrVariableDelete(d *schema.ResourceData, meta interface{}) error
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf("Error deleting variable%s: %v", d.Id(), err)
+		return diag.Errorf("Error deleting variable%s: %v", d.Id(), err)
 	}
 
 	return nil

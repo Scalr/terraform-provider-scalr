@@ -1,13 +1,15 @@
 package scalr
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 var (
@@ -20,12 +22,12 @@ var (
 
 func resourceScalrWebhook() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrWebhookCreate,
-		Read:   resourceScalrWebhookRead,
-		Update: resourceScalrWebhookUpdate,
-		Delete: resourceScalrWebhookDelete,
+		CreateContext: resourceScalrWebhookCreate,
+		ReadContext:   resourceScalrWebhookRead,
+		UpdateContext: resourceScalrWebhookUpdate,
+		DeleteContext: resourceScalrWebhookDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -71,7 +73,7 @@ func resourceScalrWebhook() *schema.Resource {
 }
 
 // remove after https://scalr-labs.atlassian.net/browse/SCALRCORE-16234
-func getResourceScope(scalrClient *scalr.Client, workspaceID string, environmentID string) (*scalr.Workspace, *scalr.Environment, *scalr.Account, error) {
+func getResourceScope(ctx context.Context, scalrClient *scalr.Client, workspaceID string, environmentID string) (*scalr.Workspace, *scalr.Environment, *scalr.Account, error) {
 
 	// Resource scope
 	var workspace *scalr.Workspace
@@ -142,7 +144,7 @@ func parseEventDefinitions(d *schema.ResourceData) ([]*scalr.EventDefinition, er
 	return eventDefinitions, nil
 }
 
-func resourceScalrWebhookCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWebhookCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get attributes.
@@ -151,14 +153,14 @@ func resourceScalrWebhookCreate(d *schema.ResourceData, meta interface{}) error 
 	workspaceID := d.Get("workspace_id").(string)
 	environmentID := d.Get("environment_id").(string)
 
-	workspace, environment, account, err := getResourceScope(scalrClient, workspaceID, environmentID)
+	workspace, environment, account, err := getResourceScope(ctx, scalrClient, workspaceID, environmentID)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	eventDefinitions, err := parseEventDefinitions(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Create a new options struct.
@@ -175,15 +177,15 @@ func resourceScalrWebhookCreate(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Create webhook: %s", name)
 	webhook, err := scalrClient.Webhooks.Create(ctx, options)
 	if err != nil {
-		return fmt.Errorf("Error creating webhook %s: %v", name, err)
+		return diag.Errorf("Error creating webhook %s: %v", name, err)
 	}
 
 	d.SetId(webhook.ID)
 
-	return resourceScalrWebhookRead(d, meta)
+	return resourceScalrWebhookRead(ctx, d, meta)
 }
 
-func resourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get the ID
@@ -193,43 +195,43 @@ func resourceScalrWebhookRead(d *schema.ResourceData, meta interface{}) error {
 	webhook, err := scalrClient.Webhooks.Read(ctx, webhookID)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Could not find webhook %s: %v", webhookID, err)
+			return diag.Errorf("Could not find webhook %s: %v", webhookID, err)
 		}
-		return fmt.Errorf("Error retrieving webhook: %v", err)
+		return diag.Errorf("Error retrieving webhook: %v", err)
 	}
 
 	// Update the config.
-	d.Set("name", webhook.Name)
-	d.Set("enabled", webhook.Enabled)
-	d.Set("last_triggered_at", webhook.LastTriggeredAt)
+	_ = d.Set("name", webhook.Name)
+	_ = d.Set("enabled", webhook.Enabled)
+	_ = d.Set("last_triggered_at", webhook.LastTriggeredAt)
 
-	events := []string{}
+	events := make([]string, 0)
 	if webhook.Events != nil {
 		for _, event := range webhook.Events {
 			events = append(events, event.ID)
 		}
 	}
-	d.Set("events", events)
+	_ = d.Set("events", events)
 
 	if webhook.Workspace != nil {
-		d.Set("workspace_id", webhook.Workspace.ID)
+		_ = d.Set("workspace_id", webhook.Workspace.ID)
 	}
 	if webhook.Environment != nil {
-		d.Set("environment_id", webhook.Environment.ID)
+		_ = d.Set("environment_id", webhook.Environment.ID)
 	}
 	if webhook.Endpoint != nil {
-		d.Set("endpoint_id", webhook.Endpoint.ID)
+		_ = d.Set("endpoint_id", webhook.Endpoint.ID)
 	}
 
 	return nil
 }
 
-func resourceScalrWebhookUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWebhookUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	eventDefinitions, err := parseEventDefinitions(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Create a new options struct.
@@ -243,13 +245,13 @@ func resourceScalrWebhookUpdate(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Update webhook: %s", d.Id())
 	_, err = scalrClient.Webhooks.Update(ctx, d.Id(), options)
 	if err != nil {
-		return fmt.Errorf("Error updating webhook %s: %v", d.Id(), err)
+		return diag.Errorf("Error updating webhook %s: %v", d.Id(), err)
 	}
 
-	return resourceScalrWebhookRead(d, meta)
+	return resourceScalrWebhookRead(ctx, d, meta)
 }
 
-func resourceScalrWebhookDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWebhookDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Delete webhook: %s", d.Id())
@@ -258,7 +260,7 @@ func resourceScalrWebhookDelete(d *schema.ResourceData, meta interface{}) error 
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf("Error deleting webhook %s: %v", d.Id(), err)
+		return diag.Errorf("Error deleting webhook %s: %v", d.Id(), err)
 	}
 
 	return nil

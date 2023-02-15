@@ -1,16 +1,17 @@
 package scalr
 
 import (
-	"fmt"
+	"context"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrIamUser() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrIamUserRead,
+		ReadContext: dataSourceScalrIamUserRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -47,7 +48,7 @@ func dataSourceScalrIamUser() *schema.Resource {
 	}
 }
 
-func dataSourceScalrIamUserRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrIamUserRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// required fields
@@ -60,19 +61,19 @@ func dataSourceScalrIamUserRead(d *schema.ResourceData, meta interface{}) error 
 
 	ul, err := scalrClient.Users.List(ctx, options)
 	if err != nil {
-		return fmt.Errorf("error retrieving iam user: %v", err)
+		return diag.Errorf("error retrieving iam user: %v", err)
 	}
 
 	if ul.TotalCount == 0 {
-		return fmt.Errorf("iam user %s not found", email)
+		return diag.Errorf("iam user %s not found", email)
 	}
 
 	u := ul.Items[0]
 
 	// Update the configuration.
-	d.Set("status", u.Status)
-	d.Set("username", u.Username)
-	d.Set("full_name", u.FullName)
+	_ = d.Set("status", u.Status)
+	_ = d.Set("username", u.Username)
+	_ = d.Set("full_name", u.FullName)
 
 	var idps []string
 	if len(u.IdentityProviders) != 0 {
@@ -80,7 +81,7 @@ func dataSourceScalrIamUserRead(d *schema.ResourceData, meta interface{}) error 
 			idps = append(idps, idp.ID)
 		}
 	}
-	d.Set("identity_providers", idps)
+	_ = d.Set("identity_providers", idps)
 
 	var teams []string
 	if len(u.Teams) != 0 {
@@ -88,7 +89,7 @@ func dataSourceScalrIamUserRead(d *schema.ResourceData, meta interface{}) error 
 			teams = append(teams, t.ID)
 		}
 	}
-	d.Set("teams", teams)
+	_ = d.Set("teams", teams)
 
 	d.SetId(u.ID)
 

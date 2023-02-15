@@ -1,16 +1,17 @@
 package scalr
 
 import (
-	"fmt"
+	"context"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrPolicyGroup() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrPolicyGroupRead,
+		ReadContext: dataSourceScalrPolicyGroupRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -54,8 +55,10 @@ func dataSourceScalrPolicyGroup() *schema.Resource {
 				},
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"vcs_provider_id": {
 				Type:     schema.TypeString,
@@ -90,7 +93,7 @@ func dataSourceScalrPolicyGroup() *schema.Resource {
 	}
 }
 
-func dataSourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrPolicyGroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// required fields
@@ -106,22 +109,22 @@ func dataSourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) er
 
 	pgl, err := scalrClient.PolicyGroups.List(ctx, options)
 	if err != nil {
-		return fmt.Errorf("error retrieving policy group: %v", err)
+		return diag.Errorf("error retrieving policy group: %v", err)
 	}
 
 	if pgl.TotalCount == 0 {
-		return fmt.Errorf("policy group %s/%s not found", accountID, name)
+		return diag.Errorf("policy group %s/%s not found", accountID, name)
 	}
 
 	pg := pgl.Items[0]
 
 	// Update the configuration.
-	d.Set("status", pg.Status)
-	d.Set("error_message", pg.ErrorMessage)
-	d.Set("opa_version", pg.OpaVersion)
+	_ = d.Set("status", pg.Status)
+	_ = d.Set("error_message", pg.ErrorMessage)
+	_ = d.Set("opa_version", pg.OpaVersion)
 
 	if pg.VcsProvider != nil {
-		d.Set("vcs_provider_id", pg.VcsProvider.ID)
+		_ = d.Set("vcs_provider_id", pg.VcsProvider.ID)
 	}
 
 	var vcsRepo []interface{}
@@ -133,7 +136,7 @@ func dataSourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) er
 		}
 		vcsRepo = append(vcsRepo, vcsConfig)
 	}
-	d.Set("vcs_repo", vcsRepo)
+	_ = d.Set("vcs_repo", vcsRepo)
 
 	var policies []map[string]interface{}
 	if len(pg.Policies) != 0 {
@@ -145,7 +148,7 @@ func dataSourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) er
 			})
 		}
 	}
-	d.Set("policies", policies)
+	_ = d.Set("policies", policies)
 
 	var envs []string
 	if len(pg.Environments) != 0 {
@@ -153,7 +156,7 @@ func dataSourceScalrPolicyGroupRead(d *schema.ResourceData, meta interface{}) er
 			envs = append(envs, env.ID)
 		}
 	}
-	d.Set("environments", envs)
+	_ = d.Set("environments", envs)
 
 	d.SetId(pg.ID)
 

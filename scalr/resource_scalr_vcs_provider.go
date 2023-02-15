@@ -1,23 +1,24 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrVcsProvider() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrVcsProviderCreate,
-		Read:   resourceScalrVcsProviderRead,
-		Update: resourceScalrVcsProviderUpdate,
-		Delete: resourceVcsProviderDelete,
+		CreateContext: resourceScalrVcsProviderCreate,
+		ReadContext:   resourceScalrVcsProviderRead,
+		UpdateContext: resourceScalrVcsProviderUpdate,
+		DeleteContext: resourceVcsProviderDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		SchemaVersion: 1,
 		StateUpgraders: []schema.StateUpgrader{
@@ -62,16 +63,17 @@ func resourceScalrVcsProvider() *schema.Resource {
 				Optional: true,
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
+				ForceNew:    true,
 			},
 		},
 	}
 }
 
-func resourceScalrVcsProviderCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrVcsProviderCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	// Get attributes.
 	name := d.Get("name").(string)
@@ -82,6 +84,7 @@ func resourceScalrVcsProviderCreate(d *schema.ResourceData, meta interface{}) er
 		VcsType:  vcsType,
 		Token:    token,
 		AuthType: "personal_token",
+		Account:  &scalr.Account{ID: d.Get("account_id").(string)},
 	}
 
 	// Get the url
@@ -94,45 +97,37 @@ func resourceScalrVcsProviderCreate(d *schema.ResourceData, meta interface{}) er
 		options.Username = scalr.String(username.(string))
 	}
 
-	// Get the account
-	if accountId, ok := d.GetOk("account_id"); ok {
-		options.Account = &scalr.Account{
-			ID: accountId.(string),
-		}
-	}
-
 	log.Printf("[DEBUG] Create vcs provider: %s", name)
 	provider, err := scalrClient.VcsProviders.Create(ctx, options)
 	if err != nil {
-		return fmt.Errorf("Error creating vcs provider %s: %v", name, err)
+		return diag.Errorf("Error creating vcs provider %s: %v", name, err)
 	}
 	d.SetId(provider.ID)
 
-	return resourceScalrVcsProviderRead(d, meta)
+	return resourceScalrVcsProviderRead(ctx, d, meta)
 }
 
-func resourceScalrVcsProviderRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	providerID := d.Id()
 
 	log.Printf("[DEBUG] Read vcs provider with ID: %s", providerID)
 	provider, err := scalrClient.VcsProviders.Read(ctx, providerID)
 	if err != nil {
-		return fmt.Errorf("Error retrieving vcs provider: %v", err)
+		return diag.Errorf("Error retrieving vcs provider: %v", err)
 	}
-	d.Set("name", provider.Name)
-	d.Set("url", provider.Url)
-	d.Set("vcs_type", provider.VcsType)
-	d.Set("auth_type", provider.AuthType)
-	d.Set("username", provider.Username)
+	_ = d.Set("name", provider.Name)
+	_ = d.Set("url", provider.Url)
+	_ = d.Set("vcs_type", provider.VcsType)
+	_ = d.Set("username", provider.Username)
 	if provider.Account != nil {
-		d.Set("account_id", provider.Account.ID)
+		_ = d.Set("account_id", provider.Account.ID)
 	}
 
 	return nil
 }
 
-func resourceScalrVcsProviderUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrVcsProviderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	// Create a new options' struct.
 	options := scalr.VcsProviderUpdateOptions{
@@ -152,13 +147,13 @@ func resourceScalrVcsProviderUpdate(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Update vcs provider: %s", d.Id())
 	_, err := scalrClient.VcsProviders.Update(ctx, d.Id(), options)
 	if err != nil {
-		return fmt.Errorf("Error updating vcs provider %s: %v", d.Id(), err)
+		return diag.Errorf("Error updating vcs provider %s: %v", d.Id(), err)
 	}
 
-	return resourceScalrVcsProviderRead(d, meta)
+	return resourceScalrVcsProviderRead(ctx, d, meta)
 }
 
-func resourceVcsProviderDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceVcsProviderDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Delete vcs provider: %s", d.Id())
@@ -167,7 +162,7 @@ func resourceVcsProviderDelete(d *schema.ResourceData, meta interface{}) error {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf("Error deleting vcs provider %s: %v", d.Id(), err)
+		return diag.Errorf("Error deleting vcs provider %s: %v", d.Id(), err)
 	}
 
 	return nil

@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
 )
 
@@ -14,8 +14,8 @@ func TestAccVcsProvider_basic(t *testing.T) {
 	provider := &scalr.VcsProvider{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testVcsAccGithubTokenPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testVcsAccGithubTokenPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVcsProviderConfig(),
@@ -28,7 +28,7 @@ func TestAccVcsProvider_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccScalrVcsProviderUpdate(GITHUB_TOKEN, scalr.Github),
+				Config: testAccScalrVcsProviderUpdate(githubToken, scalr.Github),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrVcsProviderExists("scalr_vcs_provider.test", provider),
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "name", "updated-github-vcs-provider"),
@@ -42,7 +42,7 @@ func TestAccVcsProvider_basic(t *testing.T) {
 				ExpectError: regexp.MustCompile("Invalid access token"),
 			},
 			{
-				Config:      testAccScalrVcsProviderUpdate(GITHUB_TOKEN, scalr.Gitlab),
+				Config:      testAccScalrVcsProviderUpdate(githubToken, scalr.Gitlab),
 				ExpectError: regexp.MustCompile("Invalid access token"),
 			},
 		},
@@ -52,9 +52,9 @@ func TestAccVcsProvider_basic(t *testing.T) {
 func TestAccVcsProvider_globalScope(t *testing.T) {
 	provider := &scalr.VcsProvider{}
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testVcsAccGithubTokenPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrVcsProviderDestroy,
+		PreCheck:          func() { testVcsAccGithubTokenPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrVcsProviderDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -63,7 +63,7 @@ func TestAccVcsProvider_globalScope(t *testing.T) {
 						vcs_type="github"
                         token="%s"
 					}
-				`, GITHUB_TOKEN),
+				`, githubToken),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrVcsProviderExists("scalr_vcs_provider.test", provider),
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "name", "global-github-vcs-provider"),
@@ -77,9 +77,9 @@ func TestAccVcsProvider_globalScope(t *testing.T) {
 
 func TestAccScalrVcsProvider_import(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testVcsAccGithubTokenPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrVcsProviderDestroy,
+		PreCheck:          func() { testVcsAccGithubTokenPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrVcsProviderDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVcsProviderConfig(),
@@ -147,7 +147,7 @@ resource "scalr_vcs_provider" "test" {
   account_id     = "%s"
   vcs_type="github"
   token = "%s"
-}`, defaultAccount, GITHUB_TOKEN)
+}`, defaultAccount, githubToken)
 }
 
 func testAccScalrVcsProviderUpdate(token string, vcsType scalr.VcsType) string {

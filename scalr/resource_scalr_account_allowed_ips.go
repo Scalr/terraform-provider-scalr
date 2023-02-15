@@ -1,29 +1,32 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrAccountAllowedIps() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrAccountAllowedIpsCreate,
-		Read:   resourceScalrAccountAllowedIpsRead,
-		Update: resourceScalrAccountAllowedIpsUpdate,
-		Delete: resourceScalrAccountAllowedIpsDelete,
+		CreateContext: resourceScalrAccountAllowedIpsCreate,
+		ReadContext:   resourceScalrAccountAllowedIpsRead,
+		UpdateContext: resourceScalrAccountAllowedIpsUpdate,
+		DeleteContext: resourceScalrAccountAllowedIpsDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
 			"account_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 
 			"allowed_ips": {
@@ -45,7 +48,7 @@ func preprocessAllowedIps(allowedIps []interface{}) []string {
 	return ips
 }
 
-func resourceScalrAccountAllowedIpsCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAccountAllowedIpsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get attributes.
@@ -61,15 +64,15 @@ func resourceScalrAccountAllowedIpsCreate(d *schema.ResourceData, meta interface
 	log.Printf("[DEBUG] Update allowed ips: %s", accountId)
 	account, err := scalrClient.Accounts.Update(ctx, accountId, options)
 	if err != nil {
-		return fmt.Errorf("Error updating allowed ips for account %s: %v", accountId, err)
+		return diag.Errorf("Error updating allowed ips for account %s: %v", accountId, err)
 	}
 
 	d.SetId(account.ID)
 
-	return resourceScalrAccountAllowedIpsRead(d, meta)
+	return resourceScalrAccountAllowedIpsRead(ctx, d, meta)
 }
 
-func resourceScalrAccountAllowedIpsRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAccountAllowedIpsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get the ID
@@ -79,9 +82,9 @@ func resourceScalrAccountAllowedIpsRead(d *schema.ResourceData, meta interface{}
 	account, err := scalrClient.Accounts.Read(ctx, accountID)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Could not find account %s: %v", accountID, err)
+			return diag.Errorf("Could not find account %s: %v", accountID, err)
 		}
-		return fmt.Errorf("Error retrieving account: %v", err)
+		return diag.Errorf("Error retrieving account: %v", err)
 	}
 
 	for i, ip := range account.AllowedIPs {
@@ -89,13 +92,13 @@ func resourceScalrAccountAllowedIpsRead(d *schema.ResourceData, meta interface{}
 	}
 
 	// Update the config.
-	d.Set("allowed_ips", account.AllowedIPs)
-	d.Set("account_id", accountID)
+	_ = d.Set("allowed_ips", account.AllowedIPs)
+	_ = d.Set("account_id", accountID)
 
 	return nil
 }
 
-func resourceScalrAccountAllowedIpsUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAccountAllowedIpsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get attributes.
@@ -110,13 +113,13 @@ func resourceScalrAccountAllowedIpsUpdate(d *schema.ResourceData, meta interface
 	log.Printf("[DEBUG] Update allowed ips for account: %s", d.Id())
 	_, err := scalrClient.Accounts.Update(ctx, d.Id(), options)
 	if err != nil {
-		return fmt.Errorf("Error updating allowed ips for %s: %v", d.Id(), err)
+		return diag.Errorf("Error updating allowed ips for %s: %v", d.Id(), err)
 	}
 
-	return resourceScalrAccountAllowedIpsRead(d, meta)
+	return resourceScalrAccountAllowedIpsRead(ctx, d, meta)
 }
 
-func resourceScalrAccountAllowedIpsDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAccountAllowedIpsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Delete allowed ips for account: %s", d.Id())
@@ -131,7 +134,7 @@ func resourceScalrAccountAllowedIpsDelete(d *schema.ResourceData, meta interface
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf("Error deleting allowed ips for account %s: %v", d.Id(), err)
+		return diag.Errorf("Error deleting allowed ips for account %s: %v", d.Id(), err)
 	}
 
 	return nil

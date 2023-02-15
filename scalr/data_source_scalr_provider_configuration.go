@@ -1,25 +1,28 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrProviderConfiguration() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrProviderConfigurationRead,
+		ReadContext: dataSourceScalrProviderConfigurationRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -33,7 +36,7 @@ func dataSourceScalrProviderConfiguration() *schema.Resource {
 	}
 }
 
-func dataSourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrProviderConfigurationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	accountID := d.Get("account_id").(string)
@@ -51,14 +54,14 @@ func dataSourceScalrProviderConfigurationRead(d *schema.ResourceData, meta inter
 
 	providerConfigurations, err := scalrClient.ProviderConfigurations.List(ctx, options)
 	if err != nil {
-		return fmt.Errorf("Error retrieving provider configuration: %v", err)
+		return diag.Errorf("Error retrieving provider configuration: %v", err)
 	}
 
 	if len(providerConfigurations.Items) > 1 {
-		return errors.New("Your query returned more than one result. Please try a more specific search criteria.")
+		return diag.FromErr(errors.New("Your query returned more than one result. Please try a more specific search criteria."))
 	}
 	if len(providerConfigurations.Items) == 0 {
-		return fmt.Errorf("Could not find provider configuration with name '%s', account_id: '%s', and provider_name: '%s'", name, accountID, providerName)
+		return diag.Errorf("Could not find provider configuration with name '%s', account_id: '%s', and provider_name: '%s'", name, accountID, providerName)
 	}
 
 	providerConfiguration := providerConfigurations.Items[0]

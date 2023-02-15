@@ -22,7 +22,7 @@ resource "scalr_policy_group" "example" {
 ## Argument Reference
 
 * `name` - (Required) The name of a policy group.
-* `account_id` - (Required) The identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.
+* `account_id` - (Optional) The identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.
 * `vcs_provider_id` - (Required) The identifier of a VCS provider, in the format `vcs-<RANDOM STRING>`.
 * `vcs_repo` - (Required) Object. The VCS meta-data to create the policy from:
 

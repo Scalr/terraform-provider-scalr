@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/scalr/go-scalr"
 )
 
 func TestAccPolicyGroupDataSource_basic(t *testing.T) {
@@ -20,7 +20,7 @@ func TestAccPolicyGroupDataSource_basic(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupConfig(rInt),
@@ -134,7 +134,7 @@ resource "scalr_policy_group" "test" {
     path       = "%s"
   }
 }
-`, rInt, string(scalr.Github), GITHUB_TOKEN, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
+`, rInt, string(scalr.Github), githubToken, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
 }
 
 func testAccPolicyGroupDataSourceConfig(rInt int) string {

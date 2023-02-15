@@ -8,8 +8,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+**New resource:**  `scalr_provider_configuration_default` ([#205](https://github.com/Scalr/terraform-provider-scalr/pull/205))
 
-- `module_verion`: data source: change relation from latest-module-version to module-version  ([#181](https://github.com/Scalr/terraform-provider-scalr/pull/181))
+### Changed
+`scalr_workspace`: delete default value for `auto_queue_runs` attribute ([#209](https://github.com/Scalr/terraform-provider-scalr/pull/209))
+
+## [1.0.1] - 2023-01-20
+
+### Added
+
+- **New data source:**  `scalr_current_account` ([#199](https://github.com/Scalr/terraform-provider-scalr/pull/199))
+- **New data source:**  `scalr_service_account` ([#200](https://github.com/Scalr/terraform-provider-scalr/pull/200))
+- **New resource:**  `scalr_service_account` ([#200](https://github.com/Scalr/terraform-provider-scalr/pull/200))
+- **New resource:**  `scalr_service_account_token` ([#201](https://github.com/Scalr/terraform-provider-scalr/pull/201))
+
+### Changed
+
+- `data.scalr_current_run` now results in plan error if no current run info is present ([#192](https://github.com/Scalr/terraform-provider-scalr/pull/192))
+- `data.scalr_current_run`: changed type of `vcs.commit.author` attribute from TypeMap to TypeList ([#192](https://github.com/Scalr/terraform-provider-scalr/pull/192))
+- dropped support of Terraform 0.11 and below ([#192](https://github.com/Scalr/terraform-provider-scalr/pull/192))
+- `account_id` attribute in resources and datasources is optional now.
+If it's not explicitly set in the configuration, the default value is taken from environment
+variable `SCALR_ACCOUNT_ID`. The variable is set automatically for all runs on Scalr backend.
+([#199](https://github.com/Scalr/terraform-provider-scalr/pull/199))
+
+### Required
+
+- scalr-server >= `8.52.0`
+
+
+## [1.0.0] - 2022-12-02
+
+### Added
+
+- `module_version`: data source: change relation from latest-module-version to module-version ([#181](https://github.com/Scalr/terraform-provider-scalr/pull/181))
+
+### Fixed
+
+- panic when creating workspace with empty var file value ([#191](https://github.com/Scalr/terraform-provider-scalr/pull/191))
+- typo in documentation of `scalr_variable` data-source `environment_id` parameter ([#193](https://github.com/Scalr/terraform-provider-scalr/pull/193))
+
+### Deprecated
+
+- `scalr_environment`: attribute `cloud_credentials` has been deprecated ([#190](https://github.com/Scalr/terraform-provider-scalr/pull/190))
+
+- scalr-server >= `8.45.0`
 
 ### Changed
 
@@ -535,7 +578,9 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc38...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.1
+[1.0.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0
 [1.0.0-rc38]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc38
 [1.0.0-rc37]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc37
 [1.0.0-rc36]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc36

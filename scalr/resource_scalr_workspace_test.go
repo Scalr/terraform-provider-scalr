@@ -7,9 +7,9 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/scalr/go-scalr"
 )
 
 func TestAccScalrWorkspace_basic(t *testing.T) {
@@ -17,9 +17,9 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceBasic(rInt),
@@ -68,16 +68,16 @@ func TestAccScalrWorkspace_create_missed_vcs_attr(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrWorkspaceMissedVcsProvider(rInt),
-				ExpectError: regexp.MustCompile("config is invalid: \"vcs_repo\": all of `vcs_provider_id,vcs_repo` must be specified"),
+				ExpectError: regexp.MustCompile("\"vcs_repo\": all of `vcs_provider_id,vcs_repo` must be specified"),
 			},
 			{
 				Config:      testAccScalrWorkspaceMissedVcsRepo(rInt),
-				ExpectError: regexp.MustCompile("config is invalid: \"vcs_provider_id\": all of `vcs_provider_id,vcs_repo` must be specified"),
+				ExpectError: regexp.MustCompile("\"vcs_provider_id\": all of `vcs_provider_id,vcs_repo` must be specified"),
 			},
 		},
 	})
@@ -88,9 +88,9 @@ func TestAccScalrWorkspace_monorepo(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceMonorepo(rInt),
@@ -120,9 +120,9 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceBasic(rInt),
@@ -195,9 +195,9 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceBasic(rInt),
@@ -244,7 +244,7 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeLocal)),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "terraform_version", "0.12.19"),
+						"scalr_workspace.test", "terraform_version", "1.1.9"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", "terraform/test"),
 					resource.TestCheckResourceAttr(
@@ -281,12 +281,12 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeLocal)),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "terraform_version", "0.12.19"),
+						"scalr_workspace.test", "terraform_version", "1.1.9"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", "terraform/test"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "run_operation_timeout", "0"),
-					resource.TestCheckNoResourceAttr("scalr_workspace.test", "hooks"),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "hooks.#", "0"),
 				),
 			},
 
@@ -307,9 +307,9 @@ func TestAccScalrWorkspace_import(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceBasic(rInt),
@@ -329,9 +329,9 @@ func TestAccScalrWorkspace_providerConfiguration(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceProviderConfiguration(rInt),
@@ -361,9 +361,9 @@ func TestAccScalrWorkspace_emptyHooks(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrWorkspaceDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceEmptyHooks(rInt),
@@ -494,7 +494,7 @@ func testAccCheckScalrWorkspaceAttributesUpdated(
 			return fmt.Errorf("Bad execution mode: %s", workspace.ExecutionMode)
 		}
 
-		if workspace.TerraformVersion != "0.12.19" {
+		if workspace.TerraformVersion != "1.1.9" {
 			return fmt.Errorf("Bad Terraform version: %s", workspace.TerraformVersion)
 		}
 
@@ -511,7 +511,7 @@ func testAccCheckScalrWorkspaceProviderConfigurations(
 	return func(s *terraform.State) error {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
-		links, err := getProviderConfigurationWorkspaceLinks(scalrClient, workspace.ID)
+		links, err := getProviderConfigurationWorkspaceLinks(ctx, scalrClient, workspace.ID)
 		if err != nil {
 			return fmt.Errorf("Error retrieving provider configuration links: %v", err)
 		}
@@ -565,7 +565,7 @@ func testAccCheckScalrWorkspaceProviderConfigurationsUpdated(
 	return func(s *terraform.State) error {
 		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
-		links, err := getProviderConfigurationWorkspaceLinks(scalrClient, workspace.ID)
+		links, err := getProviderConfigurationWorkspaceLinks(ctx, scalrClient, workspace.ID)
 		if err != nil {
 			return fmt.Errorf("Error retrieving provider configuration links: %v", err)
 		}
@@ -714,7 +714,7 @@ resource "scalr_workspace" "test" {
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
   execution_mode        = "%s"
-  terraform_version     = "0.12.19"
+  terraform_version     = "1.1.9"
   working_directory     = "terraform/test"
   run_operation_timeout = 200
   var_files             = ["test1updated.tfvars", "test2updated.tfvars"]
@@ -737,7 +737,7 @@ resource "scalr_workspace" "test" {
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
   execution_mode        = "%s"
-  terraform_version     = "0.12.19"
+  terraform_version     = "1.1.9"
   working_directory     = "terraform/test"
   vcs_repo {
    identifier = "TestRepo/local"
@@ -755,7 +755,7 @@ resource "scalr_workspace" "test" {
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
   execution_mode        = "%s"
-  terraform_version     = "0.12.19"
+  terraform_version     = "1.1.9"
   working_directory     = "terraform/test"
   vcs_provider_id	    = "test_provider_id"
 }`, scalr.WorkspaceExecutionModeLocal),
@@ -770,7 +770,7 @@ resource "scalr_workspace" "test" {
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
   execution_mode        = "%s"
-  terraform_version     = "0.12.19"
+  terraform_version     = "1.1.9"
   working_directory     = "terraform/test"
 }`, scalr.WorkspaceExecutionModeLocal),
 	)
@@ -784,7 +784,7 @@ resource "scalr_workspace" "test" {
   environment_id 		= scalr_environment.test.id
   auto_apply            = false
   execution_mode        = "%s"
-  terraform_version     = "0.12.19"
+  terraform_version     = "1.1.9"
   working_directory     = ""
   hooks {
     pre_init   = "./scripts/pre-init_updated.sh"

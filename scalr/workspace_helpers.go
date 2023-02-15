@@ -1,15 +1,16 @@
 package scalr
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 // fetchWorkspaceID returns the id for a workspace
 // when given a workspace id of the form ENVIRONMENT_ID/WORKSPACE_NAME
-func fetchWorkspaceID(id string, client *scalr.Client) (string, error) {
+func fetchWorkspaceID(ctx context.Context, id string, client *scalr.Client) (string, error) {
 	environmentID, wsName, err := unpackWorkspaceID(id)
 	if err != nil {
 		return "", fmt.Errorf("Error unpacking workspace ID: %v", err)

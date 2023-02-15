@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func testResourceScalrVariableStateDataV0() map[string]interface{} {
@@ -22,14 +22,14 @@ func testResourceScalrVariableStateDataV1() map[string]interface{} {
 func TestResourceScalrVariableStateUpgradeV0(t *testing.T) {
 	client := testScalrClient(t)
 	name := "a-workspace"
-	client.Workspaces.Create(context.Background(), scalr.WorkspaceCreateOptions{
+	_, _ = client.Workspaces.Create(context.Background(), scalr.WorkspaceCreateOptions{
 		ID:          "ws-123",
 		Name:        &name,
 		Environment: &scalr.Environment{ID: "my-env"},
 	})
 
 	expected := testResourceScalrVariableStateDataV1()
-	actual, err := resourceScalrVariableStateUpgradeV0(testResourceScalrVariableStateDataV0(), client)
+	actual, err := resourceScalrVariableStateUpgradeV0(ctx, testResourceScalrVariableStateDataV0(), client)
 	assertCorrectState(t, err, actual, expected)
 }
 
@@ -47,7 +47,7 @@ func testResourceScalrVariableStateDataCategoryV1() map[string]interface{} {
 
 func TestResourceScalrVariableStateUpgradeV1(t *testing.T) {
 	expected := testResourceScalrVariableStateDataCategoryV1()
-	actual, err := resourceScalrVariableStateUpgradeV1(testResourceScalrVariableStateDataCategoryV0(), nil)
+	actual, err := resourceScalrVariableStateUpgradeV1(ctx, testResourceScalrVariableStateDataCategoryV0(), nil)
 	assertCorrectState(t, err, actual, expected)
 }
 
@@ -68,7 +68,7 @@ func TestResourceScalrVariableStateUpgradeV2(t *testing.T) {
 	client := testScalrClient(t)
 	variable, _ := client.Variables.Create(context.Background(), scalr.VariableCreateOptions{ID: "var-123"})
 	expected := testResourceScalrVariableStateDataDescriptionV2(variable.ID)
-	actual, err := resourceScalrVariableStateUpgradeV2(testResourceScalrVariableStateDataDescriptionV1(variable.ID), client)
+	actual, err := resourceScalrVariableStateUpgradeV2(ctx, testResourceScalrVariableStateDataDescriptionV1(variable.ID), client)
 	assertCorrectState(t, err, actual, expected)
 
 }

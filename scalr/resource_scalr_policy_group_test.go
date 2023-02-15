@@ -6,8 +6,8 @@ import (
 	"log"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
 )
 
@@ -25,8 +25,8 @@ func TestAccPolicyGroup_basic(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPolicyGroupDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckPolicyGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupBasicConfig(rInt),
@@ -78,8 +78,8 @@ func TestAccPolicyGroup_update(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPolicyGroupDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckPolicyGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupBasicConfig(rInt),
@@ -169,8 +169,8 @@ func TestAccPolicyGroup_renamed(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPolicyGroupDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckPolicyGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupBasicConfig(rInt),
@@ -260,8 +260,8 @@ func TestAccPolicyGroup_import(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckPolicyGroupDestroy,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckPolicyGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupBasicConfig(rInt),
@@ -351,7 +351,7 @@ resource "scalr_policy_group" "test" {
     path       = "%s"
   }
 }
-`, rInt, string(scalr.Github), GITHUB_TOKEN, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
+`, rInt, string(scalr.Github), githubToken, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
 }
 
 func testAccPolicyGroupUpdateConfig(rInt int) string {
@@ -371,7 +371,7 @@ resource "scalr_policy_group" "test" {
     path       = "%s"
   }
 }
-`, rInt, string(scalr.Github), GITHUB_TOKEN, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
+`, rInt, string(scalr.Github), githubToken, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
 }
 
 func testAccPolicyGroupRenamedConfig(rInt int) string {
@@ -391,5 +391,5 @@ resource "scalr_policy_group" "test" {
     path       = "%s"
   }
 }
-`, rInt, string(scalr.Github), GITHUB_TOKEN, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
+`, rInt, string(scalr.Github), githubToken, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
 }

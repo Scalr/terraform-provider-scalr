@@ -10,7 +10,7 @@ data "scalr_variable" "test_var" {
   key = "key"
   category = "terraform"
   account_id = "acc-tgobtsrgo3rlks8"
-  envrironment_id = "env-sv0425034857d22"
+  environment_id = "env-sv0425034857d22"
   workspace_id = "ws-tlbp7litrs55vgg"
 }
 ```
@@ -20,7 +20,7 @@ data "scalr_variable" "test_var" {
 * `key` - (Required) The name of a Scalr variable.
 * `category` - (Optional) The category of a Scalr variable.
 * `account_id` - (Optional) ID of the account, in the format `acc-<RANDOM STRING>`
-* `envrironment_id` - (Optional) The identifier of the Scalr environment, in the format `env-<RANDOM STRING>`. Used to shrink the scope of the variable in case the variable name exists in multiple environments.
+* `environment_id` - (Optional) The identifier of the Scalr environment, in the format `env-<RANDOM STRING>`. Used to shrink the scope of the variable in case the variable name exists in multiple environments.
 * `workspace_id` - (Optional) The identifier of the Scalr workspace, in the format `ws-<RANDOM STRING>`. Used to shrink the scope of the variable in case the variable name exists on multiple workspaces.
 
 

@@ -1,22 +1,24 @@
 package scalr
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrEnvironment() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrEnvironmentCreate,
-		Read:   resourceScalrEnvironmentRead,
-		Delete: resourceScalrEnvironmentDelete,
-		Update: resourceScalrEnvironmentUpdate,
+		CreateContext: resourceScalrEnvironmentCreate,
+		ReadContext:   resourceScalrEnvironmentRead,
+		DeleteContext: resourceScalrEnvironmentDelete,
+		UpdateContext: resourceScalrEnvironmentUpdate,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -54,15 +56,18 @@ func resourceScalrEnvironment() *schema.Resource {
 				},
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
+				ForceNew:    true,
 			},
 			"cloud_credentials": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:       schema.TypeList,
+				Computed:   true,
+				Optional:   true,
+				Elem:       &schema.Schema{Type: schema.TypeString},
+				Deprecated: "The attribute `cloud_credentials` is deprecated. Use `default_provider_configurations` instead",
 			},
 			"policy_groups": {
 				Type:     schema.TypeList,
@@ -74,6 +79,7 @@ func resourceScalrEnvironment() *schema.Resource {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+				Computed: true,
 			},
 			"tag_ids": {
 				Type:     schema.TypeSet,
@@ -116,18 +122,18 @@ func parsePolicyGroupDefinitions(d *schema.ResourceData) ([]*scalr.PolicyGroup, 
 	return policyGroups, nil
 }
 
-func resourceScalrEnvironmentCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	name := d.Get("name").(string)
 	accountID := d.Get("account_id").(string)
 	cloudCredentials, err := parseCloudCredentialDefinitions(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	policyGroups, err := parsePolicyGroupDefinitions(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	options := scalr.EnvironmentCreateOptions{
@@ -158,14 +164,14 @@ func resourceScalrEnvironmentCreate(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Create Environment %s for account: %s", name, accountID)
 	environment, err := scalrClient.Environments.Create(ctx, options)
 	if err != nil {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Error creating Environment %s for account %s: %v", name, accountID, err)
 	}
 	d.SetId(environment.ID)
-	return resourceScalrEnvironmentRead(d, meta)
+	return resourceScalrEnvironmentRead(ctx, d, meta)
 }
 
-func resourceScalrEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	environmentID := d.Id()
@@ -179,20 +185,20 @@ func resourceScalrEnvironmentRead(d *schema.ResourceData, meta interface{}) erro
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error reading environment %s: %v", environmentID, err)
+		return diag.Errorf("Error reading environment %s: %v", environmentID, err)
 	}
 
 	// Update the configuration.
-	d.Set("name", environment.Name)
-	d.Set("account_id", environment.Account.ID)
-	d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)
-	d.Set("status", environment.Status)
+	_ = d.Set("name", environment.Name)
+	_ = d.Set("account_id", environment.Account.ID)
+	_ = d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)
+	_ = d.Set("status", environment.Status)
 
 	defaultProviderConfigurations := make([]string, 0)
 	for _, providerConfiguration := range environment.DefaultProviderConfigurations {
 		defaultProviderConfigurations = append(defaultProviderConfigurations, providerConfiguration.ID)
 	}
-	d.Set("default_provider_configurations", defaultProviderConfigurations)
+	_ = d.Set("default_provider_configurations", defaultProviderConfigurations)
 
 	var createdBy []interface{}
 	if environment.CreatedBy != nil {
@@ -202,23 +208,23 @@ func resourceScalrEnvironmentRead(d *schema.ResourceData, meta interface{}) erro
 			"full_name": environment.CreatedBy.FullName,
 		})
 	}
-	d.Set("created_by", createdBy)
+	_ = d.Set("created_by", createdBy)
 
-	cloudCredentials := []string{}
+	cloudCredentials := make([]string, 0)
 	if environment.CloudCredentials != nil {
 		for _, creds := range environment.CloudCredentials {
 			cloudCredentials = append(cloudCredentials, creds.ID)
 		}
 	}
-	d.Set("cloud_credentials", cloudCredentials)
+	_ = d.Set("cloud_credentials", cloudCredentials)
 
-	policyGroups := []string{}
+	policyGroups := make([]string, 0)
 	if environment.PolicyGroups != nil {
 		for _, group := range environment.PolicyGroups {
 			policyGroups = append(policyGroups, group.ID)
 		}
 	}
-	d.Set("policy_groups", policyGroups)
+	_ = d.Set("policy_groups", policyGroups)
 
 	var tagIDs []string
 	if len(environment.Tags) != 0 {
@@ -226,22 +232,22 @@ func resourceScalrEnvironmentRead(d *schema.ResourceData, meta interface{}) erro
 			tagIDs = append(tagIDs, tag.ID)
 		}
 	}
-	d.Set("tag_ids", tagIDs)
+	_ = d.Set("tag_ids", tagIDs)
 
 	return nil
 }
 
-func resourceScalrEnvironmentUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	var err error
 	cloudCredentials, err := parseCloudCredentialDefinitions(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	policyGroups, err := parsePolicyGroupDefinitions(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Create a new options struct.
@@ -266,7 +272,7 @@ func resourceScalrEnvironmentUpdate(d *schema.ResourceData, meta interface{}) er
 	log.Printf("[DEBUG] Update environment: %s", d.Id())
 	_, err = scalrClient.Environments.Update(ctx, d.Id(), options)
 	if err != nil {
-		return fmt.Errorf("Error updating environment %s: %v", d.Id(), err)
+		return diag.Errorf("Error updating environment %s: %v", d.Id(), err)
 	}
 
 	if d.HasChange("tag_ids") {
@@ -279,7 +285,7 @@ func resourceScalrEnvironmentUpdate(d *schema.ResourceData, meta interface{}) er
 		if len(tagsToAdd) > 0 {
 			err := scalrClient.EnvironmentTags.Add(ctx, d.Id(), tagsToAdd)
 			if err != nil {
-				return fmt.Errorf(
+				return diag.Errorf(
 					"Error adding tags to environment %s: %v", d.Id(), err)
 			}
 		}
@@ -287,16 +293,16 @@ func resourceScalrEnvironmentUpdate(d *schema.ResourceData, meta interface{}) er
 		if len(tagsToDelete) > 0 {
 			err := scalrClient.EnvironmentTags.Delete(ctx, d.Id(), tagsToDelete)
 			if err != nil {
-				return fmt.Errorf(
+				return diag.Errorf(
 					"Error deleting tags from environment %s: %v", d.Id(), err)
 			}
 		}
 	}
 
-	return resourceScalrEnvironmentRead(d, meta)
+	return resourceScalrEnvironmentRead(ctx, d, meta)
 }
 
-func resourceScalrEnvironmentDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	environmentID := d.Id()
 
@@ -306,7 +312,7 @@ func resourceScalrEnvironmentDelete(d *schema.ResourceData, meta interface{}) er
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Error deleting environment %s: %v", environmentID, err)
 	}
 

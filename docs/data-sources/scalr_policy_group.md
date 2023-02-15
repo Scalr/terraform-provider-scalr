@@ -15,7 +15,7 @@ data "scalr_policy_group" "example" {
 ## Argument Reference
 
 * `name` - (Required) The name of a policy group.
-* `account_id` - (Required) The identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.
+* `account_id` - (Optional) The identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.
 
 ## Attribute Reference
 

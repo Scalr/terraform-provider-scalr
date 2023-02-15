@@ -1,7 +1,8 @@
 package scalr
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"context"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceScalrEndpointResourceV0() *schema.Resource {
@@ -49,7 +50,7 @@ func resourceScalrEndpointResourceV0() *schema.Resource {
 	}
 }
 
-func resourceScalrEndpointStateUpgradeV0(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceScalrEndpointStateUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
 	delete(rawState, "http_method")
 	return rawState, nil
 }

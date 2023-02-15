@@ -1,12 +1,14 @@
 package scalr
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 type Scope string
@@ -42,12 +44,12 @@ func (s Subject) IsValid() error {
 
 func resourceScalrAccessPolicy() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrAccessPolicyCreate,
-		Read:   resourceScalrAccessPolicyRead,
-		Update: resourceScalrAccessPolicyUpdate,
-		Delete: resourceScalrAccessPolicyDelete,
+		CreateContext: resourceScalrAccessPolicyCreate,
+		ReadContext:   resourceScalrAccessPolicyRead,
+		UpdateContext: resourceScalrAccessPolicyUpdate,
+		DeleteContext: resourceScalrAccessPolicyDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		SchemaVersion: 0,
 		Schema: map[string]*schema.Schema{
@@ -133,7 +135,7 @@ func parseRoleIdDefinitions(d *schema.ResourceData) ([]*scalr.Role, error) {
 	return roles, nil
 }
 
-func resourceScalrAccessPolicyCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAccessPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	subject := d.Get("subject").([]interface{})[0].(map[string]interface{})
@@ -146,7 +148,7 @@ func resourceScalrAccessPolicyCreate(d *schema.ResourceData, meta interface{}) e
 
 	roles, err := parseRoleIdDefinitions(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Create a new options struct.
@@ -173,14 +175,14 @@ func resourceScalrAccessPolicyCreate(d *schema.ResourceData, meta interface{}) e
 	log.Printf("[DEBUG] Create access policy for %s %s on %s %s", subjectType, subjectId, scopeType, scopeId)
 	ap, err := scalrClient.AccessPolicies.Create(ctx, options)
 	if err != nil {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Error creating access policy for %s %s on %s %s: %v", subjectType, subjectId, scopeType, scopeId, err)
 	}
 	d.SetId(ap.ID)
-	return resourceScalrAccessPolicyRead(d, meta)
+	return resourceScalrAccessPolicyRead(ctx, d, meta)
 }
 
-func resourceScalrAccessPolicyRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAccessPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 
@@ -193,7 +195,7 @@ func resourceScalrAccessPolicyRead(d *schema.ResourceData, meta interface{}) err
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error reading configuration of access policy %s: %v", id, err)
+		return diag.Errorf("Error reading configuration of access policy %s: %v", id, err)
 	}
 
 	var subject [1]interface{}
@@ -209,10 +211,10 @@ func resourceScalrAccessPolicyRead(d *schema.ResourceData, meta interface{}) err
 		subjectEl["type"] = ServiceAccount
 		subjectEl["id"] = ap.ServiceAccount.ID
 	} else {
-		return fmt.Errorf("Unable to extract subject from access policy %s", ap.ID)
+		return diag.Errorf("Unable to extract subject from access policy %s", ap.ID)
 	}
 	subject[0] = subjectEl
-	d.Set("subject", subject)
+	_ = d.Set("subject", subject)
 
 	var scope [1]interface{}
 	scopeEl := make(map[string]interface{})
@@ -227,24 +229,24 @@ func resourceScalrAccessPolicyRead(d *schema.ResourceData, meta interface{}) err
 		scopeEl["type"] = Account
 		scopeEl["id"] = ap.Account.ID
 	} else {
-		return fmt.Errorf("Unable to extract scope from access policy %s", ap.ID)
+		return diag.Errorf("Unable to extract scope from access policy %s", ap.ID)
 	}
 	scope[0] = scopeEl
-	d.Set("scope", scope)
+	_ = d.Set("scope", scope)
 
 	roleIds := make([]interface{}, 0)
 	for _, role := range ap.Roles {
 		roleIds = append(roleIds, role.ID)
 	}
 
-	d.Set("role_ids", roleIds)
-	d.Set("is_system", ap.IsSystem)
+	_ = d.Set("role_ids", roleIds)
+	_ = d.Set("is_system", ap.IsSystem)
 	d.SetId(ap.ID)
 
 	return nil
 }
 
-func resourceScalrAccessPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAccessPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
@@ -252,7 +254,7 @@ func resourceScalrAccessPolicyUpdate(d *schema.ResourceData, meta interface{}) e
 	if d.HasChange("role_ids") {
 		roles, err := parseRoleIdDefinitions(d)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		// Create a new options struct.
@@ -261,15 +263,15 @@ func resourceScalrAccessPolicyUpdate(d *schema.ResourceData, meta interface{}) e
 		log.Printf("[DEBUG] Update access policy %s", id)
 		_, err = scalrClient.AccessPolicies.Update(ctx, id, options)
 		if err != nil {
-			return fmt.Errorf(
+			return diag.Errorf(
 				"Error updating access policy %s: %v", id, err)
 		}
 	}
 
-	return resourceScalrAccessPolicyRead(d, meta)
+	return resourceScalrAccessPolicyRead(ctx, d, meta)
 }
 
-func resourceScalrAccessPolicyDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrAccessPolicyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 
@@ -279,7 +281,7 @@ func resourceScalrAccessPolicyDelete(d *schema.ResourceData, meta interface{}) e
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Error deleting access policy %s: %v", id, err)
 	}
 

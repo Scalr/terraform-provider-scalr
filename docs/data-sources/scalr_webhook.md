@@ -18,7 +18,7 @@ data "scalr_webhook" "example" {
 }
 ```
 
-```javascript
+```hcl
 data "scalr_webhook" "example" {
   name = "webhook_name"
   account_id = "<acc-id>"

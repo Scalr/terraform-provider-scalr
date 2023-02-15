@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceDataSourceConfig(rInt),
@@ -23,7 +23,7 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.test", "auto_apply", "true"),
 					resource.TestCheckResourceAttr(
-						"data.scalr_workspace.test", "terraform_version", "0.12.19"),
+						"data.scalr_workspace.test", "terraform_version", "1.1.9"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.test", "working_directory", "terraform/test"),
 					resource.TestCheckResourceAttr(
@@ -61,7 +61,7 @@ resource scalr_workspace test {
   name                  = "workspace-test-%[1]d"
   environment_id 		= scalr_environment.test.id
   auto_apply            = true
-  terraform_version     = "0.12.19"
+  terraform_version     = "1.1.9"
   working_directory     = "terraform/test"
   hooks {
     pre_init   = "./scripts/pre-init.sh"

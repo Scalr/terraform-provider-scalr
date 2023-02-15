@@ -17,7 +17,7 @@ data "scalr_agent_pool" "default" {
 ## Argument Reference
 
 * `name` - (Required) A name of the agent pool.
-* `account_id` - (Required) An identifier of the Scalr account.
+* `account_id` - (Optional) An identifier of the Scalr account.
 * `environment_id` - (Optional) An identifier of the Scalr environment.
 
 ## Attribute Reference
