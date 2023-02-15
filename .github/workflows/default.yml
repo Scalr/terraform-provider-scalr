@@ -106,7 +106,7 @@ jobs:
           else
               API_BRANCH=${{ env.API_BRANCH }}
               NORMALIZED_BRANCH=$(echo $API_BRANCH | tr / - | tr '[:upper:]' '[:lower:]')
-              if [ ! -z "$API_BRANCH" ] && docker manifest inspect eu.gcr.io/development-156220/fatmouse/scalr-server-te:${NORMALIZED_BRANCH} ; 
+              if [ ! -z "$API_BRANCH" ] && docker manifest inspect eu.gcr.io/development-156220/fatmouse/scalr-server-te:${NORMALIZED_BRANCH} ; then 
                   IMAGE="--scalr-server-image-tag ${NORMALIZED_BRANCH}"
               else
                   IMAGE=""
