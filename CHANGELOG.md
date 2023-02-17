@@ -7,12 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2023-02-17
+
 ### Added
 - **New resource:**  `scalr_provider_configuration_default` ([#205](https://github.com/Scalr/terraform-provider-scalr/pull/205))
 
 ### Changed
-- `scalr_workspace`: delete default value for `auto_queue_runs` attribute ([#209](https://github.com/Scalr/terraform-provider-scalr/pull/209))
+- `scalr_workspace`: delete the default value for `auto_queue_runs` attribute ([#209](https://github.com/Scalr/terraform-provider-scalr/pull/209))
 - `execution_mode`: Updated documentation to fix a typo for the execution_mode attribute in the `scalr_workspace` resource. It was incorrectly spelled execution-mode
+
+### Required
+
+- scalr-server >= `8.52.0`
 
 ## [1.0.1] - 2023-01-20
 
@@ -575,7 +581,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.2
 [1.0.1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.1
 [1.0.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0
 [1.0.0-rc38]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc38
