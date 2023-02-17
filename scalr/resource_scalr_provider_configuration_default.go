@@ -84,7 +84,7 @@ func resourceScalrProviderConfigurationDefaultCreate(ctx context.Context, d *sch
 
 	for _, pc := range environment.DefaultProviderConfigurations {
 		if pc.ID == providerConfigurationID {
-			return diag.Errorf("Provider configuration %q is already in environment %q default provider configuration", providerConfigurationID, environmentID)
+			return diag.Errorf("Provider configuration is already set as default for environment %q", environmentID)
 		}
 	}
 
