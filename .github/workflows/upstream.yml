@@ -18,6 +18,9 @@ on:
         description: "Whether to upgrade python requirements"
         required: false
         default: "no"
+      upstream-base-ref:
+        description: "Upstream base branch (e.g. 'master' or 'release/8.57.0')"
+        required: false
 
 jobs:
   acc-tests:
@@ -30,6 +33,7 @@ jobs:
       DB_BRANCH: ${{ github.event.inputs.db-branch }}
       PY_REQ: ${{ github.event.inputs.py-req }}
       UPSTREAM_ID: ${{ github.run_number }}
+      UPSTREAM_BASE_REF: ${{ github.event.inputs.upstream-base-ref }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
@@ -96,13 +100,14 @@ jobs:
             SCALR_BRANCH="--scalr-branch ${{ env.DB_BRANCH }}"
           fi
           
-          if [ ${{ env.API_BRANCH }} = "staging" ]; then
-            IMAGE="--scalr-server-image-tag staging"
+          TEV2_BRANCH=${{ env.API_BRANCH }}
+          NORMALIZED_BRANCH=$(echo $TEV2_BRANCH | tr / - | tr '[:upper:]' '[:lower:]')
+          if docker manifest inspect eu.gcr.io/development-156220/fatmouse/scalr-server-te:${NORMALIZED_BRANCH} ; then
+              IMAGE="--scalr-server-image-tag ${NORMALIZED_BRANCH}"
           else
-              API_BRANCH=${{ env.API_BRANCH }}
-              NORMALIZED_BRANCH=$(echo $API_BRANCH | tr / - | tr '[:upper:]' '[:lower:]')
-              if docker manifest inspect eu.gcr.io/development-156220/fatmouse/scalr-server-te:${NORMALIZED_BRANCH} ; then
-                  IMAGE="--scalr-server-image-tag ${NORMALIZED_BRANCH}"
+              if [[ "${{ env.UPSTREAM_BASE_REF }}" == release/* ]]; then
+                  NORMALIZED_IMAGE=$(echo "${{ env.UPSTREAM_BASE_REF }}" | tr / - | tr '[:upper:]' '[:lower:]')
+                  IMAGE="--scalr-server-image-tag ${NORMALIZED_IMAGE}"
               else
                   IMAGE=""
               fi

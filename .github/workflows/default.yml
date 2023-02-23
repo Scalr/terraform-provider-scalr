@@ -101,13 +101,14 @@ jobs:
             SCALR_BRANCH="--scalr-branch ${{ env.DB_BRANCH }}"
           fi
 
-          if [ "${{ env.API_BRANCH }}" = "staging" ]; then
-            IMAGE="--scalr-server-image-tag staging"
+          TEV2_BRANCH=${{ env.API_BRANCH }}
+          NORMALIZED_BRANCH=$(echo $TEV2_BRANCH | tr / - | tr '[:upper:]' '[:lower:]')
+          if docker manifest inspect eu.gcr.io/development-156220/fatmouse/scalr-server-te:${NORMALIZED_BRANCH} ; then
+              IMAGE="--scalr-server-image-tag ${NORMALIZED_BRANCH}"
           else
-              API_BRANCH=${{ env.API_BRANCH }}
-              NORMALIZED_BRANCH=$(echo $API_BRANCH | tr / - | tr '[:upper:]' '[:lower:]')
-              if [ ! -z "$API_BRANCH" ] && docker manifest inspect eu.gcr.io/development-156220/fatmouse/scalr-server-te:${NORMALIZED_BRANCH} ; then 
-                  IMAGE="--scalr-server-image-tag ${NORMALIZED_BRANCH}"
+              if [[ "${{ github.base_ref }}" == release/* ]]; then
+                  NORMALIZED_IMAGE=$(echo "${{ github.base_ref }}" | tr / - | tr '[:upper:]' '[:lower:]')
+                  IMAGE="--scalr-server-image-tag ${NORMALIZED_IMAGE}"
               else
                   IMAGE=""
               fi
