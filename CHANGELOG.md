@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2023-03-03
+
 ### Fixed
+
 - `scalr_provider_configuration_default` resource: fixed unlinking policy groups and cloud credentials from the environment by scalr_provider_configuration_default resource ([#216](https://github.com/Scalr/terraform-provider-scalr/pull/216))
 
 ## [1.0.2] - 2023-02-17
@@ -584,7 +587,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.3
 [1.0.2]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.2
 [1.0.1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.1
 [1.0.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0
