@@ -256,4 +256,4 @@ jobs:
           BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
           GPG_KEY_ID: ${{ steps.import_gpg.outputs.fingerprint }}
           GPG_PUB_KEY: ${{ steps.import_gpg.outputs.pubkey }}
-        run: bash scripts/upload.sh
+        run: bash -eucx scripts/upload.sh
