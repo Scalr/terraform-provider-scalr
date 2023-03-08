@@ -11,7 +11,10 @@ import (
 	"github.com/scalr/go-scalr"
 )
 
-const currentAccountIDEnvVar = "SCALR_ACCOUNT_ID"
+const (
+	currentAccountIDEnvVar = "SCALR_ACCOUNT_ID"
+	dummyIdentifier        = "-"
+)
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
