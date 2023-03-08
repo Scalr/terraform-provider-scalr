@@ -27,10 +27,7 @@ func TestAccCurrentRun_basic(t *testing.T) {
 				},
 				Config:   testAccCurrentRunDataSourceConfig(rInt),
 				PlanOnly: true,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"data.scalr_current_run.test", "id", dummyIdentifier),
-				),
+				Check:    resource.TestCheckResourceAttr("data.scalr_current_run.test", "id", dummyIdentifier),
 			},
 			{
 				PreConfig: launchRun(fmt.Sprintf("test-env-%d", rInt), fmt.Sprintf("test-ws-%d", rInt)),
