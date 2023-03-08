@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `data.scalr_current_run` no longer produces plan error if no current run info is present ([#211](https://github.com/Scalr/terraform-provider-scalr/pull/211)) 
+- `data.scalr_current_run` no longer produces plan error if no current run info is present ([#219](https://github.com/Scalr/terraform-provider-scalr/pull/219)) 
 
 ## [1.0.3] - 2023-03-03
 
