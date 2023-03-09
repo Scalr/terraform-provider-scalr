@@ -13,6 +13,7 @@ data scalr_current_run example {
 ## Argument Reference
 
 No arguments are required. The data source returns details of the current run based on the `SCALR_RUN_ID` shell variable that is automatically exported in the Scalr remoted backend.
+If the shell variable is not present (e.g. during a local run) an empty run structure will be returned with the `id` attribute set to "-".
 
 ## Attribute Reference
 
