@@ -44,11 +44,19 @@ func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 				),
 			},
 			{
+				Config: testAccScalrVcsProviderDataSourceConfigFilterBySimilarName(rInt, githubToken),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.scalr_vcs_provider.test", "id"),
+					resource.TestCheckResourceAttr(
+						"data.scalr_vcs_provider.test", "name", fmt.Sprintf("vcs-provider-test-%d", rInt)),
+				),
+			},
+			{
 				Config: `
 				data scalr_vcs_provider test {
 				  vcs_type = "github"
 				}`,
-				ExpectError: regexp.MustCompile("Your query returned more than one result. Please try a more specific search criteria"),
+				ExpectError: regexp.MustCompile("Found more than one VCS provider matching criteria"),
 				PlanOnly:    true,
 			},
 			{
@@ -56,7 +64,7 @@ func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 				data scalr_vcs_provider test {
 				  name = "not-existing-vcs"
 				}`,
-				ExpectError: regexp.MustCompile("Could not find vcs provider matching you query"),
+				ExpectError: regexp.MustCompile("VCS provider not found or user unauthorized"),
 				PlanOnly:    true,
 			},
 		},
@@ -91,4 +99,26 @@ resource scalr_vcs_provider test {
 data scalr_vcs_provider test {
   name     = scalr_vcs_provider.test.name
 }`, rInt, token, defaultAccount)
+}
+
+func testAccScalrVcsProviderDataSourceConfigFilterBySimilarName(rInt int, token string) string {
+	return fmt.Sprintf(`
+resource scalr_vcs_provider test {
+  name        = "vcs-provider-test-%[1]d"
+  vcs_type    = "github"
+  token       = "%s"
+  account_id  = "%s"
+}
+
+resource scalr_vcs_provider test_other {
+  name        = "vcs-provider-test-%[1]d-other"
+  vcs_type    = "github"
+  token       = "%s"
+  account_id  = "%s"
+}
+
+data scalr_vcs_provider test {
+  name     = scalr_vcs_provider.test.name
+}
+`, rInt, token, defaultAccount)
 }

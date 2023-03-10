@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `data.scalr_vcs_provider`: if the `name` argument is provided, it should match exactly instead of using a full-text search ([#222](https://github.com/Scalr/terraform-provider-scalr/pull/222))
+
 ## [1.0.4] - 2023-03-13
 
 ### Fixed

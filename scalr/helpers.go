@@ -145,6 +145,50 @@ func GetWebhookByName(ctx context.Context, options GetWebhookByNameOptions, scal
 	}
 }
 
+type GetVcsProviderOptions struct {
+	Name        *string
+	VcsType     *scalr.VcsType
+	Environment *string
+	Account     *string
+}
+
+func GetVcsProvider(ctx context.Context, options GetVcsProviderOptions, scalrClient *scalr.Client) (*scalr.VcsProvider, error) {
+	listOptions := scalr.VcsProvidersListOptions{
+		Query:       options.Name,
+		VcsType:     options.VcsType,
+		Environment: options.Environment,
+		Account:     options.Account,
+	}
+	vcsl, err := scalrClient.VcsProviders.List(ctx, listOptions)
+	if err != nil {
+		return nil, fmt.Errorf("Error retrieving VCS providers: %v", err)
+	}
+
+	if len(vcsl.Items) == 0 {
+		return nil, errors.New("VCS provider not found or user unauthorized")
+	}
+
+	var matchedVcsProviders []*scalr.VcsProvider
+
+	for _, vcs := range vcsl.Items {
+		if options.Name == nil || vcs.Name == *options.Name {
+			matchedVcsProviders = append(matchedVcsProviders, vcs)
+		}
+	}
+
+	switch numberOfMatch := len(matchedVcsProviders); {
+	case numberOfMatch == 0:
+		return nil, errors.New("VCS provider not found")
+
+	case numberOfMatch > 1:
+		return nil, errors.New("Found more than one VCS provider matching criteria")
+
+	default:
+		return matchedVcsProviders[0], nil
+
+	}
+}
+
 func GetRandomInteger() int {
 	return rand.Int()
 }
