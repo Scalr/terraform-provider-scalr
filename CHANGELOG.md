@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- The provider now supports loading the credentials stored by `terraform login` ([#221](https://github.com/Scalr/terraform-provider-scalr/pull/221))
+
 ## [1.0.4] - 2023-03-13
 
 ### Fixed
