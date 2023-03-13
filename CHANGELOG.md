@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.4] - 2023-03-13
+
 ### Fixed
 
 - `data.scalr_current_run` no longer produces plan error if no current run info is present ([#219](https://github.com/Scalr/terraform-provider-scalr/pull/219)) 
@@ -591,7 +593,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.3...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.4...HEAD
+[1.0.4]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.4
 [1.0.3]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.3
 [1.0.2]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.2
 [1.0.1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.1
