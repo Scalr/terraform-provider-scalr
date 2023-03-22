@@ -4,20 +4,21 @@ import (
 	"context"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"strings"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/scalr/go-scalr"
+	"strings"
 )
 
-func dataSourceScalrWorkspaceIDs() *schema.Resource {
+func dataSourceScalrEnvironmentIDs() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceScalrWorkspaceIDsRead,
+		ReadContext: dataSourceScalrEnvironmentIDsRead,
 
 		Schema: map[string]*schema.Schema{
-			"environment_id": {
-				Type:     schema.TypeString,
-				Required: true,
+			"account_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"names": {
 				Type:         schema.TypeList,
@@ -43,18 +44,14 @@ func dataSourceScalrWorkspaceIDs() *schema.Resource {
 	}
 }
 
-func dataSourceScalrWorkspaceIDsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceScalrEnvironmentIDsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
-
-	// Get the environment_id.
-	environmentID := d.Get("environment_id").(string)
+	accountId := d.Get("account_id").(string)
 	exact := d.Get("exact_match").(bool)
 	var id string
-	// Create a map to store workspace IDs
 	ids := make(map[string]string, 0)
-	options := scalr.WorkspaceListOptions{Environment: &environmentID}
+	options := scalr.EnvironmentListOptions{Account: &accountId}
 
-	// Create a map with all the names we are looking for.
 	names := make(map[string]bool)
 	if namesI, ok := d.GetOk("names"); ok {
 		for _, name := range namesI.([]interface{}) {
@@ -75,32 +72,29 @@ func dataSourceScalrWorkspaceIDsRead(ctx context.Context, d *schema.ResourceData
 	}
 
 	for {
-		wl, err := scalrClient.Workspaces.List(ctx, options)
+		el, err := scalrClient.Environments.List(ctx, options)
 		if err != nil {
-			return diag.Errorf("Error retrieving workspaces: %v", err)
+			return diag.Errorf("Error retrieving environments: %v", err)
 		}
 
-		for _, w := range wl.Items {
+		for _, e := range el.Items {
 			if len(names) > 0 {
-				if names["*"] || (exact && names[w.Name]) || (!exact && matchesPattern(w.Name, names)) {
-					ids[w.Name] = w.ID
+				if names["*"] || (exact && names[e.Name]) || (!exact && matchesPattern(e.Name, names)) {
+					ids[e.Name] = e.ID
 				}
 			} else {
-				ids[w.Name] = w.ID
+				ids[e.Name] = e.ID
 			}
 		}
 
-		// Exit the loop when we've seen all pages.
-		if wl.CurrentPage >= wl.TotalPages {
+		if el.CurrentPage >= el.TotalPages {
 			break
 		}
-
-		// Update the page number to get the next page.
-		options.PageNumber = wl.NextPage
+		options.PageNumber = el.NextPage
 	}
 
 	_ = d.Set("ids", ids)
-	d.SetId(fmt.Sprintf("%s/%d", environmentID, schema.HashString(id)))
+	d.SetId(fmt.Sprintf("%s/%d", accountId, schema.HashString(id)))
 
 	return nil
 }

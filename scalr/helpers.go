@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/scalr/go-scalr"
@@ -181,4 +182,13 @@ func scalrAccountIDDefaultFunc() (interface{}, error) {
 	return nil, errors.New("Default value for `account_id` could not be computed." +
 		"\nIf you are using Scalr Provider for local runs, please set the attribute in resources explicitly," +
 		"\nor export `SCALR_ACCOUNT_ID` environment variable prior the run.")
+}
+
+func matchesPattern(value string, patterns map[string]bool) bool {
+	for pattern := range patterns {
+		if strings.Contains(value, pattern) {
+			return true
+		}
+	}
+	return false
 }
