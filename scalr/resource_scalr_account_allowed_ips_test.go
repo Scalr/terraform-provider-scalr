@@ -15,12 +15,13 @@ func TestAccScalrAccountAllowedIps_basic(t *testing.T) {
 		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrAccountAllowedIps([]string{"192.168.0.12", "0.0.0.0/0"}),
+				Config: testAccScalrAccountAllowedIps([]string{"192.168.0.12", "0.0.0.0/0", "192.168.0.0/32"}),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("scalr_account_allowed_ips.test", "id"),
-					resource.TestCheckResourceAttr("scalr_account_allowed_ips.test", "allowed_ips.#", "2"),
+					resource.TestCheckResourceAttr("scalr_account_allowed_ips.test", "allowed_ips.#", "3"),
 					resource.TestCheckResourceAttr("scalr_account_allowed_ips.test", "allowed_ips.0", "192.168.0.12"),
 					resource.TestCheckResourceAttr("scalr_account_allowed_ips.test", "allowed_ips.1", "0.0.0.0/0"),
+					resource.TestCheckResourceAttr("scalr_account_allowed_ips.test", "allowed_ips.2", "192.168.0.0/32"),
 				),
 			},
 		},
