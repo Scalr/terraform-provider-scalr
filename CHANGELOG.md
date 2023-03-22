@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **New data source:** `scalr_environment_ids` ([#225](https://github.com/Scalr/terraform-provider-scalr/pull/225))
+
+### Changed
+
+- `data.scalr_workspace_ids`: added filter by tags and partial name match support ([#225](https://github.com/Scalr/terraform-provider-scalr/pull/225))
+
 ## [1.0.4] - 2023-03-13
 
 ### Fixed
