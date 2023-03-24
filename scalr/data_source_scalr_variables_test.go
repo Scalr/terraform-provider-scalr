@@ -156,23 +156,25 @@ resource "scalr_variable" "secret" {
 
 var testAccScalrVariablesDataSourceConfig = testAccScalrVariablesDataSourceInitConfig + fmt.Sprintf(`
 data "scalr_variables" "shell" {
+  account_id = "%[1]s"
   category = "shell"
 }
 
 data "scalr_variables" "host" {
-	keys = ["host"]
+  account_id = "%[1]s"
+  keys = ["host"]
 }
 
 data "scalr_variables" "workspace" {
-	workspace_ids=[scalr_workspace.test.id]
+  workspace_ids=[scalr_workspace.test.id]
 }
 
 data "scalr_variables" "workspace_and_null" {
-	workspace_ids=[scalr_workspace.test.id, "null"]
+  account_id = "%[1]s"
+  workspace_ids=[scalr_workspace.test.id, "null"]
 }
 
 data "scalr_variables" "account" {
-	account_id = "%[1]s"
+  account_id = "%[1]s"
 }
-
 `, defaultAccount)
