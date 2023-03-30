@@ -43,7 +43,7 @@ func GetEnvironmentByName(ctx context.Context, options GetEnvironmentByNameOptio
 
 	var matchedEnvironments []*scalr.Environment
 
-	// filter in endpoint search environments that contains quering string, this is why we need to do exeact match on our side.
+	// filter in endpoint search environments that contains querying string, this is why we need to do exact match on our side.
 	for _, env := range envl.Items {
 		if env.Name == *options.Name {
 			matchedEnvironments = append(matchedEnvironments, env)

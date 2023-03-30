@@ -13,12 +13,13 @@ func dataSourceScalrTag() *schema.Resource {
 		ReadContext: dataSourceScalrTagRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				AtLeastOneOf: []string{"name"},
 			},
 			"name": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"account_id": {
 				Type:        schema.TypeString,
@@ -33,16 +34,23 @@ func dataSourceScalrTag() *schema.Resource {
 func dataSourceScalrTagRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
-	// Get the name and account_id.
+	tagID := d.Get("id").(string)
 	name := d.Get("name").(string)
 	accountID := d.Get("account_id").(string)
 
 	options := scalr.TagListOptions{
 		Account: scalr.String(accountID),
-		Name:    scalr.String(name),
 	}
 
-	log.Printf("[DEBUG] Read tag: %s/%s", accountID, name)
+	if tagID != "" {
+		options.ID = scalr.String(tagID)
+	}
+
+	if name != "" {
+		options.Name = scalr.String(name)
+	}
+
+	log.Printf("[DEBUG] Read tag with ID '%s', name '%s', and account_id '%s'", tagID, name, accountID)
 	tags, err := scalrClient.Tags.List(ctx, options)
 	if err != nil {
 		return diag.Errorf("Error retrieving tag: %v", err)
@@ -54,10 +62,12 @@ func dataSourceScalrTagRead(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	if tags.TotalCount == 0 {
-		return diag.Errorf("Could not find tag %s/%s", accountID, name)
+		return diag.Errorf("Could not find tag with ID '%s', name '%s', and account_id '%s'", tagID, name, accountID)
 	}
 
 	tag := tags.Items[0]
+
+	_ = d.Set("name", tag.Name)
 	d.SetId(tag.ID)
 
 	return nil

@@ -15,9 +15,15 @@ func dataSourceScalrWorkspace() *schema.Resource {
 		ReadContext: dataSourceScalrWorkspaceRead,
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				AtLeastOneOf: []string{"name"},
+			},
+
 			"name": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 
 			"environment_id": {
@@ -168,20 +174,40 @@ func dataSourceScalrWorkspace() *schema.Resource {
 func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
-	// Get the name and environment_id.
+	wsID := d.Get("id").(string)
 	name := d.Get("name").(string)
 	environmentID := d.Get("environment_id").(string)
 
-	log.Printf("[DEBUG] Read configuration of workspace: %s", name)
-	workspace, err := scalrClient.Workspaces.Read(ctx, environmentID, name)
-	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return diag.Errorf("Could not find workspace %s/%s", environmentID, name)
-		}
-		return diag.Errorf("Error retrieving workspace: %v", err)
+	options := scalr.WorkspaceListOptions{
+		Environment: scalr.String(environmentID),
+		Include:     "created-by",
 	}
 
+	if wsID != "" {
+		options.ID = scalr.String(wsID)
+	}
+
+	if name != "" {
+		options.Name = scalr.String(name)
+	}
+
+	log.Printf("[DEBUG] Read configuration of workspace with ID '%s', name '%s', and environment_id '%s'", wsID, name, environmentID)
+
+	workspaces, err := scalrClient.Workspaces.List(ctx, options)
+	if err != nil {
+		return diag.Errorf("error retrieving workspace: %v", err)
+	}
+	if len(workspaces.Items) > 1 {
+		return diag.FromErr(errors.New("Your query returned more than one result. Please try a more specific search criteria."))
+	}
+	if len(workspaces.Items) == 0 {
+		return diag.Errorf("Could not find workspace with ID '%s', name '%s' and environment_id '%s'", wsID, name, environmentID)
+	}
+
+	workspace := workspaces.Items[0]
+
 	// Update the config.
+	_ = d.Set("name", workspace.Name)
 	_ = d.Set("auto_apply", workspace.AutoApply)
 	_ = d.Set("force_latest_run", workspace.ForceLatestRun)
 	_ = d.Set("operations", workspace.Operations)

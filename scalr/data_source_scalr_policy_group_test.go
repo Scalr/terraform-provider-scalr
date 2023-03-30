@@ -29,6 +29,11 @@ func TestAccPolicyGroupDataSource_basic(t *testing.T) {
 				),
 			},
 			{
+				Config:      `data "scalr_policy_group" "test" {}`,
+				ExpectError: regexp.MustCompile("\"id\": one of `id,name` must be specified"),
+				PlanOnly:    true,
+			},
+			{
 				PreConfig: waitForPolicyGroupFetch(fmt.Sprintf("test-pg-%d", rInt)),
 				Config:    testAccPolicyGroupDataSourceConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -142,6 +147,7 @@ func testAccPolicyGroupDataSourceConfig(rInt int) string {
 %s
 
 data "scalr_policy_group" "test" {
+  id         = scalr_policy_group.test.id
   name       = scalr_policy_group.test.name
   account_id = "%s"
 }

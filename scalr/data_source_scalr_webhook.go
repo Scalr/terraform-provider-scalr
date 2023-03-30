@@ -2,7 +2,6 @@ package scalr
 
 import (
 	"context"
-	"errors"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -19,15 +18,12 @@ func dataSourceScalrWebhook() *schema.Resource {
 			"id": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Computed:     true,
 				AtLeastOneOf: []string{"name"},
 			},
 
 			"name": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"id"},
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"enabled": {
@@ -84,23 +80,27 @@ func dataSourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, met
 	var webhook *scalr.Webhook
 	var err error
 
+	log.Printf("[DEBUG] Read configuration of webhook with ID '%s' and name '%s'", webhookID, webhookName)
 	if webhookID != "" {
-		log.Printf("[DEBUG] Read configuration of webhook: %s", webhookID)
 		webhook, err = scalrClient.Webhooks.Read(ctx, webhookID)
+		if err != nil {
+			return diag.Errorf("Error retrieving webhook: %v", err)
+		}
+		if webhookName != "" && webhookName != webhook.Name {
+			return diag.Errorf("Could not find webhook with ID '%s' and name '%s'", webhookID, webhookName)
+		}
 	} else {
-		log.Printf("[DEBUG] Read configuration of webhook: %s", webhookName)
 		options := GetWebhookByNameOptions{
 			Name:    &webhookName,
 			Account: &accountID,
 		}
 		webhook, err = GetWebhookByName(ctx, options, scalrClient)
-	}
-
-	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return diag.Errorf("Could not find webhook %s: %v", webhookID, err)
+		if err != nil {
+			return diag.Errorf("Error retrieving webhook: %v", err)
 		}
-		return diag.Errorf("Error retrieving webhook: %v", err)
+		if webhookID != "" && webhookID != webhook.ID {
+			return diag.Errorf("Could not find webhook with ID '%s' and name '%s'", webhookID, webhookName)
+		}
 	}
 
 	// Update the config.

@@ -13,12 +13,11 @@ func dataSourceScalrVcsProvider() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
-				Computed: true,
+				Optional: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"vcs_type": {
 				Type:     schema.TypeString,
@@ -52,6 +51,10 @@ func dataSourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData,
 	scalrClient := meta.(*scalr.Client)
 	options := scalr.VcsProvidersListOptions{
 		Account: scalr.String(d.Get("account_id").(string)),
+	}
+
+	if vcsProviderID, ok := d.GetOk("id"); ok {
+		options.ID = scalr.String(vcsProviderID.(string))
 	}
 
 	if name, ok := d.GetOk("name"); ok {

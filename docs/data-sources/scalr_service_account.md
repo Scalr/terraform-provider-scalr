@@ -7,8 +7,15 @@ Retrieves information about a service account.
 
 ```hcl
 data "scalr_service_account" "example" {
+  id         = "sa-xxxxxxx"
+  account_id = "acc-xxxxxxx"
+}
+```
+
+```hcl
+data "scalr_service_account" "example" {
   email      = "name@account.scalr.io"
-  account_id = "acc-xxxxxxxxx"
+  account_id = "acc-xxxxxxx"
 }
 ```
 

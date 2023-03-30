@@ -73,22 +73,23 @@ resource scalr_vcs_provider test {
 }
 
 data scalr_vcs_provider test {
-  name     = scalr_vcs_provider.test.name
-  vcs_type = scalr_vcs_provider.test.vcs_type
-  account_id  = scalr_vcs_provider.test.account_id
+  id         = scalr_vcs_provider.test.id
+  name       = scalr_vcs_provider.test.name
+  vcs_type   = scalr_vcs_provider.test.vcs_type
+  account_id = scalr_vcs_provider.test.account_id
 }`, rInt, token, defaultAccount)
 }
 
 func testAccScalrVcsProviderDataSourceConfigFilterByName(rInt int, token string) string {
 	return fmt.Sprintf(`
 resource scalr_vcs_provider test {
-  name        = "vcs-provider-test-%[1]d"
-  vcs_type    = "github"
-  token       = "%s"
-  account_id  = "%s"
+  name       = "vcs-provider-test-%[1]d"
+  vcs_type   = "github"
+  token      = "%s"
+  account_id = "%s"
 }
 
 data scalr_vcs_provider test {
-  name     = scalr_vcs_provider.test.name
+  name = scalr_vcs_provider.test.name
 }`, rInt, token, defaultAccount)
 }
