@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `data.scalr_workspace`: added new optional `id` argument, `name` became optional, one of or both can be specified ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_role`: added new optional `id` argument, `name` became optional, one of or both can be specified ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_iam_team`: added new optional `id` argument, `name` became optional, one of or both can be specified ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_policy_group`: added new optional `id` argument, `name` became optional, one of or both can be specified ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_tag`: added new optional `id` argument, `name` became optional, one of or both can be specified ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_agent_pool`: added new optional `id` argument, `name` became optional, one of or both can be specified ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_vcs_provider`: added new optional `id` argument ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_iam_user`: added new optional `id` argument, `email` became optional, one of or both can be specified ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_variable`: added new optional `id` argument, `key` became optional, one of or both can be specified ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_webhook`: optional `id` and `name` arguments can be used together ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_environment`: optional `id` and `name` arguments can be used together ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_endpoint`: optional `id` and `name` arguments can be used together ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_service_account`: optional `id` and `email` arguments can be used together ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+
 ### Fixed
 
 - `scalr_account_allowed_ips`: accept /32 suffix ([#224](https://github.com/Scalr/terraform-provider-scalr/pull/224))
