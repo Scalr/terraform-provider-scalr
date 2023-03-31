@@ -20,6 +20,7 @@ func TestAccScalrProviderConfigurationDataSource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckEqualID("data.scalr_provider_configuration.kubernetes", "scalr_provider_configuration.kubernetes"),
 					testAccCheckEqualID("data.scalr_provider_configuration.consul", "scalr_provider_configuration.consul"),
+					testAccCheckEqualID("data.scalr_provider_configuration.consul_id", "scalr_provider_configuration.consul"),
 				),
 			},
 			{
@@ -68,5 +69,8 @@ data "scalr_provider_configuration" "kubernetes" {
 }
 data "scalr_provider_configuration" "consul" {
   provider_name = "consul"
+}
+data "scalr_provider_configuration" "consul_id" {
+  id = scalr_provider_configuration.consul.id
 }
 `

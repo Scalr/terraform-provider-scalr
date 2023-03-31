@@ -29,4 +29,4 @@ Arguments `id` and `name` are both optional, specify at least one of them to obt
 
 ## Attributes
 
-The same as arguments.
+Attributes are the same as arguments.
