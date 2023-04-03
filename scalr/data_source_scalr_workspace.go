@@ -174,7 +174,7 @@ func dataSourceScalrWorkspace() *schema.Resource {
 func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
-	wsID := d.Get("id").(string)
+	workspaceID := d.Get("id").(string)
 	name := d.Get("name").(string)
 	environmentID := d.Get("environment_id").(string)
 
@@ -183,15 +183,15 @@ func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, m
 		Include:     "created-by",
 	}
 
-	if wsID != "" {
-		options.ID = scalr.String(wsID)
+	if workspaceID != "" {
+		options.Workspace = scalr.String(workspaceID)
 	}
 
 	if name != "" {
 		options.Name = scalr.String(name)
 	}
 
-	log.Printf("[DEBUG] Read configuration of workspace with ID '%s', name '%s', and environment_id '%s'", wsID, name, environmentID)
+	log.Printf("[DEBUG] Read configuration of workspace with ID '%s', name '%s', and environment_id '%s'", workspaceID, name, environmentID)
 
 	workspaces, err := scalrClient.Workspaces.List(ctx, options)
 	if err != nil {
@@ -201,7 +201,7 @@ func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(errors.New("Your query returned more than one result. Please try a more specific search criteria."))
 	}
 	if len(workspaces.Items) == 0 {
-		return diag.Errorf("Could not find workspace with ID '%s', name '%s' and environment_id '%s'", wsID, name, environmentID)
+		return diag.Errorf("Could not find workspace with ID '%s', name '%s' and environment_id '%s'", workspaceID, name, environmentID)
 	}
 
 	workspace := workspaces.Items[0]

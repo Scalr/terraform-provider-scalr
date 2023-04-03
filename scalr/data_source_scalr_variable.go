@@ -76,7 +76,7 @@ func dataSourceScalrVariableRead(ctx context.Context, d *schema.ResourceData, me
 	filters.Account = scalr.String(d.Get("account_id").(string))
 
 	if variableID != "" {
-		filters.ID = scalr.String(variableID)
+		filters.Var = scalr.String(variableID)
 	}
 	if key != "" {
 		filters.Key = scalr.String(key)
