@@ -43,7 +43,7 @@ func dataSourceScalrTagRead(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	if tagID != "" {
-		options.ID = scalr.String(tagID)
+		options.Tag = scalr.String(tagID)
 	}
 
 	if name != "" {

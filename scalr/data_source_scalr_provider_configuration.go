@@ -45,10 +45,10 @@ func dataSourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Res
 	providerName := d.Get("provider_name").(string)
 
 	providersFilter := scalr.ProviderConfigurationFilter{
-		ProviderID:   providerID,
-		AccountID:    accountID,
-		Name:         name,
-		ProviderName: providerName,
+		ProviderConfiguration: providerID,
+		AccountID:             accountID,
+		Name:                  name,
+		ProviderName:          providerName,
 	}
 	options := scalr.ProviderConfigurationsListOptions{
 		Filter: &providersFilter,
