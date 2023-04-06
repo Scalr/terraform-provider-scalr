@@ -15,8 +15,18 @@ func TestAccScalrIamUserDataSource_basic(t *testing.T) {
 		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config:      `data "scalr_iam_user" "test" {}`,
+				Config:      `data scalr_iam_user test {}`,
 				ExpectError: regexp.MustCompile("\"id\": one of `email,id` must be specified"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_iam_user test {id = ""}`,
+				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_iam_user test {email = ""}`,
+				ExpectError: regexp.MustCompile("expected \"email\" to not be an empty string or whitespace"),
 				PlanOnly:    true,
 			},
 			{

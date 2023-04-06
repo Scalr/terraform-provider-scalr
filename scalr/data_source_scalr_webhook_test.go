@@ -27,6 +27,16 @@ func TestAccWebhookDataSource_basic(t *testing.T) {
 				PlanOnly:    true,
 			},
 			{
+				Config:      `data scalr_webhook test {id = ""}`,
+				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_webhook test {name = ""}`,
+				ExpectError: regexp.MustCompile("expected \"name\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
 				Config: testAccWebhookDataSourceConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(

@@ -21,6 +21,16 @@ func TestAccScalrServiceAccountDataSource_basic(t *testing.T) {
 				PlanOnly:    true,
 			},
 			{
+				Config:      `data scalr_service_account test {id = ""}`,
+				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_service_account test {email = ""}`,
+				ExpectError: regexp.MustCompile("expected \"email\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
 				Config: testAccScalrServiceAccountDataSourceByIDConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.scalr_service_account.test", "id"),

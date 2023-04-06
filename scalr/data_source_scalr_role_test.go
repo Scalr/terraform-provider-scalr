@@ -15,8 +15,18 @@ func TestAccScalrRoleDataSource_basic(t *testing.T) {
 		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config:      `data "scalr_role" "test_role" {}`,
+				Config:      `data scalr_role test_role {}`,
 				ExpectError: regexp.MustCompile("\"id\": one of `id,name` must be specified"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_role test {id = ""}`,
+				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_role test {name = ""}`,
+				ExpectError: regexp.MustCompile("expected \"name\" to not be an empty string or whitespace"),
 				PlanOnly:    true,
 			},
 			{

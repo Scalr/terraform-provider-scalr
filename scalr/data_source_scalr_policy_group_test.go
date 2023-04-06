@@ -2,13 +2,12 @@ package scalr
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/scalr/go-scalr"
 	"log"
 	"regexp"
 	"testing"
 	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/scalr/go-scalr"
 )
 
 func TestAccPolicyGroupDataSource_basic(t *testing.T) {
@@ -29,8 +28,18 @@ func TestAccPolicyGroupDataSource_basic(t *testing.T) {
 				),
 			},
 			{
-				Config:      `data "scalr_policy_group" "test" {}`,
+				Config:      `data scalr_policy_group test {}`,
 				ExpectError: regexp.MustCompile("\"id\": one of `id,name` must be specified"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_policy_group test {id = ""}`,
+				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_policy_group test {name = ""}`,
+				ExpectError: regexp.MustCompile("expected \"name\" to not be an empty string or whitespace"),
 				PlanOnly:    true,
 			},
 			{

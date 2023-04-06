@@ -21,6 +21,16 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 				PlanOnly:    true,
 			},
 			{
+				Config:      testAccScalrWorkspaceDataSourceIDIsEmptyConfig,
+				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      testAccScalrWorkspaceDataSourceNameIsEmptyConfig,
+				ExpectError: regexp.MustCompile("expected \"name\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
 				Config: testAccScalrWorkspaceDataSourceByIDConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "id"),
@@ -76,6 +86,18 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 
 var testAccScalrWorkspaceDataSourceMissingRequiredConfig = `
 data scalr_workspace test {
+  environment_id = "test-env-id"
+}`
+
+var testAccScalrWorkspaceDataSourceIDIsEmptyConfig = `
+data scalr_workspace test {
+  id             = ""
+  environment_id = "test-env-id"
+}`
+
+var testAccScalrWorkspaceDataSourceNameIsEmptyConfig = `
+data scalr_workspace test {
+  name           = ""
   environment_id = "test-env-id"
 }`
 

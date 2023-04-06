@@ -15,8 +15,18 @@ func TestAccScalrVariableDataSource(t *testing.T) {
 		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config:      `data "scalr_variable" "test" {}`,
+				Config:      `data scalr_variable test {}`,
 				ExpectError: regexp.MustCompile("\"id\": one of `id,key` must be specified"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_variable test {id = ""}`,
+				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_variable test {key = ""}`,
+				ExpectError: regexp.MustCompile("expected \"key\" to not be an empty string or whitespace"),
 				PlanOnly:    true,
 			},
 			{

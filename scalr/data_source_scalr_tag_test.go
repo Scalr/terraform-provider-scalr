@@ -20,6 +20,16 @@ func TestAccScalrTagDataSource_basic(t *testing.T) {
 				PlanOnly:    true,
 			},
 			{
+				Config:      `data scalr_tag test {id = ""}`,
+				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_tag test {name = ""}`,
+				ExpectError: regexp.MustCompile("expected \"name\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
 				Config: testAccScalrTagDataSourceByIDConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.scalr_tag.test", "id"),

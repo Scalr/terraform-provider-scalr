@@ -59,6 +59,16 @@ func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 				ExpectError: regexp.MustCompile("Could not find vcs provider matching you query"),
 				PlanOnly:    true,
 			},
+			{
+				Config:      `data scalr_vcs_provider test {id = ""}`,
+				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_vcs_provider test {name = ""}`,
+				ExpectError: regexp.MustCompile("expected \"name\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
 		},
 	})
 }

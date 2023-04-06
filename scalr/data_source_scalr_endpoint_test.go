@@ -27,6 +27,16 @@ func TestAccEndpointDataSource_basic(t *testing.T) {
 				PlanOnly:    true,
 			},
 			{
+				Config:      `data scalr_endpoint test {id = ""}`,
+				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_endpoint test {name = ""}`,
+				ExpectError: regexp.MustCompile("expected \"name\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
 				Config: testAccEndpointDataSourceAccessByIDConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(

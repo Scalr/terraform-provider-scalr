@@ -3,6 +3,7 @@ package scalr
 import (
 	"context"
 	"errors"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,8 +16,10 @@ func dataSourceScalrProviderConfiguration() *schema.Resource {
 		ReadContext: dataSourceScalrProviderConfigurationRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"account_id": {
 				Type:        schema.TypeString,
@@ -25,8 +28,10 @@ func dataSourceScalrProviderConfiguration() *schema.Resource {
 				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"provider_name": {
 				Type:     schema.TypeString,

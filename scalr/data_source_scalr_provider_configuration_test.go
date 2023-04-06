@@ -2,6 +2,7 @@ package scalr
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -14,6 +15,16 @@ func TestAccScalrProviderConfigurationDataSource(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationDataSourceInitConfig, // depends_on works improperly with data sources
+			},
+			{
+				Config:      `data scalr_provider_configuration test {id = ""}`,
+				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_provider_configuration test {name = ""}`,
+				ExpectError: regexp.MustCompile("expected \"name\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
 			},
 			{
 				Config: testAccScalrProviderConfigurationDataSourceConfig,
