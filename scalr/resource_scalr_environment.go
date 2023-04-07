@@ -67,7 +67,7 @@ func resourceScalrEnvironment() *schema.Resource {
 				Computed:   true,
 				Optional:   true,
 				Elem:       &schema.Schema{Type: schema.TypeString},
-				Deprecated: "The attribute `cloud_credentials` is deprecated. Use `default_provider_configurations` instead",
+				Deprecated: "The attribute `cloud_credentials` is deprecated and this functionality will be deleted on May 4, 2023. Use `default_provider_configurations` instead",
 			},
 			"policy_groups": {
 				Type:     schema.TypeList,
