@@ -16,13 +16,18 @@ func TestAccScalrServiceAccountDataSource_basic(t *testing.T) {
 		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccScalrServiceAccountDataSourceMissingRequiredConfig(),
+				Config:      `data scalr_service_account test {}`,
 				ExpectError: regexp.MustCompile("\"id\": one of `email,id` must be specified"),
 				PlanOnly:    true,
 			},
 			{
-				Config:      testAccScalrServiceAccountDataSourceConflictingArgumentsConfig(),
-				ExpectError: regexp.MustCompile("\"email\": conflicts with id"),
+				Config:      `data scalr_service_account test {id = ""}`,
+				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_service_account test {email = ""}`,
+				ExpectError: regexp.MustCompile("expected \"email\" to not be an empty string or whitespace"),
 				PlanOnly:    true,
 			},
 			{
@@ -49,6 +54,31 @@ func TestAccScalrServiceAccountDataSource_basic(t *testing.T) {
 			},
 			{
 				Config: testAccScalrServiceAccountDataSourceByEmailConfig(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair(
+						"data.scalr_service_account.test", "id",
+						"scalr_service_account.test", "id",
+					),
+					resource.TestCheckResourceAttr(
+						"data.scalr_service_account.test", "name", fmt.Sprintf("test-sa-%d", rInt),
+					),
+					resource.TestCheckResourceAttrPair(
+						"data.scalr_service_account.test", "email",
+						"scalr_service_account.test", "email",
+					),
+					resource.TestCheckResourceAttr(
+						"data.scalr_service_account.test", "description", fmt.Sprintf("desc-%d", rInt),
+					),
+					resource.TestCheckResourceAttr(
+						"data.scalr_service_account.test", "account_id", defaultAccount,
+					),
+					resource.TestCheckResourceAttr(
+						"data.scalr_service_account.test", "created_by.#", "1",
+					),
+				),
+			},
+			{
+				Config: testAccScalrServiceAccountDataSourceByIDAndEmailConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(
 						"data.scalr_service_account.test", "id",
@@ -102,13 +132,16 @@ data scalr_service_account test {
 }`, rInt, scalr.ServiceAccountStatusInactive)
 }
 
-func testAccScalrServiceAccountDataSourceMissingRequiredConfig() string {
-	return `data scalr_service_account test {}`
+func testAccScalrServiceAccountDataSourceByIDAndEmailConfig(rInt int) string {
+	return fmt.Sprintf(`
+resource scalr_service_account test {
+  name        = "test-sa-%d"
+  description = "desc-%[1]d"
+  status      = "%[2]s"
 }
 
-func testAccScalrServiceAccountDataSourceConflictingArgumentsConfig() string {
-	return `data scalr_service_account test {
-		id = "foo"
-		email = "bar"
-	}`
+data scalr_service_account test {
+  id    = scalr_service_account.test.id
+  email = scalr_service_account.test.email
+}`, rInt, scalr.ServiceAccountStatusInactive)
 }

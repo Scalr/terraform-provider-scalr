@@ -3,6 +3,7 @@ package scalr
 import (
 	"context"
 	"errors"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,8 +16,10 @@ func dataSourceScalrProviderConfiguration() *schema.Resource {
 		ReadContext: dataSourceScalrProviderConfigurationRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"account_id": {
 				Type:        schema.TypeString,
@@ -25,8 +28,10 @@ func dataSourceScalrProviderConfiguration() *schema.Resource {
 				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"provider_name": {
 				Type:     schema.TypeString,
@@ -39,14 +44,16 @@ func dataSourceScalrProviderConfiguration() *schema.Resource {
 func dataSourceScalrProviderConfigurationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
+	providerID := d.Get("id").(string)
 	accountID := d.Get("account_id").(string)
 	name := d.Get("name").(string)
 	providerName := d.Get("provider_name").(string)
 
 	providersFilter := scalr.ProviderConfigurationFilter{
-		AccountID:    accountID,
-		Name:         name,
-		ProviderName: providerName,
+		ProviderConfiguration: providerID,
+		AccountID:             accountID,
+		Name:                  name,
+		ProviderName:          providerName,
 	}
 	options := scalr.ProviderConfigurationsListOptions{
 		Filter: &providersFilter,
@@ -61,7 +68,7 @@ func dataSourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Res
 		return diag.FromErr(errors.New("Your query returned more than one result. Please try a more specific search criteria."))
 	}
 	if len(providerConfigurations.Items) == 0 {
-		return diag.Errorf("Could not find provider configuration with name '%s', account_id: '%s', and provider_name: '%s'", name, accountID, providerName)
+		return diag.Errorf("Could not find provider configuration with ID '%s', name '%s', account_id '%s', and provider_name '%s'", providerID, name, accountID, providerName)
 	}
 
 	providerConfiguration := providerConfigurations.Items[0]

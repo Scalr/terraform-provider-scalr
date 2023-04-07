@@ -2,6 +2,7 @@ package scalr
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -14,7 +15,22 @@ func TestAccScalrIamUserDataSource_basic(t *testing.T) {
 		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrIamUserDataSourceConfig(),
+				Config:      `data scalr_iam_user test {}`,
+				ExpectError: regexp.MustCompile("\"id\": one of `email,id` must be specified"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_iam_user test {id = ""}`,
+				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_iam_user test {email = ""}`,
+				ExpectError: regexp.MustCompile("expected \"email\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
+				Config: testAccScalrIamUserDataSourceByIDConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "id", testUser),
 					resource.TestCheckResourceAttr(
@@ -28,13 +44,36 @@ func TestAccScalrIamUserDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.scalr_iam_user.test", "teams.0"),
 				),
 			},
+			{
+				Config: testAccScalrIamUserDataSourceByEmailConfig,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "id", testUser),
+					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "email", testUserEmail),
+				),
+			},
+			{
+				Config: testAccScalrIamUserDataSourceByIDAndEmailConfig,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "id", testUser),
+					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "email", testUserEmail),
+				),
+			},
 		},
 	})
 }
 
-func testAccScalrIamUserDataSourceConfig() string {
-	return fmt.Sprintf(`
+var testAccScalrIamUserDataSourceByIDConfig = fmt.Sprintf(`
 data "scalr_iam_user" "test" {
-	email = "%s"
+  id = "%s"
+}`, testUser)
+
+var testAccScalrIamUserDataSourceByEmailConfig = fmt.Sprintf(`
+data "scalr_iam_user" "test" {
+  email = "%s"
 }`, testUserEmail)
-}
+
+var testAccScalrIamUserDataSourceByIDAndEmailConfig = fmt.Sprintf(`
+data "scalr_iam_user" "test" {
+  id    = "%s"
+  email = "%s"
+}`, testUser, testUserEmail)
