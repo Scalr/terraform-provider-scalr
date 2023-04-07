@@ -31,7 +31,7 @@ func dataSourceScalrIamTeams() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-            "identity_provider_id": {
+			"identity_provider_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -58,11 +58,11 @@ func dataSourceScalrIamTeamsRead(ctx context.Context, d *schema.ResourceData, me
 	var ids []string
 
 	for {
-	    tl, err := scalrClient.Teams.List(ctx, options)
-        if err != nil {
-            return diag.Errorf("Error retrieving iam team: %v", err)
-        }
-        for _, team := range tl.Items {
+		tl, err := scalrClient.Teams.List(ctx, options)
+		if err != nil {
+			return diag.Errorf("Error retrieving iam team: %v", err)
+		}
+		for _, team := range tl.Items {
 			ids = append(ids, team.ID)
 		}
 
