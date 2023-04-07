@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `scalr_account_allowed_ips`: accept /32 suffix ([#224](https://github.com/Scalr/terraform-provider-scalr/pull/224))
 
+### Added
+
+- **New data source:**  `scalr_iam_teams` ([#199](https://github.com/Scalr/terraform-provider-scalr/pull/230))
+
+
 ## [1.0.4] - 2023-03-13
 
 ### Fixed
