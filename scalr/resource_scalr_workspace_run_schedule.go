@@ -47,8 +47,12 @@ func resourceScalrWorkspaceRunScheduleCreate(ctx context.Context, d *schema.Reso
 	// Create a new options struct.
 	options := scalr.WorkspaceRunScheduleOptions{}
 
-	options.ApplySchedule = d.Get("apply_schedule").(string)
-	options.DestroySchedule = d.Get("destroy_schedule").(string)
+	if applySchedule, ok := d.GetOk("apply_schedule"); ok {
+		options.ApplySchedule = scalr.String(applySchedule.(string))
+	}
+	if destroySchedule, ok := d.GetOk("destroy_schedule"); ok {
+		options.DestroySchedule = scalr.String(destroySchedule.(string))
+	}
 
 	log.Printf(
 		"[DEBUG] Setting run schedules for workspace ID: %s, apply: %s, destroy: %s",
@@ -99,8 +103,12 @@ func resourceScalrWorkspaceRunScheduleUpdate(ctx context.Context, d *schema.Reso
 		// Create a new options struct.
 		options := scalr.WorkspaceRunScheduleOptions{}
 
-		options.ApplySchedule = d.Get("apply_schedule").(string)
-		options.DestroySchedule = d.Get("destroy_schedule").(string)
+		if applySchedule, ok := d.GetOk("apply_schedule"); ok {
+			options.ApplySchedule = scalr.String(applySchedule.(string))
+		}
+		if destroySchedule, ok := d.GetOk("destroy_schedule"); ok {
+			options.DestroySchedule = scalr.String(destroySchedule.(string))
+		}
 
 		log.Printf(
 			"[DEBUG] Setting run schedules for workspace ID: %s, apply: %s, destroy: %s",
@@ -122,8 +130,8 @@ func resourceScalrWorkspaceRunScheduleDelete(ctx context.Context, d *schema.Reso
 
 	log.Printf("[DEBUG] Delete run schedules for workspace: %s", d.Id())
 	_, err := scalrClient.Workspaces.SetSchedule(ctx, d.Id(), scalr.WorkspaceRunScheduleOptions{
-		ApplySchedule:   "",
-		DestroySchedule: "",
+		ApplySchedule:   nil,
+		DestroySchedule: nil,
 	})
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
