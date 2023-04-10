@@ -54,11 +54,21 @@ func resourceScalrWorkspaceRunScheduleCreate(ctx context.Context, d *schema.Reso
 		options.DestroySchedule = scalr.String(destroySchedule.(string))
 	}
 
+	applySchedule := ""
+	if options.ApplySchedule != nil {
+		applySchedule = *options.ApplySchedule
+	}
+
+	destroySchedule := ""
+	if options.DestroySchedule != nil {
+		destroySchedule = *options.DestroySchedule
+	}
+
 	log.Printf(
 		"[DEBUG] Setting run schedules for workspace ID: %s, apply: %s, destroy: %s",
 		workspaceId,
-		*options.ApplySchedule,
-		*options.DestroySchedule,
+		applySchedule,
+		destroySchedule,
 	)
 	workspace, err := scalrClient.Workspaces.SetSchedule(ctx, workspaceId, options)
 	if err != nil {
@@ -110,11 +120,20 @@ func resourceScalrWorkspaceRunScheduleUpdate(ctx context.Context, d *schema.Reso
 			options.DestroySchedule = scalr.String(destroySchedule.(string))
 		}
 
+		applySchedule := ""
+		if options.ApplySchedule != nil {
+			applySchedule = *options.ApplySchedule
+		}
+
+		destroySchedule := ""
+		if options.DestroySchedule != nil {
+			destroySchedule = *options.DestroySchedule
+		}
 		log.Printf(
 			"[DEBUG] Setting run schedules for workspace ID: %s, apply: %s, destroy: %s",
 			workspaceId,
-			*options.ApplySchedule,
-			*options.DestroySchedule,
+			applySchedule,
+			destroySchedule,
 		)
 		_, err = scalrClient.Workspaces.SetSchedule(ctx, workspaceId, options)
 		if err != nil {
