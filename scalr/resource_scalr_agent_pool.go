@@ -112,7 +112,7 @@ func resourceScalrAgentPoolUpdate(ctx context.Context, d *schema.ResourceData, m
 	id := d.Id()
 
 	if d.HasChange("vcs_enabled") {
-		return fmt.Errorf("Error updating agentPool %s: %v", id, "vcs_enabled attribute is readonly.")
+		return diag.Errorf("Error updating agentPool %s: %v", id, "vcs_enabled attribute is readonly.")
 	}
 
 	if d.HasChange("name") {

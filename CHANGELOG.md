@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `data.scalr_environment`: optional `id` and `name` arguments can be used together ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
 - `data.scalr_endpoint`: optional `id` and `name` arguments can be used together ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
 - `data.scalr_service_account`: optional `id` and `email` arguments can be used together ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `scalr_vcs_provider`: added new attribute `agent_pool_id` ([#232](https://github.com/Scalr/terraform-provider-scalr/pull/232))
+- `data.scalr_vcs_provider`: added new attribute `agent_pool_id` ([#232](https://github.com/Scalr/terraform-provider-scalr/pull/232))
+- `scalr_agent_pool`: added new attribute `vcs_enabled` ([#232](https://github.com/Scalr/terraform-provider-scalr/pull/232))
+- `data.scalr_agent_pool`: added new attribute `vcs_enabled` ([#232](https://github.com/Scalr/terraform-provider-scalr/pull/232))
 
 ### Fixed
 

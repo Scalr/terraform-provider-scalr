@@ -28,6 +28,12 @@ func dataSourceScalrAgentPool() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
+			"vcs_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
 			"account_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -54,6 +60,7 @@ func dataSourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, m
 
 	agentPoolID := d.Get("id").(string)
 	name := d.Get("name").(string)
+	vcsEnabled := d.Get("vcs_enabled").(bool)
 	accountID := d.Get("account_id").(string)
 	envID := d.Get("environment_id").(string)
 
@@ -72,6 +79,8 @@ func dataSourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, m
 	if envID != "" {
 		options.Environment = scalr.String(envID)
 	}
+
+	options.VcsEnabled = scalr.Bool(vcsEnabled)
 
 	agentPoolsList, err := scalrClient.AgentPools.List(ctx, options)
 	if err != nil {

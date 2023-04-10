@@ -19,6 +19,7 @@ resource "scalr_agent_pool" "default" {
 * `name` - (Required) Name of the agent pool.
 * `account_id` - (Optional) ID of the account.
 * `environment_id` - (Optional) ID of the environment.
+* `agent_pool_id` - (Optional) ID of the agent pool.
 
 ## Attribute Reference
 

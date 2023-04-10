@@ -5,7 +5,7 @@ require (
 	github.com/hashicorp/hcl v0.0.0-20180404174102-ef8a98b0bbce
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.24.1
 	github.com/hashicorp/terraform-svchost v0.0.0-20200729002733-f050f53b9734
-	github.com/scalr/go-scalr v0.0.0-20230403055927-2e9dae9e7852
+	github.com/scalr/go-scalr v0.0.0-20230411141017-78d2f06f68e0
 )
 
 require (

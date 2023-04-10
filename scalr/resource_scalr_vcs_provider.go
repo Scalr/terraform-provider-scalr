@@ -101,13 +101,6 @@ func resourceScalrVcsProviderCreate(ctx context.Context, d *schema.ResourceData,
 		options.Username = scalr.String(username.(string))
 	}
 
-	// Get the account
-	if accountId, ok := d.GetOk("account_id"); ok {
-		options.Account = &scalr.Account{
-			ID: accountId.(string),
-		}
-	}
-
 	if agentPoolID, ok := d.GetOk("agent_pool_id"); ok {
 		options.AgentPool = &scalr.AgentPool{
 			ID: agentPoolID.(string),
@@ -142,6 +135,8 @@ func resourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData, m
 	}
 	if provider.AgentPool != nil {
 		_ = d.Set("agent_pool_id", provider.AgentPool.ID)
+	} else {
+		_ = d.Set("agent_pool_id", "")
 	}
 
 	return nil
