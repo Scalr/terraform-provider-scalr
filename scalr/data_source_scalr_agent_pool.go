@@ -1,29 +1,38 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrAgentPool() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrAgentPoolRead,
+		ReadContext: dataSourceScalrAgentPoolRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
+				AtLeastOneOf: []string{"name"},
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 
 			"environment_id": {
@@ -34,40 +43,47 @@ func dataSourceScalrAgentPool() *schema.Resource {
 			"workspace_ids": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MinItems: 0,
-				MaxItems: 128,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
 }
 
-func dataSourceScalrAgentPoolRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
-	var envID string
 
+	agentPoolID := d.Get("id").(string)
 	name := d.Get("name").(string)
 	accountID := d.Get("account_id").(string)
+	envID := d.Get("environment_id").(string)
+
 	options := scalr.AgentPoolListOptions{
-		Name:    name,
 		Account: scalr.String(accountID),
 	}
 
-	if envID, ok := d.GetOk("environment_id"); ok {
-		options.Environment = scalr.String(envID.(string))
+	if agentPoolID != "" {
+		options.AgentPool = agentPoolID
+	}
+
+	if name != "" {
+		options.Name = name
+	}
+
+	if envID != "" {
+		options.Environment = scalr.String(envID)
 	}
 
 	agentPoolsList, err := scalrClient.AgentPools.List(ctx, options)
 	if err != nil {
-		return fmt.Errorf("Error retrieving agent pool: %v", err)
+		return diag.Errorf("Error retrieving agent pool: %v", err)
 	}
 
 	if len(agentPoolsList.Items) > 1 {
-		return errors.New("Your query returned more than one result. Please try a more specific search criteria.")
+		return diag.FromErr(errors.New("Your query returned more than one result. Please try a more specific search criteria."))
 	}
 
 	if len(agentPoolsList.Items) == 0 {
-		return fmt.Errorf("Could not find agent pool with name '%s', account_id: '%s', and environment_id: '%s'", name, accountID, envID)
+		return diag.Errorf("Could not find agent pool with ID '%s', name '%s', account_id '%s', and environment_id '%s'", agentPoolID, name, accountID, envID)
 	}
 
 	agentPool := agentPoolsList.Items[0]
@@ -79,8 +95,9 @@ func dataSourceScalrAgentPoolRead(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		log.Printf("[DEBUG] agent pool %s workspaces: %+v", agentPool.ID, workspaces)
-		d.Set("workspace_ids", workspaces)
+		_ = d.Set("workspace_ids", workspaces)
 	}
+	_ = d.Set("name", agentPool.Name)
 	d.SetId(agentPool.ID)
 
 	return nil

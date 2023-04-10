@@ -1,16 +1,18 @@
 package scalr
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrVariables() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrVariablesRead,
+		ReadContext: dataSourceScalrVariablesRead,
 		Schema: map[string]*schema.Schema{
 			"variables": {
 				Type:     schema.TypeSet,
@@ -75,8 +77,10 @@ func dataSourceScalrVariables() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"category": {
 				Type:     schema.TypeString,
@@ -95,10 +99,12 @@ func dataSourceScalrVariables() *schema.Resource {
 		}}
 }
 
-func dataSourceScalrVariablesRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrVariablesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	filters := scalr.VariableFilter{}
 	options := scalr.VariableListOptions{Filter: &filters}
+
+	filters.Account = scalr.String(d.Get("account_id").(string))
 
 	if keysI, ok := d.GetOk("keys"); ok {
 		keys := make([]string, 0)
@@ -111,9 +117,6 @@ func dataSourceScalrVariablesRead(d *schema.ResourceData, meta interface{}) erro
 	}
 	if categoryI, ok := d.GetOk("category"); ok {
 		filters.Category = scalr.String(categoryI.(string))
-	}
-	if accountI, ok := d.GetOk("account_id"); ok {
-		filters.Account = scalr.String(accountI.(string))
 	}
 	if envIdsI, ok := d.GetOk("environment_ids"); ok {
 		envIds := make([]string, 0)
@@ -140,7 +143,7 @@ func dataSourceScalrVariablesRead(d *schema.ResourceData, meta interface{}) erro
 	for {
 		page, err := scalrClient.Variables.List(ctx, options)
 		if err != nil {
-			return fmt.Errorf("Error retrieving Scalr variables: %v", err)
+			return diag.Errorf("Error retrieving Scalr variables: %v", err)
 		}
 
 		for _, variable := range page.Items {
@@ -172,7 +175,7 @@ func dataSourceScalrVariablesRead(d *schema.ResourceData, meta interface{}) erro
 		}
 		options.PageNumber = page.NextPage
 	}
-	d.Set("variables", variables)
+	_ = d.Set("variables", variables)
 	d.SetId(fmt.Sprintf("%d", schema.HashString(strings.Join(ids, ""))))
 
 	return nil

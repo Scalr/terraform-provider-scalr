@@ -1,22 +1,24 @@
 package scalr
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrIamTeam() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrIamTeamCreate,
-		Read:   resourceScalrIamTeamRead,
-		Update: resourceScalrIamTeamUpdate,
-		Delete: resourceScalrIamTeamDelete,
+		CreateContext: resourceScalrIamTeamCreate,
+		ReadContext:   resourceScalrIamTeamRead,
+		UpdateContext: resourceScalrIamTeamUpdate,
+		DeleteContext: resourceScalrIamTeamDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -29,9 +31,11 @@ func resourceScalrIamTeam() *schema.Resource {
 				Optional: true,
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
+				ForceNew:    true,
 			},
 			"identity_provider_id": {
 				Type:     schema.TypeString,
@@ -64,27 +68,26 @@ func parseUserDefinitions(d *schema.ResourceData) ([]*scalr.User, error) {
 	return users, nil
 }
 
-func resourceScalrIamTeamCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrIamTeamCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	name := d.Get("name").(string)
+	accountID := d.Get("account_id").(string)
 
 	users, err := parseUserDefinitions(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	opts := scalr.TeamCreateOptions{
-		Name:  scalr.String(name),
-		Users: users,
+		Name:    &name,
+		Account: &scalr.Account{ID: accountID},
+		Users:   users,
 	}
 
 	// Optional attributes
 	if desc, ok := d.GetOk("description"); ok {
 		opts.Description = scalr.String(desc.(string))
-	}
-	if accID, ok := d.GetOk("account_id"); ok {
-		opts.Account = &scalr.Account{ID: accID.(string)}
 	}
 	if idpID, ok := d.GetOk("identity_provider_id"); ok {
 		opts.IdentityProvider = &scalr.IdentityProvider{ID: idpID.(string)}
@@ -92,14 +95,14 @@ func resourceScalrIamTeamCreate(d *schema.ResourceData, meta interface{}) error 
 
 	t, err := scalrClient.Teams.Create(ctx, opts)
 	if err != nil {
-		return fmt.Errorf("error creating team: %v", err)
+		return diag.Errorf("error creating team: %v", err)
 	}
 
 	d.SetId(t.ID)
-	return resourceScalrIamTeamRead(d, meta)
+	return resourceScalrIamTeamRead(ctx, d, meta)
 }
 
-func resourceScalrIamTeamRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrIamTeamRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
@@ -111,15 +114,15 @@ func resourceScalrIamTeamRead(d *schema.ResourceData, meta interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("error reading configuration of team %s: %v", id, err)
+		return diag.Errorf("error reading configuration of team %s: %v", id, err)
 	}
 
 	// Update the configuration.
-	d.Set("name", t.Name)
-	d.Set("description", t.Description)
-	d.Set("identity_provider_id", t.IdentityProvider.ID)
+	_ = d.Set("name", t.Name)
+	_ = d.Set("description", t.Description)
+	_ = d.Set("identity_provider_id", t.IdentityProvider.ID)
 	if t.Account != nil {
-		d.Set("account_id", t.Account.ID)
+		_ = d.Set("account_id", t.Account.ID)
 	}
 
 	var users []string
@@ -128,12 +131,12 @@ func resourceScalrIamTeamRead(d *schema.ResourceData, meta interface{}) error {
 			users = append(users, u.ID)
 		}
 	}
-	d.Set("users", users)
+	_ = d.Set("users", users)
 
 	return nil
 }
 
-func resourceScalrIamTeamUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrIamTeamUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
@@ -144,7 +147,7 @@ func resourceScalrIamTeamUpdate(d *schema.ResourceData, meta interface{}) error 
 		desc := d.Get("description").(string)
 		users, err := parseUserDefinitions(d)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		opts := scalr.TeamUpdateOptions{
@@ -156,14 +159,14 @@ func resourceScalrIamTeamUpdate(d *schema.ResourceData, meta interface{}) error 
 		log.Printf("[DEBUG] Update team %s", id)
 		_, err = scalrClient.Teams.Update(ctx, id, opts)
 		if err != nil {
-			return fmt.Errorf("error updating team %s: %v", id, err)
+			return diag.Errorf("error updating team %s: %v", id, err)
 		}
 	}
 
-	return resourceScalrIamTeamRead(d, meta)
+	return resourceScalrIamTeamRead(ctx, d, meta)
 }
 
-func resourceScalrIamTeamDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrIamTeamDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 
@@ -174,7 +177,7 @@ func resourceScalrIamTeamDelete(d *schema.ResourceData, meta interface{}) error 
 			log.Printf("[DEBUG] Team %s not found", id)
 			return nil
 		}
-		return fmt.Errorf("error deleting team %s: %v", id, err)
+		return diag.Errorf("error deleting team %s: %v", id, err)
 	}
 
 	return nil

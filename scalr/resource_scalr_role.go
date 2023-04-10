@@ -1,24 +1,26 @@
 package scalr
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 	"reflect"
 	"sort"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrRole() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrRoleCreate,
-		Read:   resourceScalrRoleRead,
-		Update: resourceScalrRoleUpdate,
-		Delete: resourceScalrRoleDelete,
+		CreateContext: resourceScalrRoleCreate,
+		ReadContext:   resourceScalrRoleRead,
+		UpdateContext: resourceScalrRoleUpdate,
+		DeleteContext: resourceScalrRoleDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		SchemaVersion: 1,
 		StateUpgraders: []schema.StateUpgrader{
@@ -34,9 +36,11 @@ func resourceScalrRole() *schema.Resource {
 				Required: true,
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
+				ForceNew:    true,
 			},
 
 			"is_system": {
@@ -76,7 +80,7 @@ func parsePermissionDefinitions(d *schema.ResourceData) ([]*scalr.Permission, er
 	return permissions, nil
 }
 
-func resourceScalrRoleCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrRoleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get required options
@@ -87,7 +91,7 @@ func resourceScalrRoleCreate(d *schema.ResourceData, meta interface{}) error {
 	// Get optional attributes
 	permissions, err := parsePermissionDefinitions(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Create a new options struct
@@ -101,14 +105,14 @@ func resourceScalrRoleCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Create role %s for account: %s", name, accountID)
 	role, err := scalrClient.Roles.Create(ctx, options)
 	if err != nil {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Error creating role %s for account %s: %v", name, accountID, err)
 	}
 	d.SetId(role.ID)
-	return resourceScalrRoleRead(d, meta)
+	return resourceScalrRoleRead(ctx, d, meta)
 }
 
-func resourceScalrRoleRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrRoleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 	log.Printf("[DEBUG] Read configuration of role: %s", id)
@@ -119,15 +123,15 @@ func resourceScalrRoleRead(d *schema.ResourceData, meta interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error reading configuration of role %s: %v", id, err)
+		return diag.Errorf("Error reading configuration of role %s: %v", id, err)
 	}
 	log.Printf("[DEBUG] role permissions: %+v", role.Permissions)
 
 	// Update the config.
-	d.Set("name", role.Name)
-	d.Set("description", role.Description)
-	d.Set("account_id", role.Account.ID)
-	d.Set("is_system", role.IsSystem)
+	_ = d.Set("name", role.Name)
+	_ = d.Set("description", role.Description)
+	_ = d.Set("account_id", role.Account.ID)
+	_ = d.Set("is_system", role.IsSystem)
 
 	schemaPermissions := make([]string, 0)
 	if value, ok := d.GetOk("permissions"); ok {
@@ -152,13 +156,13 @@ func resourceScalrRoleRead(d *schema.ResourceData, meta interface{}) error {
 
 	// ignore permission ordering from the remote server
 	if !reflect.DeepEqual(remotePermissions, schemaPermissions) {
-		d.Set("permissions", remotePermissions)
+		_ = d.Set("permissions", remotePermissions)
 	}
 
 	return nil
 }
 
-func resourceScalrRoleUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrRoleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
@@ -166,7 +170,7 @@ func resourceScalrRoleUpdate(d *schema.ResourceData, meta interface{}) error {
 	if d.HasChange("name") || d.HasChange("description") || d.HasChange("permissions") {
 		permissions, err := parsePermissionDefinitions(d)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		// Create a new options struct
@@ -179,15 +183,15 @@ func resourceScalrRoleUpdate(d *schema.ResourceData, meta interface{}) error {
 		log.Printf("[DEBUG] Update role %s", id)
 		_, err = scalrClient.Roles.Update(ctx, id, options)
 		if err != nil {
-			return fmt.Errorf(
+			return diag.Errorf(
 				"Error updating role %s: %v", id, err)
 		}
 	}
 
-	return resourceScalrRoleRead(d, meta)
+	return resourceScalrRoleRead(ctx, d, meta)
 }
 
-func resourceScalrRoleDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrRoleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 
@@ -197,7 +201,7 @@ func resourceScalrRoleDelete(d *schema.ResourceData, meta interface{}) error {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Error deleting role %s: %v", id, err)
 	}
 

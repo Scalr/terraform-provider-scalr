@@ -1,13 +1,14 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"log"
 	"os"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 const (
@@ -18,7 +19,7 @@ const (
 // https://iacp.docs.scalr.com/en/latest/working-with-iacp/opa.html#policy-checking-process
 func dataSourceScalrCurrentRun() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrCurrentRunRead,
+		ReadContext: dataSourceScalrCurrentRunRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
@@ -61,7 +62,7 @@ func dataSourceScalrCurrentRun() *schema.Resource {
 										Computed: true,
 									},
 									"author": {
-										Type:     schema.TypeMap,
+										Type:     schema.TypeList,
 										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -100,13 +101,13 @@ func dataSourceScalrCurrentRun() *schema.Resource {
 	}
 }
 
-func dataSourceScalrCurrentRunRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrCurrentRunRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	runID, exists := os.LookupEnv(currentRunIDEnvVar)
 	if !exists {
 		log.Printf("[DEBUG] %s is not set", currentRunIDEnvVar)
-		d.SetId("")
+		d.SetId(dummyIdentifier)
 		return nil
 	}
 
@@ -114,28 +115,28 @@ func dataSourceScalrCurrentRunRead(d *schema.ResourceData, meta interface{}) err
 	run, err := scalrClient.Runs.Read(ctx, runID)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Could not find run %s", runID)
+			return diag.Errorf("Could not find run %s", runID)
 		}
-		return fmt.Errorf("Error retrieving run: %v", err)
+		return diag.Errorf("Error retrieving run: %v", err)
 	}
 
 	log.Printf("[DEBUG] Read workspace of run: %s", runID)
 	workspace, err := scalrClient.Workspaces.ReadByID(ctx, run.Workspace.ID)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Could not find workspace %s", run.Workspace.ID)
+			return diag.Errorf("Could not find workspace %s", run.Workspace.ID)
 		}
-		return fmt.Errorf("Error retrieving workspace: %v", err)
+		return diag.Errorf("Error retrieving workspace: %v", err)
 	}
 
 	// Update the config
-	d.Set("source", run.Source)
-	d.Set("message", run.Message)
-	d.Set("is_destroy", run.IsDestroy)
-	d.Set("is_dry", run.Apply == nil)
+	_ = d.Set("source", run.Source)
+	_ = d.Set("message", run.Message)
+	_ = d.Set("is_destroy", run.IsDestroy)
+	_ = d.Set("is_dry", run.Apply == nil)
 
-	d.Set("workspace_name", workspace.Name)
-	d.Set("environment_id", workspace.Environment.ID)
+	_ = d.Set("workspace_name", workspace.Name)
+	_ = d.Set("environment_id", workspace.Environment.ID)
 
 	if workspace.VCSRepo != nil {
 		log.Printf("[DEBUG] Read vcs revision attributes of run: %s", runID)
@@ -151,14 +152,16 @@ func dataSourceScalrCurrentRunRead(d *schema.ResourceData, meta interface{}) err
 				{
 					"sha":     run.VcsRevision.CommitSha,
 					"message": run.VcsRevision.CommitMessage,
-					"author": map[string]interface{}{
-						"username": run.VcsRevision.SenderUsername,
+					"author": []interface{}{
+						map[string]string{
+							"username": run.VcsRevision.SenderUsername,
+						},
 					},
 				},
 			}
 		}
 
-		d.Set("vcs", append(vcsConfig, vcs))
+		_ = d.Set("vcs", append(vcsConfig, vcs))
 	}
 
 	d.SetId(runID)

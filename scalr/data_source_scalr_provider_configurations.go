@@ -1,16 +1,18 @@
 package scalr
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrProviderConfigurations() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrProviderConfigurationsRead,
+		ReadContext: dataSourceScalrProviderConfigurationsRead,
 		Schema: map[string]*schema.Schema{
 			"ids": {
 				Type:     schema.TypeList,
@@ -18,8 +20,10 @@ func dataSourceScalrProviderConfigurations() *schema.Resource {
 				Computed: true,
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -33,7 +37,7 @@ func dataSourceScalrProviderConfigurations() *schema.Resource {
 	}
 }
 
-func dataSourceScalrProviderConfigurationsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrProviderConfigurationsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	accountID := d.Get("account_id").(string)
@@ -54,7 +58,7 @@ func dataSourceScalrProviderConfigurationsRead(d *schema.ResourceData, meta inte
 	for {
 		providerConfigurations, err := scalrClient.ProviderConfigurations.List(ctx, options)
 		if err != nil {
-			return fmt.Errorf("Error retrieving provider configuration: %v", err)
+			return diag.Errorf("Error retrieving provider configuration: %v", err)
 		}
 
 		for _, providerConfiguration := range providerConfigurations.Items {
@@ -70,7 +74,7 @@ func dataSourceScalrProviderConfigurationsRead(d *schema.ResourceData, meta inte
 		options.PageNumber = providerConfigurations.NextPage
 	}
 
-	d.Set("ids", ids)
+	_ = d.Set("ids", ids)
 	d.SetId(fmt.Sprintf("%d", schema.HashString(accountID+name+providerName)))
 
 	return nil

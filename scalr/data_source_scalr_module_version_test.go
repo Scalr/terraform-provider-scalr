@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/scalr/go-scalr"
 )
 
 func TestAccModuleVersionDataSource_basic(t *testing.T) {
@@ -19,7 +19,7 @@ func TestAccModuleVersionDataSource_basic(t *testing.T) {
 			t.Skip("Working on personal token but not working with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAccountModule(rInt),
@@ -63,7 +63,7 @@ func waitForModuleVersions(environmentName string) func() {
 			Name: &environmentName,
 		}
 
-		env, err := GetEnvironmentByName(options, scalrClient)
+		env, err := GetEnvironmentByName(ctx, options, scalrClient)
 		if err != nil {
 			log.Fatalf("Got error during environment fetching: %v", err)
 			return
@@ -118,7 +118,7 @@ func testAccScalrAccountModule(rInt int) string {
 		  }
 		  vcs_provider_id = scalr_vcs_provider.test.id
 		}
-`, defaultAccount, rInt, string(scalr.Github), GITHUB_TOKEN)
+`, defaultAccount, rInt, string(scalr.Github), githubToken)
 }
 
 func testAccModuleVersionDataSourceConfig(rInt int) string {

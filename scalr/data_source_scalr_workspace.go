@@ -1,22 +1,34 @@
 package scalr
 
 import (
+	"context"
 	"errors"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrWorkspace() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrWorkspaceRead,
+		ReadContext: dataSourceScalrWorkspaceRead,
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
+				AtLeastOneOf: []string{"name"},
+			},
+
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 
 			"environment_id": {
@@ -164,38 +176,58 @@ func dataSourceScalrWorkspace() *schema.Resource {
 	}
 }
 
-func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
-	// Get the name and environment_id.
+	workspaceID := d.Get("id").(string)
 	name := d.Get("name").(string)
 	environmentID := d.Get("environment_id").(string)
 
-	log.Printf("[DEBUG] Read configuration of workspace: %s", name)
-	workspace, err := scalrClient.Workspaces.Read(ctx, environmentID, name)
-	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Could not find workspace %s/%s", environmentID, name)
-		}
-		return fmt.Errorf("Error retrieving workspace: %v", err)
+	options := scalr.WorkspaceListOptions{
+		Environment: scalr.String(environmentID),
+		Include:     "created-by",
 	}
 
+	if workspaceID != "" {
+		options.Workspace = scalr.String(workspaceID)
+	}
+
+	if name != "" {
+		options.Name = scalr.String(name)
+	}
+
+	log.Printf("[DEBUG] Read configuration of workspace with ID '%s', name '%s', and environment_id '%s'", workspaceID, name, environmentID)
+
+	workspaces, err := scalrClient.Workspaces.List(ctx, options)
+	if err != nil {
+		return diag.Errorf("error retrieving workspace: %v", err)
+	}
+	if len(workspaces.Items) > 1 {
+		return diag.FromErr(errors.New("Your query returned more than one result. Please try a more specific search criteria."))
+	}
+	if len(workspaces.Items) == 0 {
+		return diag.Errorf("Could not find workspace with ID '%s', name '%s' and environment_id '%s'", workspaceID, name, environmentID)
+	}
+
+	workspace := workspaces.Items[0]
+
 	// Update the config.
-	d.Set("auto_apply", workspace.AutoApply)
-	d.Set("force_latest_run", workspace.ForceLatestRun)
-	d.Set("operations", workspace.Operations)
-	d.Set("execution_mode", workspace.ExecutionMode)
-	d.Set("terraform_version", workspace.TerraformVersion)
-	d.Set("working_directory", workspace.WorkingDirectory)
-	d.Set("has_resources", workspace.HasResources)
-	d.Set("auto_queue_runs", workspace.AutoQueueRuns)
+	_ = d.Set("name", workspace.Name)
+	_ = d.Set("auto_apply", workspace.AutoApply)
+	_ = d.Set("force_latest_run", workspace.ForceLatestRun)
+	_ = d.Set("operations", workspace.Operations)
+	_ = d.Set("execution_mode", workspace.ExecutionMode)
+	_ = d.Set("terraform_version", workspace.TerraformVersion)
+	_ = d.Set("working_directory", workspace.WorkingDirectory)
+	_ = d.Set("has_resources", workspace.HasResources)
+	_ = d.Set("auto_queue_runs", workspace.AutoQueueRuns)
 
 	if workspace.ModuleVersion != nil {
-		d.Set("module_version_id", workspace.ModuleVersion.ID)
+		_ = d.Set("module_version_id", workspace.ModuleVersion.ID)
 	}
 
 	if workspace.VcsProvider != nil {
-		d.Set("vcs_provider_id", workspace.VcsProvider.ID)
+		_ = d.Set("vcs_provider_id", workspace.VcsProvider.ID)
 	}
 
 	var createdBy []interface{}
@@ -206,7 +238,7 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 			"full_name": workspace.CreatedBy.FullName,
 		})
 	}
-	d.Set("created_by", createdBy)
+	_ = d.Set("created_by", createdBy)
 
 	var vcsRepo []interface{}
 	if workspace.VCSRepo != nil {
@@ -218,7 +250,7 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 		}
 		vcsRepo = append(vcsRepo, vcsConfig)
 	}
-	d.Set("vcs_repo", vcsRepo)
+	_ = d.Set("vcs_repo", vcsRepo)
 
 	var hooks []interface{}
 	if workspace.Hooks != nil {
@@ -230,7 +262,7 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 			"post_apply": workspace.Hooks.PostApply,
 		})
 	}
-	d.Set("hooks", hooks)
+	_ = d.Set("hooks", hooks)
 
 	var tags []string
 	if len(workspace.Tags) != 0 {
@@ -238,7 +270,7 @@ func dataSourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) erro
 			tags = append(tags, tag.ID)
 		}
 	}
-	d.Set("tag_ids", tags)
+	_ = d.Set("tag_ids", tags)
 
 	d.SetId(workspace.ID)
 

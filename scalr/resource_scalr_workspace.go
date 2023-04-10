@@ -1,24 +1,26 @@
 package scalr
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrWorkspace() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrWorkspaceCreate,
-		Read:   resourceScalrWorkspaceRead,
-		Update: resourceScalrWorkspaceUpdate,
-		Delete: resourceScalrWorkspaceDelete,
+		CreateContext: resourceScalrWorkspaceCreate,
+		ReadContext:   resourceScalrWorkspaceRead,
+		UpdateContext: resourceScalrWorkspaceUpdate,
+		DeleteContext: resourceScalrWorkspaceDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		SchemaVersion: 4,
@@ -98,7 +100,7 @@ func resourceScalrWorkspace() *schema.Resource {
 				Type:       schema.TypeBool,
 				Optional:   true,
 				Computed:   true,
-				Deprecated: "The attribute `operations` is deprecated. Use `execution-mode` instead",
+				Deprecated: "The attribute `operations` is deprecated. Use `execution_mode` instead",
 			},
 
 			"execution_mode": {
@@ -180,7 +182,7 @@ func resourceScalrWorkspace() *schema.Resource {
 					},
 					false,
 				),
-				Default: string(scalr.AutoQueueRunsModeSkipFirst),
+				Computed: true,
 			},
 
 			"vcs_repo": {
@@ -295,7 +297,7 @@ func parseTriggerPrefixDefinitions(vcsRepo map[string]interface{}) ([]string, er
 	return triggerPrefixes, nil
 }
 
-func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWorkspaceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// Get the name, environment_id and vcs_provider_id.
@@ -361,7 +363,7 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 		vcsRepo := v.([]interface{})[0].(map[string]interface{})
 		triggerPrefixes, err := parseTriggerPrefixDefinitions(vcsRepo)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		options.VCSRepo = &scalr.WorkspaceVCSRepoOptions{
@@ -413,7 +415,7 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 	log.Printf("[DEBUG] Create workspace %s for environment: %s", name, environmentID)
 	workspace, err := scalrClient.Workspaces.Create(ctx, options)
 	if err != nil {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Error creating workspace %s for environment %s: %v", name, environmentID, err)
 	}
 	d.SetId(workspace.ID)
@@ -431,16 +433,16 @@ func resourceScalrWorkspaceCreate(d *schema.ResourceData, meta interface{}) erro
 				ctx, workspace.ID, createLinkOption,
 			)
 			if err != nil {
-				return fmt.Errorf(
+				return diag.Errorf(
 					"Error creating workspace %s provider configuration link: %v", name, err)
 			}
 		}
 	}
 
-	return resourceScalrWorkspaceRead(d, meta)
+	return resourceScalrWorkspaceRead(ctx, d, meta)
 }
 
-func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 	log.Printf("[DEBUG] Read configuration of workspace: %s", id)
@@ -451,39 +453,39 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error reading configuration of workspace %s: %v", id, err)
+		return diag.Errorf("Error reading configuration of workspace %s: %v", id, err)
 	}
 
 	// Update the config.
-	d.Set("name", workspace.Name)
-	d.Set("auto_apply", workspace.AutoApply)
-	d.Set("force_latest_run", workspace.ForceLatestRun)
-	d.Set("operations", workspace.Operations)
-	d.Set("execution_mode", workspace.ExecutionMode)
-	d.Set("terraform_version", workspace.TerraformVersion)
-	d.Set("working_directory", workspace.WorkingDirectory)
-	d.Set("environment_id", workspace.Environment.ID)
-	d.Set("has_resources", workspace.HasResources)
-	d.Set("auto_queue_runs", workspace.AutoQueueRuns)
-	d.Set("var_files", workspace.VarFiles)
+	_ = d.Set("name", workspace.Name)
+	_ = d.Set("auto_apply", workspace.AutoApply)
+	_ = d.Set("force_latest_run", workspace.ForceLatestRun)
+	_ = d.Set("operations", workspace.Operations)
+	_ = d.Set("execution_mode", workspace.ExecutionMode)
+	_ = d.Set("terraform_version", workspace.TerraformVersion)
+	_ = d.Set("working_directory", workspace.WorkingDirectory)
+	_ = d.Set("environment_id", workspace.Environment.ID)
+	_ = d.Set("has_resources", workspace.HasResources)
+	_ = d.Set("auto_queue_runs", workspace.AutoQueueRuns)
+	_ = d.Set("var_files", workspace.VarFiles)
 
 	if workspace.RunOperationTimeout != nil {
-		d.Set("run_operation_timeout", &workspace.RunOperationTimeout)
+		_ = d.Set("run_operation_timeout", &workspace.RunOperationTimeout)
 	}
 
 	if workspace.VcsProvider != nil {
-		d.Set("vcs_provider_id", workspace.VcsProvider.ID)
+		_ = d.Set("vcs_provider_id", workspace.VcsProvider.ID)
 	}
 
 	if workspace.AgentPool != nil {
-		d.Set("agent_pool_id", workspace.AgentPool.ID)
+		_ = d.Set("agent_pool_id", workspace.AgentPool.ID)
 	}
 
 	var mv string
 	if workspace.ModuleVersion != nil {
 		mv = workspace.ModuleVersion.ID
 	}
-	d.Set("module_version_id", mv)
+	_ = d.Set("module_version_id", mv)
 
 	var createdBy []interface{}
 	if workspace.CreatedBy != nil {
@@ -493,7 +495,7 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 			"full_name": workspace.CreatedBy.FullName,
 		})
 	}
-	d.Set("created_by", createdBy)
+	_ = d.Set("created_by", createdBy)
 
 	var vcsRepo []interface{}
 	if workspace.VCSRepo != nil {
@@ -506,7 +508,7 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 			"ingress_submodules": workspace.VCSRepo.IngressSubmodules,
 		})
 	}
-	d.Set("vcs_repo", vcsRepo)
+	_ = d.Set("vcs_repo", vcsRepo)
 
 	var hooks []interface{}
 	if workspace.Hooks != nil {
@@ -526,11 +528,11 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 			"post_apply": "",
 		})
 	}
-	d.Set("hooks", hooks)
+	_ = d.Set("hooks", hooks)
 
-	providerConfigurationLinks, err := getProviderConfigurationWorkspaceLinks(scalrClient, id)
+	providerConfigurationLinks, err := getProviderConfigurationWorkspaceLinks(ctx, scalrClient, id)
 	if err != nil {
-		return fmt.Errorf("Error reading provider configuration links of workspace %s: %v", id, err)
+		return diag.Errorf("Error reading provider configuration links of workspace %s: %v", id, err)
 	}
 	var providerConfigurations []map[string]interface{}
 	for _, link := range providerConfigurationLinks {
@@ -539,7 +541,7 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 			"alias": link.Alias,
 		})
 	}
-	d.Set("provider_configuration", providerConfigurations)
+	_ = d.Set("provider_configuration", providerConfigurations)
 
 	var tagIDs []string
 	if len(workspace.Tags) != 0 {
@@ -547,12 +549,12 @@ func resourceScalrWorkspaceRead(d *schema.ResourceData, meta interface{}) error 
 			tagIDs = append(tagIDs, tag.ID)
 		}
 	}
-	d.Set("tag_ids", tagIDs)
+	_ = d.Set("tag_ids", tagIDs)
 
 	return nil
 }
 
-func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
@@ -629,7 +631,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 			vcsRepo := v.([]interface{})[0].(map[string]interface{})
 			triggerPrefixes, err := parseTriggerPrefixDefinitions(vcsRepo)
 			if err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 
 			options.VCSRepo = &scalr.WorkspaceVCSRepoOptions{
@@ -666,7 +668,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		log.Printf("[DEBUG] Update workspace %s", id)
 		_, err := scalrClient.Workspaces.Update(ctx, id, options)
 		if err != nil {
-			return fmt.Errorf(
+			return diag.Errorf(
 				"Error updating workspace %s: %v", id, err)
 		}
 	}
@@ -689,9 +691,9 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 			}
 		}
 
-		currentLinks, err := getProviderConfigurationWorkspaceLinks(scalrClient, id)
+		currentLinks, err := getProviderConfigurationWorkspaceLinks(ctx, scalrClient, id)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		for _, currentLink := range currentLinks {
@@ -701,7 +703,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 			} else {
 				err = scalrClient.ProviderConfigurationLinks.Delete(ctx, currentLink.ID)
 				if err != nil {
-					return fmt.Errorf(
+					return diag.Errorf(
 						"Error removing provider configuration link in workspace %s: %v", id, err)
 				}
 			}
@@ -709,7 +711,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		for _, createOption := range expectedLinks {
 			_, err = scalrClient.ProviderConfigurationLinks.Create(ctx, id, createOption)
 			if err != nil {
-				return fmt.Errorf(
+				return diag.Errorf(
 					"Error creating provider configuration link in workspace %s: %v", id, err)
 			}
 
@@ -726,7 +728,7 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		if len(tagsToAdd) > 0 {
 			err := scalrClient.WorkspaceTags.Add(ctx, id, tagsToAdd)
 			if err != nil {
-				return fmt.Errorf(
+				return diag.Errorf(
 					"Error adding tags to workspace %s: %v", id, err)
 			}
 		}
@@ -734,17 +736,17 @@ func resourceScalrWorkspaceUpdate(d *schema.ResourceData, meta interface{}) erro
 		if len(tagsToDelete) > 0 {
 			err := scalrClient.WorkspaceTags.Delete(ctx, id, tagsToDelete)
 			if err != nil {
-				return fmt.Errorf(
+				return diag.Errorf(
 					"Error deleting tags from workspace %s: %v", id, err)
 			}
 		}
 	}
 
-	return resourceScalrWorkspaceRead(d, meta)
+	return resourceScalrWorkspaceRead(ctx, d, meta)
 }
 
 func getProviderConfigurationWorkspaceLinks(
-	scalrClient *scalr.Client, workspaceId string,
+	ctx context.Context, scalrClient *scalr.Client, workspaceId string,
 ) (workspaceLinks []*scalr.ProviderConfigurationLink, err error) {
 	linkListOption := scalr.ProviderConfigurationLinksListOptions{Include: "provider-configuration"}
 	for {
@@ -771,7 +773,7 @@ func getProviderConfigurationWorkspaceLinks(
 	return
 }
 
-func resourceScalrWorkspaceDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWorkspaceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 
@@ -781,7 +783,7 @@ func resourceScalrWorkspaceDelete(d *schema.ResourceData, meta interface{}) erro
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf("Error deleting workspace %s: %v", id, err)
+		return diag.Errorf("Error deleting workspace %s: %v", id, err)
 	}
 
 	return nil

@@ -1,29 +1,36 @@
 package scalr
 
 import (
-	"fmt"
+	"context"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrIamUser() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrIamUserRead,
+		ReadContext: dataSourceScalrIamUserRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
+				AtLeastOneOf: []string{"email"},
 			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"email": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"username": {
 				Type:     schema.TypeString,
@@ -47,32 +54,40 @@ func dataSourceScalrIamUser() *schema.Resource {
 	}
 }
 
-func dataSourceScalrIamUserRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrIamUserRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// required fields
+	uID := d.Get("id").(string)
 	email := d.Get("email").(string)
 
-	options := scalr.UserListOptions{
-		Email: scalr.String(email),
+	options := scalr.UserListOptions{}
+
+	if uID != "" {
+		options.User = scalr.String(uID)
 	}
-	log.Printf("[DEBUG] Read configuration of iam user: %s", email)
+	if email != "" {
+		options.Email = scalr.String(email)
+	}
+
+	log.Printf("[DEBUG] Read configuration of iam user: email '%s', ID '%s'", email, uID)
 
 	ul, err := scalrClient.Users.List(ctx, options)
 	if err != nil {
-		return fmt.Errorf("error retrieving iam user: %v", err)
+		return diag.Errorf("error retrieving iam user: %v", err)
 	}
 
 	if ul.TotalCount == 0 {
-		return fmt.Errorf("iam user %s not found", email)
+		return diag.Errorf("iam user with email '%s' and ID '%s' not found", email, uID)
 	}
 
 	u := ul.Items[0]
 
 	// Update the configuration.
-	d.Set("status", u.Status)
-	d.Set("username", u.Username)
-	d.Set("full_name", u.FullName)
+	_ = d.Set("email", u.Email)
+	_ = d.Set("status", u.Status)
+	_ = d.Set("username", u.Username)
+	_ = d.Set("full_name", u.FullName)
 
 	var idps []string
 	if len(u.IdentityProviders) != 0 {
@@ -80,7 +95,7 @@ func dataSourceScalrIamUserRead(d *schema.ResourceData, meta interface{}) error 
 			idps = append(idps, idp.ID)
 		}
 	}
-	d.Set("identity_providers", idps)
+	_ = d.Set("identity_providers", idps)
 
 	var teams []string
 	if len(u.Teams) != 0 {
@@ -88,7 +103,7 @@ func dataSourceScalrIamUserRead(d *schema.ResourceData, meta interface{}) error 
 			teams = append(teams, t.ID)
 		}
 	}
-	d.Set("teams", teams)
+	_ = d.Set("teams", teams)
 
 	d.SetId(u.ID)
 

@@ -1,21 +1,23 @@
 package scalr
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/scalr/go-scalr"
 	"log"
 )
 
 func resourceScalrWorkspaceRunSchedule() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrWorkspaceRunScheduleCreate,
-		Read:   resourceScalrWorkspaceRunScheduleRead,
-		Update: resourceScalrWorkspaceRunScheduleUpdate,
-		Delete: resourceScalrWorkspaceRunScheduleDelete,
+		CreateContext: resourceScalrWorkspaceRunScheduleCreate,
+		ReadContext:   resourceScalrWorkspaceRunScheduleRead,
+		UpdateContext: resourceScalrWorkspaceRunScheduleUpdate,
+		DeleteContext: resourceScalrWorkspaceRunScheduleDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceScalrWorkspaceRunScheduleImport,
+			StateContext: resourceScalrWorkspaceRunScheduleImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -37,7 +39,7 @@ func resourceScalrWorkspaceRunSchedule() *schema.Resource {
 	}
 }
 
-func resourceScalrWorkspaceRunScheduleCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWorkspaceRunScheduleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	workspaceId := d.Get("workspace_id").(string)
@@ -56,15 +58,15 @@ func resourceScalrWorkspaceRunScheduleCreate(d *schema.ResourceData, meta interf
 	)
 	workspace, err := scalrClient.Workspaces.SetSchedule(ctx, workspaceId, options)
 	if err != nil {
-		return fmt.Errorf("Error setting run schedule for workspace %s: %v", workspaceId, err)
+		return diag.Errorf("Error setting run schedule for workspace %s: %v", workspaceId, err)
 	}
 
 	d.SetId(workspace.ID)
 
-	return resourceScalrWorkspaceRunScheduleRead(d, meta)
+	return resourceScalrWorkspaceRunScheduleRead(ctx, d, meta)
 }
 
-func resourceScalrWorkspaceRunScheduleRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWorkspaceRunScheduleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	workspaceId := d.Id()
 
@@ -75,19 +77,19 @@ func resourceScalrWorkspaceRunScheduleRead(d *schema.ResourceData, meta interfac
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error retrieving workspace: %v", err)
+		return diag.Errorf("Error retrieving workspace: %v", err)
 	}
 
 	// Update the config.
-	d.Set("apply_schedule", workspace.ApplySchedule)
-	d.Set("destroy_schedule", workspace.DestroySchedule)
+	_ = d.Set("apply_schedule", workspace.ApplySchedule)
+	_ = d.Set("destroy_schedule", workspace.DestroySchedule)
 
 	d.SetId(workspace.ID)
 
 	return nil
 }
 
-func resourceScalrWorkspaceRunScheduleUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWorkspaceRunScheduleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	var err error
@@ -108,14 +110,14 @@ func resourceScalrWorkspaceRunScheduleUpdate(d *schema.ResourceData, meta interf
 		)
 		_, err = scalrClient.Workspaces.SetSchedule(ctx, workspaceId, options)
 		if err != nil {
-			return fmt.Errorf("Error setting run schedule for workspace %s: %v", workspaceId, err)
+			return diag.Errorf("Error setting run schedule for workspace %s: %v", workspaceId, err)
 		}
 	}
 
-	return resourceScalrWorkspaceRunScheduleRead(d, meta)
+	return resourceScalrWorkspaceRunScheduleRead(ctx, d, meta)
 }
 
-func resourceScalrWorkspaceRunScheduleDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrWorkspaceRunScheduleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	log.Printf("[DEBUG] Delete run schedules for workspace: %s", d.Id())
@@ -127,14 +129,14 @@ func resourceScalrWorkspaceRunScheduleDelete(d *schema.ResourceData, meta interf
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf("Error deleting workspace run schedules %s: %v", d.Id(), err)
+		return diag.Errorf("Error deleting workspace run schedules %s: %v", d.Id(), err)
 	}
 
 	return nil
 }
 
-func resourceScalrWorkspaceRunScheduleImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	err := resourceScalrWorkspaceRunScheduleRead(d, meta)
+func resourceScalrWorkspaceRunScheduleImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	err := resourceScalrWorkspaceRunScheduleRead(ctx, d, meta)
 
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving workspace run schedule %s: %v", d.Id(), err)

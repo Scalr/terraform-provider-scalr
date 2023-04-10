@@ -1,29 +1,38 @@
 package scalr
 
 import (
-	"fmt"
+	"context"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrRole() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrRoleRead,
+		ReadContext: dataSourceScalrRoleRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
+				AtLeastOneOf: []string{"name"},
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 
 			"is_system": {
@@ -45,40 +54,47 @@ func dataSourceScalrRole() *schema.Resource {
 	}
 }
 
-func dataSourceScalrRoleRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrRoleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	// required fields
+	roleID := d.Get("id").(string)
 	name := d.Get("name").(string)
+	accountID := d.Get("account_id").(string)
 
-	options := scalr.RoleListOptions{Name: name}
-
-	var accountId interface{} = "global"
-	if accountId, ok := d.GetOk("account_id"); ok {
-		options.Account = scalr.String(accountId.(string))
+	options := scalr.RoleListOptions{
+		Account: scalr.String("in:null," + accountID),
 	}
 
-	log.Printf("[DEBUG] Read configuration of role: %s/%s", accountId, name)
+	if roleID != "" {
+		options.Role = roleID
+	}
+
+	if name != "" {
+		options.Name = name
+	}
+
+	log.Printf("[DEBUG] Read configuration of role with ID '%s', name '%s', and account_id '%s'", roleID, name, accountID)
 	roles, err := scalrClient.Roles.List(ctx, options)
 	if err != nil {
-		return fmt.Errorf("Error retrieving role: %s/%s", accountId, name)
+		return diag.Errorf("Error retrieving role: %v", err)
 	}
 
-	// Unlikely situation, but still
+	// Unlikely
 	if roles.TotalCount > 1 {
-		return fmt.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
+		return diag.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
 	}
 
 	if roles.TotalCount == 0 {
-		return fmt.Errorf("Could not find role %s/%s", accountId, name)
+		return diag.Errorf("Could not find role with ID '%s', name '%s', and account_id '%s'", roleID, name, accountID)
 	}
 
 	role := roles.Items[0]
 
 	// Update the config.
-	d.Set("id", role.ID)
-	d.Set("is_system", role.IsSystem)
-	d.Set("description", role.Description)
+	_ = d.Set("name", role.Name)
+	_ = d.Set("is_system", role.IsSystem)
+	_ = d.Set("description", role.Description)
 	d.SetId(role.ID)
 
 	if len(role.Permissions) != 0 {
@@ -87,7 +103,11 @@ func dataSourceScalrRoleRead(d *schema.ResourceData, meta interface{}) error {
 		for _, permission := range role.Permissions {
 			permissionNames = append(permissionNames, permission.ID)
 		}
-		d.Set("permissions", permissionNames)
+		_ = d.Set("permissions", permissionNames)
+	}
+
+	if role.Account == nil {
+		_ = d.Set("account_id", nil)
 	}
 
 	return nil

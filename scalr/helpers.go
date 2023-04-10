@@ -1,11 +1,19 @@
 package scalr
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"math/rand"
+	"os"
 	"time"
 
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
+)
+
+const (
+	currentAccountIDEnvVar = "SCALR_ACCOUNT_ID"
+	dummyIdentifier        = "-"
 )
 
 func init() {
@@ -18,7 +26,7 @@ type GetEnvironmentByNameOptions struct {
 	Include *string
 }
 
-func GetEnvironmentByName(options GetEnvironmentByNameOptions, scalrClient *scalr.Client) (*scalr.Environment, error) {
+func GetEnvironmentByName(ctx context.Context, options GetEnvironmentByNameOptions, scalrClient *scalr.Client) (*scalr.Environment, error) {
 	listOptions := scalr.EnvironmentListOptions{
 		Name:    options.Name,
 		Account: options.Account,
@@ -35,7 +43,7 @@ func GetEnvironmentByName(options GetEnvironmentByNameOptions, scalrClient *scal
 
 	var matchedEnvironments []*scalr.Environment
 
-	// filter in endpoint search environments that contains quering string, this is why we need to do exeact match on our side.
+	// filter in endpoint search environments that contains querying string, this is why we need to do exact match on our side.
 	for _, env := range envl.Items {
 		if env.Name == *options.Name {
 			matchedEnvironments = append(matchedEnvironments, env)
@@ -60,7 +68,7 @@ type GetEndpointByNameOptions struct {
 	Account *string
 }
 
-func GetEndpointByName(options GetEndpointByNameOptions, scalrClient *scalr.Client) (*scalr.Endpoint, error) {
+func GetEndpointByName(ctx context.Context, options GetEndpointByNameOptions, scalrClient *scalr.Client) (*scalr.Endpoint, error) {
 	listOptions := scalr.EndpointListOptions{
 		Name:    options.Name,
 		Account: options.Account,
@@ -101,7 +109,7 @@ type GetWebhookByNameOptions struct {
 	Account *string
 }
 
-func GetWebhookByName(options GetWebhookByNameOptions, scalrClient *scalr.Client) (*scalr.Webhook, error) {
+func GetWebhookByName(ctx context.Context, options GetWebhookByNameOptions, scalrClient *scalr.Client) (*scalr.Webhook, error) {
 	listOptions := scalr.WebhookListOptions{
 		Name:    options.Name,
 		Account: options.Account,
@@ -157,4 +165,20 @@ func InterfaceArrToTagRelationArr(arr []interface{}) []*scalr.TagRelation {
 		tags[i] = &scalr.TagRelation{ID: id.(string)}
 	}
 	return tags
+}
+
+func getDefaultScalrAccountID() (string, bool) {
+	if v := os.Getenv(currentAccountIDEnvVar); v != "" {
+		return v, true
+	}
+	return "", false
+}
+
+func scalrAccountIDDefaultFunc() (interface{}, error) {
+	if accID, ok := getDefaultScalrAccountID(); ok {
+		return accID, nil
+	}
+	return nil, errors.New("Default value for `account_id` could not be computed." +
+		"\nIf you are using Scalr Provider for local runs, please set the attribute in resources explicitly," +
+		"\nor export `SCALR_ACCOUNT_ID` environment variable prior the run.")
 }

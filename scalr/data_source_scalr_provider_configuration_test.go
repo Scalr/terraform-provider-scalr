@@ -2,24 +2,36 @@ package scalr
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccScalrProviderConfigurationDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationDataSourceInitConfig, // depends_on works improperly with data sources
+			},
+			{
+				Config:      `data scalr_provider_configuration test {id = ""}`,
+				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_provider_configuration test {name = ""}`,
+				ExpectError: regexp.MustCompile("expected \"name\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
 			},
 			{
 				Config: testAccScalrProviderConfigurationDataSourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckEqualID("data.scalr_provider_configuration.kubernetes", "scalr_provider_configuration.kubernetes"),
 					testAccCheckEqualID("data.scalr_provider_configuration.consul", "scalr_provider_configuration.consul"),
+					testAccCheckEqualID("data.scalr_provider_configuration.consul_id", "scalr_provider_configuration.consul"),
 				),
 			},
 			{
@@ -68,5 +80,8 @@ data "scalr_provider_configuration" "kubernetes" {
 }
 data "scalr_provider_configuration" "consul" {
   provider_name = "consul"
+}
+data "scalr_provider_configuration" "consul_id" {
+  id = scalr_provider_configuration.consul.id
 }
 `

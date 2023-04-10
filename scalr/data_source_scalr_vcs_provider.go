@@ -1,24 +1,28 @@
 package scalr
 
 import (
-	"fmt"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"context"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/scalr/go-scalr"
 )
 
 func dataSourceScalrVcsProvider() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceScalrVcsProviderRead,
+		ReadContext: dataSourceScalrVcsProviderRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"vcs_type": {
 				Type:     schema.TypeString,
@@ -31,9 +35,10 @@ func dataSourceScalrVcsProvider() *schema.Resource {
 				Optional: true,
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"environment_id": {
 				Type:     schema.TypeString,
@@ -47,16 +52,18 @@ func dataSourceScalrVcsProvider() *schema.Resource {
 		}}
 }
 
-func dataSourceScalrVcsProviderRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
-	options := scalr.VcsProvidersListOptions{}
+	options := scalr.VcsProvidersListOptions{
+		Account: scalr.String(d.Get("account_id").(string)),
+	}
+
+	if vcsProviderID, ok := d.GetOk("id"); ok {
+		options.ID = scalr.String(vcsProviderID.(string))
+	}
 
 	if name, ok := d.GetOk("name"); ok {
 		options.Query = scalr.String(name.(string))
-	}
-
-	if accountId, ok := d.GetOk("account_id"); ok {
-		options.Account = scalr.String(accountId.(string))
 	}
 
 	if envId, ok := d.GetOk("environment_id"); ok {
@@ -71,30 +78,29 @@ func dataSourceScalrVcsProviderRead(d *schema.ResourceData, meta interface{}) er
 	vcsProviders, err := scalrClient.VcsProviders.List(ctx, options)
 
 	if err != nil {
-		return fmt.Errorf("Error retrieving vcs provider: %s.", err)
+		return diag.Errorf("Error retrieving vcs provider: %s.", err)
 	}
 
 	if vcsProviders.TotalCount > 1 {
-		return fmt.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
+		return diag.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
 	}
 
 	if vcsProviders.TotalCount == 0 {
-		return fmt.Errorf("Could not find vcs provider matching you query.")
+		return diag.Errorf("Could not find vcs provider matching you query.")
 	}
 
 	vcsProvider := vcsProviders.Items[0]
 
-	envIds := []string{}
+	envIds := make([]string, 0)
 	for _, env := range vcsProvider.Environments {
 		envIds = append(envIds, env.ID)
 	}
 
 	// Update the configuration.
-	d.Set("vcs_type", vcsProvider.VcsType)
-	d.Set("name", vcsProvider.Name)
-	d.Set("url", vcsProvider.Url)
-	d.Set("account_id", vcsProvider.Account.ID)
-	d.Set("environments", envIds)
+	_ = d.Set("vcs_type", vcsProvider.VcsType)
+	_ = d.Set("name", vcsProvider.Name)
+	_ = d.Set("url", vcsProvider.Url)
+	_ = d.Set("environments", envIds)
 	d.SetId(vcsProvider.ID)
 
 	return nil

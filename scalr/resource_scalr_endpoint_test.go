@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccEndpoint_basic(t *testing.T) {
@@ -12,8 +12,8 @@ func TestAccEndpoint_basic(t *testing.T) {
 	secretKey := "strong_key_with_UPPERCASE_letter_at_least_1_number"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEndpointConfig(rInt, secretKey),
@@ -41,8 +41,8 @@ func TestAccEndpoint_update(t *testing.T) {
 	secretKey := "strong_key_with_UPPERCASE_letter_at_least_1_number"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEndpointConfig(rInt, secretKey),

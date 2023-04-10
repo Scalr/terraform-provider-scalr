@@ -7,9 +7,9 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/scalr/go-scalr"
 )
 
 func TestAccScalrIamTeam_basic(t *testing.T) {
@@ -17,9 +17,9 @@ func TestAccScalrIamTeam_basic(t *testing.T) {
 	team := &scalr.Team{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrIamTeamDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrIamTeamDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrIamTeamBasic(rInt),
@@ -44,9 +44,9 @@ func TestAccScalrIamTeam_renamed(t *testing.T) {
 	team := &scalr.Team{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrIamTeamDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrIamTeamDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrIamTeamBasic(rInt),
@@ -82,9 +82,9 @@ func TestAccScalrIamTeam_update(t *testing.T) {
 	team := &scalr.Team{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrIamTeamDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrIamTeamDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrIamTeamBasic(rInt),
@@ -122,9 +122,9 @@ func TestAccScalrIamTeam_import(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckScalrIamTeamDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrIamTeamDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrIamTeamBasic(rInt),

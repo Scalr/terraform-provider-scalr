@@ -6,8 +6,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/scalr/go-scalr"
 )
 
 func TestAccCurrentRun_basic(t *testing.T) {
@@ -15,19 +15,20 @@ func TestAccCurrentRun_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                  func() { testAccPreCheck(t) },
-		Providers:                 testAccProviders,
+		ProviderFactories:         testAccProviderFactories,
 		PreventPostDestroyRefresh: true,
 		Steps: []resource.TestStep{
 			{
-				PreConfig: func() {
-					os.Unsetenv(currentRunIDEnvVar)
-				},
-				Config: testAccCurrentRunDataSourceConfig(rInt),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckNoResourceAttr("data.scalr_current_run.test", "id"),
-				),
+				Config: testAccCurrentRunInitConfig(rInt),
 			},
-
+			{
+				PreConfig: func() {
+					_ = os.Unsetenv(currentRunIDEnvVar)
+				},
+				Config:   testAccCurrentRunDataSourceConfig(rInt),
+				PlanOnly: true,
+				Check:    resource.TestCheckResourceAttr("data.scalr_current_run.test", "id", dummyIdentifier),
+			},
 			{
 				PreConfig: launchRun(fmt.Sprintf("test-env-%d", rInt), fmt.Sprintf("test-ws-%d", rInt)),
 				Config:    testAccCurrentRunDataSourceConfig(rInt),
@@ -50,7 +51,7 @@ func launchRun(environmentName, workspaceName string) func() {
 		options := GetEnvironmentByNameOptions{
 			Name: &environmentName,
 		}
-		env, err := GetEnvironmentByName(options, scalrClient)
+		env, err := GetEnvironmentByName(ctx, options, scalrClient)
 		if err != nil {
 			log.Fatalf("Got error during environment fetching: %v", err)
 			return
@@ -84,11 +85,11 @@ func launchRun(environmentName, workspaceName string) func() {
 			log.Fatalf("Error creating run: %v", err)
 		}
 
-		os.Setenv(currentRunIDEnvVar, run.ID)
+		_ = os.Setenv(currentRunIDEnvVar, run.ID)
 	}
 }
 
-func testAccCurrentRunDataSourceConfig(rInt int) string {
+func testAccCurrentRunInitConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
   name       = "test-env-%[1]d"
@@ -99,7 +100,9 @@ resource scalr_workspace test {
   name       = "test-ws-%[1]d"
   environment_id = scalr_environment.test.id
 }
+`, rInt, defaultAccount)
+}
 
-data scalr_current_run test {
-}`, rInt, defaultAccount)
+func testAccCurrentRunDataSourceConfig(rInt int) string {
+	return testAccCurrentRunInitConfig(rInt) + "data scalr_current_run test {}"
 }

@@ -3,7 +3,7 @@ package scalr
 import (
 	"context"
 
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 type workspaceNamesKey struct {
@@ -30,11 +30,11 @@ func newMockVariables() *mockVariables {
 	}
 }
 
-func (m *mockWorkspaces) List(ctx context.Context, options scalr.WorkspaceListOptions) (*scalr.WorkspaceList, error) {
+func (m *mockWorkspaces) List(_ context.Context, _ scalr.WorkspaceListOptions) (*scalr.WorkspaceList, error) {
 	panic("not implemented")
 }
 
-func (m *mockWorkspaces) Create(ctx context.Context, options scalr.WorkspaceCreateOptions) (*scalr.Workspace, error) {
+func (m *mockWorkspaces) Create(_ context.Context, options scalr.WorkspaceCreateOptions) (*scalr.Workspace, error) {
 	ws := &scalr.Workspace{
 		ID:   options.ID,
 		Name: *options.Name,
@@ -48,7 +48,7 @@ func (m *mockWorkspaces) Create(ctx context.Context, options scalr.WorkspaceCrea
 	return ws, nil
 }
 
-func (m *mockVariables) Create(ctx context.Context, options scalr.VariableCreateOptions) (*scalr.Variable, error) {
+func (m *mockVariables) Create(_ context.Context, options scalr.VariableCreateOptions) (*scalr.Variable, error) {
 	variable := &scalr.Variable{
 		ID: options.ID,
 	}
@@ -58,7 +58,7 @@ func (m *mockVariables) Create(ctx context.Context, options scalr.VariableCreate
 	return variable, nil
 }
 
-func (m *mockVariables) Read(ctx context.Context, varID string) (*scalr.Variable, error) {
+func (m *mockVariables) Read(_ context.Context, varID string) (*scalr.Variable, error) {
 	v := m.ids[varID]
 
 	if v == nil {
@@ -68,11 +68,11 @@ func (m *mockVariables) Read(ctx context.Context, varID string) (*scalr.Variable
 	return v, nil
 }
 
-func (m *mockVariables) List(ctx context.Context, options scalr.VariableListOptions) (*scalr.VariableList, error) {
+func (m *mockVariables) List(_ context.Context, _ scalr.VariableListOptions) (*scalr.VariableList, error) {
 	panic("not implemented")
 }
 
-func (m *mockWorkspaces) Read(ctx context.Context, environment string, workspace string) (*scalr.Workspace, error) {
+func (m *mockWorkspaces) Read(_ context.Context, environment string, workspace string) (*scalr.Workspace, error) {
 	w := m.workspaceNames[workspaceNamesKey{environment, workspace}]
 	if w == nil {
 		return nil, scalr.ErrResourceNotFound
@@ -81,26 +81,26 @@ func (m *mockWorkspaces) Read(ctx context.Context, environment string, workspace
 	return w, nil
 }
 
-func (m *mockWorkspaces) ReadByID(ctx context.Context, workspaceID string) (*scalr.Workspace, error) {
+func (m *mockWorkspaces) ReadByID(_ context.Context, _ string) (*scalr.Workspace, error) {
 	panic("not implemented")
 }
 
-func (m *mockWorkspaces) Update(ctx context.Context, workspaceID string, options scalr.WorkspaceUpdateOptions) (*scalr.Workspace, error) {
+func (m *mockWorkspaces) Update(_ context.Context, _ string, _ scalr.WorkspaceUpdateOptions) (*scalr.Workspace, error) {
 	panic("not implemented")
 }
 
-func (m *mockWorkspaces) Delete(ctx context.Context, workspaceID string) error {
+func (m *mockWorkspaces) Delete(_ context.Context, _ string) error {
 	panic("not implemented")
 }
 
-func (m *mockWorkspaces) SetSchedule(ctx context.Context, workspaceID string, options scalr.WorkspaceRunScheduleOptions) (*scalr.Workspace, error) {
+func (m *mockWorkspaces) SetSchedule(_ context.Context, _ string, _ scalr.WorkspaceRunScheduleOptions) (*scalr.Workspace, error) {
 	panic("not implemented")
 }
 
-func (m *mockVariables) Update(ctx context.Context, variableID string, options scalr.VariableUpdateOptions) (*scalr.Variable, error) {
+func (m *mockVariables) Update(_ context.Context, _ string, _ scalr.VariableUpdateOptions) (*scalr.Variable, error) {
 	panic("not implemented")
 }
 
-func (m *mockVariables) Delete(ctx context.Context, variableID string) error {
+func (m *mockVariables) Delete(_ context.Context, _ string) error {
 	panic("not implemented")
 }

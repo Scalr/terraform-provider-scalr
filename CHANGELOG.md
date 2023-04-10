@@ -7,17 +7,92 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `data.scalr_workspace`: added new optional `id` argument, `name` became optional, one of or both can be specified ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_role`: added new optional `id` argument, `name` became optional, one of or both can be specified ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_iam_team`: added new optional `id` argument, `name` became optional, one of or both can be specified ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_policy_group`: added new optional `id` argument, `name` became optional, one of or both can be specified ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_tag`: added new optional `id` argument, `name` became optional, one of or both can be specified ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_agent_pool`: added new optional `id` argument, `name` became optional, one of or both can be specified ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_vcs_provider`: added new optional `id` argument ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_iam_user`: added new optional `id` argument, `email` became optional, one of or both can be specified ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_variable`: added new optional `id` argument, `key` became optional, one of or both can be specified ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_provider_configuration`: added new optional `id` argument ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_webhook`: optional `id` and `name` arguments can be used together ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_environment`: optional `id` and `name` arguments can be used together ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_endpoint`: optional `id` and `name` arguments can be used together ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `data.scalr_service_account`: optional `id` and `email` arguments can be used together ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+
+### Fixed
+
+- `scalr_account_allowed_ips`: accept /32 suffix ([#224](https://github.com/Scalr/terraform-provider-scalr/pull/224))
+
+## [1.0.4] - 2023-03-13
+
+### Fixed
+
+- `data.scalr_current_run` no longer produces plan error if no current run info is present ([#219](https://github.com/Scalr/terraform-provider-scalr/pull/219)) 
+
+## [1.0.3] - 2023-03-03
+
+### Fixed
+
+- `scalr_provider_configuration_default` resource: fixed unlinking policy groups and cloud credentials from the environment by scalr_provider_configuration_default resource ([#216](https://github.com/Scalr/terraform-provider-scalr/pull/216))
+
+## [1.0.2] - 2023-02-17
+
+### Added
+- **New resource:**  `scalr_provider_configuration_default` ([#205](https://github.com/Scalr/terraform-provider-scalr/pull/205))
+
+### Changed
+- `scalr_workspace`: delete the default value for `auto_queue_runs` attribute ([#209](https://github.com/Scalr/terraform-provider-scalr/pull/209))
+- `execution_mode`: Updated documentation to fix a typo for the execution_mode attribute in the `scalr_workspace` resource. It was incorrectly spelled execution-mode
+
+### Required
+
+- scalr-server >= `8.52.0`
+
+## [1.0.1] - 2023-01-20
+
 ### Added
 
-- `module_verion`: data source: change relation from latest-module-version to module-version  ([#181](https://github.com/Scalr/terraform-provider-scalr/pull/181))
+- **New data source:**  `scalr_current_account` ([#199](https://github.com/Scalr/terraform-provider-scalr/pull/199))
+- **New data source:**  `scalr_service_account` ([#200](https://github.com/Scalr/terraform-provider-scalr/pull/200))
+- **New resource:**  `scalr_service_account` ([#200](https://github.com/Scalr/terraform-provider-scalr/pull/200))
+- **New resource:**  `scalr_service_account_token` ([#201](https://github.com/Scalr/terraform-provider-scalr/pull/201))
+
+### Changed
+
+- `data.scalr_current_run` now results in plan error if no current run info is present ([#192](https://github.com/Scalr/terraform-provider-scalr/pull/192))
+- `data.scalr_current_run`: changed type of `vcs.commit.author` attribute from TypeMap to TypeList ([#192](https://github.com/Scalr/terraform-provider-scalr/pull/192))
+- dropped support of Terraform 0.11 and below ([#192](https://github.com/Scalr/terraform-provider-scalr/pull/192))
+- `account_id` attribute in resources and datasources is optional now.
+If it's not explicitly set in the configuration, the default value is taken from environment
+variable `SCALR_ACCOUNT_ID`. The variable is set automatically for all runs on Scalr backend.
+([#199](https://github.com/Scalr/terraform-provider-scalr/pull/199))
+
+### Required
+
+- scalr-server >= `8.52.0`
+
+
+## [1.0.0] - 2022-12-02
+
+### Added
+
+- `module_version`: data source: change relation from latest-module-version to module-version ([#181](https://github.com/Scalr/terraform-provider-scalr/pull/181))
 
 ### Fixed
 
 - panic when creating workspace with empty var file value ([#191](https://github.com/Scalr/terraform-provider-scalr/pull/191))
+- typo in documentation of `scalr_variable` data-source `environment_id` parameter ([#193](https://github.com/Scalr/terraform-provider-scalr/pull/193))
 
 ### Deprecated
 
 - `scalr_environment`: attribute `cloud_credentials` has been deprecated ([#190](https://github.com/Scalr/terraform-provider-scalr/pull/190))
+
+- scalr-server >= `8.45.0`
 
 ## [1.0.0-rc38] - 2022-10-20
 
@@ -539,7 +614,12 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.0-rc38...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.4...HEAD
+[1.0.4]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.4
+[1.0.3]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.3
+[1.0.2]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.2
+[1.0.1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.1
+[1.0.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0
 [1.0.0-rc38]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc38
 [1.0.0-rc37]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc37
 [1.0.0-rc36]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.0-rc36

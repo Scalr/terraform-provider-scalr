@@ -2,22 +2,24 @@ package scalr
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/scalr/go-scalr"
 )
 
 func TestAccScalrVariablesDataSource(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrVariablesDataSourceInitConfig, // depends_on works improperly with data sources
+				Config:    testAccScalrVariablesDataSourceInitConfig, // depends_on works improperly with data sources
+				PreConfig: deleteAllVariables,
 			},
 			{
 				Config: testAccScalrVariablesDataSourceConfig,
@@ -28,7 +30,12 @@ func TestAccScalrVariablesDataSource(t *testing.T) {
 					),
 					testCheckResourceVarsInDatasource(
 						"data.scalr_variables.account",
-						[]string{"scalr_variable.workspace2_host", "scalr_variable.workspace_host", "scalr_variable.secret"},
+						[]string{
+							"scalr_variable.workspace2_host",
+							"scalr_variable.workspace_host",
+							"scalr_variable.secret",
+							"scalr_variable.address",
+						},
 					),
 					testCheckResourceVarsInDatasource(
 						"data.scalr_variables.workspace",
@@ -51,6 +58,26 @@ func TestAccScalrVariablesDataSource(t *testing.T) {
 	})
 }
 
+func deleteAllVariables() {
+	scalrClient, err := createScalrClient()
+	if err != nil {
+		log.Fatalf("Cant remove default variables before test: %s", err)
+		return
+	}
+	variables, err := scalrClient.Variables.List(ctx, scalr.VariableListOptions{})
+	if err != nil {
+		log.Fatalf("Cant remove default variables before test: %s", err)
+		return
+	}
+	for _, variable := range variables.Items {
+		err = scalrClient.Variables.Delete(ctx, variable.ID)
+		if err != nil {
+			log.Fatalf("Cant remove default variables before test: %s", err)
+			return
+		}
+	}
+}
+
 func testCheckResourceVarsInDatasource(dsName string, origNames []string) resource.TestCheckFunc {
 	// check that all variable attributes in resource is equal to variables attributes in data source
 	return func(s *terraform.State) error {
@@ -67,9 +94,6 @@ func testCheckResourceVarsInDatasource(dsName string, origNames []string) resour
 			if varis == nil {
 				return fmt.Errorf("No primary instance: %s in %s", variableResourceName, ms.Path)
 			}
-			attr2dsKey := func(attr string) string {
-				return "variables." + strconv.Itoa(schema.HashString(varis.ID)) + "." + attr
-			}
 			varAttrs := []string{
 				"category", "hcl", "key", "sensitive", "final", "description", "workspace_id", "environment_id", "account_id",
 			}
@@ -77,10 +101,16 @@ func testCheckResourceVarsInDatasource(dsName string, origNames []string) resour
 				varAttrs = append(varAttrs, "value")
 			}
 
+			varAttrValues := map[string]string{}
 			for _, attr := range varAttrs {
-				if err := resource.TestCheckResourceAttr(dsName, attr2dsKey(attr), varis.Attributes[attr])(s); err != nil {
-					return fmt.Errorf("Error checking %s in data source: %v", variableResourceName, err)
-				}
+				varAttrValues[attr] = varis.Attributes[attr]
+			}
+			if err := resource.TestCheckTypeSetElemNestedAttrs(
+				dsName,
+				"variables.*",
+				varAttrValues,
+			)(s); err != nil {
+				return fmt.Errorf("%q not matched in data source: %v", variableResourceName, err)
 			}
 		}
 		return nil
@@ -153,19 +183,18 @@ data "scalr_variables" "shell" {
 }
 
 data "scalr_variables" "host" {
-	keys = ["host"]
+  keys = ["host"]
 }
 
 data "scalr_variables" "workspace" {
-	workspace_ids=[scalr_workspace.test.id]
+  workspace_ids=[scalr_workspace.test.id]
 }
 
 data "scalr_variables" "workspace_and_null" {
-	workspace_ids=[scalr_workspace.test.id, "null"]
+  workspace_ids=[scalr_workspace.test.id, "null"]
 }
 
 data "scalr_variables" "account" {
-	account_id = "%[1]s"
+  account_id = "%[1]s"
 }
-
 `, defaultAccount)

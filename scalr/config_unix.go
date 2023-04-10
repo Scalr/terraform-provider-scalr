@@ -1,5 +1,4 @@
 //go:build !windows
-// +build !windows
 
 package scalr
 
@@ -31,14 +30,14 @@ func homeDir() (string, error) {
 	}
 
 	// If that fails, try build-in module
-	user, err := user.Current()
+	usr, err := user.Current()
 	if err != nil {
 		return "", err
 	}
 
-	if user.HomeDir == "" {
+	if usr.HomeDir == "" {
 		return "", errors.New("blank output")
 	}
 
-	return user.HomeDir, nil
+	return usr.HomeDir, nil
 }

@@ -4,23 +4,24 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"sync"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	scalr "github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/scalr/go-scalr"
 )
 
-const NUM_PARALLEL = 10
+const numParallel = 10
 
 func resourceScalrProviderConfiguration() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceScalrProviderConfigurationCreate,
-		Read:   resourceScalrProviderConfigurationRead,
-		Update: resourceScalrProviderConfigurationUpdate,
-		Delete: resourceScalrProviderConfigurationDelete,
+		CreateContext: resourceScalrProviderConfigurationCreate,
+		ReadContext:   resourceScalrProviderConfigurationRead,
+		UpdateContext: resourceScalrProviderConfigurationUpdate,
+		DeleteContext: resourceScalrProviderConfigurationDelete,
 		CustomizeDiff: customdiff.All(
-			func(d *schema.ResourceDiff, meta interface{}) error {
+			func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
 				changedProviderNames := 0
 				providerNameAttrs := []string{"aws", "google", "azurerm", "scalr", "custom"}
 				for _, providerNameAttr := range providerNameAttrs {
@@ -36,14 +37,16 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 			},
 		),
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		SchemaVersion: 0,
 		Schema: map[string]*schema.Schema{
 			"account_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
+				ForceNew:    true,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -208,7 +211,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 	}
 }
 
-func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	name := d.Get("name").(string)
@@ -250,7 +253,7 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 			configurationOptions.AwsAccessKey = scalr.String(accessKeyIdI.(string))
 			configurationOptions.AwsSecretKey = scalr.String(accessSecretKeyI.(string))
 		} else if accessKeyIdExists || accessSecretKeyExists {
-			return fmt.Errorf("'access_key' and 'secret_key' fields can be used only together")
+			return diag.Errorf("'access_key' and 'secret_key' fields can be used only together")
 		}
 
 		if *configurationOptions.AwsCredentialsType == "role_delegation" {
@@ -261,18 +264,18 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 				configurationOptions.AwsExternalId = scalr.String(externalIdI.(string))
 			}
 			if len(*configurationOptions.AwsTrustedEntityType) == 0 {
-				return fmt.Errorf("'trusted_entity_type' field is required for 'role_delegation' credentials type of aws provider configuration")
+				return diag.Errorf("'trusted_entity_type' field is required for 'role_delegation' credentials type of aws provider configuration")
 			}
 			if len(*configurationOptions.AwsRoleArn) == 0 {
-				return fmt.Errorf("'role_arn' field is required for 'role_delegation' credentials type of aws provider configuration")
+				return diag.Errorf("'role_arn' field is required for 'role_delegation' credentials type of aws provider configuration")
 			}
 			if *configurationOptions.AwsTrustedEntityType == "aws_account" && (!externalIdExists || (len(externalIdI.(string)) == 0)) {
-				return fmt.Errorf("'external_id' field is required for 'role_delegation' credentials type with 'aws_account' trusted entity type of aws provider configuration")
+				return diag.Errorf("'external_id' field is required for 'role_delegation' credentials type with 'aws_account' trusted entity type of aws provider configuration")
 			}
 		} else if *configurationOptions.AwsCredentialsType != "access_keys" {
-			return fmt.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys'", *configurationOptions.AwsCredentialsType)
+			return diag.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys'", *configurationOptions.AwsCredentialsType)
 		} else if !accessKeyIdExists || !accessSecretKeyExists {
-			return fmt.Errorf("'access_key' and 'secret_key' fields are required for 'access_keys' credentials type of aws provider configuration")
+			return diag.Errorf("'access_key' and 'secret_key' fields are required for 'access_keys' credentials type of aws provider configuration")
 		}
 
 	} else if _, ok := d.GetOk("google"); ok {
@@ -323,7 +326,7 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 	providerConfiguration, err := scalrClient.ProviderConfigurations.Create(ctx, configurationOptions)
 
 	if err != nil {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Error creating provider configuration %s for account %s: %v", name, accountID, err)
 	}
 	d.SetId(providerConfiguration.ID)
@@ -331,15 +334,17 @@ func resourceScalrProviderConfigurationCreate(d *schema.ResourceData, meta inter
 	if len(createArgumentOptions) != 0 {
 		_, err = createParameters(ctx, scalrClient, providerConfiguration.ID, &createArgumentOptions)
 		if err != nil {
-			defer scalrClient.ProviderConfigurations.Delete(ctx, providerConfiguration.ID)
-			return fmt.Errorf(
+			defer func(ctx context.Context, configurationID string) {
+				_ = scalrClient.ProviderConfigurations.Delete(ctx, configurationID)
+			}(ctx, providerConfiguration.ID)
+			return diag.Errorf(
 				"Error creating provider configuration %s for account %s: %v", name, accountID, err)
 		}
 	}
-	return resourceScalrProviderConfigurationRead(d, meta)
+	return resourceScalrProviderConfigurationRead(ctx, d, meta)
 }
 
-func resourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 
@@ -350,22 +355,22 @@ func resourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interfa
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error reading provider configuration %s: %v", id, err)
+		return diag.Errorf("Error reading provider configuration %s: %v", id, err)
 	}
 
-	d.Set("name", providerConfiguration.Name)
-	d.Set("account_id", providerConfiguration.Account.ID)
-	d.Set("export_shell_variables", providerConfiguration.ExportShellVariables)
+	_ = d.Set("name", providerConfiguration.Name)
+	_ = d.Set("account_id", providerConfiguration.Account.ID)
+	_ = d.Set("export_shell_variables", providerConfiguration.ExportShellVariables)
 
 	if providerConfiguration.IsShared {
 		allEnvironments := []string{"*"}
-		d.Set("environments", allEnvironments)
+		_ = d.Set("environments", allEnvironments)
 	} else {
 		environmentIDs := make([]string, 0)
 		for _, environment := range providerConfiguration.Environments {
 			environmentIDs = append(environmentIDs, environment.ID)
 		}
-		d.Set("environments", environmentIDs)
+		_ = d.Set("environments", environmentIDs)
 	}
 
 	switch providerConfiguration.ProviderName {
@@ -392,7 +397,7 @@ func resourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interfa
 			aws["external_id"] = providerConfiguration.AwsExternalId
 		}
 
-		d.Set("aws", []map[string]interface{}{aws})
+		_ = d.Set("aws", []map[string]interface{}{aws})
 	case "google":
 		google := make(map[string]interface{})
 
@@ -403,12 +408,12 @@ func resourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interfa
 			google["project"] = providerConfiguration.GoogleProject
 		}
 
-		d.Set("google", []map[string]interface{}{google})
+		_ = d.Set("google", []map[string]interface{}{google})
 	case "scalr":
 		stateScalrParameters := d.Get("scalr").([]interface{})[0].(map[string]interface{})
 		stateToken := stateScalrParameters["token"].(string)
 
-		d.Set("scalr", []map[string]interface{}{
+		_ = d.Set("scalr", []map[string]interface{}{
 			{
 				"hostname": providerConfiguration.ScalrHostname,
 				"token":    stateToken,
@@ -418,7 +423,7 @@ func resourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interfa
 		stateAzurermParameters := d.Get("azurerm").([]interface{})[0].(map[string]interface{})
 		stateClientSecret := stateAzurermParameters["client_secret"].(string)
 
-		d.Set("azurerm", []map[string]interface{}{
+		_ = d.Set("azurerm", []map[string]interface{}{
 			{
 				"client_id":       providerConfiguration.AzurermClientId,
 				"client_secret":   stateClientSecret,
@@ -452,7 +457,7 @@ func resourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interfa
 
 			currentArguments = append(currentArguments, currentArgument)
 		}
-		d.Set("custom", []map[string]interface{}{
+		_ = d.Set("custom", []map[string]interface{}{
 			{
 				"provider_name": providerConfiguration.ProviderName,
 				"argument":      currentArguments,
@@ -462,7 +467,7 @@ func resourceScalrProviderConfigurationRead(d *schema.ResourceData, meta interfa
 	return nil
 }
 
-func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
@@ -510,7 +515,7 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 				configurationOptions.AwsAccessKey = scalr.String(accessKeyIdI.(string))
 				configurationOptions.AwsSecretKey = scalr.String(accessSecretKeyI.(string))
 			} else if accessKeyIdExists || accessSecretKeyExists {
-				return fmt.Errorf("'access_key' and 'secret_key' fields can be used only together")
+				return diag.Errorf("'access_key' and 'secret_key' fields can be used only together")
 			}
 
 			if *configurationOptions.AwsCredentialsType == "role_delegation" {
@@ -521,18 +526,18 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 					configurationOptions.AwsExternalId = scalr.String(externalIdI.(string))
 				}
 				if len(*configurationOptions.AwsTrustedEntityType) == 0 {
-					return fmt.Errorf("'trusted_entity_type' field is required for 'role_delegation' credentials type of aws provider configuration")
+					return diag.Errorf("'trusted_entity_type' field is required for 'role_delegation' credentials type of aws provider configuration")
 				}
 				if len(*configurationOptions.AwsRoleArn) == 0 {
-					return fmt.Errorf("'role_arn' field is required for 'role_delegation' credentials type of aws provider configuration")
+					return diag.Errorf("'role_arn' field is required for 'role_delegation' credentials type of aws provider configuration")
 				}
 				if *configurationOptions.AwsTrustedEntityType == "aws_account" && (!externalIdExists || (len(externalIdI.(string)) == 0)) {
-					return fmt.Errorf("'external_id' field is required for 'role_delegation' credentials type with 'aws_account' entity type of aws provider configuration")
+					return diag.Errorf("'external_id' field is required for 'role_delegation' credentials type with 'aws_account' entity type of aws provider configuration")
 				}
 			} else if *configurationOptions.AwsCredentialsType != "access_keys" {
-				return fmt.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys'", *configurationOptions.AwsCredentialsType)
+				return diag.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys'", *configurationOptions.AwsCredentialsType)
 			} else if !accessKeyIdExists || !accessSecretKeyExists {
-				return fmt.Errorf("'access_key' and 'secret_key' fields are required for 'access_keys' credentials type of aws provider configuration")
+				return diag.Errorf("'access_key' and 'secret_key' fields are required for 'access_keys' credentials type of aws provider configuration")
 			}
 		} else if _, ok := d.GetOk("google"); ok {
 			configurationOptions.GoogleCredentials = scalr.String(d.Get("google.0.credentials").(string))
@@ -552,7 +557,7 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 		}
 		_, err := scalrClient.ProviderConfigurations.Update(ctx, id, configurationOptions)
 		if err != nil {
-			return fmt.Errorf(
+			return diag.Errorf(
 				"Error updating provider configuration %s: %v", id, err)
 		}
 	}
@@ -560,17 +565,17 @@ func resourceScalrProviderConfigurationUpdate(d *schema.ResourceData, meta inter
 	if v, ok := d.GetOk("custom"); d.HasChange("custom") && ok {
 		custom := v.([]interface{})[0].(map[string]interface{})
 
-		err := syncArguments(id, custom, scalrClient)
+		err := syncArguments(ctx, id, custom, scalrClient)
 		if err != nil {
-			return fmt.Errorf(
+			return diag.Errorf(
 				"Error updating provider configuration %s arguments: %v", id, err)
 		}
 	}
 
-	return resourceScalrProviderConfigurationRead(d, meta)
+	return resourceScalrProviderConfigurationRead(ctx, d, meta)
 }
 
-func syncArguments(providerConfigurationId string, custom map[string]interface{}, client *scalr.Client) error {
+func syncArguments(ctx context.Context, providerConfigurationId string, custom map[string]interface{}, client *scalr.Client) error {
 	providerName := custom["provider_name"].(string)
 	configArgumentsCreateOptions := make(map[string]scalr.ProviderConfigurationParameterCreateOptions)
 	for _, v := range custom["argument"].(*schema.Set).List() {
@@ -656,7 +661,7 @@ func syncArguments(providerConfigurationId string, custom map[string]interface{}
 
 }
 
-func resourceScalrProviderConfigurationDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScalrProviderConfigurationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 
@@ -665,7 +670,7 @@ func resourceScalrProviderConfigurationDelete(d *schema.ResourceData, meta inter
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
 		}
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Error deleting provider configuration %s: %v", id, err)
 	}
 
@@ -738,11 +743,11 @@ func changeParameters(
 	}()
 
 	var wg sync.WaitGroup
-	wg.Add(NUM_PARALLEL)
+	wg.Add(numParallel)
 
 	resultCh := make(chan result)
 
-	for i := 0; i < NUM_PARALLEL; i++ {
+	for i := 0; i < numParallel; i++ {
 		go func() {
 			for t := range inputCh {
 				if t.createOption != nil {

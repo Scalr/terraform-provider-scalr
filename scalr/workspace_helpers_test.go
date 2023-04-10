@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	scalr "github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr"
 )
 
 func TestFetchWorkspaceID(t *testing.T) {
@@ -32,7 +32,7 @@ func TestFetchWorkspaceID(t *testing.T) {
 
 	client := testScalrClient(t)
 	name := "a-workspace"
-	client.Workspaces.Create(context.Background(), scalr.WorkspaceCreateOptions{
+	_, _ = client.Workspaces.Create(context.Background(), scalr.WorkspaceCreateOptions{
 		ID:          "ws-123",
 		Name:        &name,
 		Environment: &scalr.Environment{ID: "hashicorp"},
@@ -40,7 +40,7 @@ func TestFetchWorkspaceID(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, err := fetchWorkspaceID(test.def, client)
+			got, err := fetchWorkspaceID(ctx, test.def, client)
 
 			if (err != nil) != test.err {
 				t.Fatalf("expected error is %t, got %v", test.err, err)

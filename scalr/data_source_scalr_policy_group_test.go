@@ -2,13 +2,12 @@ package scalr
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/scalr/go-scalr"
 	"log"
 	"regexp"
 	"testing"
 	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	scalr "github.com/scalr/go-scalr"
 )
 
 func TestAccPolicyGroupDataSource_basic(t *testing.T) {
@@ -20,13 +19,28 @@ func TestAccPolicyGroupDataSource_basic(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "id"),
 				),
+			},
+			{
+				Config:      `data scalr_policy_group test {}`,
+				ExpectError: regexp.MustCompile("\"id\": one of `id,name` must be specified"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_policy_group test {id = ""}`,
+				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_policy_group test {name = ""}`,
+				ExpectError: regexp.MustCompile("expected \"name\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
 			},
 			{
 				PreConfig: waitForPolicyGroupFetch(fmt.Sprintf("test-pg-%d", rInt)),
@@ -134,7 +148,7 @@ resource "scalr_policy_group" "test" {
     path       = "%s"
   }
 }
-`, rInt, string(scalr.Github), GITHUB_TOKEN, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
+`, rInt, string(scalr.Github), githubToken, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
 }
 
 func testAccPolicyGroupDataSourceConfig(rInt int) string {
@@ -142,6 +156,7 @@ func testAccPolicyGroupDataSourceConfig(rInt int) string {
 %s
 
 data "scalr_policy_group" "test" {
+  id         = scalr_policy_group.test.id
   name       = scalr_policy_group.test.name
   account_id = "%s"
 }

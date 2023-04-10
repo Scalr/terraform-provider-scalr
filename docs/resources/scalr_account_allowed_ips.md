@@ -7,7 +7,7 @@ Manages the list of allowed IPs for an account in Scalr. Create, update and dest
 
 Basic usage:
 
-```javascript
+```hcl
 resource "scalr_account_allowed_ips" "default" {
   account_id  = "acc-xxxxxxxx"
   allowed_ips = ["127.0.0.1", "192.168.0.0/24"]
@@ -16,7 +16,7 @@ resource "scalr_account_allowed_ips" "default" {
 
 ## Argument Reference
 
-* `account_id` -  (Required) ID of the account.
+* `account_id` -  (Optional) ID of the account.
 * `allowed_ips` - (Required) The list of allowed IPs or CIDRs. 
                   **Warning**: if you don't specify the current IP address, you may lose access to the account. 
                   To restore it the account owner has to raise a [support ticket](https://suport.scalr.com)

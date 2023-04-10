@@ -5,18 +5,18 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testVcsAccGithubTokenPreCheck(t) },
-		Providers: testAccProviders,
+		PreCheck:          func() { testVcsAccGithubTokenPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrVcsProviderDataSourceConfigAllFilters(rInt, GITHUB_TOKEN),
+				Config: testAccScalrVcsProviderDataSourceConfigAllFilters(rInt, githubToken),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.scalr_vcs_provider.test", "id"),
 					resource.TestCheckResourceAttr(
@@ -30,7 +30,7 @@ func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccScalrVcsProviderDataSourceConfigFilterByName(rInt, GITHUB_TOKEN),
+				Config: testAccScalrVcsProviderDataSourceConfigFilterByName(rInt, githubToken),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.scalr_vcs_provider.test", "id"),
 					resource.TestCheckResourceAttr(
@@ -59,6 +59,16 @@ func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 				ExpectError: regexp.MustCompile("Could not find vcs provider matching you query"),
 				PlanOnly:    true,
 			},
+			{
+				Config:      `data scalr_vcs_provider test {id = ""}`,
+				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
+			{
+				Config:      `data scalr_vcs_provider test {name = ""}`,
+				ExpectError: regexp.MustCompile("expected \"name\" to not be an empty string or whitespace"),
+				PlanOnly:    true,
+			},
 		},
 	})
 }
@@ -73,22 +83,23 @@ resource scalr_vcs_provider test {
 }
 
 data scalr_vcs_provider test {
-  name     = scalr_vcs_provider.test.name
-  vcs_type = scalr_vcs_provider.test.vcs_type
-  account_id  = scalr_vcs_provider.test.account_id
+  id         = scalr_vcs_provider.test.id
+  name       = scalr_vcs_provider.test.name
+  vcs_type   = scalr_vcs_provider.test.vcs_type
+  account_id = scalr_vcs_provider.test.account_id
 }`, rInt, token, defaultAccount)
 }
 
 func testAccScalrVcsProviderDataSourceConfigFilterByName(rInt int, token string) string {
 	return fmt.Sprintf(`
 resource scalr_vcs_provider test {
-  name        = "vcs-provider-test-%[1]d"
-  vcs_type    = "github"
-  token       = "%s"
-  account_id  = "%s"
+  name       = "vcs-provider-test-%[1]d"
+  vcs_type   = "github"
+  token      = "%s"
+  account_id = "%s"
 }
 
 data scalr_vcs_provider test {
-  name     = scalr_vcs_provider.test.name
+  name = scalr_vcs_provider.test.name
 }`, rInt, token, defaultAccount)
 }
