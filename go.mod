@@ -60,5 +60,3 @@ require (
 )
 
 go 1.18
-
-replace github.com/scalr/go-scalr => /Users/roman/go/src/go-scalr
