@@ -3,6 +3,7 @@ package scalr
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -21,6 +22,13 @@ func dataSourceModuleVersion() *schema.Resource {
 			"version": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
+					v := val.(string)
+					if !scalr.ValidString(&v) {
+						errs = append(errs, fmt.Errorf("%s must be version like, got: %s", key, v))
+					}
+					return
+				},
 			},
 			"id": {
 				Type:     schema.TypeString,
@@ -46,7 +54,19 @@ func dataSourceModuleVersionRead(ctx context.Context, d *schema.ResourceData, me
 	var version string
 	if v, ok := d.GetOk("version"); ok {
 		version = v.(string)
-		mv, err = scalrClient.ModuleVersions.ReadBySemanticVersion(ctx, module.ID, version)
+		ml, err := scalrClient.ModuleVersions.List(ctx, scalr.ModuleVersionListOptions{Module: module.ID, Version: &version})
+		if err != nil {
+			return diag.Errorf("Could not find module %s with version %s", module.ID, version)
+		}
+		for _, item := range ml.Items {
+			if item.IsRootModule {
+				mv = item
+				break
+			}
+		}
+		if mv == nil {
+			return diag.Errorf("Could not find module with source %s and version %s", source, version)
+		}
 	} else {
 		if module.ModuleVersion == nil {
 			return diag.FromErr(errors.New("The module has no version tags"))
@@ -55,9 +75,6 @@ func dataSourceModuleVersionRead(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return diag.Errorf("Could not find module with source %s  and version %s", source, version)
-		}
 		return diag.Errorf("Error retrieving module version: %v", err)
 	}
 	log.Printf("[DEBUG] Download module version by source %s version: %s", source, version)
