@@ -27,6 +27,7 @@ data "scalr_agent_pool" "default" {
 * `name` - (Optional) A name of the agent pool.
 * `account_id` - (Optional) An identifier of the Scalr account.
 * `environment_id` - (Optional) An identifier of the Scalr environment.
+* `vcs_enabled` - (Optional) Indicates whether the VCS support is enabled for agents in the pool.
 
 Arguments `id` and `name` are both optional, specify at least one of them to obtain `scalr_agent_pool`.
 
