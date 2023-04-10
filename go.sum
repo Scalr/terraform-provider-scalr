@@ -244,6 +244,8 @@ github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/scalr/go-scalr v0.0.0-20230403055927-2e9dae9e7852 h1:2igC+Z9oxF5xuzrr4369cFH615VbYA4PnnST06KZvK0=
 github.com/scalr/go-scalr v0.0.0-20230403055927-2e9dae9e7852/go.mod h1:p34SHb25YRvbgft7SUjSDYESeoQhWzAlxGXId/BbaSE=
+github.com/scalr/go-scalr v0.0.0-20230410130137-d7f3a691d086 h1:2Ytrvt0ngrD1RT4OvntEDEMT5Yp46EhEuSdgA55wbFE=
+github.com/scalr/go-scalr v0.0.0-20230410130137-d7f3a691d086/go.mod h1:p34SHb25YRvbgft7SUjSDYESeoQhWzAlxGXId/BbaSE=
 github.com/sebdah/goldie v1.0.0/go.mod h1:jXP4hmWywNEwZzhMuv2ccnqTSFpuq8iyQhtQdkkZBH4=
 github.com/sergi/go-diff v1.1.0/go.mod h1:STckp+ISIX8hZLjrqAeVduY0gWCT9IjLuqbuNXdaHfM=
 github.com/sergi/go-diff v1.2.0 h1:XU+rvMAioB0UC3q1MFrIQy4Vo5/4VsRDQQXHsEya6xQ=
