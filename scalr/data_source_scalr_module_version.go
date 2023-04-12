@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/scalr/go-scalr"
 )
 
@@ -22,13 +23,7 @@ func dataSourceModuleVersion() *schema.Resource {
 			"version": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
-					v := val.(string)
-					if !scalr.ValidString(&v) {
-						errs = append(errs, fmt.Errorf("%s must be version like, got: %s", key, v))
-					}
-					return
-				},
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"id": {
 				Type:     schema.TypeString,
