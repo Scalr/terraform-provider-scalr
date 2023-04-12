@@ -2,6 +2,7 @@ package scalr
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -15,12 +16,17 @@ func dataSourceScalrPolicyGroup() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
+				AtLeastOneOf: []string{"name"},
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"status": {
 				Type:     schema.TypeString,
@@ -97,15 +103,24 @@ func dataSourceScalrPolicyGroupRead(ctx context.Context, d *schema.ResourceData,
 	scalrClient := meta.(*scalr.Client)
 
 	// required fields
+	pgID := d.Get("id").(string)
 	name := d.Get("name").(string)
 	accountID := d.Get("account_id").(string)
 
 	options := scalr.PolicyGroupListOptions{
 		Account: accountID,
-		Name:    name,
 		Include: "policies",
 	}
-	log.Printf("[DEBUG] Read configuration of policy group: %s/%s", accountID, name)
+
+	if pgID != "" {
+		options.PolicyGroup = pgID
+	}
+
+	if name != "" {
+		options.Name = name
+	}
+
+	log.Printf("[DEBUG] Read configuration of policy group with ID '%s', name '%s' and account_id '%s'", pgID, name, accountID)
 
 	pgl, err := scalrClient.PolicyGroups.List(ctx, options)
 	if err != nil {
@@ -113,12 +128,13 @@ func dataSourceScalrPolicyGroupRead(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if pgl.TotalCount == 0 {
-		return diag.Errorf("policy group %s/%s not found", accountID, name)
+		return diag.Errorf("policy group with ID '%s', name '%s' and account_id '%s' not found", pgID, name, accountID)
 	}
 
 	pg := pgl.Items[0]
 
 	// Update the configuration.
+	_ = d.Set("name", pg.Name)
 	_ = d.Set("status", pg.Status)
 	_ = d.Set("error_message", pg.ErrorMessage)
 	_ = d.Set("opa_version", pg.OpaVersion)

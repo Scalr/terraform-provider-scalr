@@ -2,6 +2,7 @@ package scalr
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -15,12 +16,17 @@ func dataSourceScalrRole() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
+				AtLeastOneOf: []string{"name"},
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"account_id": {
 				Type:        schema.TypeString,
@@ -52,33 +58,41 @@ func dataSourceScalrRoleRead(ctx context.Context, d *schema.ResourceData, meta i
 	scalrClient := meta.(*scalr.Client)
 
 	// required fields
+	roleID := d.Get("id").(string)
 	name := d.Get("name").(string)
-	accountId := d.Get("account_id").(string)
+	accountID := d.Get("account_id").(string)
 
 	options := scalr.RoleListOptions{
-		Name:    name,
-		Account: scalr.String("in:null," + accountId),
+		Account: scalr.String("in:null," + accountID),
 	}
 
-	log.Printf("[DEBUG] Read configuration of role: %s/%s", accountId, name)
+	if roleID != "" {
+		options.Role = roleID
+	}
+
+	if name != "" {
+		options.Name = name
+	}
+
+	log.Printf("[DEBUG] Read configuration of role with ID '%s', name '%s', and account_id '%s'", roleID, name, accountID)
 	roles, err := scalrClient.Roles.List(ctx, options)
 	if err != nil {
-		return diag.Errorf("Error retrieving role: %s/%s", accountId, name)
+		return diag.Errorf("Error retrieving role: %v", err)
 	}
 
-	// Unlikely situation, but still
+	// Unlikely
 	if roles.TotalCount > 1 {
 		return diag.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
 	}
 
 	if roles.TotalCount == 0 {
-		return diag.Errorf("Could not find role %s/%s", accountId, name)
+		return diag.Errorf("Could not find role with ID '%s', name '%s', and account_id '%s'", roleID, name, accountID)
 	}
 
 	role := roles.Items[0]
 
 	// Update the config.
-	_ = d.Set("id", role.ID)
+	_ = d.Set("name", role.Name)
 	_ = d.Set("is_system", role.IsSystem)
 	_ = d.Set("description", role.Description)
 	d.SetId(role.ID)

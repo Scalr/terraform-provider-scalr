@@ -2,7 +2,7 @@ package scalr
 
 import (
 	"context"
-	"errors"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -18,13 +18,14 @@ func dataSourceScalrEnvironment() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 				AtLeastOneOf: []string{"name"},
 			},
 			"name": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"id"},
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"cost_estimation_enabled": {
 				Type:     schema.TypeBool,
@@ -82,31 +83,36 @@ func dataSourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta
 	scalrClient := meta.(*scalr.Client)
 
 	envID := d.Get("id").(string)
-	environmentName := d.Get("name").(string)
+	envName := d.Get("name").(string)
 	accountID := d.Get("account_id").(string)
 
 	var environment *scalr.Environment
 	var err error
 
+	log.Printf("[DEBUG] Read configuration of environment with ID '%s' and name '%s'", envID, envName)
 	if envID != "" {
-		log.Printf("[DEBUG] Read configuration of environment: %s", envID)
 		environment, err = scalrClient.Environments.Read(ctx, envID)
+		if err != nil {
+			return diag.Errorf("Error retrieving environment: %v", err)
+		}
+		if envName != "" && envName != environment.Name {
+			return diag.Errorf("Could not find environment with ID '%s' and name '%s'", envID, envName)
+		}
 	} else {
-		log.Printf("[DEBUG] Read configuration of environment: %s", environmentName)
 		options := GetEnvironmentByNameOptions{
-			Name:    &environmentName,
+			Name:    &envName,
 			Account: &accountID,
 			Include: scalr.String("created-by"),
 		}
 		environment, err = GetEnvironmentByName(ctx, options, scalrClient)
+		if err != nil {
+			return diag.Errorf("Error retrieving environment: %v", err)
+		}
+		if envID != "" && envID != environment.ID {
+			return diag.Errorf("Could not find environment with ID '%s' and name '%s'", envID, envName)
+		}
 	}
 
-	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return diag.Errorf("Environment '%s' not found", envID)
-		}
-		return diag.Errorf("Error retrieving environment: %v", err)
-	}
 	// Update the configuration.
 	_ = d.Set("name", environment.Name)
 	_ = d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)

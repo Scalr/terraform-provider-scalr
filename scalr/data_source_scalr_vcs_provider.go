@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/scalr/go-scalr"
 )
 
@@ -12,13 +13,16 @@ func dataSourceScalrVcsProvider() *schema.Resource {
 		ReadContext: dataSourceScalrVcsProviderRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"vcs_type": {
 				Type:     schema.TypeString,
@@ -52,6 +56,10 @@ func dataSourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData,
 	scalrClient := meta.(*scalr.Client)
 	options := scalr.VcsProvidersListOptions{
 		Account: scalr.String(d.Get("account_id").(string)),
+	}
+
+	if vcsProviderID, ok := d.GetOk("id"); ok {
+		options.ID = scalr.String(vcsProviderID.(string))
 	}
 
 	if name, ok := d.GetOk("name"); ok {

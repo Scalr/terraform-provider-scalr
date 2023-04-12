@@ -7,21 +7,15 @@ Retrieves the details of a webhook.
 
 ```hcl
 data "scalr_webhook" "example" {
-  id = "wh-xxxxxxxxxxx"
+  id         = "wh-xxxxxxxxxxx"
+  account_id = "acc-xxxxxxx"
 }
 ```
 
 ```hcl
 data "scalr_webhook" "example" {
-  name = "webhook_name"
-  account_id = "<acc-id>"
-}
-```
-
-```hcl
-data "scalr_webhook" "example" {
-  name = "webhook_name"
-  account_id = "<acc-id>"
+  name       = "webhook_name"
+  account_id = "acc-xxxxxxx"
 }
 ```
 
