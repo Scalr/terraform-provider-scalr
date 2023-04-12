@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `scalr_account_allowed_ips`: accept /32 suffix ([#224](https://github.com/Scalr/terraform-provider-scalr/pull/224))
+- `scalr_vcs_provider`: fix handling resource destroy when resource is no longer exists ([#224](https://github.com/Scalr/terraform-provider-scalr/pull/224))
+- `scalr_webhook`: fix handling resource destroy when resource is no longer exists ([#235](https://github.com/Scalr/terraform-provider-scalr/pull/235))
 
 ## [1.0.4] - 2023-03-13
 
