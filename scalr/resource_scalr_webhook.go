@@ -39,7 +39,7 @@ func resourceScalrWebhook() *schema.Resource {
 			"enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  true,
 			},
 
 			"last_triggered_at": {
@@ -59,6 +59,7 @@ func resourceScalrWebhook() *schema.Resource {
 					),
 				},
 				Required: true,
+				MinItems: 1,
 			},
 
 			"endpoint_id": {
@@ -93,15 +94,17 @@ func resourceScalrWebhook() *schema.Resource {
 			},
 
 			"timeout": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
+				Type:             schema.TypeInt,
+				Optional:         true,
+				Default:          15,
+				ValidateDiagFunc: validation.ToDiagFunc(validation.IntBetween(0, 365*24*3600)),
 			},
 
 			"max_attempts": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
+				Type:             schema.TypeInt,
+				Optional:         true,
+				Default:          3,
+				ValidateDiagFunc: validation.ToDiagFunc(validation.IntBetween(1, 1000)),
 			},
 
 			"header": {
@@ -114,8 +117,9 @@ func resourceScalrWebhook() *schema.Resource {
 							Required: true,
 						},
 						"value": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:      schema.TypeString,
+							Required:  true,
+							Sensitive: true,
 						},
 						"sensitive": {
 							Type:     schema.TypeBool,
@@ -222,10 +226,6 @@ func parseEventDefinitions(d *schema.ResourceData) ([]*scalr.EventDefinition, er
 	eventDefinitions := make([]*scalr.EventDefinition, 0)
 
 	eventIds := d.Get("events").([]interface{})
-	if len(eventIds) == 0 {
-		return nil, fmt.Errorf("Events cannot be empty")
-	}
-
 	err := ValidateIDsDefinitions(eventIds)
 	if err != nil {
 		return nil, fmt.Errorf("Got error during parsing events: %s", err.Error())
@@ -315,26 +315,17 @@ func createNewWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *
 	}
 
 	options := scalr.WebhookIntegrationCreateOptions{
-		Name:    &name,
-		Url:     scalr.String(d.Get("url").(string)),
-		Account: &scalr.Account{ID: accountId},
-		Events:  eventDefinitions,
-	}
-
-	if enabled, ok := d.GetOk("enabled"); ok {
-		options.Enabled = scalr.Bool(enabled.(bool))
+		Name:        &name,
+		Url:         scalr.String(d.Get("url").(string)),
+		Account:     &scalr.Account{ID: accountId},
+		Events:      eventDefinitions,
+		Enabled:     scalr.Bool(d.Get("enabled").(bool)),
+		Timeout:     scalr.Int(d.Get("timeout").(int)),
+		MaxAttempts: scalr.Int(d.Get("max_attempts").(int)),
 	}
 
 	if secretKey, ok := d.GetOk("secret_key"); ok {
 		options.SecretKey = scalr.String(secretKey.(string))
-	}
-
-	if timeout, ok := d.GetOk("timeout"); ok {
-		options.Timeout = scalr.Int(timeout.(int))
-	}
-
-	if maxAttempts, ok := d.GetOk("max_attempts"); ok {
-		options.MaxAttempts = scalr.Int(maxAttempts.(int))
 	}
 
 	if environmentsI, ok := d.GetOk("environments"); ok {
@@ -529,40 +520,36 @@ func updateNewWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *
 		options.MaxAttempts = scalr.Int(d.Get("max_attempts").(int))
 	}
 
-	if d.HasChange("events") {
-		eventDefinitions, err := parseEventDefinitions(d)
-		if err != nil {
-			return err
-		}
-		options.Events = eventDefinitions
-	}
-
 	if d.HasChange("header") {
 		options.Headers = parseHeaders(d)
 	}
 
-	if d.HasChange("environments") {
-		if environmentsI, ok := d.GetOk("environments"); ok {
-			environments := environmentsI.(*schema.Set).List()
-			if (len(environments) == 1) && (environments[0].(string) == "*") {
-				options.IsShared = scalr.Bool(true)
-				options.Environments = make([]*scalr.Environment, 0)
-			} else {
-				options.IsShared = scalr.Bool(false)
-				environmentValues := make([]*scalr.Environment, 0)
-				for _, env := range environments {
-					environmentValues = append(environmentValues, &scalr.Environment{ID: env.(string)})
-				}
-				options.Environments = environmentValues
-			}
+	eventDefinitions, err := parseEventDefinitions(d)
+	if err != nil {
+		return err
+	}
+	options.Events = eventDefinitions
+
+	if environmentsI, ok := d.GetOk("environments"); ok {
+		environments := environmentsI.(*schema.Set).List()
+		if (len(environments) == 1) && (environments[0].(string) == "*") {
+			options.IsShared = scalr.Bool(true)
+			options.Environments = make([]*scalr.Environment, 0)
 		} else {
 			options.IsShared = scalr.Bool(false)
-			options.Environments = make([]*scalr.Environment, 0)
+			environmentValues := make([]*scalr.Environment, 0)
+			for _, env := range environments {
+				environmentValues = append(environmentValues, &scalr.Environment{ID: env.(string)})
+			}
+			options.Environments = environmentValues
 		}
+	} else {
+		options.IsShared = scalr.Bool(false)
+		options.Environments = make([]*scalr.Environment, 0)
 	}
 
 	log.Printf("[DEBUG] Update webhook: %s", d.Id())
-	_, err := scalrClient.WebhookIntegrations.Update(ctx, d.Id(), options)
+	_, err = scalrClient.WebhookIntegrations.Update(ctx, d.Id(), options)
 	if err != nil {
 		return fmt.Errorf("Error updating webhook %s: %v", d.Id(), err)
 	}
