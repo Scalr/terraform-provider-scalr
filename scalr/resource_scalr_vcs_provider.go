@@ -114,7 +114,9 @@ func resourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData, m
 	log.Printf("[DEBUG] Read vcs provider with ID: %s", providerID)
 	provider, err := scalrClient.VcsProviders.Read(ctx, providerID)
 	if err != nil {
-		return diag.Errorf("Error retrieving vcs provider: %v", err)
+		log.Printf("[DEBUG] vcs provider %s no longer exists", providerID)
+		d.SetId("")
+		return nil
 	}
 	_ = d.Set("name", provider.Name)
 	_ = d.Set("url", provider.Url)
