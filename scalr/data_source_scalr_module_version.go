@@ -21,8 +21,8 @@ func dataSourceModuleVersion() *schema.Resource {
 				Required: true,
 			},
 			"version": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
 				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"id": {
