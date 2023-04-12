@@ -3,7 +3,6 @@ package scalr
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
