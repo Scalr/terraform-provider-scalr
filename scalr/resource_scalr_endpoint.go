@@ -12,6 +12,8 @@ import (
 
 func resourceScalrEndpoint() *schema.Resource {
 	return &schema.Resource{
+		DeprecationMessage: "Resource `scalr_endpoint` is deprecated, please set the endpoint information" +
+			" in the `scalr_webhook` resource.",
 		CreateContext: resourceScalrEndpointCreate,
 		ReadContext:   resourceScalrEndpointRead,
 		UpdateContext: resourceScalrEndpointUpdate,
