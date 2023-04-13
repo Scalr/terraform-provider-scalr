@@ -383,12 +383,18 @@ func readOldWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *sc
 
 	if webhook.Workspace != nil {
 		_ = d.Set("workspace_id", webhook.Workspace.ID)
+	} else {
+		_ = d.Set("workspace_id", nil)
 	}
 	if webhook.Environment != nil {
 		_ = d.Set("environment_id", webhook.Environment.ID)
+	} else {
+		_ = d.Set("environment_id", nil)
 	}
 	if webhook.Endpoint != nil {
 		_ = d.Set("endpoint_id", webhook.Endpoint.ID)
+	} else {
+		_ = d.Set("endpoint_id", nil)
 	}
 
 	return nil

@@ -64,7 +64,6 @@ func dataSourceScalrWebhook() *schema.Resource {
 			"environment_id": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Optional: true,
 				Deprecated: "The attribute `environment_id` is deprecated. The webhook is created on the" +
 					" account level and the environments to which it is exposed" +
 					" are controlled by the `environments` attribute.",
@@ -73,7 +72,6 @@ func dataSourceScalrWebhook() *schema.Resource {
 			"workspace_id": {
 				Type:       schema.TypeString,
 				Computed:   true,
-				Optional:   true,
 				Deprecated: "The attribute `workspace_id` is deprecated.",
 			},
 
