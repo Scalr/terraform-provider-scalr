@@ -113,18 +113,14 @@ func resourceScalrWebhook() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringIsNotWhiteSpace,
 						},
 						"value": {
-							Type:      schema.TypeString,
-							Required:  true,
-							Sensitive: true,
-						},
-						"sensitive": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Computed: true,
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringIsNotWhiteSpace,
 						},
 					},
 				},
@@ -245,9 +241,8 @@ func parseHeaders(d *schema.ResourceData) []*scalr.WebhookHeader {
 	for _, headerI := range headers.List() {
 		header := headerI.(map[string]interface{})
 		headerValues = append(headerValues, &scalr.WebhookHeader{
-			Name:      header["name"].(string),
-			Value:     header["value"].(string),
-			Sensitive: header["sensitive"].(bool),
+			Name:  header["name"].(string),
+			Value: header["value"].(string),
 		})
 	}
 	return headerValues
@@ -432,13 +427,12 @@ func readNewWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *sc
 	if webhook.Headers != nil {
 		for _, header := range webhook.Headers {
 			headers = append(headers, map[string]interface{}{
-				"name":      header.Name,
-				"value":     header.Value,
-				"sensitive": header.Sensitive,
+				"name":  header.Name,
+				"value": header.Value,
 			})
 		}
 	}
-	_ = d.Set("headers", headers)
+	_ = d.Set("header", headers)
 
 	if webhook.IsShared {
 		_ = d.Set("environments", []string{"*"})

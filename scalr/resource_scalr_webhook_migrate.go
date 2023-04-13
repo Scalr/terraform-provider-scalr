@@ -70,13 +70,12 @@ func resourceScalrWebhookStateUpgradeV0(ctx context.Context, rawState map[string
 	if webhook.Headers != nil {
 		for _, header := range webhook.Headers {
 			headers = append(headers, map[string]interface{}{
-				"name":      header.Name,
-				"value":     header.Value,
-				"sensitive": header.Sensitive,
+				"name":  header.Name,
+				"value": header.Value,
 			})
 		}
 	}
-	rawState["headers"] = headers
+	rawState["header"] = headers
 
 	if webhook.IsShared {
 		rawState["environments"] = []string{"*"}
