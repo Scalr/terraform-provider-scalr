@@ -161,9 +161,7 @@ func dataSourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, met
 	// to populate deprecated fields available only in old API
 	oldWebhook, err := scalrClient.Webhooks.Read(ctx, newWebhook.ID)
 	if err != nil {
-		if err != nil {
-			return diag.Errorf("Error retrieving webhook: %v", err)
-		}
+		return diag.Errorf("Error retrieving webhook: %v", err)
 	}
 
 	// Update the config.
