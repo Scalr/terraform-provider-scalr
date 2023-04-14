@@ -195,7 +195,9 @@ func resourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, meta 
 	webhook, err := scalrClient.Webhooks.Read(ctx, webhookID)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return diag.Errorf("Could not find webhook %s: %v", webhookID, err)
+			log.Printf("[DEBUG] Webhook %s no longer exists", webhookID)
+			d.SetId("")
+			return nil
 		}
 		return diag.Errorf("Error retrieving webhook: %v", err)
 	}
