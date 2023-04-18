@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/scalr/go-scalr"
-	"log"
 )
 
 func resourceScalrWebhook() *schema.Resource {
@@ -131,6 +132,7 @@ func resourceScalrWebhook() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				DefaultFunc: webhookAccountIDDefaultFunc,
+				ForceNew:    true,
 			},
 
 			"workspace_id": {
