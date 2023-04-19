@@ -27,10 +27,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `data.scalr_vcs_provider`: added new attribute `agent_pool_id` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/233))
 - `scalr_agent_pool`: added new attribute `vcs_enabled` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/233))
 - `data.scalr_agent_pool`: added new attribute `vcs_enabled` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/232))
+- `scalr_workspace_run_schedule`: make `apply-schedule` and `destroy-schedule` attributes nullable ([#231](https://github.com/Scalr/terraform-provider-scalr/pull/231))
 
 ### Fixed
 
 - `scalr_account_allowed_ips`: accept /32 suffix ([#224](https://github.com/Scalr/terraform-provider-scalr/pull/224))
+- `scalr_vcs_provider`: fix handling resource destroy when resource no longer exists ([#235](https://github.com/Scalr/terraform-provider-scalr/pull/235))
+- `scalr_webhook`: fix handling resource destroy when resource no longer exists ([#235](https://github.com/Scalr/terraform-provider-scalr/pull/235))
 
 ## [1.0.4] - 2023-03-13
 
