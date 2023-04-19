@@ -332,6 +332,11 @@ func createNewWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *
 		} else if len(environments) > 0 {
 			environmentValues := make([]*scalr.Environment, 0)
 			for _, env := range environments {
+				if env.(string) == "*" {
+					return fmt.Errorf(
+						"You cannot simultaneously enable the webhook for all and a limited list of environments. Please remove either wildcard or environment identifiers.",
+					)
+				}
 				environmentValues = append(environmentValues, &scalr.Environment{ID: env.(string)})
 			}
 			options.Environments = environmentValues
@@ -541,6 +546,11 @@ func updateNewWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *
 			options.IsShared = scalr.Bool(false)
 			environmentValues := make([]*scalr.Environment, 0)
 			for _, env := range environments {
+				if env.(string) == "*" {
+					return fmt.Errorf(
+						"You cannot simultaneously enable the webhook for all and a limited list of environments. Please remove either wildcard or environment identifiers.",
+					)
+				}
 				environmentValues = append(environmentValues, &scalr.Environment{ID: env.(string)})
 			}
 			options.Environments = environmentValues
