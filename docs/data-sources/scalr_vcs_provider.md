@@ -28,6 +28,7 @@ The following arguments are supported:
 * `vcs_type` - (Optional) Type of the VCS provider. For example, `github`.
 * `environment_id` - (Optional) ID of the environment the VCS provider has to be linked to, in the format `env-<RANDOM STRING>`.
 * `account_id` - (Optional) ID of the account, in the format `acc-<RANDOM STRING>`.
+* `agent_pool_id` - (Optional) ID of the agent pool, in the format `apool-<RANDOM STRING>`.
 
 ## Attribute Reference
 
