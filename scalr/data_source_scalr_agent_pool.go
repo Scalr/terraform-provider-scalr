@@ -79,7 +79,7 @@ func dataSourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, m
 		options.Environment = scalr.String(envID)
 	}
 
-	if vcsEnabled, ok := d.GetOk("vcs_enabled"); ok {
+	if vcsEnabled, ok := d.GetOkExists("vcs_enabled"); ok {
 		options.VcsEnabled = scalr.Bool(vcsEnabled.(bool))
 	}
 
