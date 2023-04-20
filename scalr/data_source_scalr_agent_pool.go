@@ -79,6 +79,10 @@ func dataSourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, m
 		options.Environment = scalr.String(envID)
 	}
 
+	if vcsEnabled, ok := d.GetOkExists("vcs_enabled"); ok {  //nolint:staticcheck
+		options.VcsEnabled = scalr.Bool(vcsEnabled.(bool))
+	}
+
 	agentPoolsList, err := scalrClient.AgentPools.List(ctx, options)
 	if err != nil {
 		return diag.Errorf("Error retrieving agent pool: %v", err)
