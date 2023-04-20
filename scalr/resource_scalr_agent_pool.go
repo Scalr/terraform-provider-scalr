@@ -38,11 +38,6 @@ func resourceScalrAgentPool() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"vcs_enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-			},
 		},
 	}
 }
@@ -54,13 +49,11 @@ func resourceScalrAgentPoolCreate(ctx context.Context, d *schema.ResourceData, m
 	// Get required options
 	name := d.Get("name").(string)
 	accountID := d.Get("account_id").(string)
-	vcsEnabled := d.Get("vcs_enabled").(bool)
 
 	// Create a new options struct
 	options := scalr.AgentPoolCreateOptions{
-		Name:       scalr.String(name),
-		Account:    &scalr.Account{ID: accountID},
-		VcsEnabled: scalr.Bool(vcsEnabled),
+		Name:    scalr.String(name),
+		Account: &scalr.Account{ID: accountID},
 	}
 
 	if envID, ok := d.GetOk("environment_id"); ok {
@@ -96,7 +89,6 @@ func resourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, met
 	// Update the config.
 	_ = d.Set("name", agentPool.Name)
 	_ = d.Set("account_id", agentPool.Account.ID)
-	_ = d.Set("vcs_enabled", agentPool.VcsEnabled)
 
 	if agentPool.Environment != nil {
 		_ = d.Set("environment_id", agentPool.Environment.ID)
@@ -110,10 +102,6 @@ func resourceScalrAgentPoolUpdate(ctx context.Context, d *schema.ResourceData, m
 	scalrClient := meta.(*scalr.Client)
 
 	id := d.Id()
-
-	if d.HasChange("vcs_enabled") {
-		return diag.Errorf("Error updating agentPool %s: %v", id, "vcs_enabled attribute is readonly.")
-	}
 
 	if d.HasChange("name") {
 		// Create a new options struct

@@ -44,10 +44,6 @@ func dataSourceScalrVcsProvider() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"agent_pool_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
 			"environments": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -72,10 +68,6 @@ func dataSourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData,
 
 	if envId, ok := d.GetOk("environment_id"); ok {
 		options.Environment = scalr.String(envId.(string))
-	}
-
-	if agentPoolID, ok := d.GetOk("agent_pool_id"); ok {
-		options.AgentPool = scalr.String(agentPoolID.(string))
 	}
 
 	if vcsType, ok := d.GetOk("vcs_type"); ok {
@@ -109,9 +101,6 @@ func dataSourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData,
 	_ = d.Set("name", vcsProvider.Name)
 	_ = d.Set("url", vcsProvider.Url)
 	_ = d.Set("environments", envIds)
-	if vcsProvider.AgentPool != nil {
-		_ = d.Set("agent_pool_id", vcsProvider.AgentPool.ID)
-	}
 	d.SetId(vcsProvider.ID)
 
 	return nil

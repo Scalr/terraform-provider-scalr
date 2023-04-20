@@ -479,8 +479,6 @@ func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, met
 
 	if workspace.AgentPool != nil {
 		_ = d.Set("agent_pool_id", workspace.AgentPool.ID)
-	} else {
-		_ = d.Set("agent_pool_id", "")
 	}
 
 	var mv string
