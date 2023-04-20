@@ -23,11 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `data.scalr_environment`: optional `id` and `name` arguments can be used together ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
 - `data.scalr_endpoint`: optional `id` and `name` arguments can be used together ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
 - `data.scalr_service_account`: optional `id` and `email` arguments can be used together ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
+- `scalr_workspace_run_schedule`: make `apply-schedule` and `destroy-schedule` attributes nullable ([#231](https://github.com/Scalr/terraform-provider-scalr/pull/231))
 
 ### Fixed
 
 - `scalr_account_allowed_ips`: accept /32 suffix ([#224](https://github.com/Scalr/terraform-provider-scalr/pull/224))
 - `data.scalr_module_version`: if there are several module versions with the same version, select the version that has the 'is-root-module' flag set to true. ([#229](https://github.com/Scalr/terraform-provider-scalr/pull/229))
+- `scalr_vcs_provider`: fix handling resource destroy when resource no longer exists ([#235](https://github.com/Scalr/terraform-provider-scalr/pull/235))
+- `scalr_webhook`: fix handling resource destroy when resource no longer exists ([#235](https://github.com/Scalr/terraform-provider-scalr/pull/235))
 
 ## [1.0.4] - 2023-03-13
 
