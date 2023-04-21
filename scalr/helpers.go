@@ -109,12 +109,12 @@ type GetWebhookByNameOptions struct {
 	Account *string
 }
 
-func GetWebhookByName(ctx context.Context, options GetWebhookByNameOptions, scalrClient *scalr.Client) (*scalr.Webhook, error) {
-	listOptions := scalr.WebhookListOptions{
-		Name:    options.Name,
+func GetWebhookByName(ctx context.Context, options GetWebhookByNameOptions, scalrClient *scalr.Client) (*scalr.WebhookIntegration, error) {
+	listOptions := scalr.WebhookIntegrationListOptions{
+		Query:   options.Name,
 		Account: options.Account,
 	}
-	whl, err := scalrClient.Webhooks.List(ctx, listOptions)
+	whl, err := scalrClient.WebhookIntegrations.List(ctx, listOptions)
 	if err != nil {
 		return nil, fmt.Errorf("Error retrieving webhooks: %v", err)
 	}
@@ -123,7 +123,7 @@ func GetWebhookByName(ctx context.Context, options GetWebhookByNameOptions, scal
 		return nil, fmt.Errorf("Webhook with name '%s' not found or user unauthorized", *options.Name)
 	}
 
-	var matchedWebhooks []*scalr.Webhook
+	var matchedWebhooks []*scalr.WebhookIntegration
 
 	// filter in endpoint search endpoints that contains query string, this is why we need to do exact match on our side.
 	for _, wh := range whl.Items {

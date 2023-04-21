@@ -24,12 +24,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `data.scalr_endpoint`: optional `id` and `name` arguments can be used together ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
 - `data.scalr_service_account`: optional `id` and `email` arguments can be used together ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
 - `scalr_workspace_run_schedule`: make `apply-schedule` and `destroy-schedule` attributes nullable ([#231](https://github.com/Scalr/terraform-provider-scalr/pull/231))
+- `scalr_webhook`: ([#234](https://github.com/Scalr/terraform-provider-scalr/pull/234))
+  - endpoint arguments are now included in the webhook resource: `url`, `secret_key`, `timeout` and `max_attempts`
+  This manifests the new way webhook integration will work further on, deprecating the `endpoint_id` argument
+  and merging the endpoint information into the webhook. During the deprecation period both old-style and new-style
+  webhooks are supported. The support for old-style webhooks will be dropped in the next major release.
+  - added new optional `header` argument (new-style webhooks only) - additional headers to set in the webhook request
+  - added new optional `environments` argument (new-style webhooks only) - environments that the webhook is shared to
+- `data.scalr_webhook`: extended with new attributes from new-style webhook - `url`, `secret_key`, `timeout`,
+`max_attempts`, `header`, `environments` ([#234](https://github.com/Scalr/terraform-provider-scalr/pull/234))
 
 ### Fixed
 
 - `scalr_account_allowed_ips`: accept /32 suffix ([#224](https://github.com/Scalr/terraform-provider-scalr/pull/224))
 - `scalr_vcs_provider`: fix handling resource destroy when resource no longer exists ([#235](https://github.com/Scalr/terraform-provider-scalr/pull/235))
 - `scalr_webhook`: fix handling resource destroy when resource no longer exists ([#235](https://github.com/Scalr/terraform-provider-scalr/pull/235))
+
+### Deprecated
+
+- `scalr_endpoint` is deprecated and will be removed in the next major version ([#234](https://github.com/Scalr/terraform-provider-scalr/pull/234))
+- `data.scalr_endpoint` is deprecated and will be removed in the next major version ([#234](https://github.com/Scalr/terraform-provider-scalr/pull/234))
+- `scalr_webhook`: ([#234](https://github.com/Scalr/terraform-provider-scalr/pull/234))
+  - attribute `endpoint_id` is deprecated
+  - attribute `environment_id` is deprecated
+  - attribute `workspace_id` is deprecated
+- `data.scalr_webhook`: ([#234](https://github.com/Scalr/terraform-provider-scalr/pull/234))
+  - attribute `endpoint_id` is deprecated
+  - attribute `environment_id` is deprecated
+  - attribute `workspace_id` is deprecated
 
 ## [1.0.4] - 2023-03-13
 
