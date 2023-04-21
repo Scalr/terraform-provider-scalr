@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.5] - 2023-04-21
+
 ### Changed
 
 - `data.scalr_workspace`: added new optional `id` argument, `name` became optional, one of or both can be specified ([#228](https://github.com/Scalr/terraform-provider-scalr/pull/228))
@@ -52,6 +54,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - attribute `endpoint_id` is deprecated
   - attribute `environment_id` is deprecated
   - attribute `workspace_id` is deprecated
+  
+### Required
+
+- scalr-server >= `8.63.0`
 
 ## [1.0.4] - 2023-03-13
 
@@ -639,7 +645,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.4...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.5...HEAD
+[1.0.5]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.5
 [1.0.4]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.4
 [1.0.3]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.3
 [1.0.2]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.2
