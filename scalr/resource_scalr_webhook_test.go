@@ -40,6 +40,11 @@ func TestAccWebhook_update(t *testing.T) {
 		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
+				Config:      testAccWebhookConfigUpdateEmptyEvent(rInt),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile("expected events to be one of"),
+			},
+			{
 				Config: testAccWebhookConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
@@ -64,10 +69,6 @@ func TestAccWebhook_update(t *testing.T) {
 					resource.TestCheckResourceAttrSet(
 						"data.scalr_webhook.test", "workspace_id"),
 				),
-			},
-			{
-				Config:      testAccWebhookConfigUpdateEmptyEvent(rInt),
-				ExpectError: regexp.MustCompile("Got error during parsing events: 0-th value is empty"),
 			},
 		},
 	})
