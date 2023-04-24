@@ -12,6 +12,9 @@ import (
 
 func dataSourceScalrEndpoint() *schema.Resource {
 	return &schema.Resource{
+		DeprecationMessage: "Datasource `scalr_endpoint` is deprecated, the endpoint information" +
+			" is included in the `scalr_webhook` resource.",
+
 		ReadContext: dataSourceScalrEndpointRead,
 
 		Schema: map[string]*schema.Schema{
