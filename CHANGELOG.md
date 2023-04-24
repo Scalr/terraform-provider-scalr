@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `scalr_vcs_provider`: added new attribute `agent_pool_id` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/233))
+- `data.scalr_vcs_provider`: added new attribute `agent_pool_id` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/233))
+- `scalr_agent_pool`: added new attribute `vcs_enabled` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/233))
+- `data.scalr_agent_pool`: added new attribute `vcs_enabled` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/232))
+
+### Fixed
+
+- `data.scalr_module_version`: if there are several module versions with the same version, select the version that has the 'is-root-module' flag set to true. ([#229](https://github.com/Scalr/terraform-provider-scalr/pull/229))
+
+### Required
+
+- scalr-server >= `8.64.0`
+
 ## [1.0.5] - 2023-04-21
 
 ### Changed
@@ -39,7 +54,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `scalr_account_allowed_ips`: accept /32 suffix ([#224](https://github.com/Scalr/terraform-provider-scalr/pull/224))
-- `data.scalr_module_version`: if there are several module versions with the same version, select the version that has the 'is-root-module' flag set to true. ([#229](https://github.com/Scalr/terraform-provider-scalr/pull/229))
 - `scalr_vcs_provider`: fix handling resource destroy when resource no longer exists ([#235](https://github.com/Scalr/terraform-provider-scalr/pull/235))
 - `scalr_webhook`: fix handling resource destroy when resource no longer exists ([#235](https://github.com/Scalr/terraform-provider-scalr/pull/235))
 
