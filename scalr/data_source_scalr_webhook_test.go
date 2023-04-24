@@ -37,7 +37,7 @@ func TestAccWebhookDataSource_basic(t *testing.T) {
 				PlanOnly:    true,
 			},
 			{
-				Config: testAccWebhookDataSourceConfig(rInt),
+				Config: testAccOldWebhookDataSourceConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"data.scalr_webhook.test", "name", fmt.Sprintf("webhook-test-%d", rInt)),
@@ -47,6 +47,55 @@ func TestAccWebhookDataSource_basic(t *testing.T) {
 						"data.scalr_webhook.test", "endpoint_id"),
 					resource.TestCheckResourceAttrSet(
 						"data.scalr_webhook.test", "workspace_id"),
+					// Attributes from related endpoint
+					resource.TestCheckResourceAttr(
+						"data.scalr_webhook.test", "url", "https://example.com/webhook"),
+					resource.TestCheckResourceAttrSet(
+						"data.scalr_webhook.test", "secret_key"),
+					resource.TestCheckResourceAttr(
+						"data.scalr_webhook.test", "timeout", "15"),
+					resource.TestCheckResourceAttr(
+						"data.scalr_webhook.test", "max_attempts", "3"),
+					// New attributes
+					resource.TestCheckResourceAttr(
+						"data.scalr_webhook.test", "header.#", "0"),
+					resource.TestCheckResourceAttr(
+						"data.scalr_webhook.test", "environments.#", "1"),
+					resource.TestCheckResourceAttrPair(
+						"data.scalr_webhook.test",
+						"environments.0",
+						"scalr_environment.test",
+						"id"),
+				),
+			},
+			{
+				Config: testAccWebhookDataSourceConfig(rInt),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"data.scalr_webhook.test-new", "name", fmt.Sprintf("webhook-test-new-%d", rInt)),
+					resource.TestCheckResourceAttr(
+						"data.scalr_webhook.test-new", "enabled", "false"),
+					resource.TestCheckResourceAttr(
+						"data.scalr_webhook.test-new", "url", "https://example.com/webhook"),
+					resource.TestCheckResourceAttrSet(
+						"data.scalr_webhook.test-new", "secret_key"),
+					resource.TestCheckResourceAttrSet(
+						"data.scalr_webhook.test-new", "timeout"),
+					resource.TestCheckResourceAttr(
+						"data.scalr_webhook.test-new", "max_attempts", "2"),
+					resource.TestCheckResourceAttr(
+						"data.scalr_webhook.test-new", "header.#", "2"),
+					resource.TestCheckResourceAttr(
+						"data.scalr_webhook.test-new", "environments.#", "1"),
+					resource.TestCheckResourceAttrPair(
+						"data.scalr_webhook.test-new",
+						"environments.0",
+						"scalr_environment.test-new",
+						"id"),
+					// Deprecated attributes
+					resource.TestCheckNoResourceAttr("data.scalr_webhook.test-new", "endpoint_id"),
+					resource.TestCheckNoResourceAttr("data.scalr_webhook.test-new", "workspace_id"),
+					resource.TestCheckNoResourceAttr("data.scalr_webhook.test-new", "environment_id"),
 				),
 			},
 			{
@@ -89,7 +138,7 @@ func TestAccWebhookDataSource_basic(t *testing.T) {
 	})
 }
 
-func testAccWebhookDataSourceConfig(rInt int) string {
+func testAccOldWebhookDataSourceConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
   name       = "test-env-%[1]d"
@@ -102,7 +151,7 @@ resource scalr_workspace test {
 }
 
 resource scalr_endpoint test {
-  name           = "test endpoint-%[1]d"
+  name           = "test-endpoint-%[1]d"
   timeout        = 15
   max_attempts   = 3
   url            = "https://example.com/webhook"
@@ -119,6 +168,36 @@ resource scalr_webhook test {
 
 data scalr_webhook test {
   id = scalr_webhook.test.id
+}`, rInt, defaultAccount)
+}
+
+func testAccWebhookDataSourceConfig(rInt int) string {
+	return fmt.Sprintf(`
+resource scalr_environment test-new {
+  name       = "test-env-new-%[1]d"
+  account_id = "%s"
+}
+
+resource scalr_webhook test-new {
+  account_id   = "%[2]s"
+  enabled      = false
+  name         = "webhook-test-new-%[1]d"
+  events       = ["run:completed", "run:errored"]
+  environments = [scalr_environment.test-new.id]
+  url          = "https://example.com/webhook"
+  max_attempts = 2
+  header {
+    name  = "header-1"
+    value = "value-1"
+  }
+  header {
+    name  = "header-2"
+    value = "value-2"
+  }
+}
+
+data scalr_webhook test-new {
+  id = scalr_webhook.test-new.id
 }`, rInt, defaultAccount)
 }
 
