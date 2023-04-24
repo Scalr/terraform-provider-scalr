@@ -3,18 +3,18 @@ name: upstream
 on:
   workflow_dispatch:
     inputs:
-      upstream_sha:
+      upstream-sha:
         description: "Upstream commit SHA"
         required: true
-      api_branch:
+      api-branch:
         description: "API Branch"
         required: true
         default: "master"
-      py_req:
+      py-req:
         description: "Whether to upgrade python requirements"
         required: false
         default: "no"
-      upstream_base_ref:
+      upstream-base-ref:
         description: "Upstream base branch (e.g. 'master' or 'release/8.57.0')"
         required: false
       pr_id:
@@ -28,14 +28,14 @@ jobs:
     env:
       ORG_ADMIN_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
       SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
-      API_BRANCH: ${{ github.event.inputs.api_branch }}
-      PY_REQ: ${{ github.event.inputs.py_req }}
+      API_BRANCH: ${{ github.event.inputs.api-branch }}
+      PY_REQ: ${{ github.event.inputs.py-req }}
       UPSTREAM_ID: ${{ github.run_number }}
-      UPSTREAM_BASE_REF: ${{ github.event.inputs.upstream_base_ref }}
+      UPSTREAM_BASE_REF: ${{ github.event.inputs.upstream-base-ref }}
     steps:
       - uses: actions/checkout@v3
       - name: Notify upstream about pending
-        run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream_sha }} state=pending run_id=${{ github.run_id }}
+        run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=pending run_id=${{ github.run_id }}
       - uses: actions/setup-go@v3
         with:
           go-version: "1.18"
@@ -166,7 +166,7 @@ jobs:
           --no-wait ${{ env.RUN_TAG }}
       - name: Notify upstream about success
         if: ${{ success() }}
-        run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream_sha }} state=success run_id=${{ github.run_id }}
+        run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=success run_id=${{ github.run_id }}
       - name: Notify upstream about failure
         if: ${{ failure() }}
-        run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream_sha }} state=failure run_id=${{ github.run_id }}
+        run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=failure run_id=${{ github.run_id }}
