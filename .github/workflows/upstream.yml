@@ -10,6 +10,10 @@ on:
         description: "API Branch"
         required: true
         default: "master"
+      db-branch:
+        description: "Not used, left for backward compatibility"
+        required: false
+        default: "master"
       py-req:
         description: "Whether to upgrade python requirements"
         required: false
