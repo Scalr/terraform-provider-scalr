@@ -32,7 +32,7 @@ func dataSourceScalrRole() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				DefaultFunc: scalrAccountIDDefaultFunc,
+				DefaultFunc: scalrAccountIDOptionalDefaultFunc,
 			},
 
 			"is_system": {
