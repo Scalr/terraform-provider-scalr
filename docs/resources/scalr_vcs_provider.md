@@ -27,6 +27,7 @@ resource "scalr_vcs_provider" "example" {
 * `account_id` - (Optional) ID of the account.
 * `url` - (Optional) This field is required for self-hosted vcs providers.
 * `username` - (Optional) This field is required for `bitbucket_enterprise` provider type.
+* `agent_pool_id` - (Optional) ID of the agent pool to communicate with VCS through.
 
 
 ## Attribute Reference

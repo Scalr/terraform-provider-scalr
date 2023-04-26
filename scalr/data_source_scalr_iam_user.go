@@ -2,6 +2,7 @@ package scalr
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -15,16 +16,21 @@ func dataSourceScalrIamUser() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
+				AtLeastOneOf: []string{"email"},
 			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"email": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"username": {
 				Type:     schema.TypeString,
@@ -52,12 +58,19 @@ func dataSourceScalrIamUserRead(ctx context.Context, d *schema.ResourceData, met
 	scalrClient := meta.(*scalr.Client)
 
 	// required fields
+	uID := d.Get("id").(string)
 	email := d.Get("email").(string)
 
-	options := scalr.UserListOptions{
-		Email: scalr.String(email),
+	options := scalr.UserListOptions{}
+
+	if uID != "" {
+		options.User = scalr.String(uID)
 	}
-	log.Printf("[DEBUG] Read configuration of iam user: %s", email)
+	if email != "" {
+		options.Email = scalr.String(email)
+	}
+
+	log.Printf("[DEBUG] Read configuration of iam user: email '%s', ID '%s'", email, uID)
 
 	ul, err := scalrClient.Users.List(ctx, options)
 	if err != nil {
@@ -65,12 +78,13 @@ func dataSourceScalrIamUserRead(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	if ul.TotalCount == 0 {
-		return diag.Errorf("iam user %s not found", email)
+		return diag.Errorf("iam user with email '%s' and ID '%s' not found", email, uID)
 	}
 
 	u := ul.Items[0]
 
 	// Update the configuration.
+	_ = d.Set("email", u.Email)
 	_ = d.Set("status", u.Status)
 	_ = d.Set("username", u.Username)
 	_ = d.Set("full_name", u.FullName)

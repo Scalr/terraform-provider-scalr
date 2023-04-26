@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/scalr/go-scalr"
 	"log"
 )
@@ -16,6 +17,7 @@ func dataSourceScalrServiceAccount() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 				AtLeastOneOf: []string{"email"},
 			},
 			"name": {
@@ -23,10 +25,10 @@ func dataSourceScalrServiceAccount() *schema.Resource {
 				Computed: true,
 			},
 			"email": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"id"},
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -73,39 +75,35 @@ func dataSourceScalrServiceAccountRead(ctx context.Context, d *schema.ResourceDa
 	email := d.Get("email").(string)
 	accountID := d.Get("account_id").(string)
 
-	var sa *scalr.ServiceAccount
-	var err error
+	options := scalr.ServiceAccountListOptions{
+		Account: scalr.String(accountID),
+		Include: scalr.String("created-by"),
+	}
 
 	if saID != "" {
-		log.Printf("[DEBUG] Read service account with ID: %s", saID)
-		sa, err = scalrClient.ServiceAccounts.Read(ctx, saID)
-		if err != nil {
-			return diag.Errorf("Error retrieving service account: %v", err)
-		}
-	} else {
-		options := scalr.ServiceAccountListOptions{
-			Email:   scalr.String(email),
-			Account: scalr.String(accountID),
-			Include: scalr.String("created-by"),
-		}
-
-		log.Printf("[DEBUG] Read service account: %s/%s", accountID, email)
-		sas, err := scalrClient.ServiceAccounts.List(ctx, options)
-		if err != nil {
-			return diag.Errorf("Error retrieving service account: %v", err)
-		}
-
-		// Unlikely
-		if sas.TotalCount > 1 {
-			return diag.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
-		}
-
-		if sas.TotalCount == 0 {
-			return diag.Errorf("Could not find service account %s/%s", accountID, email)
-		}
-
-		sa = sas.Items[0]
+		options.ServiceAccount = scalr.String(saID)
 	}
+
+	if email != "" {
+		options.Email = scalr.String(email)
+	}
+
+	log.Printf("[DEBUG] Read service account with ID '%s', email '%s', and account_id '%s'", saID, email, accountID)
+	sas, err := scalrClient.ServiceAccounts.List(ctx, options)
+	if err != nil {
+		return diag.Errorf("Error retrieving service account: %v", err)
+	}
+
+	// Unlikely
+	if sas.TotalCount > 1 {
+		return diag.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
+	}
+
+	if sas.TotalCount == 0 {
+		return diag.Errorf("Could not find service account with ID '%s', email '%s', and account_id '%s'", saID, email, accountID)
+	}
+
+	sa := sas.Items[0]
 
 	var createdBy []interface{}
 	if sa.CreatedBy != nil {

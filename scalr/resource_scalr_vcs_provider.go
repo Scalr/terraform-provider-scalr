@@ -69,6 +69,10 @@ func resourceScalrVcsProvider() *schema.Resource {
 				DefaultFunc: scalrAccountIDDefaultFunc,
 				ForceNew:    true,
 			},
+			"agent_pool_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -97,6 +101,12 @@ func resourceScalrVcsProviderCreate(ctx context.Context, d *schema.ResourceData,
 		options.Username = scalr.String(username.(string))
 	}
 
+	if agentPoolID, ok := d.GetOk("agent_pool_id"); ok {
+		options.AgentPool = &scalr.AgentPool{
+			ID: agentPoolID.(string),
+		}
+	}
+
 	log.Printf("[DEBUG] Create vcs provider: %s", name)
 	provider, err := scalrClient.VcsProviders.Create(ctx, options)
 	if err != nil {
@@ -114,7 +124,9 @@ func resourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData, m
 	log.Printf("[DEBUG] Read vcs provider with ID: %s", providerID)
 	provider, err := scalrClient.VcsProviders.Read(ctx, providerID)
 	if err != nil {
-		return diag.Errorf("Error retrieving vcs provider: %v", err)
+		log.Printf("[DEBUG] vcs provider %s no longer exists", providerID)
+		d.SetId("")
+		return nil
 	}
 	_ = d.Set("name", provider.Name)
 	_ = d.Set("url", provider.Url)
@@ -122,6 +134,11 @@ func resourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData, m
 	_ = d.Set("username", provider.Username)
 	if provider.Account != nil {
 		_ = d.Set("account_id", provider.Account.ID)
+	}
+	if provider.AgentPool != nil {
+		_ = d.Set("agent_pool_id", provider.AgentPool.ID)
+	} else {
+		_ = d.Set("agent_pool_id", "")
 	}
 
 	return nil
@@ -142,6 +159,12 @@ func resourceScalrVcsProviderUpdate(ctx context.Context, d *schema.ResourceData,
 	// Get the username
 	if username, ok := d.GetOk("username"); ok {
 		options.Username = scalr.String(username.(string))
+	}
+
+	if agentPoolID, ok := d.GetOk("agent_pool_id"); ok {
+		options.AgentPool = &scalr.AgentPool{
+			ID: agentPoolID.(string),
+		}
 	}
 
 	log.Printf("[DEBUG] Update vcs provider: %s", d.Id())

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/scalr/go-scalr"
 )
 
@@ -12,13 +13,16 @@ func dataSourceScalrVcsProvider() *schema.Resource {
 		ReadContext: dataSourceScalrVcsProviderRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"vcs_type": {
 				Type:     schema.TypeString,
@@ -40,6 +44,10 @@ func dataSourceScalrVcsProvider() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"agent_pool_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"environments": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -54,12 +62,20 @@ func dataSourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData,
 		Account: scalr.String(d.Get("account_id").(string)),
 	}
 
+	if vcsProviderID, ok := d.GetOk("id"); ok {
+		options.ID = scalr.String(vcsProviderID.(string))
+	}
+
 	if name, ok := d.GetOk("name"); ok {
 		options.Query = scalr.String(name.(string))
 	}
 
 	if envId, ok := d.GetOk("environment_id"); ok {
 		options.Environment = scalr.String(envId.(string))
+	}
+
+	if agentPoolID, ok := d.GetOk("agent_pool_id"); ok {
+		options.AgentPool = scalr.String(agentPoolID.(string))
 	}
 
 	if vcsType, ok := d.GetOk("vcs_type"); ok {
@@ -93,6 +109,9 @@ func dataSourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData,
 	_ = d.Set("name", vcsProvider.Name)
 	_ = d.Set("url", vcsProvider.Url)
 	_ = d.Set("environments", envIds)
+	if vcsProvider.AgentPool != nil {
+		_ = d.Set("agent_pool_id", vcsProvider.AgentPool.ID)
+	}
 	d.SetId(vcsProvider.ID)
 
 	return nil

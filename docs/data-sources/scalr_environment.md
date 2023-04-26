@@ -7,9 +7,15 @@ Retrieves the details of a Scalr environment.
 
 ```hcl
 data "scalr_environment" "test" {
-  id = "env-xxxxxxxxxx" # optional, can only use id or name for the environment filter, if both are used there will be a conflict.
-  account_id = "acc-xxxxxxxx" # mandatory if a user has access to a few accounts and the environment name is not unique
-  name = "environment-name"  # optional, can only use id or name for the environment filter, if both are used there will be a conflict.
+  id         = "env-xxxxxxx"
+  account_id = "acc-xxxxxxx"
+}
+```
+
+```hcl
+data "scalr_environment" "test" {
+  name       = "environment-name"
+  account_id = "acc-xxxxxxx"
 }
 ```
 
