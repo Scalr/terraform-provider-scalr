@@ -116,8 +116,9 @@ func resourceScalrVcsProviderCreate(ctx context.Context, d *schema.ResourceData,
 	if environmentsI, ok := d.GetOk("environments"); ok {
 		environments := environmentsI.(*schema.Set).List()
 		if (len(environments) == 1) && (environments[0].(string) == "*") {
-			options.IsShared = true
+			options.IsShared = scalr.Bool(true)
 		} else if len(environments) > 0 {
+			options.IsShared = scalr.Bool(false)
 			environmentValues := make([]*scalr.Environment, 0)
 			for _, env := range environments {
 				environmentValues = append(environmentValues, &scalr.Environment{ID: env.(string)})
@@ -200,10 +201,10 @@ func resourceScalrVcsProviderUpdate(ctx context.Context, d *schema.ResourceData,
 	if environmentsI, ok := d.GetOk("environments"); ok {
 		environments := environmentsI.(*schema.Set).List()
 		if (len(environments) == 1) && (environments[0].(string) == "*") {
-			options.IsShared = true
+			options.IsShared = scalr.Bool(true)
 			options.Environments = make([]*scalr.Environment, 0)
 		} else {
-			options.IsShared = false
+			options.IsShared = scalr.Bool(false)
 			environmentValues := make([]*scalr.Environment, 0)
 			for _, env := range environments {
 				environmentValues = append(environmentValues, &scalr.Environment{ID: env.(string)})
