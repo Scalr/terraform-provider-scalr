@@ -73,6 +73,12 @@ func resourceScalrVcsProvider() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"environments": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -104,6 +110,19 @@ func resourceScalrVcsProviderCreate(ctx context.Context, d *schema.ResourceData,
 	if agentPoolID, ok := d.GetOk("agent_pool_id"); ok {
 		options.AgentPool = &scalr.AgentPool{
 			ID: agentPoolID.(string),
+		}
+	}
+
+	if environmentsI, ok := d.GetOk("environments"); ok {
+		environments := environmentsI.(*schema.Set).List()
+		if (len(environments) == 1) && (environments[0].(string) == "*") {
+			options.IsShared = true
+		} else if len(environments) > 0 {
+			environmentValues := make([]*scalr.Environment, 0)
+			for _, env := range environments {
+				environmentValues = append(environmentValues, &scalr.Environment{ID: env.(string)})
+			}
+			options.Environments = environmentValues
 		}
 	}
 
@@ -141,6 +160,17 @@ func resourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData, m
 		_ = d.Set("agent_pool_id", "")
 	}
 
+	if provider.IsShared {
+		allEnvironments := []string{"*"}
+		_ = d.Set("environments", allEnvironments)
+	} else {
+		environmentIDs := make([]string, 0)
+		for _, environment := range provider.Environments {
+			environmentIDs = append(environmentIDs, environment.ID)
+		}
+		_ = d.Set("environments", environmentIDs)
+	}
+
 	return nil
 }
 
@@ -164,6 +194,21 @@ func resourceScalrVcsProviderUpdate(ctx context.Context, d *schema.ResourceData,
 	if agentPoolID, ok := d.GetOk("agent_pool_id"); ok {
 		options.AgentPool = &scalr.AgentPool{
 			ID: agentPoolID.(string),
+		}
+	}
+
+	if environmentsI, ok := d.GetOk("environments"); ok {
+		environments := environmentsI.(*schema.Set).List()
+		if (len(environments) == 1) && (environments[0].(string) == "*") {
+			options.IsShared = true
+			options.Environments = make([]*scalr.Environment, 0)
+		} else {
+			options.IsShared = false
+			environmentValues := make([]*scalr.Environment, 0)
+			for _, env := range environments {
+				environmentValues = append(environmentValues, &scalr.Environment{ID: env.(string)})
+			}
+			options.Environments = environmentValues
 		}
 	}
 

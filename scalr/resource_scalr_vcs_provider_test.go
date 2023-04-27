@@ -25,6 +25,7 @@ func TestAccVcsProvider_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "account_id", defaultAccount),
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "vcs_type", string(scalr.Github)),
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "url", "https://github.com"),
+					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "environments.0", "*"),
 				),
 			},
 			{
