@@ -700,8 +700,9 @@ resource "scalr_workspace" "test" {
   name                   = "renamed-out-of-band"
   environment_id         = scalr_environment.test.id
   auto_apply             = true
-  run_operation_timeout = 18
-  auto_queue_runs       = "always"
+  run_operation_timeout  = 18
+  auto_queue_runs        = "always"
+  deletion_protection    = false
   hooks {
     pre_init   = "./scripts/pre-init.sh"
     pre_plan   = "./scripts/pre-plan.sh"
