@@ -32,6 +32,8 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "auto_apply", "true"),
 					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "auto_queue_runs", string(scalr.AutoQueueRunsModeAlways)),
@@ -206,6 +208,7 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					testAccCheckScalrWorkspaceAttributes(workspace),
 					resource.TestCheckResourceAttr("scalr_workspace.test", "name", "workspace-test"),
 					resource.TestCheckResourceAttr("scalr_workspace.test", "auto_apply", "true"),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "deletion_protection", "false"),
 					resource.TestCheckResourceAttr("scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
@@ -239,6 +242,8 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 						"scalr_workspace.test", "name", "workspace-updated"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "auto_apply", "false"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "deletion_protection", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "false"),
 					resource.TestCheckResourceAttr(
@@ -665,9 +670,10 @@ resource scalr_workspace test {
   name                   = "workspace-test"
   environment_id         = scalr_environment.test.id
   auto_apply             = true
-  run_operation_timeout = 18
-  var_files      = ["test1.tfvars", "test2.tfvars"]
-  auto_queue_runs = "always"
+  run_operation_timeout  = 18
+  var_files              = ["test1.tfvars", "test2.tfvars"]
+  auto_queue_runs        = "always"
+  deletion_protection    = false
   hooks {
     pre_init   = "./scripts/pre-init.sh"
     pre_plan   = "./scripts/pre-plan.sh"
@@ -717,6 +723,7 @@ resource "scalr_workspace" "test" {
   terraform_version     = "1.1.9"
   working_directory     = "terraform/test"
   run_operation_timeout = 200
+  deletion_protection   = true
   var_files             = ["test1updated.tfvars", "test2updated.tfvars"]
   hooks {
     pre_init   = "./scripts/pre-init_updated.sh"
