@@ -61,7 +61,7 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Computed: true,
 			},
 
-			"deletion_protection": {
+			"deletion_protection_enabled": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
@@ -222,7 +222,7 @@ func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, m
 	_ = d.Set("name", workspace.Name)
 	_ = d.Set("auto_apply", workspace.AutoApply)
 	_ = d.Set("force_latest_run", workspace.ForceLatestRun)
-	_ = d.Set("deletion_protection", workspace.DeletionProtection)
+	_ = d.Set("deletion_protection_enabled", workspace.DeletionProtectionEnabled)
 	_ = d.Set("operations", workspace.Operations)
 	_ = d.Set("execution_mode", workspace.ExecutionMode)
 	_ = d.Set("terraform_version", workspace.TerraformVersion)

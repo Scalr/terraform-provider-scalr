@@ -32,7 +32,7 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "auto_apply", "true"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "deletion_protection", "false"),
+						"scalr_workspace.test", "deletion_protection_enabled", "false"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
@@ -208,7 +208,7 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					testAccCheckScalrWorkspaceAttributes(workspace),
 					resource.TestCheckResourceAttr("scalr_workspace.test", "name", "workspace-test"),
 					resource.TestCheckResourceAttr("scalr_workspace.test", "auto_apply", "true"),
-					resource.TestCheckResourceAttr("scalr_workspace.test", "deletion_protection", "false"),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "deletion_protection_enabled", "false"),
 					resource.TestCheckResourceAttr("scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
@@ -243,7 +243,7 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "auto_apply", "false"),
 					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "deletion_protection", "true"),
+						"scalr_workspace.test", "deletion_protection_enabled", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "false"),
 					resource.TestCheckResourceAttr(
@@ -667,13 +667,13 @@ resource scalr_workspace test {
 func testAccScalrWorkspaceBasic(rInt int) string {
 	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
 resource scalr_workspace test {
-  name                   = "workspace-test"
-  environment_id         = scalr_environment.test.id
-  auto_apply             = true
-  run_operation_timeout  = 18
-  var_files              = ["test1.tfvars", "test2.tfvars"]
-  auto_queue_runs        = "always"
-  deletion_protection    = false
+  name                           = "workspace-test"
+  environment_id                 = scalr_environment.test.id
+  auto_apply                     = true
+  run_operation_timeout          = 18
+  var_files                      = ["test1.tfvars", "test2.tfvars"]
+  auto_queue_runs                = "always"
+  deletion_protection_enabled    = false
   hooks {
     pre_init   = "./scripts/pre-init.sh"
     pre_plan   = "./scripts/pre-plan.sh"
@@ -697,12 +697,12 @@ resource "scalr_workspace" "test" {
 func testAccScalrWorkspaceRenamed(rInt int) string {
 	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
 resource "scalr_workspace" "test" {
-  name                   = "renamed-out-of-band"
-  environment_id         = scalr_environment.test.id
-  auto_apply             = true
-  run_operation_timeout  = 18
-  auto_queue_runs        = "always"
-  deletion_protection    = false
+  name                           = "renamed-out-of-band"
+  environment_id                 = scalr_environment.test.id
+  auto_apply                     = true
+  run_operation_timeout          = 18
+  auto_queue_runs                = "always"
+  deletion_protection_enabled    = false
   hooks {
     pre_init   = "./scripts/pre-init.sh"
     pre_plan   = "./scripts/pre-plan.sh"
@@ -717,14 +717,14 @@ func testAccScalrWorkspaceUpdate(rInt int) string {
 	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount,
 		fmt.Sprintf(`
 resource "scalr_workspace" "test" {
-  name                  = "workspace-updated"
-  environment_id 		= scalr_environment.test.id
-  auto_apply            = false
-  execution_mode        = "%s"
-  terraform_version     = "1.1.9"
-  working_directory     = "terraform/test"
-  run_operation_timeout = 200
-  deletion_protection   = true
+  name                          = "workspace-updated"
+  environment_id 		        = scalr_environment.test.id
+  auto_apply                    = false
+  execution_mode                = "%s"
+  terraform_version             = "1.1.9"
+  working_directory             = "terraform/test"
+  run_operation_timeout         = 200
+  deletion_protection_enabled   = true
   var_files             = ["test1updated.tfvars", "test2updated.tfvars"]
   hooks {
     pre_init   = "./scripts/pre-init_updated.sh"
