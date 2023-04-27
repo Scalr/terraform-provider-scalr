@@ -49,7 +49,7 @@ func dataSourceScalrVcsProvider() *schema.Resource {
 				Optional: true,
 			},
 			"environments": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
@@ -99,19 +99,16 @@ func dataSourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData,
 
 	vcsProvider := vcsProviders.Items[0]
 
-	if vcsProvider.IsShared {
-		_ = d.Set("environments", []string{"*"})
-	} else {
-		envIds := make([]string, 0)
-		for _, environment := range vcsProvider.Environments {
-			envIds = append(envIds, environment.ID)
-		}
-		_ = d.Set("environments", envIds)
+	envIds := make([]string, 0)
+	for _, env := range vcsProvider.Environments {
+		envIds = append(envIds, env.ID)
 	}
+
 	// Update the configuration.
 	_ = d.Set("vcs_type", vcsProvider.VcsType)
 	_ = d.Set("name", vcsProvider.Name)
 	_ = d.Set("url", vcsProvider.Url)
+	_ = d.Set("environments", envIds)
 	if vcsProvider.AgentPool != nil {
 		_ = d.Set("agent_pool_id", vcsProvider.AgentPool.ID)
 	}
