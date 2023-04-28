@@ -131,7 +131,7 @@ func resourceScalrWebhook() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				DefaultFunc: webhookAccountIDDefaultFunc,
+				DefaultFunc: scalrAccountIDOptionalDefaultFunc,
 				ForceNew:    true,
 			},
 
@@ -172,14 +172,6 @@ func forceRecreateIf() schema.CustomizeDiffFunc {
 		}
 		return nil
 	}
-}
-
-// webhookAccountIDDefaultFunc returns default account id, if present.
-// It won't return an error, as `account_id` is optional and computed
-// for old-style webhooks.
-func webhookAccountIDDefaultFunc() (interface{}, error) {
-	accID, _ := getDefaultScalrAccountID()
-	return accID, nil
 }
 
 // remove after https://scalr-labs.atlassian.net/browse/SCALRCORE-16234

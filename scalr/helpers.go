@@ -174,6 +174,8 @@ func getDefaultScalrAccountID() (string, bool) {
 	return "", false
 }
 
+// scalrAccountIDDefaultFunc is a schema.SchemaDefaultFunc that returns default account id.
+// If account info is not present, the error is returned.
 func scalrAccountIDDefaultFunc() (interface{}, error) {
 	if accID, ok := getDefaultScalrAccountID(); ok {
 		return accID, nil
@@ -181,4 +183,12 @@ func scalrAccountIDDefaultFunc() (interface{}, error) {
 	return nil, errors.New("Default value for `account_id` could not be computed." +
 		"\nIf you are using Scalr Provider for local runs, please set the attribute in resources explicitly," +
 		"\nor export `SCALR_ACCOUNT_ID` environment variable prior the run.")
+}
+
+// scalrAccountIDOptionalDefaultFunc is a schema.SchemaDefaultFunc that returns default account id
+// or an empty (string) value, if account info is not present.
+// Never returns non-nil error.
+func scalrAccountIDOptionalDefaultFunc() (interface{}, error) {
+	accID, _ := getDefaultScalrAccountID()
+	return accID, nil
 }
