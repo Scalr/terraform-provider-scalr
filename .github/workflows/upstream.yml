@@ -21,9 +21,9 @@ on:
       upstream-base-ref:
         description: "Upstream base branch (e.g. 'master' or 'release/8.57.0')"
         required: false
-      pr_id:
+      pr-id:
         description: The number of the pull request
-        required: true
+        required: false
 
 jobs:
   acc-tests:
@@ -52,15 +52,15 @@ jobs:
           token: ${{ secrets.GH_PAT }}
       - name: Get pr labels
         id: pr-labels
-        if: ${{ inputs.pr_id != '' }}
+        if: ${{ inputs.pr-id != '' }}
         uses: ./fatmouse/.github/actions/pr-labels
         with:
           github_token: ${{ secrets.GH_PAT }}
           owner: Scalr
           repo: fatmouse
-          pr_id: ${{ inputs.pr_id }}
+          pr_id: ${{ inputs.pr-id }}
       - name: Set py-req on PR with label
-        if: ${{ inputs.pr_id != '' && contains(steps.pr-labels.outputs.labels, ' py-req ') }}
+        if: ${{ inputs.pr-id != '' && contains(steps.pr-labels.outputs.labels, ' py-req ') }}
         run: echo "PY_REQ=yes" >> $GITHUB_ENV
       - id: auth
         uses: google-github-actions/auth@v0
