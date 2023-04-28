@@ -37,7 +37,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 			},
 		),
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceScalrProviderConfigurationImport,
 		},
 		SchemaVersion: 0,
 		Schema: map[string]*schema.Schema{
@@ -677,7 +677,75 @@ func resourceScalrProviderConfigurationDelete(ctx context.Context, d *schema.Res
 	return nil
 }
 
-// changeParameters is used to change parameters for provider configuratio.
+func resourceScalrProviderConfigurationImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	id := d.Id()
+	scalrClient := meta.(*scalr.Client)
+
+	providerConfiguration, err := scalrClient.ProviderConfigurations.Read(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("unable to retrieve provider configuration %s: %v", id, err)
+	}
+
+	switch providerConfiguration.ProviderName {
+	case "aws":
+		awsParams := make(map[string]interface{})
+
+		awsParams["account_type"] = providerConfiguration.AwsAccountType
+		awsParams["credentials_type"] = providerConfiguration.AwsCredentialsType
+		awsParams["access_key"] = providerConfiguration.AwsAccessKey
+		awsParams["secret_key"] = providerConfiguration.AwsSecretKey
+		awsParams["trusted_entity_type"] = providerConfiguration.AwsTrustedEntityType
+		awsParams["role_arn"] = providerConfiguration.AwsRoleArn
+		awsParams["external_id"] = providerConfiguration.AwsExternalId
+
+		_ = d.Set("aws", []map[string]interface{}{awsParams})
+	case "google":
+		googleParams := make(map[string]interface{})
+
+		googleParams["credentials"] = providerConfiguration.GoogleCredentials
+		googleParams["project"] = providerConfiguration.GoogleProject
+
+		_ = d.Set("google", []map[string]interface{}{googleParams})
+	case "scalr":
+		scalrParams := make(map[string]interface{})
+
+		scalrParams["hostname"] = providerConfiguration.ScalrHostname
+		scalrParams["token"] = providerConfiguration.ScalrToken
+
+		_ = d.Set("scalr", []map[string]interface{}{scalrParams})
+	case "azurerm":
+		azurermParams := make(map[string]interface{})
+
+		azurermParams["client_id"] = providerConfiguration.AzurermClientId
+		azurermParams["client_secret"] = providerConfiguration.AzurermClientSecret
+		azurermParams["subscription_id"] = providerConfiguration.AzurermSubscriptionId
+		azurermParams["tenant_id"] = providerConfiguration.AzurermTenantId
+
+		_ = d.Set("azurerm", []map[string]interface{}{azurermParams})
+	default:
+		var currentArguments []map[string]interface{}
+		for _, argument := range providerConfiguration.Parameters {
+			currentArgument := map[string]interface{}{
+				"name":        argument.Key,
+				"sensitive":   argument.Sensitive,
+				"value":       argument.Value,
+				"description": argument.Description,
+			}
+			currentArguments = append(currentArguments, currentArgument)
+		}
+
+		_ = d.Set("custom", []map[string]interface{}{
+			{
+				"provider_name": providerConfiguration.ProviderName,
+				"argument":      currentArguments,
+			},
+		})
+	}
+
+	return []*schema.ResourceData{d}, nil
+}
+
+// changeParameters is used to change parameters for provider configuration.
 func changeParameters(
 	ctx context.Context,
 	client *scalr.Client,
