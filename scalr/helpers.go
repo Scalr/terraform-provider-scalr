@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/scalr/go-scalr"
@@ -178,13 +177,4 @@ func scalrAccountIDDefaultFunc() (interface{}, error) {
 func scalrAccountIDOptionalDefaultFunc() (interface{}, error) {
 	accID, _ := getDefaultScalrAccountID()
 	return accID, nil
-}
-
-func matchesPattern(value string, patterns map[string]bool) bool {
-	for pattern := range patterns {
-		if strings.Contains(value, pattern) {
-			return true
-		}
-	}
-	return false
 }
