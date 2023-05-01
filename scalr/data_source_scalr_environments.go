@@ -9,9 +9,9 @@ import (
 	"strings"
 )
 
-func dataSourceScalrEnvironmentIDs() *schema.Resource {
+func dataSourceScalrEnvironments() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceScalrEnvironmentIDsRead,
+		ReadContext: dataSourceScalrEnvironmentsRead,
 
 		Schema: map[string]*schema.Schema{
 			"account_id": {
@@ -20,54 +20,50 @@ func dataSourceScalrEnvironmentIDs() *schema.Resource {
 				Computed:    true,
 				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
-			"names": {
-				Type:         schema.TypeList,
-				Elem:         &schema.Schema{Type: schema.TypeString},
-				Optional:     true,
-				AtLeastOneOf: []string{"tag_ids"},
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"tag_ids": {
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Optional: true,
 			},
-			"exact_match": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
-			},
 			"ids": {
-				Type:     schema.TypeMap,
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 				Computed: true,
 			},
 		},
 	}
 }
 
-func dataSourceScalrEnvironmentIDsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceScalrEnvironmentsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	accountId := d.Get("account_id").(string)
-	exact := d.Get("exact_match").(bool)
-	var id string
-	ids := make(map[string]string, 0)
-	options := scalr.EnvironmentListOptions{Account: &accountId}
 
-	names := make(map[string]bool)
-	if namesI, ok := d.GetOk("names"); ok {
-		for _, name := range namesI.([]interface{}) {
-			id += name.(string)
-			names[name.(string)] = true
-		}
+	options := scalr.EnvironmentListOptions{
+		Filter: &scalr.EnvironmentFilter{Account: &accountId},
+	}
+
+	id := strings.Builder{} // holds the string to build a unique resource id hash
+	id.WriteString(accountId)
+
+	ids := make([]string, 0)
+
+	if name, ok := d.GetOk("name"); ok {
+		id.WriteString(name.(string))
+		options.Filter.Name = scalr.String(name.(string))
 	}
 
 	if tagIDsI, ok := d.GetOk("tag_ids"); ok {
 		tagIDs := make([]string, 0)
 		for _, t := range tagIDsI.(*schema.Set).List() {
-			id += t.(string)
+			id.WriteString(t.(string))
 			tagIDs = append(tagIDs, t.(string))
 		}
 		if len(tagIDs) > 0 {
-			options.Tag = scalr.String("in:" + strings.Join(tagIDs, ","))
+			options.Filter.Tag = scalr.String("in:" + strings.Join(tagIDs, ","))
 		}
 	}
 
@@ -78,13 +74,7 @@ func dataSourceScalrEnvironmentIDsRead(ctx context.Context, d *schema.ResourceDa
 		}
 
 		for _, e := range el.Items {
-			if len(names) > 0 {
-				if names["*"] || (exact && names[e.Name]) || (!exact && matchesPattern(e.Name, names)) {
-					ids[e.Name] = e.ID
-				}
-			} else {
-				ids[e.Name] = e.ID
-			}
+			ids = append(ids, e.ID)
 		}
 
 		if el.CurrentPage >= el.TotalPages {
@@ -94,7 +84,7 @@ func dataSourceScalrEnvironmentIDsRead(ctx context.Context, d *schema.ResourceDa
 	}
 
 	_ = d.Set("ids", ids)
-	d.SetId(fmt.Sprintf("%s/%d", accountId, schema.HashString(id)))
+	d.SetId(fmt.Sprintf("%d", schema.HashString(id.String())))
 
 	return nil
 }

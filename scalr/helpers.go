@@ -29,9 +29,11 @@ type GetEnvironmentByNameOptions struct {
 
 func GetEnvironmentByName(ctx context.Context, options GetEnvironmentByNameOptions, scalrClient *scalr.Client) (*scalr.Environment, error) {
 	listOptions := scalr.EnvironmentListOptions{
-		Name:    options.Name,
-		Account: options.Account,
 		Include: options.Include,
+		Filter: &scalr.EnvironmentFilter{
+			Name:    options.Name,
+			Account: options.Account,
+		},
 	}
 	envl, err := scalrClient.Environments.List(ctx, listOptions)
 	if err != nil {
@@ -41,27 +43,11 @@ func GetEnvironmentByName(ctx context.Context, options GetEnvironmentByNameOptio
 	if len(envl.Items) == 0 {
 		return nil, fmt.Errorf("Environment with name '%s' not found or user unauthorized", *options.Name)
 	}
-
-	var matchedEnvironments []*scalr.Environment
-
-	// filter in endpoint search environments that contains querying string, this is why we need to do exact match on our side.
-	for _, env := range envl.Items {
-		if env.Name == *options.Name {
-			matchedEnvironments = append(matchedEnvironments, env)
-		}
-	}
-
-	switch numberOfMatch := len(matchedEnvironments); {
-	case numberOfMatch == 0:
-		return nil, fmt.Errorf("Environment with name '%s' not found", *options.Name)
-
-	case numberOfMatch > 1:
+	if len(envl.Items) > 1 {
 		return nil, fmt.Errorf("Found more than one environment with name: %s, specify 'account_id' to search only for environments in specific account", *options.Name)
-
-	default:
-		return matchedEnvironments[0], nil
-
 	}
+
+	return envl.Items[0], nil
 }
 
 type GetEndpointByNameOptions struct {
