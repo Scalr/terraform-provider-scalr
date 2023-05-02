@@ -126,7 +126,6 @@ TESTARGS="-run TestAccScalrWorkspace_basic TestAccScalrWorkspace_update" make te
 To run tests with the container from the current branch. You need to specify branch flags in the commit message.
 Flags:
 - `[API_BRANCH]` - whether to use current branch as API branch.
-- `[DB_BRANCH]` - whether to use current branch as DB branch.
 
 For example, commit message:
 ```
@@ -134,5 +133,4 @@ Commit title
 
 Some description
 [API_BRANCH]
-[DB_BRANCH]
 ```
