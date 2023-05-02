@@ -65,6 +65,7 @@ func Provider() *schema.Provider {
 			"scalr_current_run":             dataSourceScalrCurrentRun(),
 			"scalr_endpoint":                dataSourceScalrEndpoint(),
 			"scalr_environment":             dataSourceScalrEnvironment(),
+			"scalr_environments":            dataSourceScalrEnvironments(),
 			"scalr_iam_team":                dataSourceScalrIamTeam(),
 			"scalr_iam_user":                dataSourceScalrIamUser(),
 			"scalr_module_version":          dataSourceModuleVersion(),
@@ -80,6 +81,7 @@ func Provider() *schema.Provider {
 			"scalr_webhook":                 dataSourceScalrWebhook(),
 			"scalr_workspace":               dataSourceScalrWorkspace(),
 			"scalr_workspace_ids":           dataSourceScalrWorkspaceIDs(),
+			"scalr_workspaces":              dataSourceScalrWorkspaces(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
