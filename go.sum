@@ -242,14 +242,6 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
-github.com/scalr/go-scalr v0.0.0-20230424091123-5437ed6e096e h1:dnFu7ozDG1exX+KnYqtfStR/nYobB2k1OhqT+jIEVgg=
-github.com/scalr/go-scalr v0.0.0-20230424091123-5437ed6e096e/go.mod h1:p34SHb25YRvbgft7SUjSDYESeoQhWzAlxGXId/BbaSE=
-github.com/scalr/go-scalr v0.0.0-20230426143514-3bc93fbb26ae h1:IUBDZyPp7AsQMwqN9fH1rQ9boV77pnBHJRt91IRUusw=
-github.com/scalr/go-scalr v0.0.0-20230426143514-3bc93fbb26ae/go.mod h1:p34SHb25YRvbgft7SUjSDYESeoQhWzAlxGXId/BbaSE=
-github.com/scalr/go-scalr v0.0.0-20230426153613-62e808c79d57 h1:SJTd39Th4anMAutKjQeS3MeumjmCyZwu5ePeKVqF/xY=
-github.com/scalr/go-scalr v0.0.0-20230426153613-62e808c79d57/go.mod h1:p34SHb25YRvbgft7SUjSDYESeoQhWzAlxGXId/BbaSE=
-github.com/scalr/go-scalr v0.0.0-20230427080010-ab2356d48ab5 h1:aOBnFg1kECuaKz96rAFIl9crE8AvabLTnfsCP+u3Yl8=
-github.com/scalr/go-scalr v0.0.0-20230427080010-ab2356d48ab5/go.mod h1:p34SHb25YRvbgft7SUjSDYESeoQhWzAlxGXId/BbaSE=
 github.com/scalr/go-scalr v0.0.0-20230427153328-f1b8fbaffe50 h1:W2UYbeoPq6JF181DC8oDMSJ4ean3bEvkNt/6uFciBo4=
 github.com/scalr/go-scalr v0.0.0-20230427153328-f1b8fbaffe50/go.mod h1:p34SHb25YRvbgft7SUjSDYESeoQhWzAlxGXId/BbaSE=
 github.com/sebdah/goldie v1.0.0/go.mod h1:jXP4hmWywNEwZzhMuv2ccnqTSFpuq8iyQhtQdkkZBH4=
