@@ -211,6 +211,9 @@ func resourceScalrVcsProviderUpdate(ctx context.Context, d *schema.ResourceData,
 			}
 			options.Environments = environmentValues
 		}
+	} else {
+		options.IsShared = scalr.Bool(true)
+		options.Environments = make([]*scalr.Environment, 0)
 	}
 
 	log.Printf("[DEBUG] Update vcs provider: %s", d.Id())
