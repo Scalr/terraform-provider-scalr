@@ -10,8 +10,6 @@ import (
 	"github.com/scalr/go-scalr"
 )
 
-const cloudCredential = "cred-suh84u5bfnjaa0g"
-
 func TestAccEnvironment_basic(t *testing.T) {
 	environment := &scalr.Environment{}
 	rInt := GetRandomInteger()
@@ -30,7 +28,6 @@ func TestAccEnvironment_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_environment.test", "cost_estimation_enabled", "true"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "status", "Active"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("scalr_environment.test", "cloud_credentials.%", "0"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "policy_groups.%", "0"),
 					resource.TestCheckResourceAttrSet("scalr_environment.test", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("scalr_environment.test", "created_by.0.email"),
@@ -59,7 +56,6 @@ func TestAccEnvironment_update(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_environment.test", "cost_estimation_enabled", "true"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "status", "Active"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("scalr_environment.test", "cloud_credentials.0", cloudCredential),
 					resource.TestCheckResourceAttr("scalr_environment.test", "policy_groups.%", "0"),
 					resource.TestCheckResourceAttrSet("scalr_environment.test", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("scalr_environment.test", "created_by.0.email"),
@@ -73,7 +69,6 @@ func TestAccEnvironment_update(t *testing.T) {
 					testAccCheckScalrEnvironmentAttributesUpdate(environment, rInt),
 					resource.TestCheckResourceAttr("scalr_environment.test", "name", fmt.Sprintf("test-env-%d-patched", rInt)),
 					resource.TestCheckResourceAttr("scalr_environment.test", "cost_estimation_enabled", "false"),
-					resource.TestCheckResourceAttr("scalr_environment.test", "cloud_credentials.%", "0"),
 				),
 			},
 			{
@@ -243,8 +238,7 @@ resource "scalr_environment" "test" {
   name       = "test-env-%d"
   account_id = "%s"
   cost_estimation_enabled = true
-  cloud_credentials = ["%s"]
-}`, rInt, defaultAccount, cloudCredential)
+}`, rInt, defaultAccount)
 }
 
 func testAccEnvironmentUpdateConfig(rInt int) string {

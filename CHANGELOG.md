@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **New data source:** `scalr_environments` ([#225](https://github.com/Scalr/terraform-provider-scalr/pull/225))
+- **New data source:** `scalr_workspaces` ([#225](https://github.com/Scalr/terraform-provider-scalr/pull/225))
+
 ### Changed
 
 - `scalr_vcs_provider`: added new attribute `agent_pool_id` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/233))
@@ -22,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Required
 
-- scalr-server >= `8.64.0`
+- scalr-server >= `8.65.0`
 
 ## [1.0.5] - 2023-04-21
 
