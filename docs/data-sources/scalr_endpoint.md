@@ -3,6 +3,8 @@
 
 Retrieves the details of a webhook endpoint.
 
+> **WARNING:** This datasource is deprecated and will be removed in the next major version.
+
 ## Example Usage
 
 ```hcl
