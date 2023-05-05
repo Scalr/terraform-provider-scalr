@@ -35,5 +35,4 @@ The following arguments are supported:
 All arguments plus:
 
 * `url` - The URL to the VCS provider installation.
-* `environments` - List of the identifiers of environments the VCS provider is linked to, 
-or `["*"]` if shared with all environments.
+* `environments` - List of the identifiers of environments the VCS provider is linked to.
