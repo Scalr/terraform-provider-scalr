@@ -121,6 +121,11 @@ func resourceScalrVcsProviderCreate(ctx context.Context, d *schema.ResourceData,
 			options.IsShared = scalr.Bool(false)
 			environmentValues := make([]*scalr.Environment, 0)
 			for _, env := range environments {
+				if env.(string) == "*" {
+					return diag.Errorf(
+						"You cannot simultaneously enable the VCS provider for all and a limited list of environments. Please remove either wildcard or environment identifiers.",
+					)
+				}
 				environmentValues = append(environmentValues, &scalr.Environment{ID: env.(string)})
 			}
 			options.Environments = environmentValues
@@ -207,6 +212,11 @@ func resourceScalrVcsProviderUpdate(ctx context.Context, d *schema.ResourceData,
 			options.IsShared = scalr.Bool(false)
 			environmentValues := make([]*scalr.Environment, 0)
 			for _, env := range environments {
+				if env.(string) == "*" {
+					return diag.Errorf(
+						"You cannot simultaneously enable the VCS provider for all and a limited list of environments. Please remove either wildcard or environment identifiers.",
+					)
+				}
 				environmentValues = append(environmentValues, &scalr.Environment{ID: env.(string)})
 			}
 			options.Environments = environmentValues
