@@ -52,9 +52,6 @@ jobs:
       - name: Set API_BRANCH
         if: ${{ contains(github.event.head_commit.message, '[API_BRANCH]') }}
         run: echo "API_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
-      - name: Set DB_BRANCH
-        if: ${{ contains(github.event.head_commit.message, '[DB_BRANCH]') }}
-        run: echo "DB_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
       - id: auth
         uses: google-github-actions/auth@v0
         with:
@@ -101,12 +98,6 @@ jobs:
             FATMOUSE_BRANCH="--fatmouse-branch ${{ env.API_BRANCH }}"
           fi
           
-          if [ -z ${{ env.DB_BRANCH }} ]; then
-            SCALR_BRANCH=""
-          else
-            SCALR_BRANCH="--scalr-branch ${{ env.DB_BRANCH }}"
-          fi
-
           TEV2_BRANCH=${{ env.API_BRANCH }}
           NORMALIZED_BRANCH=$(echo $TEV2_BRANCH | tr / - | tr '[:upper:]' '[:lower:]')
           if docker manifest inspect eu.gcr.io/development-156220/fatmouse/scalr-server-te:${NORMALIZED_BRANCH} ; then
@@ -129,7 +120,7 @@ jobs:
           -v $GITHUB_OUTPUT:/fatmouse/output \
           -v ~/.scalr-labs:/etc/scalr-labs \
           fatmouse/python-builder:master python -u clickfile.py te up \
-          ${FATMOUSE_BRANCH} ${SCALR_BRANCH} ${IMAGE} \
+          ${FATMOUSE_BRANCH} ${IMAGE} \
           --run-url ${{ steps.get-job-id.outputs.html_url }} \
           --skip-ui-build \
           --cpu=1 \
