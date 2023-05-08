@@ -92,13 +92,15 @@ jobs:
         shell: bash
         run: |
           echo "::group::Analyze branches"
-          if [ -z ${{ env.API_BRANCH }} ]; then
+          if [ -z "${{ env.API_BRANCH }}" ] || [ "${{ env.API_BRANCH }}" = "master" ]; then
             FATMOUSE_BRANCH=""
+            SCALR_BRANCH=""
           else
             FATMOUSE_BRANCH="--fatmouse-branch ${{ env.API_BRANCH }}"
+            SCALR_BRANCH="--scalr-branch ${{ env.API_BRANCH }}"
           fi
-          
-          TEV2_BRANCH=${{ env.API_BRANCH }}
+
+          TEV2_BRANCH="${{ env.API_BRANCH }}"
           NORMALIZED_BRANCH=$(echo $TEV2_BRANCH | tr / - | tr '[:upper:]' '[:lower:]')
           if docker manifest inspect eu.gcr.io/development-156220/fatmouse/scalr-server-te:${NORMALIZED_BRANCH} ; then
               IMAGE="--scalr-server-image-tag ${NORMALIZED_BRANCH}"
@@ -120,7 +122,7 @@ jobs:
           -v $GITHUB_OUTPUT:/fatmouse/output \
           -v ~/.scalr-labs:/etc/scalr-labs \
           fatmouse/python-builder:master python -u clickfile.py te up \
-          ${FATMOUSE_BRANCH} ${IMAGE} \
+          ${FATMOUSE_BRANCH} ${SCALR_BRANCH} ${IMAGE} \
           --run-url ${{ steps.get-job-id.outputs.html_url }} \
           --skip-ui-build \
           --cpu=1 \
