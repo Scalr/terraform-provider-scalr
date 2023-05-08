@@ -242,8 +242,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
-github.com/scalr/go-scalr v0.0.0-20230501083407-653e7b8c404c h1:k5DjiMHp5sK+q/iGsaGgvdthe4MmDYx7VdzJtZj4lIo=
-github.com/scalr/go-scalr v0.0.0-20230501083407-653e7b8c404c/go.mod h1:p34SHb25YRvbgft7SUjSDYESeoQhWzAlxGXId/BbaSE=
+github.com/scalr/go-scalr v0.0.0-20230504103205-022c2d21236f h1:NX/BFNSAMB+SD8i1RsOcc71KT110UfSpVg+9W5LSkZY=
+github.com/scalr/go-scalr v0.0.0-20230504103205-022c2d21236f/go.mod h1:p34SHb25YRvbgft7SUjSDYESeoQhWzAlxGXId/BbaSE=
 github.com/sebdah/goldie v1.0.0/go.mod h1:jXP4hmWywNEwZzhMuv2ccnqTSFpuq8iyQhtQdkkZBH4=
 github.com/sergi/go-diff v1.1.0/go.mod h1:STckp+ISIX8hZLjrqAeVduY0gWCT9IjLuqbuNXdaHfM=
 github.com/sergi/go-diff v1.2.0 h1:XU+rvMAioB0UC3q1MFrIQy4Vo5/4VsRDQQXHsEya6xQ=
