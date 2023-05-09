@@ -19,11 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scalr_agent_pool`: added new attribute `vcs_enabled` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/233))
 - `data.scalr_agent_pool`: added new attribute `vcs_enabled` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/232))
 - `scalr_vcs_provider`: added new attribute `environments` ([#243](https://github.com/Scalr/terraform-provider-scalr/pull/243))
+- `scalr_workspace`: added new attribute `deletion_protection_enabled` ([#242](https://github.com/Scalr/terraform-provider-scalr/pull/242))
+- `data.scalr_workspace`: added new attribute `deletion_protection_enabled` ([#242](https://github.com/Scalr/terraform-provider-scalr/pull/242))
 
 ### Fixed
 
 - `data.scalr_module_version`: if there are several module versions with the same version, select the version that has the 'is-root-module' flag set to true. ([#229](https://github.com/Scalr/terraform-provider-scalr/pull/229))
 - `data.scalr_role`: do not require default value for `account_id` to be present in run environment when searching for a system role. ([#241](https://github.com/Scalr/terraform-provider-scalr/pull/241))
+- `scalr_provider_configuration`: fix terraform import ([#244](https://github.com/Scalr/terraform-provider-scalr/pull/244))
 
 ### Required
 

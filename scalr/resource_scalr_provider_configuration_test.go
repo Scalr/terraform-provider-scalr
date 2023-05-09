@@ -14,6 +14,28 @@ import (
 	"github.com/scalr/go-scalr"
 )
 
+func TestAccProviderConfiguration_import(t *testing.T) {
+	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrProviderConfigurationCustomImportConfig(rName),
+			},
+			{
+				ResourceName:      "scalr_provider_configuration.kubernetes",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccProviderConfiguration_custom(t *testing.T) {
 	var providerConfiguration scalr.ProviderConfiguration
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
@@ -641,6 +663,35 @@ resource "scalr_provider_configuration" "kubernetes" {
 }
 `, name, defaultAccount)
 }
+
+func testAccScalrProviderConfigurationCustomImportConfig(name string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "kubernetes" {
+  name                   = "%s"
+  account_id             = "%s"
+  environments           = ["*"]
+  custom {
+    provider_name = "kubernetes"
+    argument {
+      name        = "config_path"
+      value       = "~/.kube/config"
+      sensitive   = false
+      description = "A path to a kube config file. some typo..."
+    }
+    argument {
+      name      = "client_id"
+      value     = "ID18021989"
+      sensitive = false
+    }
+    argument {
+      name  = "host"
+      value = "my-host"
+    }
+  }
+}
+`, name, defaultAccount)
+}
+
 func testAccScalrProviderConfigurationCustomConfigUpdated(name string) string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {

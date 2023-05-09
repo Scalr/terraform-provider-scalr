@@ -46,7 +46,8 @@ All arguments plus:
 * `vcs_repo` - If a workspace is linked to a VCS repository this block shows the details, otherwise `{}`
 * `created_by` - Details of the user that created the workspace.
 * `has_resources` - The presence of active terraform resources in the current state version.
-* `auto_queue_runs` - Indicates if runs have to be queued automatically when a new configuration version is uploaded. 
+* `deletion_protection_enabled` - Boolean indicates whether to prevent deletion when the workspace has resources.
+* `auto_queue_runs` - Indicates if runs have to be queued automatically when a new configuration version is uploaded.
 
   Supported values are `skip_first`, `always`, `never`:
 
