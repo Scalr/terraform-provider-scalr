@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.6] - 2023-05-12
+
 ### Added
 
 - **New data source:** `scalr_environments` ([#225](https://github.com/Scalr/terraform-provider-scalr/pull/225))
@@ -14,12 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `scalr_vcs_provider`: added new attribute `agent_pool_id` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/233))
-- `data.scalr_vcs_provider`: added new attribute `agent_pool_id` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/233))
 - `scalr_agent_pool`: added new attribute `vcs_enabled` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/233))
-- `data.scalr_agent_pool`: added new attribute `vcs_enabled` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/232))
+- `scalr_vcs_provider`: added new attribute `agent_pool_id` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/233))
 - `scalr_vcs_provider`: added new attribute `environments` ([#243](https://github.com/Scalr/terraform-provider-scalr/pull/243))
 - `scalr_workspace`: added new attribute `deletion_protection_enabled` ([#242](https://github.com/Scalr/terraform-provider-scalr/pull/242))
+- `data.scalr_agent_pool`: added new attribute `vcs_enabled` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/232))
+- `data.scalr_vcs_provider`: added new attribute `agent_pool_id` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/233))
 - `data.scalr_workspace`: added new attribute `deletion_protection_enabled` ([#242](https://github.com/Scalr/terraform-provider-scalr/pull/242))
 
 ### Fixed
@@ -30,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Required
 
-- scalr-server >= `8.65.0`
+- scalr-server >= `8.66.0`
 
 ## [1.0.5] - 2023-04-21
 
@@ -670,7 +672,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.5...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.6...HEAD
+[1.0.6]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.6
 [1.0.5]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.5
 [1.0.4]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.4
 [1.0.3]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.3

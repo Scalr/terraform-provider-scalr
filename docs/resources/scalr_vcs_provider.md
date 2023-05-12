@@ -27,9 +27,9 @@ resource "scalr_vcs_provider" "example" {
 * `account_id` - (Optional) ID of the account.
 * `url` - (Optional) This field is required for self-hosted vcs providers.
 * `username` - (Optional) This field is required for `bitbucket_enterprise` provider type.
-* `agent_pool_id` - (Optional) ID of the agent pool to communicate with VCS through.
+* `agent_pool_id` - (Optional) The id of the agent pool to connect Scalr to self-hosted VCS provider.
 * `environments` - (Optional) The list of environment identifiers that the VCS provider is shared to.
-  Use `["*"]` to share with all environments.
+                   Use `["*"]` to share with all environments.
 
 
 ## Attribute Reference
