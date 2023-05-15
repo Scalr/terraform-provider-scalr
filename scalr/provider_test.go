@@ -18,6 +18,7 @@ var testAccProvider *schema.Provider
 var testAccProviderFactories map[string]func() (*schema.Provider, error)
 var noInstanceIdErr = fmt.Errorf("No instance ID is set")
 var githubToken = os.Getenv("githubToken")
+var slackChannelName = os.Getenv("SLACK_CHANNEL_ID")
 
 // ctx is used as default context.Context when making API calls.
 var ctx = context.Background()
@@ -118,5 +119,12 @@ func testVcsAccGithubTokenPreCheck(t *testing.T) {
 	testAccPreCheck(t)
 	if githubToken == "" {
 		t.Skip("Please set githubToken to run this test")
+	}
+}
+
+func testSlackChannelNamePreCheck(t *testing.T) {
+	testAccPreCheck(t)
+	if slackChannelName == "" {
+		t.Skip("Please set `SLACK_CHANNEL_ID` OS variable to run this test. Channel should exist on slack account connected scalr instance tests run on.")
 	}
 }

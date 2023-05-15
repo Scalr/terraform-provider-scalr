@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **New data source:** `scalr_environments` ([#225](https://github.com/Scalr/terraform-provider-scalr/pull/225))
 - **New data source:** `scalr_workspaces` ([#225](https://github.com/Scalr/terraform-provider-scalr/pull/225))
+- **New resource:** `scalr_slack_integration` ([#250](https://github.com/Scalr/terraform-provider-scalr/pull/250))
 
 ### Changed
 
