@@ -17,9 +17,22 @@ func TestAccSlackIntegration_basic(t *testing.T) {
 				Config: testAccScalrSlackIntegrationConfig(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("scalr_slack_integration.test", "id"),
-					resource.TestCheckResourceAttrSet("scalr_slack_integration.test", "channel_id"),
-					resource.TestCheckResourceAttr("scalr_slack_integration.test", "name", slackChannelName),
-					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "account_id", defaultAccount),
+					resource.TestCheckResourceAttr("scalr_slack_integration.test", "name", "test-create"),
+					resource.TestCheckResourceAttr("scalr_slack_integration.test", "channel_id", slackChannelId),
+					resource.TestCheckResourceAttr("scalr_slack_integration.test", "account_id", defaultAccount),
+					resource.TestCheckResourceAttr("scalr_slack_integration.test", "events.0", "run_approval_required"),
+					resource.TestCheckResourceAttr("scalr_slack_integration.test", "events.1", "run_errored"),
+				),
+			},
+			{
+				Config: testAccScalrSlackIntegrationUpdateConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("scalr_slack_integration.test", "id"),
+					resource.TestCheckResourceAttr("scalr_slack_integration.test", "name", "test-create2"),
+					resource.TestCheckResourceAttr("scalr_slack_integration.test", "channel_id", slackChannelId),
+					resource.TestCheckResourceAttr("scalr_slack_integration.test", "account_id", defaultAccount),
+					resource.TestCheckResourceAttr("scalr_slack_integration.test", "events.0", "run_success"),
+					resource.TestCheckResourceAttr("scalr_slack_integration.test", "events.1", "run_errored"),
 				),
 			},
 		},
@@ -28,19 +41,29 @@ func TestAccSlackIntegration_basic(t *testing.T) {
 
 func testAccScalrSlackIntegrationConfig() string {
 	return fmt.Sprintf(`
-data "scalr_slack_channel" "test" {
-  name       = "%s"
-  account_id = "%s"
-}
 resource scalr_environment test {
   name       = "test-env-slack"
-  account_id = data.scalr_slack_channel.test.account_id
+  account_id = "%s"
 }
 resource "scalr_slack_integration" "test" {
-  name           = data.scalr_slack_channel.test.name
-  account_id     = data.scalr_slack_channel.test.account_id
+  name           = "test-create"
+  account_id     = scalr_environment.test.account_id
   events		 = ["run_approval_required", "run_errored"]
-  channel_id	 = data.scalr_slack_channel.test.id
-  "environments" = [scalr_environment.test.id]
-}`, slackChannelName, defaultAccount)
+  channel_id	 = "%s"
+  environments = [scalr_environment.test.id]
+}`, defaultAccount, slackChannelId)
+}
+func testAccScalrSlackIntegrationUpdateConfig() string {
+	return fmt.Sprintf(`
+resource scalr_environment test {
+  name       = "test-env-slack"
+  account_id = "%s"
+}
+resource "scalr_slack_integration" "test" {
+  name           = "test-create2"
+  account_id     = scalr_environment.test.account_id
+  events		 = ["run_success", "run_errored"]
+  channel_id	 = "%s"
+  environments = [scalr_environment.test.id]
+}`, defaultAccount, slackChannelId)
 }
