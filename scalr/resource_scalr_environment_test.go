@@ -247,7 +247,6 @@ resource "scalr_environment" "test" {
   name       = "test-env-%d-patched"
   account_id = "%s"
   cost_estimation_enabled = false
-  cloud_credentials = []
 }`, rInt, defaultAccount)
 }
 
@@ -318,6 +317,5 @@ resource "scalr_environment" "test" {
   name       = "test-env-%d-patched"
   account_id = "%s"
   cost_estimation_enabled = false
-  cloud_credentials = [""]
 }`, rInt, defaultAccount)
 }
