@@ -35,7 +35,7 @@ All arguments plus:
 * `cost_estimation_enabled` - Boolean indicates if cost estimation is enabled for the environment.
 * `status` - The status of an environment.
 * `policy_groups` - List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.
-* `tag_ids` - List of tag IDs associated with the environment .
+* `tag_ids` - List of tag IDs associated with the environment.
 
 The `created_by` block contains:
 
