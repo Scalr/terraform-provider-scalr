@@ -11,13 +11,19 @@ on:
         required: true
         default: "master"
       db-branch:
-        description: "DB Branch"
+        description: "Not used, left for backward compatibility"
         required: false
         default: "master"
       py-req:
         description: "Whether to upgrade python requirements"
         required: false
         default: "no"
+      upstream-base-ref:
+        description: "Upstream base branch (e.g. 'master' or 'release/8.57.0')"
+        required: false
+      pr-id:
+        description: The number of the pull request
+        required: false
 
 jobs:
   acc-tests:
@@ -27,11 +33,13 @@ jobs:
       ORG_ADMIN_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
       SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
       API_BRANCH: ${{ github.event.inputs.api-branch }}
-      DB_BRANCH: ${{ github.event.inputs.db-branch }}
       PY_REQ: ${{ github.event.inputs.py-req }}
       UPSTREAM_ID: ${{ github.run_number }}
+      UPSTREAM_BASE_REF: ${{ github.event.inputs.upstream-base-ref }}
     steps:
       - uses: actions/checkout@v3
+      - name: Notify upstream about pending
+        run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=pending run_id=${{ github.run_id }}
       - uses: actions/setup-go@v3
         with:
           go-version: "1.18"
@@ -42,6 +50,18 @@ jobs:
           path: fatmouse
           ref: ${{ env.API_BRANCH }}
           token: ${{ secrets.GH_PAT }}
+      - name: Get pr labels
+        id: pr-labels
+        if: ${{ inputs.pr-id != '' }}
+        uses: ./fatmouse/.github/actions/pr-labels
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          owner: Scalr
+          repo: fatmouse
+          pr_id: ${{ inputs.pr-id }}
+      - name: Set py-req on PR with label
+        if: ${{ inputs.pr-id != '' && contains(steps.pr-labels.outputs.labels, ' py-req ') }}
+        run: echo "PY_REQ=yes" >> $GITHUB_ENV
       - id: auth
         uses: google-github-actions/auth@v0
         with:
@@ -83,23 +103,27 @@ jobs:
         id: create
         shell: bash
         run: |
-          if [ ${{ env.API_BRANCH }} = "master" ]; then
+          echo "::group::Analyze branches"
+          if [ -z "${{ env.API_BRANCH }}" ] || [ "${{ env.API_BRANCH }}" = "master" ]; then
             FATMOUSE_BRANCH=""
-          else
-            FATMOUSE_BRANCH="--fatmouse-branch ${{ env.API_BRANCH }}"
-          fi
-
-          if [ ${{ env.DB_BRANCH }} = "master" ]; then
             SCALR_BRANCH=""
           else
-            SCALR_BRANCH="--scalr-branch ${{ env.DB_BRANCH }}"
+            FATMOUSE_BRANCH="--fatmouse-branch ${{ env.API_BRANCH }}"
+            SCALR_BRANCH="--scalr-branch ${{ env.API_BRANCH }}"
           fi
-          
-          if [ ${{ env.API_BRANCH }} = "staging" ]; then
-            IMAGE="--scalr-server-image-tag staging"
+          TEV2_BRANCH="${{ env.API_BRANCH }}"
+          NORMALIZED_BRANCH=$(echo $TEV2_BRANCH | tr / - | tr '[:upper:]' '[:lower:]')
+          if docker manifest inspect eu.gcr.io/development-156220/fatmouse/scalr-server-te:${NORMALIZED_BRANCH} ; then
+              IMAGE="--scalr-server-image-tag ${NORMALIZED_BRANCH}"
           else
-            IMAGE=""
+              if [[ "${{ env.UPSTREAM_BASE_REF }}" == release/* ]]; then
+                  NORMALIZED_IMAGE=$(echo "${{ env.UPSTREAM_BASE_REF }}" | tr / - | tr '[:upper:]' '[:lower:]')
+                  IMAGE="--scalr-server-image-tag ${NORMALIZED_IMAGE}"
+              else
+                  IMAGE=""
+              fi
           fi
+          echo "::endgroup::"
 
           docker run --rm \
           -e GITHUB_WORKSPACE=true \

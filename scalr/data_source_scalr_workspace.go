@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -15,9 +16,19 @@ func dataSourceScalrWorkspace() *schema.Resource {
 		ReadContext: dataSourceScalrWorkspaceRead,
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
+				AtLeastOneOf: []string{"name"},
+			},
+
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 
 			"environment_id": {
@@ -29,6 +40,7 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+
 			"module_version_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -38,12 +50,18 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+
 			"auto_apply": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
 
 			"force_latest_run": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+
+			"deletion_protection_enabled": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
@@ -168,22 +186,43 @@ func dataSourceScalrWorkspace() *schema.Resource {
 func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
-	// Get the name and environment_id.
+	workspaceID := d.Get("id").(string)
 	name := d.Get("name").(string)
 	environmentID := d.Get("environment_id").(string)
 
-	log.Printf("[DEBUG] Read configuration of workspace: %s", name)
-	workspace, err := scalrClient.Workspaces.Read(ctx, environmentID, name)
-	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return diag.Errorf("Could not find workspace %s/%s", environmentID, name)
-		}
-		return diag.Errorf("Error retrieving workspace: %v", err)
+	options := scalr.WorkspaceListOptions{
+		Include: "created-by",
+		Filter:  &scalr.WorkspaceFilter{Environment: scalr.String(environmentID)},
 	}
 
+	if workspaceID != "" {
+		options.Filter.Id = scalr.String(workspaceID)
+	}
+
+	if name != "" {
+		options.Filter.Name = scalr.String(name)
+	}
+
+	log.Printf("[DEBUG] Read configuration of workspace with ID '%s', name '%s', and environment_id '%s'", workspaceID, name, environmentID)
+
+	workspaces, err := scalrClient.Workspaces.List(ctx, options)
+	if err != nil {
+		return diag.Errorf("error retrieving workspace: %v", err)
+	}
+	if len(workspaces.Items) > 1 {
+		return diag.FromErr(errors.New("Your query returned more than one result. Please try a more specific search criteria."))
+	}
+	if len(workspaces.Items) == 0 {
+		return diag.Errorf("Could not find workspace with ID '%s', name '%s' and environment_id '%s'", workspaceID, name, environmentID)
+	}
+
+	workspace := workspaces.Items[0]
+
 	// Update the config.
+	_ = d.Set("name", workspace.Name)
 	_ = d.Set("auto_apply", workspace.AutoApply)
 	_ = d.Set("force_latest_run", workspace.ForceLatestRun)
+	_ = d.Set("deletion_protection_enabled", workspace.DeletionProtectionEnabled)
 	_ = d.Set("operations", workspace.Operations)
 	_ = d.Set("execution_mode", workspace.ExecutionMode)
 	_ = d.Set("terraform_version", workspace.TerraformVersion)

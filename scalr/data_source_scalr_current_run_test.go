@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -26,9 +25,9 @@ func TestAccCurrentRun_basic(t *testing.T) {
 				PreConfig: func() {
 					_ = os.Unsetenv(currentRunIDEnvVar)
 				},
-				Config:      testAccCurrentRunDataSourceConfig(rInt),
-				PlanOnly:    true,
-				ExpectError: regexp.MustCompile("Current run is not set"),
+				Config:   testAccCurrentRunDataSourceConfig(rInt),
+				PlanOnly: true,
+				Check:    resource.TestCheckResourceAttr("data.scalr_current_run.test", "id", dummyIdentifier),
 			},
 			{
 				PreConfig: launchRun(fmt.Sprintf("test-env-%d", rInt), fmt.Sprintf("test-ws-%d", rInt)),

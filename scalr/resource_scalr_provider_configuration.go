@@ -399,10 +399,17 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 
 		_ = d.Set("aws", []map[string]interface{}{aws})
 	case "google":
-		google := make(map[string]interface{})
+		var stateCredentials string
+		if stateGoogleParametersI, ok := d.GetOk("google"); ok {
+			stateGoogleParameters := stateGoogleParametersI.([]interface{})
+			if len(stateGoogleParameters) > 0 {
+				stateCredentials = stateGoogleParameters[0].(map[string]interface{})["credentials"].(string)
+			}
+		}
 
-		stateGoogleParameters := d.Get("google").([]interface{})[0].(map[string]interface{})
-		google["credentials"] = stateGoogleParameters["credentials"].(string)
+		google := map[string]interface{}{
+			"credentials": stateCredentials,
+		}
 
 		if len(providerConfiguration.GoogleProject) > 0 {
 			google["project"] = providerConfiguration.GoogleProject
@@ -410,8 +417,13 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 
 		_ = d.Set("google", []map[string]interface{}{google})
 	case "scalr":
-		stateScalrParameters := d.Get("scalr").([]interface{})[0].(map[string]interface{})
-		stateToken := stateScalrParameters["token"].(string)
+		var stateToken string
+		if stateScalrParametersI, ok := d.GetOk("scalr"); ok {
+			stateScalrParameters := stateScalrParametersI.([]interface{})
+			if len(stateScalrParameters) > 0 {
+				stateToken = stateScalrParameters[0].(map[string]interface{})["token"].(string)
+			}
+		}
 
 		_ = d.Set("scalr", []map[string]interface{}{
 			{
@@ -419,9 +431,15 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 				"token":    stateToken,
 			},
 		})
+
 	case "azurerm":
-		stateAzurermParameters := d.Get("azurerm").([]interface{})[0].(map[string]interface{})
-		stateClientSecret := stateAzurermParameters["client_secret"].(string)
+		var stateClientSecret string
+		if stateAzurermParametersI, ok := d.GetOk("azurerm"); ok {
+			stateAzurermParameters := stateAzurermParametersI.([]interface{})
+			if len(stateAzurermParameters) > 0 {
+				stateClientSecret = stateAzurermParameters[0].(map[string]interface{})["client_secret"].(string)
+			}
+		}
 
 		_ = d.Set("azurerm", []map[string]interface{}{
 			{
@@ -432,30 +450,46 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 			},
 		})
 	default:
-		stateCustom := d.Get("custom").([]interface{})[0].(map[string]interface{})
-
-		stateValues := make(map[string]string)
-		for _, v := range stateCustom["argument"].(*schema.Set).List() {
-			argument := v.(map[string]interface{})
-			if value, ok := argument["value"]; ok {
-				stateValues[argument["name"].(string)] = value.(string)
-			}
-		}
-
 		var currentArguments []map[string]interface{}
-		for _, argument := range providerConfiguration.Parameters {
-			currentArgument := map[string]interface{}{
-				"name":        argument.Key,
-				"sensitive":   argument.Sensitive,
-				"value":       argument.Value,
-				"description": argument.Description,
-			}
 
-			if stateValue, ok := stateValues[argument.Key]; argument.Sensitive && ok {
-				currentArgument["value"] = stateValue
-			}
+		if stateCustomI, ok := d.GetOk("custom"); ok {
+			stateCustom := stateCustomI.([]interface{})
+			if len(stateCustom) > 0 {
+				stateCustomMap := stateCustom[0].(map[string]interface{})
 
-			currentArguments = append(currentArguments, currentArgument)
+				stateValues := make(map[string]string)
+				for _, v := range stateCustomMap["argument"].(*schema.Set).List() {
+					argument := v.(map[string]interface{})
+					if value, ok := argument["value"]; ok {
+						stateValues[argument["name"].(string)] = value.(string)
+					}
+				}
+
+				for _, argument := range providerConfiguration.Parameters {
+					currentArgument := map[string]interface{}{
+						"name":        argument.Key,
+						"sensitive":   argument.Sensitive,
+						"value":       argument.Value,
+						"description": argument.Description,
+					}
+
+					if stateValue, ok := stateValues[argument.Key]; argument.Sensitive && ok {
+						currentArgument["value"] = stateValue
+					}
+
+					currentArguments = append(currentArguments, currentArgument)
+				}
+			}
+		} else {
+			for _, argument := range providerConfiguration.Parameters {
+				currentArgument := map[string]interface{}{
+					"name":        argument.Key,
+					"sensitive":   argument.Sensitive,
+					"value":       argument.Value,
+					"description": argument.Description,
+				}
+				currentArguments = append(currentArguments, currentArgument)
+			}
 		}
 		_ = d.Set("custom", []map[string]interface{}{
 			{
@@ -677,7 +711,7 @@ func resourceScalrProviderConfigurationDelete(ctx context.Context, d *schema.Res
 	return nil
 }
 
-// changeParameters is used to change parameters for provider configuratio.
+// changeParameters is used to change parameters for provider configuration.
 func changeParameters(
 	ctx context.Context,
 	client *scalr.Client,

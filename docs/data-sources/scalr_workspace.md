@@ -1,14 +1,21 @@
 
 # Data Source `scalr_workspace`
 
-Retrieves the details of a single workspace by name.
+Retrieves the details of a single workspace.
 
 ## Example Usage
 
 ```hcl
 data "scalr_workspace" "example" {
+  id             = "ws-xxxxxxx"
+  environment_id = "env-xxxxxxx"
+}
+```
+
+```hcl
+data "scalr_workspace" "example" {
   name           = "my-workspace-name"
-  environment_id = "env-xxxxxxxxx"
+  environment_id = "env-xxxxxxx"
 }
 ```
 
@@ -16,18 +23,20 @@ data "scalr_workspace" "example" {
 
 The following arguments are supported:
 
-* `name` - (Required) Name of the workspace.
+* `id` - (Optional) ID of the workspace.
+* `name` - (Optional) Name of the workspace.
 * `environment_id` - (Required) ID of the environment, in the format `env-<RANDOM STRING>`.
+
+Arguments `id` and `name` are both optional, specify at least one of them to obtain `scalr_workspace`.
 
 ## Attribute Reference
 
 All arguments plus:
 
-* `id` - The workspace ID, in the format `ws-<RANDOM STRING>`.
 * `auto_apply` - Boolean indicates if `terraform apply` will be automatically run when `terraform plan` ends without error.
 * `force_latest_run` - Boolean indicates if latest new run will be automatically raised in priority.
 * `operations` - Boolean indicates if the workspace is being used for remote execution.
-* `execution-mode` - Execution mode of the workspace.
+* `execution_mode` - Execution mode of the workspace.
 * `terraform_version` - The version of Terraform used for this workspace.
 * `working_directory` - A relative path that Terraform will execute within.
 * `run_operation_timeout` - The number of minutes run operation can be executed before termination.
@@ -37,7 +46,8 @@ All arguments plus:
 * `vcs_repo` - If a workspace is linked to a VCS repository this block shows the details, otherwise `{}`
 * `created_by` - Details of the user that created the workspace.
 * `has_resources` - The presence of active terraform resources in the current state version.
-* `auto_queue_runs` - Indicates if runs have to be queued automatically when a new configuration version is uploaded. 
+* `deletion_protection_enabled` - Boolean, indicates if the workspace has the protection from an accidental state lost. If enabled and the workspace has resource, the deletion will not be allowed.
+* `auto_queue_runs` - Indicates if runs have to be queued automatically when a new configuration version is uploaded.
 
   Supported values are `skip_first`, `always`, `never`:
 

@@ -84,13 +84,15 @@ func resourceScalrProviderConfigurationDefaultCreate(ctx context.Context, d *sch
 
 	for _, pc := range environment.DefaultProviderConfigurations {
 		if pc.ID == providerConfigurationID {
-			return diag.Errorf("Provider configuration %q is already in environment %q default provider configuration", providerConfigurationID, environmentID)
+			return diag.Errorf("Provider configuration is already set as default for environment %q", environmentID)
 		}
 	}
 
 	environment.DefaultProviderConfigurations = append(environment.DefaultProviderConfigurations, &scalr.ProviderConfiguration{ID: providerConfiguration.ID})
 	updateOpts := scalr.EnvironmentUpdateOptions{
 		DefaultProviderConfigurations: environment.DefaultProviderConfigurations,
+		PolicyGroups:                  environment.PolicyGroups,
+		CloudCredentials:              environment.CloudCredentials,
 	}
 	_, err = scalrClient.Environments.Update(ctx, environment.ID, updateOpts)
 	if err != nil {
@@ -160,6 +162,8 @@ func resourceScalrProviderConfigurationDefaultDelete(ctx context.Context, d *sch
 
 	updateOpts := scalr.EnvironmentUpdateOptions{
 		DefaultProviderConfigurations: environment.DefaultProviderConfigurations,
+		PolicyGroups:                  environment.PolicyGroups,
+		CloudCredentials:              environment.CloudCredentials,
 	}
 
 	_, err = scalrClient.Environments.Update(ctx, environment.ID, updateOpts)
