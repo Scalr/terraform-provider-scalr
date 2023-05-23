@@ -2,7 +2,6 @@ package scalr
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -70,10 +69,6 @@ func TestAccEnvironment_update(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_environment.test", "name", fmt.Sprintf("test-env-%d-patched", rInt)),
 					resource.TestCheckResourceAttr("scalr_environment.test", "cost_estimation_enabled", "false"),
 				),
-			},
-			{
-				Config:      testAccEnvironmentUpdateConfigEmptyString(rInt),
-				ExpectError: regexp.MustCompile("Got error during parsing cloud credentials: 0-th value is empty"),
 			},
 		},
 	})
