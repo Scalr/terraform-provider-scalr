@@ -305,12 +305,3 @@ resource "scalr_environment" "test" {
   cost_estimation_enabled = false
 }`, rInt, defaultAccount)
 }
-
-func testAccEnvironmentUpdateConfigEmptyString(rInt int) string {
-	return fmt.Sprintf(`
-resource "scalr_environment" "test" {
-  name       = "test-env-%d-patched"
-  account_id = "%s"
-  cost_estimation_enabled = false
-}`, rInt, defaultAccount)
-}
