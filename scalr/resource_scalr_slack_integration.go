@@ -54,7 +54,6 @@ func resourceScalrSlackIntegration() *schema.Resource {
 			"environments": {
 				Type:     schema.TypeSet,
 				Required: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"workspaces": {
@@ -121,11 +120,11 @@ func resourceScalrSlackIntegrationCreate(ctx context.Context, d *schema.Resource
 	envs := parseEnvironments(d)
 
 	options := scalr.SlackIntegrationCreateOptions{
-		Name:        &name,
-		ChannelId:   &channelId,
-		Events:      events,
-		Account:     &scalr.Account{ID: d.Get("account_id").(string)},
-		Environment: envs[0],
+		Name:         &name,
+		ChannelId:    &channelId,
+		Events:       events,
+		Account:      &scalr.Account{ID: d.Get("account_id").(string)},
+		Environments: envs,
 	}
 	workspaces := parseWorkspaces(d)
 	if workspaces != nil {
@@ -167,10 +166,10 @@ func resourceScalrSlackIntegrationRead(ctx context.Context, d *schema.ResourceDa
 	_ = d.Set("account_id", slackIntegration.Account.ID)
 
 	environmentIDs := make([]string, 0)
-	//for _, environment := range slackIntegration.Environments {
-	//	environmentIDs = append(environmentIDs, environment.ID)
-	//}
-	environmentIDs = append(environmentIDs, slackIntegration.Environment.ID)
+	for _, environment := range slackIntegration.Environments {
+		environmentIDs = append(environmentIDs, environment.ID)
+	}
+
 	_ = d.Set("environments", environmentIDs)
 
 	wsIDs := make([]string, 0)
@@ -203,7 +202,7 @@ func resourceScalrSlackIntegrationUpdate(ctx context.Context, d *schema.Resource
 	}
 
 	envs := parseEnvironments(d)
-	options.Environment = envs[0]
+	options.Environments = envs
 
 	workspaces := parseWorkspaces(d)
 	if workspaces != nil {
