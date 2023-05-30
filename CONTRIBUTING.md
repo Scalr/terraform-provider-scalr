@@ -126,7 +126,10 @@ rather than using create or update logic which only triggers during apply
     > **Note**
     > When choosing the initial value for slice, take into account that zero-value slice marshals into `null`,
     while an empty slice will produce `[]`.
-
+- always cleanup `go.sum` after modifying project dependencies:
+  ```shell
+  go mod tidy
+  ```
 
 ## Common pitfalls
 
