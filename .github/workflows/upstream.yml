@@ -71,12 +71,14 @@ jobs:
       - name: Copy secrets
         shell: bash
         run: |
+          gcloud config list
           mkdir ~/.scalr-labs
           gsutil cp gs://drone_bucket/prod/private.d/.secrets.yaml fatmouse/tacobell/.secrets.yaml
           gsutil cp gs://drone_bucket/prod/private.d/github.json ~/.scalr-labs/github.json
       - name: Configure docker
         shell: bash
-        run: gcloud auth configure-docker eu.gcr.io
+        run: |
+          echo "Y" | gcloud auth configure-docker eu.gcr.io
       - name: Pull python builder
         shell: bash
         run: |
