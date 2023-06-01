@@ -89,10 +89,10 @@ func resourceScalrProviderConfigurationDefaultCreate(ctx context.Context, d *sch
 	}
 
 	environment.DefaultProviderConfigurations = append(environment.DefaultProviderConfigurations, &scalr.ProviderConfiguration{ID: providerConfiguration.ID})
-	updateOpts := scalr.EnvironmentUpdateOptionsWithoutPG{
+	updateOpts := scalr.EnvironmentUpdateOptionsDefaultProviderConfigurationOnly{
 		DefaultProviderConfigurations: environment.DefaultProviderConfigurations,
 	}
-	_, err = scalrClient.Environments.UpdateWithoutPG(ctx, environment.ID, updateOpts)
+	_, err = scalrClient.Environments.UpdateDefaultProviderConfigurationOnly(ctx, environment.ID, updateOpts)
 	if err != nil {
 		return diag.Errorf("Error updating environment %s: %v", environment.ID, err)
 	}
@@ -158,11 +158,11 @@ func resourceScalrProviderConfigurationDefaultDelete(ctx context.Context, d *sch
 		return diag.Errorf("Provider configuration %q is not in environment %q default provider configuration", providerConfigurationID, environmentID)
 	}
 
-	updateOpts := scalr.EnvironmentUpdateOptionsWithoutPG{
+	updateOpts := scalr.EnvironmentUpdateOptionsDefaultProviderConfigurationOnly{
 		DefaultProviderConfigurations: environment.DefaultProviderConfigurations,
 	}
 
-	_, err = scalrClient.Environments.UpdateWithoutPG(ctx, environment.ID, updateOpts)
+	_, err = scalrClient.Environments.UpdateDefaultProviderConfigurationOnly(ctx, environment.ID, updateOpts)
 	if err != nil {
 		return diag.Errorf("Error removing provider configuration %s from environment %s default provider configuration: %v", providerConfigurationID, environmentID, err)
 	}
