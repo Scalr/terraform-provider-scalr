@@ -95,6 +95,7 @@ resource "scalr_workspace" "cli-driven" {
 * `environment_id` - (Required) ID of the environment, in the format `env-<RANDOM STRING>`.
 * `auto_apply` - (Optional) Set (true/false) to configure if `terraform apply` should automatically run when `terraform plan` ends without error. Default `false`.
 * `force_latest_run` - (Optional) Set (true/false) to configure if latest new run will be automatically raised in priority. Default `false`.
+* `deletion_protection_enabled` - (Optional) Indicates if the workspace has the protection from an accidental state lost. If enabled and the workspace has resource, the deletion will not be allowed. Default `true`.
 * `operations` - Deprecated. Use `execution_mode` instead.
 * `auto_queue_runs` - Indicates if runs have to be queued automatically when a new configuration version is uploaded.
 

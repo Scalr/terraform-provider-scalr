@@ -62,13 +62,6 @@ func resourceScalrEnvironment() *schema.Resource {
 				DefaultFunc: scalrAccountIDDefaultFunc,
 				ForceNew:    true,
 			},
-			"cloud_credentials": {
-				Type:       schema.TypeList,
-				Computed:   true,
-				Optional:   true,
-				Elem:       &schema.Schema{Type: schema.TypeString},
-				Deprecated: "The attribute `cloud_credentials` is deprecated. Use `default_provider_configurations` instead",
-			},
 			"policy_groups": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -88,22 +81,6 @@ func resourceScalrEnvironment() *schema.Resource {
 			},
 		},
 	}
-}
-
-func parseCloudCredentialDefinitions(d *schema.ResourceData) ([]*scalr.CloudCredential, error) {
-	var cloudCredentials []*scalr.CloudCredential
-
-	cloudCredIds := d.Get("cloud_credentials").([]interface{})
-	err := ValidateIDsDefinitions(cloudCredIds)
-	if err != nil {
-		return nil, fmt.Errorf("Got error during parsing cloud credentials: %s", err.Error())
-	}
-
-	for _, cloudCredID := range cloudCredIds {
-		cloudCredentials = append(cloudCredentials, &scalr.CloudCredential{ID: cloudCredID.(string)})
-	}
-
-	return cloudCredentials, nil
 }
 
 func parsePolicyGroupDefinitions(d *schema.ResourceData) ([]*scalr.PolicyGroup, error) {
@@ -127,10 +104,6 @@ func resourceScalrEnvironmentCreate(ctx context.Context, d *schema.ResourceData,
 
 	name := d.Get("name").(string)
 	accountID := d.Get("account_id").(string)
-	cloudCredentials, err := parseCloudCredentialDefinitions(d)
-	if err != nil {
-		return diag.FromErr(err)
-	}
 	policyGroups, err := parsePolicyGroupDefinitions(d)
 	if err != nil {
 		return diag.FromErr(err)
@@ -140,7 +113,6 @@ func resourceScalrEnvironmentCreate(ctx context.Context, d *schema.ResourceData,
 		Name:                  scalr.String(name),
 		CostEstimationEnabled: scalr.Bool(d.Get("cost_estimation_enabled").(bool)),
 		Account:               &scalr.Account{ID: accountID},
-		CloudCredentials:      cloudCredentials,
 		PolicyGroups:          policyGroups,
 	}
 	if defaultProviderConfigurationsI, ok := d.GetOk("default_provider_configurations"); ok {
@@ -210,14 +182,6 @@ func resourceScalrEnvironmentRead(ctx context.Context, d *schema.ResourceData, m
 	}
 	_ = d.Set("created_by", createdBy)
 
-	cloudCredentials := make([]string, 0)
-	if environment.CloudCredentials != nil {
-		for _, creds := range environment.CloudCredentials {
-			cloudCredentials = append(cloudCredentials, creds.ID)
-		}
-	}
-	_ = d.Set("cloud_credentials", cloudCredentials)
-
 	policyGroups := make([]string, 0)
 	if environment.PolicyGroups != nil {
 		for _, group := range environment.PolicyGroups {
@@ -241,10 +205,6 @@ func resourceScalrEnvironmentUpdate(ctx context.Context, d *schema.ResourceData,
 	scalrClient := meta.(*scalr.Client)
 
 	var err error
-	cloudCredentials, err := parseCloudCredentialDefinitions(d)
-	if err != nil {
-		return diag.FromErr(err)
-	}
 	policyGroups, err := parsePolicyGroupDefinitions(d)
 	if err != nil {
 		return diag.FromErr(err)
@@ -254,7 +214,6 @@ func resourceScalrEnvironmentUpdate(ctx context.Context, d *schema.ResourceData,
 	options := scalr.EnvironmentUpdateOptions{
 		Name:                  scalr.String(d.Get("name").(string)),
 		CostEstimationEnabled: scalr.Bool(d.Get("cost_estimation_enabled").(bool)),
-		CloudCredentials:      cloudCredentials,
 		PolicyGroups:          policyGroups,
 	}
 

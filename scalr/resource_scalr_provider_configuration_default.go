@@ -92,7 +92,6 @@ func resourceScalrProviderConfigurationDefaultCreate(ctx context.Context, d *sch
 	updateOpts := scalr.EnvironmentUpdateOptions{
 		DefaultProviderConfigurations: environment.DefaultProviderConfigurations,
 		PolicyGroups:                  environment.PolicyGroups,
-		CloudCredentials:              environment.CloudCredentials,
 	}
 	_, err = scalrClient.Environments.Update(ctx, environment.ID, updateOpts)
 	if err != nil {
@@ -163,7 +162,6 @@ func resourceScalrProviderConfigurationDefaultDelete(ctx context.Context, d *sch
 	updateOpts := scalr.EnvironmentUpdateOptions{
 		DefaultProviderConfigurations: environment.DefaultProviderConfigurations,
 		PolicyGroups:                  environment.PolicyGroups,
-		CloudCredentials:              environment.CloudCredentials,
 	}
 
 	_, err = scalrClient.Environments.Update(ctx, environment.ID, updateOpts)

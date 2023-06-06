@@ -1,9 +1,15 @@
 
 # Data Source `scalr_iam_user` 
 
-Retrieves the details of a Scalr user by the email.
+Retrieves the details of a Scalr user.
 
 ## Example Usage
+
+```hcl
+data "scalr_iam_user" "example" {
+  id = "user-xxxxxxx"
+}
+```
 
 ```hcl
 data "scalr_iam_user" "example" {
@@ -13,13 +19,15 @@ data "scalr_iam_user" "example" {
 
 ## Argument Reference
 
-* `email` - (Required) The email of a user.
+* `id` - (Optional) An identifier of a user.
+* `email` - (Optional) An email of a user.
+
+Arguments `id` and `email` are both optional, specify at least one of them to obtain `scalr_iam_user`.
 
 ## Attribute Reference
 
 All arguments plus:
 
-* `id` - An identifier of the user.
 * `status` - A system status of the user.
 * `username` - A username of the user.
 * `full_name` - A full name of the user.

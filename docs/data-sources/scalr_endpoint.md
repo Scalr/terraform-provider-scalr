@@ -3,29 +3,27 @@
 
 Retrieves the details of a webhook endpoint.
 
+> **WARNING:** This datasource is deprecated and will be removed in the next major version.
+
 ## Example Usage
 
 ```hcl
 data "scalr_endpoint" "example" {
-  id = "ep-xxxxxxxxxxx"
+  id         = "ep-xxxxxxxxxxx"
+  account_id = "acc-xxxxxxx"
 }
 ```
 
 ```hcl
 data "scalr_endpoint" "example" {
-  name = "endpoint_name"
-}
-```
-
-```hcl
-data "scalr_endpoint" "example" {
-  name = "endpoint_name"
+  name       = "endpoint_name"
+  account_id = "acc-xxxxxxx"
 }
 ```
 
 ## Argument Reference
 
-* `id` - (Optional) The endpoint ID, in the format `env-<RANDOM STRING>`.
+* `id` - (Optional) The endpoint ID, in the format `ep-<RANDOM STRING>`.
 * `name` - (Optional) Name of the endpoint.
 * `account_id` - (Optional) ID of the account, in the format `acc-<RANDOM STRING>`
 
