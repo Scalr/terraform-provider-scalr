@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"sync"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -783,15 +784,18 @@ func changeParameters(
 
 	for i := 0; i < numParallel; i++ {
 		go func() {
+			reqCtx, reqCancel := context.WithTimeout(context.Background(), time.Second*10)
+			defer reqCancel()
+
 			for t := range inputCh {
 				if t.createOption != nil {
-					parameter, err := client.ProviderConfigurationParameters.Create(ctx, configurationID, *t.createOption)
+					parameter, err := client.ProviderConfigurationParameters.Create(reqCtx, configurationID, *t.createOption)
 					resultCh <- result{created: parameter, err: err}
 				} else if t.updateOption != nil {
-					parameter, err := client.ProviderConfigurationParameters.Update(ctx, t.updateOption.ID, *t.updateOption)
+					parameter, err := client.ProviderConfigurationParameters.Update(reqCtx, t.updateOption.ID, *t.updateOption)
 					resultCh <- result{updated: parameter, err: err}
 				} else {
-					err := client.ProviderConfigurationParameters.Delete(ctx, *t.deleteId)
+					err := client.ProviderConfigurationParameters.Delete(reqCtx, *t.deleteId)
 					resultCh <- result{deleted: t.deleteId, err: err}
 				}
 			}
