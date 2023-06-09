@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The provider now supports loading the credentials stored by `terraform login` ([#221](https://github.com/Scalr/terraform-provider-scalr/pull/221))
 - **New data source:** `scalr_environments` ([#225](https://github.com/Scalr/terraform-provider-scalr/pull/225))
 - **New data source:** `scalr_workspaces` ([#225](https://github.com/Scalr/terraform-provider-scalr/pull/225))
 
