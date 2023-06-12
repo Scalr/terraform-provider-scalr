@@ -3,7 +3,6 @@ package scalr
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -23,16 +22,21 @@ func resourceScalrSlackIntegration() *schema.Resource {
 		SchemaVersion: 0,
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validation.StringIsNotWhiteSpace),
 			},
 			"events": {
-				Type: schema.TypeList,
+				Type: schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 					ValidateDiagFunc: validation.ToDiagFunc(
 						validation.StringInSlice(
-							[]string{scalr.RunApprovalRequiredEvent, scalr.RunSuccessEvent, scalr.RunErroredEvent},
+							[]string{
+								scalr.SlackIntegrationEventRunApprovalRequired,
+								scalr.SlackIntegrationEventRunSuccess,
+								scalr.SlackIntegrationEventRunErrored,
+							},
 							false,
 						),
 					),
@@ -41,8 +45,9 @@ func resourceScalrSlackIntegration() *schema.Resource {
 				MinItems: 1,
 			},
 			"channel_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Required:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validation.StringIsNotWhiteSpace),
 			},
 			"account_id": {
 				Type:        schema.TypeString,
@@ -52,40 +57,41 @@ func resourceScalrSlackIntegration() *schema.Resource {
 				ForceNew:    true,
 			},
 			"environments": {
-				Type:     schema.TypeSet,
+				Type: schema.TypeSet,
+				Elem: &schema.Schema{
+					Type:             schema.TypeString,
+					ValidateDiagFunc: validation.ToDiagFunc(validation.StringIsNotWhiteSpace),
+				},
 				Required: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				MinItems: 1,
 			},
 			"workspaces": {
-				Type:     schema.TypeSet,
+				Type: schema.TypeSet,
+				Elem: &schema.Schema{
+					Type:             schema.TypeString,
+					ValidateDiagFunc: validation.ToDiagFunc(validation.StringIsNotWhiteSpace),
+				},
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
 }
 
-func parseEvents(d *schema.ResourceData) ([]string, error) {
-	events := make([]string, 0)
+func parseEvents(d *schema.ResourceData) []string {
+	events := d.Get("events").(*schema.Set).List()
+	eventValues := make([]string, 0)
 
-	providedEvents := d.Get("events").([]interface{})
-	err := ValidateIDsDefinitions(providedEvents)
-	if err != nil {
-		return nil, fmt.Errorf("Got error during parsing events: %s", err.Error())
+	for _, event := range events {
+		eventValues = append(eventValues, event.(string))
 	}
 
-	for _, event := range providedEvents {
-		e := event.(string)
-		events = append(events, e)
-	}
-
-	return events, nil
+	return eventValues
 }
 
 func parseEnvironments(d *schema.ResourceData) []*scalr.Environment {
-	environmentsI := d.Get("environments")
-	environments := environmentsI.(*schema.Set).List()
+	environments := d.Get("environments").(*schema.Set).List()
 	environmentValues := make([]*scalr.Environment, 0)
+
 	for _, env := range environments {
 		environmentValues = append(environmentValues, &scalr.Environment{ID: env.(string)})
 	}
@@ -100,6 +106,7 @@ func parseWorkspaces(d *schema.ResourceData) []*scalr.Workspace {
 	}
 	workspaces := workspacesI.(*schema.Set).List()
 	workspaceValues := make([]*scalr.Workspace, 0)
+
 	for _, ws := range workspaces {
 		workspaceValues = append(workspaceValues, &scalr.Workspace{ID: ws.(string)})
 	}
@@ -111,20 +118,14 @@ func resourceScalrSlackIntegrationCreate(ctx context.Context, d *schema.Resource
 	scalrClient := meta.(*scalr.Client)
 	// Get attributes.
 	name := d.Get("name").(string)
-	channelId := d.Get("channel_id").(string)
-	events, err := parseEvents(d)
-	if err != nil {
-		return diag.Errorf("Error creating slack integration %s: %v", name, err)
-	}
-
-	envs := parseEnvironments(d)
+	accountID := d.Get("account_id").(string)
 
 	options := scalr.SlackIntegrationCreateOptions{
 		Name:         &name,
-		ChannelId:    &channelId,
-		Events:       events,
-		Account:      &scalr.Account{ID: d.Get("account_id").(string)},
-		Environments: envs,
+		ChannelId:    scalr.String(d.Get("channel_id").(string)),
+		Events:       parseEvents(d),
+		Account:      &scalr.Account{ID: accountID},
+		Environments: parseEnvironments(d),
 	}
 	workspaces := parseWorkspaces(d)
 	if workspaces != nil {
@@ -132,9 +133,16 @@ func resourceScalrSlackIntegrationCreate(ctx context.Context, d *schema.Resource
 	}
 
 	connection, err := scalrClient.SlackIntegrations.GetConnection(ctx, options.Account.ID)
+	if err != nil {
+		return diag.Errorf("Error creating slack integration %s: %v", name, err)
+	}
 
-	if err != nil || connection.ID == "" {
-		return diag.Errorf("Error creating slack integration, account not connected to slack, create slack connection using UI first.")
+	if connection.ID == "" {
+		return diag.Errorf(
+			"Error creating Slack integration: account %s does not have Slack connection configured."+
+				" Connect your Slack workspace to Scalr using UI first.",
+			accountID,
+		)
 	}
 
 	options.Connection = connection
@@ -146,7 +154,7 @@ func resourceScalrSlackIntegrationCreate(ctx context.Context, d *schema.Resource
 	}
 	d.SetId(integration.ID)
 
-	return nil
+	return resourceScalrSlackIntegrationRead(ctx, d, meta)
 }
 
 func resourceScalrSlackIntegrationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -194,15 +202,14 @@ func resourceScalrSlackIntegrationUpdate(ctx context.Context, d *schema.Resource
 	}
 
 	if d.HasChange("events") {
-		events, err := parseEvents(d)
-		if err != nil {
-			return diag.Errorf("Error updating slack integration %s: %v", d.Id(), err)
-		}
+		events := parseEvents(d)
 		options.Events = events
 	}
 
-	envs := parseEnvironments(d)
-	options.Environments = envs
+	if d.HasChange("environments") {
+		envs := parseEnvironments(d)
+		options.Environments = envs
+	}
 
 	workspaces := parseWorkspaces(d)
 	if workspaces != nil {

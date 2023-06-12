@@ -10,29 +10,81 @@ import (
 func TestAccSlackIntegration_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testSlackChannelNamePreCheck(t) },
+		PreCheck: func() {
+			testAccPreCheck(t)
+
+			scalrClient, _ := createScalrClient()
+			slackConnection, err := scalrClient.SlackIntegrations.GetConnection(ctx, defaultAccount)
+			if err != nil {
+				t.Fatalf("Error fetching Slack connection: %v", err)
+				return
+			}
+			if slackConnection.ID == "" {
+				t.Skip("Scalr instance doesn't have working slack connection.")
+			}
+		},
 		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrSlackIntegrationConfig(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("scalr_slack_integration.test", "id"),
-					resource.TestCheckResourceAttr("scalr_slack_integration.test", "name", "test-create"),
-					resource.TestCheckResourceAttr("scalr_slack_integration.test", "channel_id", slackChannelId),
-					resource.TestCheckResourceAttr("scalr_slack_integration.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("scalr_slack_integration.test", "events.0", "run_approval_required"),
-					resource.TestCheckResourceAttr("scalr_slack_integration.test", "events.1", "run_errored"),
+					resource.TestCheckResourceAttr(
+						"scalr_slack_integration.test",
+						"name",
+						"test-create",
+					),
+					resource.TestCheckResourceAttr(
+						"scalr_slack_integration.test",
+						"channel_id",
+						"C123",
+					),
+					resource.TestCheckResourceAttr(
+						"scalr_slack_integration.test",
+						"account_id",
+						defaultAccount,
+					),
+					resource.TestCheckTypeSetElemAttr(
+						"scalr_slack_integration.test",
+						"events.*",
+						"run_approval_required",
+					),
+					resource.TestCheckTypeSetElemAttr(
+						"scalr_slack_integration.test",
+						"events.*",
+						"run_errored",
+					),
 				),
 			},
 			{
 				Config: testAccScalrSlackIntegrationUpdateConfig(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("scalr_slack_integration.test", "id"),
-					resource.TestCheckResourceAttr("scalr_slack_integration.test", "name", "test-create2"),
-					resource.TestCheckResourceAttr("scalr_slack_integration.test", "channel_id", slackChannelId),
-					resource.TestCheckResourceAttr("scalr_slack_integration.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("scalr_slack_integration.test", "events.0", "run_success"),
-					resource.TestCheckResourceAttr("scalr_slack_integration.test", "events.1", "run_errored"),
+					resource.TestCheckResourceAttr(
+						"scalr_slack_integration.test",
+						"name",
+						"test-create2",
+					),
+					resource.TestCheckResourceAttr(
+						"scalr_slack_integration.test",
+						"channel_id",
+						"C123",
+					),
+					resource.TestCheckResourceAttr(
+						"scalr_slack_integration.test",
+						"account_id",
+						defaultAccount,
+					),
+					resource.TestCheckTypeSetElemAttr(
+						"scalr_slack_integration.test",
+						"events.*",
+						"run_success",
+					),
+					resource.TestCheckTypeSetElemAttr(
+						"scalr_slack_integration.test",
+						"events.*",
+						"run_errored",
+					),
 				),
 			},
 		},
@@ -49,9 +101,9 @@ resource "scalr_slack_integration" "test" {
   name           = "test-create"
   account_id     = scalr_environment.test.account_id
   events		 = ["run_approval_required", "run_errored"]
-  channel_id	 = "%s"
+  channel_id	 = "C123"
   environments = [scalr_environment.test.id]
-}`, defaultAccount, slackChannelId)
+}`, defaultAccount)
 }
 func testAccScalrSlackIntegrationUpdateConfig() string {
 	return fmt.Sprintf(`
@@ -63,7 +115,7 @@ resource "scalr_slack_integration" "test" {
   name           = "test-create2"
   account_id     = scalr_environment.test.account_id
   events		 = ["run_success", "run_errored"]
-  channel_id	 = "%s"
+  channel_id	 = "C123"
   environments = [scalr_environment.test.id]
-}`, defaultAccount, slackChannelId)
+}`, defaultAccount)
 }
