@@ -61,11 +61,6 @@ func dataSourceScalrEnvironment() *schema.Resource {
 				Computed:    true,
 				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
-			"cloud_credentials": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
 			"policy_groups": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -127,13 +122,6 @@ func dataSourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta
 		})
 	}
 	_ = d.Set("created_by", createdBy)
-	cloudCredentials := make([]string, 0)
-	if environment.CloudCredentials != nil {
-		for _, creds := range environment.CloudCredentials {
-			cloudCredentials = append(cloudCredentials, creds.ID)
-		}
-	}
-	_ = d.Set("cloud_credentials", cloudCredentials)
 	policyGroups := make([]string, 0)
 	if environment.PolicyGroups != nil {
 		for _, group := range environment.PolicyGroups {
