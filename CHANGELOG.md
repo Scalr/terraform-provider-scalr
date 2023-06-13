@@ -7,11 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **New resource:** `scalr_slack_integration` ([#249](https://github.com/Scalr/terraform-provider-scalr/pull/249))
+
 ### Changed
+
 - `scar_enviroment`: removed attribute `cloud_credentials` ([#247](https://github.com/Scalr/terraform-provider-scalr/pull/247))
 - `data.scalr_enviroment`: removed attribute `cloud_credentials` ([#247](https://github.com/Scalr/terraform-provider-scalr/pull/247))
 
 ### Fixed
+
 - `scalr_provider_configuration_default`: fixed a bug where unnecessary policy groups updates were occurring for the environment ([#248](https://github.com/Scalr/terraform-provider-scalr/pull/248))
 
 ## [1.0.6] - 2023-05-12
