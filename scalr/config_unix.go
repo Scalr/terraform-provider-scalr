@@ -18,6 +18,24 @@ func configFile() (string, error) {
 	return filepath.Join(dir, ".terraformrc"), nil
 }
 
+func credentialsFile() (string, error) {
+	dir, err := configDir()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(dir, "credentials.tfrc.json"), nil
+}
+
+func configDir() (string, error) {
+	dir, err := homeDir()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(dir, ".terraform.d"), nil
+}
+
 func homeDir() (string, error) {
 	// First prefer the HOME environmental variable
 	if home := os.Getenv("HOME"); home != "" {
