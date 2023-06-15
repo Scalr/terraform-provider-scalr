@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"sync"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -303,6 +304,7 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 	} else if v, ok := d.GetOk("custom"); ok {
 		custom := v.([]interface{})[0].(map[string]interface{})
 		configurationOptions.ProviderName = scalr.String(custom["provider_name"].(string))
+		configurationOptions.IsCustom = scalr.Bool(true)
 
 		for _, v := range custom["argument"].(*schema.Set).List() {
 			argument := v.(map[string]interface{})
@@ -374,83 +376,7 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 		_ = d.Set("environments", environmentIDs)
 	}
 
-	switch providerConfiguration.ProviderName {
-	case "aws":
-		aws := make(map[string]interface{})
-
-		aws["account_type"] = providerConfiguration.AwsAccountType
-		aws["credentials_type"] = providerConfiguration.AwsCredentialsType
-
-		if stateSecretKeyI, ok := d.GetOk("aws.0.secret_key"); ok {
-			aws["secret_key"] = stateSecretKeyI.(string)
-		}
-
-		if len(providerConfiguration.AwsAccessKey) > 0 {
-			aws["access_key"] = providerConfiguration.AwsAccessKey
-		}
-		if len(providerConfiguration.AwsTrustedEntityType) > 0 {
-			aws["trusted_entity_type"] = providerConfiguration.AwsTrustedEntityType
-		}
-		if len(providerConfiguration.AwsTrustedEntityType) > 0 {
-			aws["role_arn"] = providerConfiguration.AwsRoleArn
-		}
-		if len(providerConfiguration.AwsTrustedEntityType) > 0 {
-			aws["external_id"] = providerConfiguration.AwsExternalId
-		}
-
-		_ = d.Set("aws", []map[string]interface{}{aws})
-	case "google":
-		var stateCredentials string
-		if stateGoogleParametersI, ok := d.GetOk("google"); ok {
-			stateGoogleParameters := stateGoogleParametersI.([]interface{})
-			if len(stateGoogleParameters) > 0 {
-				stateCredentials = stateGoogleParameters[0].(map[string]interface{})["credentials"].(string)
-			}
-		}
-
-		google := map[string]interface{}{
-			"credentials": stateCredentials,
-		}
-
-		if len(providerConfiguration.GoogleProject) > 0 {
-			google["project"] = providerConfiguration.GoogleProject
-		}
-
-		_ = d.Set("google", []map[string]interface{}{google})
-	case "scalr":
-		var stateToken string
-		if stateScalrParametersI, ok := d.GetOk("scalr"); ok {
-			stateScalrParameters := stateScalrParametersI.([]interface{})
-			if len(stateScalrParameters) > 0 {
-				stateToken = stateScalrParameters[0].(map[string]interface{})["token"].(string)
-			}
-		}
-
-		_ = d.Set("scalr", []map[string]interface{}{
-			{
-				"hostname": providerConfiguration.ScalrHostname,
-				"token":    stateToken,
-			},
-		})
-
-	case "azurerm":
-		var stateClientSecret string
-		if stateAzurermParametersI, ok := d.GetOk("azurerm"); ok {
-			stateAzurermParameters := stateAzurermParametersI.([]interface{})
-			if len(stateAzurermParameters) > 0 {
-				stateClientSecret = stateAzurermParameters[0].(map[string]interface{})["client_secret"].(string)
-			}
-		}
-
-		_ = d.Set("azurerm", []map[string]interface{}{
-			{
-				"client_id":       providerConfiguration.AzurermClientId,
-				"client_secret":   stateClientSecret,
-				"subscription_id": providerConfiguration.AzurermSubscriptionId,
-				"tenant_id":       providerConfiguration.AzurermTenantId,
-			},
-		})
-	default:
+	if providerConfiguration.IsCustom {
 		var currentArguments []map[string]interface{}
 
 		if stateCustomI, ok := d.GetOk("custom"); ok {
@@ -498,6 +424,84 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 				"argument":      currentArguments,
 			},
 		})
+	} else {
+		switch providerConfiguration.ProviderName {
+		case "aws":
+			aws := make(map[string]interface{})
+
+			aws["account_type"] = providerConfiguration.AwsAccountType
+			aws["credentials_type"] = providerConfiguration.AwsCredentialsType
+
+			if stateSecretKeyI, ok := d.GetOk("aws.0.secret_key"); ok {
+				aws["secret_key"] = stateSecretKeyI.(string)
+			}
+
+			if len(providerConfiguration.AwsAccessKey) > 0 {
+				aws["access_key"] = providerConfiguration.AwsAccessKey
+			}
+			if len(providerConfiguration.AwsTrustedEntityType) > 0 {
+				aws["trusted_entity_type"] = providerConfiguration.AwsTrustedEntityType
+			}
+			if len(providerConfiguration.AwsTrustedEntityType) > 0 {
+				aws["role_arn"] = providerConfiguration.AwsRoleArn
+			}
+			if len(providerConfiguration.AwsTrustedEntityType) > 0 {
+				aws["external_id"] = providerConfiguration.AwsExternalId
+			}
+
+			_ = d.Set("aws", []map[string]interface{}{aws})
+		case "google":
+			var stateCredentials string
+			if stateGoogleParametersI, ok := d.GetOk("google"); ok {
+				stateGoogleParameters := stateGoogleParametersI.([]interface{})
+				if len(stateGoogleParameters) > 0 {
+					stateCredentials = stateGoogleParameters[0].(map[string]interface{})["credentials"].(string)
+				}
+			}
+
+			google := map[string]interface{}{
+				"credentials": stateCredentials,
+			}
+
+			if len(providerConfiguration.GoogleProject) > 0 {
+				google["project"] = providerConfiguration.GoogleProject
+			}
+
+			_ = d.Set("google", []map[string]interface{}{google})
+		case "scalr":
+			var stateToken string
+			if stateScalrParametersI, ok := d.GetOk("scalr"); ok {
+				stateScalrParameters := stateScalrParametersI.([]interface{})
+				if len(stateScalrParameters) > 0 {
+					stateToken = stateScalrParameters[0].(map[string]interface{})["token"].(string)
+				}
+			}
+
+			_ = d.Set("scalr", []map[string]interface{}{
+				{
+					"hostname": providerConfiguration.ScalrHostname,
+					"token":    stateToken,
+				},
+			})
+
+		case "azurerm":
+			var stateClientSecret string
+			if stateAzurermParametersI, ok := d.GetOk("azurerm"); ok {
+				stateAzurermParameters := stateAzurermParametersI.([]interface{})
+				if len(stateAzurermParameters) > 0 {
+					stateClientSecret = stateAzurermParameters[0].(map[string]interface{})["client_secret"].(string)
+				}
+			}
+
+			_ = d.Set("azurerm", []map[string]interface{}{
+				{
+					"client_id":       providerConfiguration.AzurermClientId,
+					"client_secret":   stateClientSecret,
+					"subscription_id": providerConfiguration.AzurermSubscriptionId,
+					"tenant_id":       providerConfiguration.AzurermTenantId,
+				},
+			})
+		}
 	}
 	return nil
 }
