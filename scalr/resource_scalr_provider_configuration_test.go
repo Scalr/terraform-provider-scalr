@@ -163,7 +163,7 @@ func TestAccProviderConfiguration_aws_custom(t *testing.T) {
 		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrProviderConfigurationCustomConfiAws(rName),
+				Config: testAccScalrProviderConfigurationCustomConfigAws(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProviderConfigurationExists("scalr_provider_configuration.custom_aws", &providerConfiguration),
 					testAccCheckProviderConfigurationCustomAwsValues(&providerConfiguration, rName),
@@ -760,7 +760,7 @@ resource "scalr_provider_configuration" "kubernetes" {
 `, defaultAccount, name, defaultAccount)
 }
 
-func testAccScalrProviderConfigurationCustomConfiAws(name string) string {
+func testAccScalrProviderConfigurationCustomConfigAws(name string) string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
   name                    = "test-provider-configuration-env"
