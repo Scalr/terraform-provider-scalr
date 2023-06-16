@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2023-06-16
+
 ### Added
 
 - **New resource:** `scalr_slack_integration` ([#249](https://github.com/Scalr/terraform-provider-scalr/pull/249))
+- The provider now supports loading the credentials stored by `terraform login` ([#221](https://github.com/Scalr/terraform-provider-scalr/pull/221))
 
 ### Changed
 
@@ -20,11 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `scalr_provider_configuration_default`: fixed a bug where unnecessary policy groups updates were occurring for the environment ([#248](https://github.com/Scalr/terraform-provider-scalr/pull/248))
 
+### Required
+
+- scalr-server >= `8.71.0`
+
 ## [1.0.6] - 2023-05-12
 
 ### Added
 
-- The provider now supports loading the credentials stored by `terraform login` ([#221](https://github.com/Scalr/terraform-provider-scalr/pull/221))
 - **New data source:** `scalr_environments` ([#225](https://github.com/Scalr/terraform-provider-scalr/pull/225))
 - **New data source:** `scalr_workspaces` ([#225](https://github.com/Scalr/terraform-provider-scalr/pull/225))
 
@@ -686,7 +692,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.0.6...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.1.0
 [1.0.6]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.6
 [1.0.5]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.5
 [1.0.4]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.4
