@@ -143,7 +143,7 @@ jobs:
         shell: bash
         run: |
           SCALR_HOST=${{ steps.create.outputs.host }}
-          echo "SCALR_HOSTNAME=${SCALR_HOST/https:\/\//}" >> $GITHUB_ENV
+          echo "SCALR_HOSTNAME=mainiacp.${SCALR_HOST/https:\/\//}" >> $GITHUB_ENV
       - name: Run acceptance tests
         env:
           SCALR_HOSTNAME: ${{ env.SCALR_HOSTNAME }}
