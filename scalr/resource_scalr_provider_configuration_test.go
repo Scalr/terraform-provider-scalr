@@ -153,6 +153,26 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 	})
 }
 
+func TestAccProviderConfiguration_aws_custom(t *testing.T) {
+	var providerConfiguration scalr.ProviderConfiguration
+	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrProviderConfigurationCustomConfigAws(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.custom_aws", &providerConfiguration),
+					testAccCheckProviderConfigurationCustomAwsValues(&providerConfiguration, rName),
+				),
+			},
+		},
+	})
+}
+
 func TestAccProviderConfiguration_aws(t *testing.T) {
 	var providerConfiguration scalr.ProviderConfiguration
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
@@ -432,6 +452,21 @@ func testAccCheckProviderConfigurationAwsValues(providerConfiguration *scalr.Pro
 		}
 		if providerConfiguration.AwsAccountType != "regular" {
 			return fmt.Errorf("bad aws account type, expected \"%s\", got: %#v", "regular", providerConfiguration.AwsAccountType)
+		}
+		return nil
+	}
+}
+
+func testAccCheckProviderConfigurationCustomAwsValues(providerConfiguration *scalr.ProviderConfiguration, name string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if providerConfiguration.Name != name {
+			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, providerConfiguration.Name)
+		}
+		if providerConfiguration.ProviderName != "aws" {
+			return fmt.Errorf("bad provider type, expected \"%s\", got: %#v", "aws", providerConfiguration.ProviderName)
+		}
+		if !providerConfiguration.IsCustom {
+			return fmt.Errorf("bad is-custom attr, expected \"%s\", got: %#v", "aws", providerConfiguration.IsCustom)
 		}
 		return nil
 	}
@@ -719,6 +754,30 @@ resource "scalr_provider_configuration" "kubernetes" {
     argument {
       name  = "username"
       value = "my-username"
+    }
+  }
+}
+`, defaultAccount, name, defaultAccount)
+}
+
+func testAccScalrProviderConfigurationCustomConfigAws(name string) string {
+	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name                    = "test-provider-configuration-env"
+  account_id              = "%s"
+  cost_estimation_enabled = false
+}
+
+resource "scalr_provider_configuration" "custom_aws" {
+  name         = "%s"
+  account_id   = "%s"
+  environments = ["${scalr_environment.test.id}"]
+  custom {
+    provider_name = "aws"
+    argument {
+      name        = "region"
+      value       = "us-east-1"
+      sensitive   = false
     }
   }
 }
