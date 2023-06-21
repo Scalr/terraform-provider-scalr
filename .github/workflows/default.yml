@@ -49,7 +49,7 @@ jobs:
         id: check-branch
         uses: actions/github-script@v6
         with:
-          github-token: ${{ inputs.github_token }}
+          github-token: ${{ secrets.GH_PAT }}
           script: |
             const owner = "Scalr";
             const repo = "fatmouse";
