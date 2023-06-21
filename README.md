@@ -123,14 +123,4 @@ TESTARGS="-run TestAccScalrWorkspace_basic TestAccScalrWorkspace_update" make te
 
 #### Acceptance tests
 
-To run tests with the container from the current branch. You need to specify branch flags in the commit message.
-Flags:
-- `[API_BRANCH]` - whether to use current branch as API branch.
-
-For example, commit message:
-```
-Commit title
-
-Some description
-[API_BRANCH]
-```
+The required parameters for creating a container will be determined automatically based on existing branches and pull requests in other repositories. No more need to add `[API_BRANCH]`
