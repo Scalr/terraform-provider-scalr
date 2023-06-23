@@ -288,6 +288,7 @@ func TestAccProviderConfiguration_google(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "azurerm.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "custom.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.project", project),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.auth_type", "service-account-key"),
 				),
 			},
 			{
@@ -302,7 +303,56 @@ func TestAccProviderConfiguration_google(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "azurerm.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "custom.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.project", project),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.auth_type", "service-account-key"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "scalr.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccProviderConfiguration_google_oidc(t *testing.T) {
+	var providerConfiguration scalr.ProviderConfiguration
+	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	_, project := getGoogleTestingCreds(t)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrProviderConfigurationGoogleOidcConfig(rName, project),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.google", &providerConfiguration),
+					testAccCheckProviderConfigurationGoogleValues(&providerConfiguration, rName, project),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "name", rName),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "export_shell_variables", "false"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "aws.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.#", "1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "azurerm.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "custom.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.project", project),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.auth_type", "oidc"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.service_account_email", "test-oidc@example.com"),
+				),
+			},
+			{
+				Config: testAccScalrProviderConfigurationGoogleOidcUpdatedConfig(rNewName, project),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.google", &providerConfiguration),
+					testAccCheckProviderConfigurationGoogleUpdatedValues(&providerConfiguration, rNewName, project),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "name", rNewName),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "export_shell_variables", "true"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "aws.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.#", "1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "azurerm.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "custom.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.project", project),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "scalr.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.auth_type", "oidc"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.service_account_email", "changed-test-oidc@example.com"),
 				),
 			},
 		},
@@ -837,6 +887,37 @@ resource "scalr_provider_configuration" "aws" {
   }
 }
 `, name, defaultAccount, accessKeyId, secretAccessKey, roleArn, externalId)
+}
+
+func testAccScalrProviderConfigurationGoogleOidcConfig(name, project string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "google" {
+  name       = "%s"
+  account_id = "%s"
+  google {
+    project     			= "%s"
+    auth_type				= "oidc"
+	service_account_email	= "test-oidc@example.com"
+	workload_provider_name	= "projects/123/locations/global/workloadIdentityPools/testpool/providers/dev"
+  }
+}
+`, name, defaultAccount, project)
+}
+
+func testAccScalrProviderConfigurationGoogleOidcUpdatedConfig(name, project string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "google" {
+  name       = "%s"
+  account_id = "%s"
+  export_shell_variables = true
+  google {
+    project     			= "%s"
+    auth_type				= "oidc"
+	service_account_email	= "changed-test-oidc@example.com"
+	workload_provider_name	= "projects/123/locations/global/workloadIdentityPools/testpool/providers/dev"
+  }
+}
+`, name, defaultAccount, project)
 }
 
 func testAccScalrProviderConfigurationGoogleConfig(name, credentials, project string) string {
