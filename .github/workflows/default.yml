@@ -125,8 +125,6 @@ jobs:
           ${FATMOUSE_BRANCH} ${SCALR_BRANCH} ${IMAGE} \
           --run-url ${{ steps.get-job-id.outputs.html_url }} \
           --skip-ui-build \
-          --cpu=1 \
-          --ram=2G \
           ${{ env.RUN_TAG }}
       - name: Get Scalr hostname
         shell: bash
