@@ -109,6 +109,11 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				ExactlyOneOf: []string{"aws", "azurerm", "scalr", "custom"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"auth_type": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "service-account-key",
+						},
 						"project": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -116,8 +121,16 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 						},
 						"credentials": {
 							Type:      schema.TypeString,
-							Required:  true,
+							Optional:  true,
 							Sensitive: true,
+						},
+						"service_account_email": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"workload_provider_name": {
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 					},
 				},
@@ -281,8 +294,36 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 
 	} else if _, ok := d.GetOk("google"); ok {
 		configurationOptions.ProviderName = scalr.String("google")
+		configurationOptions.GoogleAuthType = scalr.String(d.Get("google.0.auth_type").(string))
 
-		configurationOptions.GoogleCredentials = scalr.String(d.Get("google.0.credentials").(string))
+		googleCredentials, googleCredentialsExists := d.GetOk("google.0.credentials")
+		googleCredentialsExists = googleCredentialsExists && len(googleCredentials.(string)) > 0
+		serviceAccountEmail, serviceAccountEmailExists := d.GetOk("google.0.service_account_email")
+		serviceAccountEmailExists = serviceAccountEmailExists && len(serviceAccountEmail.(string)) > 0
+		workloadProviderName, workloadProviderNameExists := d.GetOk("google.0.workload_provider_name")
+		workloadProviderNameExists = workloadProviderNameExists && len(workloadProviderName.(string)) > 0
+
+		if *configurationOptions.GoogleAuthType == "service-account-key" {
+			if !googleCredentialsExists {
+				return diag.Errorf("'credentials' field is required for 'service-account-key' auth type of google provider configuration")
+			}
+			if serviceAccountEmailExists || workloadProviderNameExists {
+				return diag.Errorf("'service_account_email' and 'workload_provider_name' fields of google provider configuration can be used only with 'oidc' auth type")
+			}
+			configurationOptions.GoogleCredentials = scalr.String(googleCredentials.(string))
+		} else if *configurationOptions.GoogleAuthType == "oidc" {
+			if !serviceAccountEmailExists || !workloadProviderNameExists {
+				return diag.Errorf("'service_account_email' and 'workload_provider_name' fields are required for 'oidc' auth type of google provider configuration")
+			}
+			if googleCredentialsExists {
+				return diag.Errorf("'credentials' field of google provider configuration can be used only with 'service-account-key' auth type")
+			}
+			configurationOptions.GoogleServiceAccountEmail = scalr.String(serviceAccountEmail.(string))
+			configurationOptions.GoogleWorkloadProviderName = scalr.String(workloadProviderName.(string))
+		} else {
+			return diag.Errorf("unknown google provider configuration auth type: '%s', allowed: 'service-account-key', 'oidc'", *configurationOptions.GoogleAuthType)
+		}
+
 		if v, ok := d.GetOk("google.0.project"); ok {
 			configurationOptions.GoogleProject = scalr.String(v.(string))
 		}
@@ -450,20 +491,27 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 
 			_ = d.Set("aws", []map[string]interface{}{aws})
 		case "google":
+			google := make(map[string]interface{})
+
+			google["auth_type"] = providerConfiguration.GoogleAuthType
+
 			var stateCredentials string
 			if stateGoogleParametersI, ok := d.GetOk("google"); ok {
 				stateGoogleParameters := stateGoogleParametersI.([]interface{})
 				if len(stateGoogleParameters) > 0 {
 					stateCredentials = stateGoogleParameters[0].(map[string]interface{})["credentials"].(string)
+					google["credentials"] = stateCredentials
 				}
-			}
-
-			google := map[string]interface{}{
-				"credentials": stateCredentials,
 			}
 
 			if len(providerConfiguration.GoogleProject) > 0 {
 				google["project"] = providerConfiguration.GoogleProject
+			}
+			if len(providerConfiguration.GoogleServiceAccountEmail) > 0 {
+				google["service_account_email"] = providerConfiguration.GoogleServiceAccountEmail
+			}
+			if len(providerConfiguration.GoogleWorkloadProviderName) > 0 {
+				google["workload_provider_name"] = providerConfiguration.GoogleWorkloadProviderName
 			}
 
 			_ = d.Set("google", []map[string]interface{}{google})
@@ -578,7 +626,36 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 				return diag.Errorf("'access_key' and 'secret_key' fields are required for 'access_keys' credentials type of aws provider configuration")
 			}
 		} else if _, ok := d.GetOk("google"); ok {
-			configurationOptions.GoogleCredentials = scalr.String(d.Get("google.0.credentials").(string))
+			configurationOptions.GoogleAuthType = scalr.String(d.Get("google.0.auth_type").(string))
+
+			googleCredentials, googleCredentialsExists := d.GetOk("google.0.credentials")
+			googleCredentialsExists = googleCredentialsExists && len(googleCredentials.(string)) > 0
+			serviceAccountEmail, serviceAccountEmailExists := d.GetOk("google.0.service_account_email")
+			serviceAccountEmailExists = serviceAccountEmailExists && len(serviceAccountEmail.(string)) > 0
+			workloadProviderName, workloadProviderNameExists := d.GetOk("google.0.workload_provider_name")
+			workloadProviderNameExists = workloadProviderNameExists && len(workloadProviderName.(string)) > 0
+
+			if *configurationOptions.GoogleAuthType == "service-account-key" {
+				if !googleCredentialsExists {
+					return diag.Errorf("'credentials' field is required for 'service-account-key' auth type of google provider configuration")
+				}
+				if serviceAccountEmailExists || workloadProviderNameExists {
+					return diag.Errorf("'service_account_email' and 'workload_provider_name' fields of google provider configuration can be used only with 'oidc' auth type")
+				}
+				configurationOptions.GoogleCredentials = scalr.String(googleCredentials.(string))
+			} else if *configurationOptions.GoogleAuthType == "oidc" {
+				if !serviceAccountEmailExists || !workloadProviderNameExists {
+					return diag.Errorf("'service_account_email' and 'workload_provider_name' fields are required for 'oidc' auth type of google provider configuration")
+				}
+				if googleCredentialsExists {
+					return diag.Errorf("'credentials' field of google provider configuration can be used only with 'service-account-key' auth type")
+				}
+				configurationOptions.GoogleServiceAccountEmail = scalr.String(serviceAccountEmail.(string))
+				configurationOptions.GoogleWorkloadProviderName = scalr.String(workloadProviderName.(string))
+			} else {
+				return diag.Errorf("unknown google provider configuration auth type: '%s', allowed: 'service-account-key', 'oidc'", *configurationOptions.GoogleAuthType)
+			}
+
 			if v, ok := d.GetOk("google.0.project"); ok {
 				configurationOptions.GoogleProject = scalr.String(v.(string))
 			}

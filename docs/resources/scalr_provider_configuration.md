@@ -67,6 +67,19 @@ resource "scalr_provider_configuration" "google" {
 }
 ```
 
+```hcl
+resource "scalr_provider_configuration" "google" {
+  name       = "google_main"
+  account_id = "acc-xxxxxxxxx"
+  google {
+    auth_type              = "oidc"
+    project                = "my-project"
+    service_account_email  = "user@example.com"
+    workload_provider_name = "projects/123/locations/global/workloadIdentityPools/pool-name/providers/provider-name"
+  }
+}
+```
+
 ### Custom providers:
 
 ```hcl
@@ -114,7 +127,10 @@ resource "scalr_provider_configuration" "kubernetes" {
   * `access_key` - (Optional) AWS access key. This option is required with `access_keys` credentials type.
 * `google` - (Optional) Settings for the google provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.
    The `google` block supports the following:
-  * `credentials` - (Required) Service account key file in JSON format.
+  * `auth_type` - (Optional) Authentication type, either `service-account-key` (default) or `oidc`.
+  * `credentials` - (Optional) Service account key file in JSON format, required when `auth_type` is `service-account-key`.
+  * `service_account_email` - (Optional) The service account email used to authenticate to GCP, required when `auth_type` is `oidc`.
+  * `workload_provider_name` - (Optional) The canonical name of the workload identity provider, required when `auth_type` is `oidc`.
   * `project` - (Optional) The default project to manage resources in. If another project is specified on a resource, it will take precedence.
 * `azurerm` - (Optional) Settings for the azurerm provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.
    The `azurerm` block supports the following:
