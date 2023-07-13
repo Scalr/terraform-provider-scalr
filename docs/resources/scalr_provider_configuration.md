@@ -37,6 +37,19 @@ resource "scalr_provider_configuration" "aws" {
 }
 ```
 
+```hcl
+resource "scalr_provider_configuration" "oidc" {
+  name                   = "oidc_dev_us_east_1"
+  account_id             = "acc-xxxxxxxxx"
+  export_shell_variables = false
+  environments           = ["*"]
+  aws {
+    role_arn                   = "arn:aws:iam::123456789012:role/scalr-oidc-role"
+    workload_identity_audience = "aws.scalr-run-workload"
+  }
+}
+```
+
 To get into more advanced AWS usage please refer to the official [AWS module](https://github.com/Scalr/terraform-scalr-provider-configuration-aws).
 
 ### AzureRM provider:
@@ -118,13 +131,14 @@ resource "scalr_provider_configuration" "kubernetes" {
     * `token` - (Optional) The Scalr token which should be used.
 * `aws` - (Optional) Settings for the aws provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.
    The `aws` block supports the following:
-  * `account_type` - (Required) The type of AWS account, available options: `regular`, `gov-cloud`, `cn-cloud`.
   * `credentials_type` - (Required) The type of AWS credentials, available options: `access_keys`, `role_delegation`.
+  * `account_type` - (Optional) The type of AWS account, available options: `regular`, `gov-cloud`, `cn-cloud`.
   * `trusted_entity_type` - (Optional) Trusted entity type, available options: `aws_account`, `aws_service`. This option is required with `role_delegation` credentials type.
-  * `role_arn` - (Optional) Amazon Resource Name (ARN) of the IAM Role to assume. This option is required with the `role_delegation` credentials type.
+  * `role_arn` - (Optional) Amazon Resource Name (ARN) of the IAM Role to assume. This option is required with the `role_delegation` and `oidc` credentials type.
   * `external_id` - (Optional) External identifier to use when assuming the role. This option is required with `role_delegation` credentials type and `aws_account` trusted entity type.
   * `secret_key` - (Optional) AWS secret key. This option is required with `access_keys` credentials type.
   * `access_key` - (Optional) AWS access key. This option is required with `access_keys` credentials type.
+  * `workload_identity_audience` - (Optional) The value of the `aud` claim for the identity token. This option is required with `oidc` credentials type.
 * `google` - (Optional) Settings for the google provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.
    The `google` block supports the following:
   * `auth_type` - (Optional) Authentication type, either `service-account-key` (default) or `oidc`.
