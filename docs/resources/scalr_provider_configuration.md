@@ -44,6 +44,7 @@ resource "scalr_provider_configuration" "oidc" {
   export_shell_variables = false
   environments           = ["*"]
   aws {
+    credentials_type           = "oidc"
     role_arn                   = "arn:aws:iam::123456789012:role/scalr-oidc-role"
     workload_identity_audience = "aws.scalr-run-workload"
   }
