@@ -385,7 +385,7 @@ func TestAccProviderConfiguration_aws_oidc(t *testing.T) {
 				Config: testAccScalrProviderConfigurationAWSOidcUpdatedConfig(rNewName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckProviderConfigurationExists("scalr_provider_configuration.aws", &providerConfiguration),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "name", rName),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "name", rNewName),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "export_shell_variables", "false"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.#", "1"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.role_arn", "arn:aws:iam::123456789012:role/scalr-oidc-role2"),

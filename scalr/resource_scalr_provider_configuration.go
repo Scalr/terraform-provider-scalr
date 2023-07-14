@@ -496,10 +496,10 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 			if len(providerConfiguration.AwsTrustedEntityType) > 0 {
 				aws["trusted_entity_type"] = providerConfiguration.AwsTrustedEntityType
 			}
-			if len(providerConfiguration.AwsTrustedEntityType) > 0 {
+			if len(providerConfiguration.AwsRoleArn) > 0 {
 				aws["role_arn"] = providerConfiguration.AwsRoleArn
 			}
-			if len(providerConfiguration.AwsTrustedEntityType) > 0 {
+			if len(providerConfiguration.AwsExternalId) > 0 {
 				aws["external_id"] = providerConfiguration.AwsExternalId
 			}
 			if len(providerConfiguration.AwsWorkloadIdentityAudience) > 0 {
