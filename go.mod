@@ -5,7 +5,7 @@ require (
 	github.com/hashicorp/hcl v0.0.0-20180404174102-ef8a98b0bbce
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.24.1
 	github.com/hashicorp/terraform-svchost v0.0.0-20200729002733-f050f53b9734
-	github.com/scalr/go-scalr v0.0.0-20230623114831-761a3890bd58
+	github.com/scalr/go-scalr v0.0.0-20230714114901-ede374c35eba
 )
 
 require (
@@ -60,3 +60,5 @@ require (
 )
 
 go 1.18
+
+replace github.com/scalr/go-scalr => /home/soltysss/GolandProjects/go-scalr
