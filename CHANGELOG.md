@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `scalr_provider_configuration`: added new `google.auth_type`, `google.service_account_email` and `google.workload_provider_name` attributes; `google.credentials` attribute became optional ([#256](https://github.com/Scalr/terraform-provider-scalr/pull/256))
+- `scalr_provider_configuration`: allow built-in providers to be registered as custom. ([#253](https://github.com/Scalr/terraform-provider-scalr/pull/253))
 
 - `scalr_provider_configuration`: added new `aws.workload_identity_audience` attribute; `aws.account_type` attribute became optional ([#260](https://github.com/Scalr/terraform-provider-scalr/pull/260))
 
