@@ -378,7 +378,7 @@ func TestAccProviderConfiguration_aws_oidc(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.#", "1"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.role_arn", "arn:aws:iam::123456789012:role/scalr-oidc-role"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.credentials_type", "oidc"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.workload_identity_audience", "aws.scalr-run-workload"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.audience", "aws.scalr-run-workload"),
 				),
 			},
 			{
@@ -390,7 +390,7 @@ func TestAccProviderConfiguration_aws_oidc(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.#", "1"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.role_arn", "arn:aws:iam::123456789012:role/scalr-oidc-role2"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.credentials_type", "oidc"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.workload_identity_audience", "aws.scalr-run-workload2"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.audience", "aws.scalr-run-workload2"),
 				),
 			},
 		},
@@ -966,7 +966,7 @@ resource "scalr_provider_configuration" "aws" {
   aws {
     credentials_type           = "oidc"
     role_arn                   = "arn:aws:iam::123456789012:role/scalr-oidc-role"
-    workload_identity_audience = "aws.scalr-run-workload"
+    audience = "aws.scalr-run-workload"
   }
 }
 `, name, defaultAccount)
@@ -980,7 +980,7 @@ resource "scalr_provider_configuration" "aws" {
   aws {
     credentials_type           = "oidc"
     role_arn                   = "arn:aws:iam::123456789012:role/scalr-oidc-role2"
-    workload_identity_audience = "aws.scalr-run-workload2"
+    audience = "aws.scalr-run-workload2"
   }
 }
 `, name, defaultAccount)

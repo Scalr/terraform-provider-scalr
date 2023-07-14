@@ -100,7 +100,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 							Optional:  true,
 							Sensitive: true,
 						},
-						"workload_identity_audience": {
+						"audience": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
@@ -293,12 +293,12 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 			}
 		} else if *configurationOptions.AwsCredentialsType == "oidc" {
 			configurationOptions.AwsRoleArn = scalr.String(d.Get("aws.0.role_arn").(string))
-			configurationOptions.AwsWorkloadIdentityAudience = scalr.String(d.Get("aws.0.workload_identity_audience").(string))
+			configurationOptions.AwsAudience = scalr.String(d.Get("aws.0.audience").(string))
 			if len(*configurationOptions.AwsRoleArn) == 0 {
 				return diag.Errorf("'role_arn' field is required for 'oidc' credentials type of aws provider configuration")
 			}
-			if len(*configurationOptions.AwsWorkloadIdentityAudience) == 0 {
-				return diag.Errorf("'workload_identity_audience' field is required for 'oidc' credentials type of aws provider configuration")
+			if len(*configurationOptions.AwsAudience) == 0 {
+				return diag.Errorf("'audience' field is required for 'oidc' credentials type of aws provider configuration")
 			}
 		} else if *configurationOptions.AwsCredentialsType != "access_keys" {
 			return diag.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys'", *configurationOptions.AwsCredentialsType)
@@ -502,8 +502,8 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 			if len(providerConfiguration.AwsExternalId) > 0 {
 				aws["external_id"] = providerConfiguration.AwsExternalId
 			}
-			if len(providerConfiguration.AwsWorkloadIdentityAudience) > 0 {
-				aws["workload_identity_audience"] = providerConfiguration.AwsWorkloadIdentityAudience
+			if len(providerConfiguration.AwsAudience) > 0 {
+				aws["audience"] = providerConfiguration.AwsAudience
 			}
 
 			_ = d.Set("aws", []map[string]interface{}{aws})
@@ -639,12 +639,12 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 				}
 			} else if *configurationOptions.AwsCredentialsType == "oidc" {
 				configurationOptions.AwsRoleArn = scalr.String(d.Get("aws.0.role_arn").(string))
-				configurationOptions.AwsWorkloadIdentityAudience = scalr.String(d.Get("aws.0.workload_identity_audience").(string))
+				configurationOptions.AwsAudience = scalr.String(d.Get("aws.0.audience").(string))
 				if len(*configurationOptions.AwsRoleArn) == 0 {
 					return diag.Errorf("'role_arn' field is required for 'oidc' credentials type of aws provider configuration")
 				}
-				if len(*configurationOptions.AwsWorkloadIdentityAudience) == 0 {
-					return diag.Errorf("'workload_identity_audience' field is required for 'oidc' credentials type of aws provider configuration")
+				if len(*configurationOptions.AwsAudience) == 0 {
+					return diag.Errorf("'audience' field is required for 'oidc' credentials type of aws provider configuration")
 				}
 			} else if *configurationOptions.AwsCredentialsType != "access_keys" {
 				return diag.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys'", *configurationOptions.AwsCredentialsType)
