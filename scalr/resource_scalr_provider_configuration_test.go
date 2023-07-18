@@ -359,6 +359,44 @@ func TestAccProviderConfiguration_google_oidc(t *testing.T) {
 	})
 }
 
+func TestAccProviderConfiguration_aws_oidc(t *testing.T) {
+	var providerConfiguration scalr.ProviderConfiguration
+	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrProviderConfigurationAWSOidcConfig(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.aws", &providerConfiguration),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "name", rName),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "export_shell_variables", "false"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.#", "1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.role_arn", "arn:aws:iam::123456789012:role/scalr-oidc-role"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.credentials_type", "oidc"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.audience", "aws.scalr-run-workload"),
+				),
+			},
+			{
+				Config: testAccScalrProviderConfigurationAWSOidcUpdatedConfig(rNewName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.aws", &providerConfiguration),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "name", rNewName),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "export_shell_variables", "false"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.#", "1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.role_arn", "arn:aws:iam::123456789012:role/scalr-oidc-role2"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.credentials_type", "oidc"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.audience", "aws.scalr-run-workload2"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccProviderConfiguration_azurerm(t *testing.T) {
 	if true {
 		t.Skip("TODO: add a valid credentials for azurerm testing.")
@@ -918,6 +956,34 @@ resource "scalr_provider_configuration" "google" {
   }
 }
 `, name, defaultAccount, project)
+}
+
+func testAccScalrProviderConfigurationAWSOidcConfig(name string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "aws" {
+  name       = "%s"
+  account_id = "%s"
+  aws {
+    credentials_type           = "oidc"
+    role_arn                   = "arn:aws:iam::123456789012:role/scalr-oidc-role"
+    audience = "aws.scalr-run-workload"
+  }
+}
+`, name, defaultAccount)
+}
+
+func testAccScalrProviderConfigurationAWSOidcUpdatedConfig(name string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "aws" {
+  name       = "%s"
+  account_id = "%s"
+  aws {
+    credentials_type           = "oidc"
+    role_arn                   = "arn:aws:iam::123456789012:role/scalr-oidc-role2"
+    audience = "aws.scalr-run-workload2"
+  }
+}
+`, name, defaultAccount)
 }
 
 func testAccScalrProviderConfigurationGoogleConfig(name, credentials, project string) string {
