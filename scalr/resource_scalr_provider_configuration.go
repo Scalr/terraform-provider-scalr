@@ -72,7 +72,8 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"account_type": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
+							Default:  "regular",
 						},
 						"credentials_type": {
 							Type:     schema.TypeString,
@@ -98,6 +99,10 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 							Type:      schema.TypeString,
 							Optional:  true,
 							Sensitive: true,
+						},
+						"audience": {
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 					},
 				},
@@ -285,6 +290,15 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 			}
 			if *configurationOptions.AwsTrustedEntityType == "aws_account" && (!externalIdExists || (len(externalIdI.(string)) == 0)) {
 				return diag.Errorf("'external_id' field is required for 'role_delegation' credentials type with 'aws_account' trusted entity type of aws provider configuration")
+			}
+		} else if *configurationOptions.AwsCredentialsType == "oidc" {
+			configurationOptions.AwsRoleArn = scalr.String(d.Get("aws.0.role_arn").(string))
+			configurationOptions.AwsAudience = scalr.String(d.Get("aws.0.audience").(string))
+			if len(*configurationOptions.AwsRoleArn) == 0 {
+				return diag.Errorf("'role_arn' field is required for 'oidc' credentials type of aws provider configuration")
+			}
+			if len(*configurationOptions.AwsAudience) == 0 {
+				return diag.Errorf("'audience' field is required for 'oidc' credentials type of aws provider configuration")
 			}
 		} else if *configurationOptions.AwsCredentialsType != "access_keys" {
 			return diag.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys'", *configurationOptions.AwsCredentialsType)
@@ -482,11 +496,14 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 			if len(providerConfiguration.AwsTrustedEntityType) > 0 {
 				aws["trusted_entity_type"] = providerConfiguration.AwsTrustedEntityType
 			}
-			if len(providerConfiguration.AwsTrustedEntityType) > 0 {
+			if len(providerConfiguration.AwsRoleArn) > 0 {
 				aws["role_arn"] = providerConfiguration.AwsRoleArn
 			}
-			if len(providerConfiguration.AwsTrustedEntityType) > 0 {
+			if len(providerConfiguration.AwsExternalId) > 0 {
 				aws["external_id"] = providerConfiguration.AwsExternalId
+			}
+			if len(providerConfiguration.AwsAudience) > 0 {
+				aws["audience"] = providerConfiguration.AwsAudience
 			}
 
 			_ = d.Set("aws", []map[string]interface{}{aws})
@@ -619,6 +636,15 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 				}
 				if *configurationOptions.AwsTrustedEntityType == "aws_account" && (!externalIdExists || (len(externalIdI.(string)) == 0)) {
 					return diag.Errorf("'external_id' field is required for 'role_delegation' credentials type with 'aws_account' entity type of aws provider configuration")
+				}
+			} else if *configurationOptions.AwsCredentialsType == "oidc" {
+				configurationOptions.AwsRoleArn = scalr.String(d.Get("aws.0.role_arn").(string))
+				configurationOptions.AwsAudience = scalr.String(d.Get("aws.0.audience").(string))
+				if len(*configurationOptions.AwsRoleArn) == 0 {
+					return diag.Errorf("'role_arn' field is required for 'oidc' credentials type of aws provider configuration")
+				}
+				if len(*configurationOptions.AwsAudience) == 0 {
+					return diag.Errorf("'audience' field is required for 'oidc' credentials type of aws provider configuration")
 				}
 			} else if *configurationOptions.AwsCredentialsType != "access_keys" {
 				return diag.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys'", *configurationOptions.AwsCredentialsType)

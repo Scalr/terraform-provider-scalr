@@ -9,7 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `scalr_provider_configuration`: added new `aws.workload_identity_audience` attribute; `aws.account_type` attribute became optional ([#260](https://github.com/Scalr/terraform-provider-scalr/pull/260))
+
+## [1.2.0] - 2023-07-14
+
+### Changed
+
 - `scalr_provider_configuration`: added new `google.auth_type`, `google.service_account_email` and `google.workload_provider_name` attributes; `google.credentials` attribute became optional ([#256](https://github.com/Scalr/terraform-provider-scalr/pull/256))
+- `scalr_provider_configuration`: allow built-in providers to be registered as custom. ([#253](https://github.com/Scalr/terraform-provider-scalr/pull/253))
+
+### Required
+
+- scalr-server >= `8.75.0`
 
 ## [1.1.0] - 2023-06-16
 
@@ -696,7 +707,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.2.0
 [1.1.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.1.0
 [1.0.6]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.6
 [1.0.5]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.5
