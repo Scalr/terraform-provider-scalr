@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2023-07-21
+
 ### Changed
 
 - `scalr_provider_configuration`: added new `aws.workload_identity_audience` attribute; `aws.account_type` attribute became optional ([#260](https://github.com/Scalr/terraform-provider-scalr/pull/260))
+
+### Required
+
+- scalr-server >= `8.76.0`
 
 ## [1.2.0] - 2023-07-14
 
@@ -707,7 +713,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.3.0
 [1.2.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.2.0
 [1.1.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.1.0
 [1.0.6]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.0.6
