@@ -37,6 +37,13 @@ jobs:
       UPSTREAM_ID: ${{ github.run_number }}
       UPSTREAM_BASE_REF: ${{ github.event.inputs.upstream-base-ref }}
     steps:
+      - name: Sudo GitHub Token
+        id: generate_token
+        uses: tibdex/github-app-token@v1
+        with:
+          app_id: ${{vars.SUDO_GHA_APP_ID}}
+          installation_id: ${{vars.SUDO_GHA_APP_INSTALLATION_ID}}
+          private_key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
       - uses: actions/checkout@v3
       - name: Notify upstream about pending
         run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=pending run_id=${{ github.run_id }}
@@ -49,13 +56,13 @@ jobs:
           repository: Scalr/fatmouse
           path: fatmouse
           ref: ${{ env.API_BRANCH }}
-          token: ${{ secrets.GH_PAT }}
+          token: ${{steps.generate_token.outputs.token}}
       - name: Get pr labels
         id: pr-labels
         if: ${{ inputs.pr-id != '' }}
         uses: ./fatmouse/.github/actions/pr-labels
         with:
-          github_token: ${{ secrets.GH_PAT }}
+          github_token: ${{steps.generate_token.outputs.token}}
           owner: Scalr
           repo: fatmouse
           pr_id: ${{ inputs.pr-id }}
