@@ -39,6 +39,13 @@ jobs:
       SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
       UPSTREAM_ID: ${{ github.run_number }}
     steps:
+      - name: Sudo GitHub Token
+        id: generate_token
+        uses: tibdex/github-app-token@v1
+        with:
+          app_id: ${{vars.SUDO_GHA_APP_ID}}
+          installation_id: ${{vars.SUDO_GHA_APP_INSTALLATION_ID}}
+          private_key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
@@ -49,7 +56,7 @@ jobs:
         id: check-branch
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GH_PAT }}
+          github-token: ${{steps.generate_token.outputs.token}}
           script: |
             const owner = "Scalr";
             const repo = "fatmouse";
@@ -80,7 +87,7 @@ jobs:
           repository: Scalr/fatmouse
           path: fatmouse
           ref: ${{ steps.check-branch.outputs.branch }}
-          token: ${{ secrets.GH_PAT }}
+          token: ${{steps.generate_token.outputs.token}}
       - id: auth
         uses: google-github-actions/auth@v0
         with:
