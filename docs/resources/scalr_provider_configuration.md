@@ -149,10 +149,12 @@ resource "scalr_provider_configuration" "kubernetes" {
   * `project` - (Optional) The default project to manage resources in. If another project is specified on a resource, it will take precedence.
 * `azurerm` - (Optional) Settings for the azurerm provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.
    The `azurerm` block supports the following:
+  * `auth_type` - (Optional) Authentication type, either `client-secrets` (default) or `oidc`.
   * `client_id` - (Required) The Client ID that should be used.
-  * `client_secret` - (Required) The Client Secret that should be used.
+  * `client_secret` - (Optional) The Client Secret that should be used, required when `auth_type` is `client-secrets`.
   * `tenant_id` - (Required) The Tenant ID that should be used.
-  * `subscription_id` - (Optional) The Subscription ID that should be used. If skipped, it must be set as a shell variable in the workspace or as a part of the source configuration.
+  * `subscription_id` - (Required) The Subscription ID that should be used.
+  * `audience` - (Optional) The value of the `aud` claim for the identity token. This option is required with `oidc` authentication type.
 * `custom` - (Optional) Settings for the provider configuration that does not have scalr support as a built-in provider. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.
    The `custom` block supports the following:
   * `provider_name` - (Required) The name of a Terraform provider.
