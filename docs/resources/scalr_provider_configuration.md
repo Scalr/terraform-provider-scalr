@@ -46,7 +46,7 @@ resource "scalr_provider_configuration" "oidc" {
   aws {
     credentials_type           = "oidc"
     role_arn                   = "arn:aws:iam::123456789012:role/scalr-oidc-role"
-    workload_identity_audience = "aws.scalr-run-workload"
+    audience = "aws.scalr-run-workload"
   }
 }
 ```
@@ -132,14 +132,14 @@ resource "scalr_provider_configuration" "kubernetes" {
     * `token` - (Optional) The Scalr token which should be used.
 * `aws` - (Optional) Settings for the aws provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.
    The `aws` block supports the following:
-  * `credentials_type` - (Required) The type of AWS credentials, available options: `access_keys`, `role_delegation`.
+  * `credentials_type` - (Required) The type of AWS credentials, available options: `access_keys`, `role_delegation`, `oidc`.
   * `account_type` - (Optional) The type of AWS account, available options: `regular`, `gov-cloud`, `cn-cloud`.
   * `trusted_entity_type` - (Optional) Trusted entity type, available options: `aws_account`, `aws_service`. This option is required with `role_delegation` credentials type.
   * `role_arn` - (Optional) Amazon Resource Name (ARN) of the IAM Role to assume. This option is required with the `role_delegation` and `oidc` credentials type.
   * `external_id` - (Optional) External identifier to use when assuming the role. This option is required with `role_delegation` credentials type and `aws_account` trusted entity type.
   * `secret_key` - (Optional) AWS secret key. This option is required with `access_keys` credentials type.
   * `access_key` - (Optional) AWS access key. This option is required with `access_keys` credentials type.
-  * `workload_identity_audience` - (Optional) The value of the `aud` claim for the identity token. This option is required with `oidc` credentials type.
+  * `audience` - (Optional) The value of the `aud` claim for the identity token. This option is required with `oidc` credentials type.
 * `google` - (Optional) Settings for the google provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.
    The `google` block supports the following:
   * `auth_type` - (Optional) Authentication type, either `service-account-key` (default) or `oidc`.
