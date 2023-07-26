@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `scalr_provider_configuration`: Updated documentation to fix a typo for the audience attribute for the `aws` provider.
+
+
 ## [1.3.0] - 2023-07-21
 
 ### Changed
