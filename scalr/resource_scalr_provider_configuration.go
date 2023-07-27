@@ -170,7 +170,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 						},
 						"subscription_id": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 						},
 					},
 				},
