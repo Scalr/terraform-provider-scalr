@@ -147,13 +147,22 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				ExactlyOneOf: []string{"aws", "google", "scalr", "custom"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"auth_type": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "client-secrets",
+						},
+						"audience": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 						"client_id": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 						"client_secret": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 						},
 						"tenant_id": {
 							Type:     schema.TypeString,
@@ -345,11 +354,28 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 	} else if _, ok := d.GetOk("azurerm"); ok {
 		configurationOptions.ProviderName = scalr.String("azurerm")
 		configurationOptions.AzurermClientId = scalr.String(d.Get("azurerm.0.client_id").(string))
-		configurationOptions.AzurermClientSecret = scalr.String(d.Get("azurerm.0.client_secret").(string))
 		configurationOptions.AzurermSubscriptionId = scalr.String(d.Get("azurerm.0.subscription_id").(string))
-		if v, ok := d.GetOk("azurerm.0.tenant_id"); ok {
-			configurationOptions.AzurermTenantId = scalr.String(v.(string))
+		configurationOptions.AzurermTenantId = scalr.String(d.Get("azurerm.0.tenant_id").(string))
+
+		authType := d.Get("azurerm.0.auth_type").(string)
+		if authType == "oidc" {
+			audience, audienceExists := d.GetOk("azurerm.0.audience")
+			if !audienceExists {
+				return diag.Errorf("'audience' field is required for 'oidc' auth type of azurerm provider configuration")
+			}
+			configurationOptions.AzurermAudience = scalr.String(audience.(string))
+			configurationOptions.AzurermAuthType = scalr.String("oidc")
+		} else if authType == "client-secrets" {
+			client_secret, secretExists := d.GetOk("azurerm.0.client_secret")
+			if !secretExists {
+				return diag.Errorf("'client_secret' field is required for 'client-secrets' auth type of azurerm provider configuration")
+			}
+			configurationOptions.AzurermClientSecret = scalr.String(client_secret.(string))
+			configurationOptions.AzurermAuthType = scalr.String("client-secrets")
+		} else {
+			return diag.Errorf("unknown azurerm provider configuration auth type: '%s', allowed: 'client-secrets', 'oidc'", authType)
 		}
+
 	} else if _, ok := d.GetOk("scalr"); ok {
 		configurationOptions.ProviderName = scalr.String("scalr")
 		configurationOptions.ScalrHostname = scalr.String(d.Get("scalr.0.hostname").(string))
@@ -556,6 +582,10 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 					stateClientSecret = stateAzurermParameters[0].(map[string]interface{})["client_secret"].(string)
 				}
 			}
+			auth_type := "client-secrets"
+			if len(providerConfiguration.AzurermAuthType) > 0 {
+				auth_type = providerConfiguration.AzurermAuthType
+			}
 
 			_ = d.Set("azurerm", []map[string]interface{}{
 				{
@@ -563,6 +593,8 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 					"client_secret":   stateClientSecret,
 					"subscription_id": providerConfiguration.AzurermSubscriptionId,
 					"tenant_id":       providerConfiguration.AzurermTenantId,
+					"audience":        providerConfiguration.AzurermAudience,
+					"auth_type":       auth_type,
 				},
 			})
 		}
@@ -690,11 +722,28 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 			configurationOptions.ScalrToken = scalr.String(d.Get("scalr.0.token").(string))
 		} else if _, ok := d.GetOk("azurerm"); ok {
 			configurationOptions.AzurermClientId = scalr.String(d.Get("azurerm.0.client_id").(string))
-			configurationOptions.AzurermClientSecret = scalr.String(d.Get("azurerm.0.client_secret").(string))
 			configurationOptions.AzurermSubscriptionId = scalr.String(d.Get("azurerm.0.subscription_id").(string))
-			if v, ok := d.GetOk("azurerm.0.tenant_id"); ok {
-				configurationOptions.AzurermTenantId = scalr.String(v.(string))
+			configurationOptions.AzurermTenantId = scalr.String(d.Get("azurerm.0.tenant_id").(string))
+
+			authType := d.Get("azurerm.0.auth_type").(string)
+			if authType == "oidc" {
+				audience, audienceExists := d.GetOk("azurerm.0.audience")
+				if !audienceExists {
+					return diag.Errorf("'audience' field is required for 'oidc' auth type of azurerm provider configuration")
+				}
+				configurationOptions.AzurermAudience = scalr.String(audience.(string))
+				configurationOptions.AzurermAuthType = scalr.String("oidc")
+			} else if authType == "client-secrets" {
+				client_secret, secretExists := d.GetOk("azurerm.0.client_secret")
+				if !secretExists {
+					return diag.Errorf("'client_secret' field is required for 'client-secrets' auth type of azurerm provider configuration")
+				}
+				configurationOptions.AzurermClientSecret = scalr.String(client_secret.(string))
+				configurationOptions.AzurermAuthType = scalr.String("client-secrets")
+			} else {
+				return diag.Errorf("unknown azurerm provider configuration auth type: '%s', allowed: 'client-secrets', 'oidc'", authType)
 			}
+
 		}
 		_, err := scalrClient.ProviderConfigurations.Update(ctx, id, configurationOptions)
 		if err != nil {

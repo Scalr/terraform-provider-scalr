@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `scalr_provider_configuration`: added new `azurerm.auth_type` and `azurerm.audience` attributes; `azurerm.client_secret` attribute became optional ([#265](https://github.com/Scalr/terraform-provider-scalr/pull/265))
 - `scalr_provider_configuration`: Updated documentation to fix a typo for the audience attribute for the `aws` provider.
-
 
 ## [1.3.0] - 2023-07-21
 
