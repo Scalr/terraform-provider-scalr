@@ -7,10 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2023-08-11
+
 ### Changed
 
-- `scalr_provider_configuration`: added new `azurerm.auth_type` and `azurerm.audience` attributes; `azurerm.client_secret` attribute became optional ([#265](https://github.com/Scalr/terraform-provider-scalr/pull/265))
+- `scalr_provider_configuration`: 
+  - added new `azurerm.auth_type` and `azurerm.audience` attributes;
+  - `azurerm.client_secret` attribute became optional ([#265](https://github.com/Scalr/terraform-provider-scalr/pull/265))
 - `scalr_provider_configuration`: Updated documentation to fix a typo for the audience attribute for the `aws` provider.
+
+- scalr-server >= `8.79.0`
 
 ## [1.3.0] - 2023-07-21
 
@@ -718,7 +724,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.4.0
 [1.3.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.3.0
 [1.2.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.2.0
 [1.1.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.1.0
