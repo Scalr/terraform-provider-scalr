@@ -8154,8 +8154,6 @@ async function main() {
             console.log(`Processing ${version}`);
             const versionData = { archives: {} };
 
-            console.log(version);
-
             for (const platform of platforms) {
                 const { os: os_, arch } = platform;
                 const platformName = `${os_}_${arch}`;

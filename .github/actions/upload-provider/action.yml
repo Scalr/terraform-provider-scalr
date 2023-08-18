@@ -1,0 +1,33 @@
+
+name: 'Upload provider'
+description: |-
+  Upload new provider version to GCS bucket.
+
+inputs:
+  registry-domain:
+    description: 'Domain name of terraform registry.'
+    required: true
+  gcs-bucket:
+    description: 'GCS bucket name'
+    required: true
+  gpg-key-id:
+    description: 'GPG Key id'
+    required: true
+  gpg-pub-key:
+    description: 'GPG pub key'
+    required: true
+    
+
+runs:
+  # TODO: Rewrite on JS, for god's sake
+  using: composite
+  steps:
+    - name: Upload provider
+      shell: bash
+      run: 'bash ./.github/actions/upload-provider/action.sh'
+      env:
+        DOMAIN: ${{ inputs.registry-domain }}
+        BUCKET_NAME: ${{ inputs.gcs-bucket }}
+        GPG_KEY_ID: ${{ inputs.gpg-key-id }}
+        GPG_PUB_KEY: ${{ inputs.gpg-pub-key }}
+        
