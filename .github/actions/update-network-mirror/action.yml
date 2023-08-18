@@ -1,0 +1,21 @@
+
+name: 'Update Network mirror'
+description: |-
+  Update registry's network mirror with new provider versions.
+
+inputs:
+  registry-domain:
+    description: 'Domain name of terraform registry.'
+    required: true
+  gcs-bucket:
+    description: 'GCS bucket name'
+    required: true
+  dry-run:
+    description: 'Dry run'
+    required: false
+    default: 'true'
+
+
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
