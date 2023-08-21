@@ -8117,8 +8117,10 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(9855);
 const exec = __nccwpck_require__(9121);
 
+const util = __nccwpck_require__(3837);
 const fetch = __nccwpck_require__(3674);
-const fs = __nccwpck_require__(7147);
+const mkdir = util.promisify((__nccwpck_require__(7147).mkdir));
+const writeFile = util.promisify((__nccwpck_require__(7147).writeFile));
 const path = __nccwpck_require__(1017);
 
 
@@ -8148,7 +8150,7 @@ async function main() {
             return keyA < keyB ? -1 : keyA > keyB ? 1 : 0;
         });
 
-        fs.mkdirSync(path.join(MIRROR_DIR, registryDomain, 'scalr', 'scalr'), { recursive: true });
+        await mkdir(path.join(MIRROR_DIR, registryDomain, 'scalr', 'scalr'), { recursive: true });
 
         for (const { version, platforms } of versions) {
             console.log(`Processing ${version}`);
@@ -8163,7 +8165,7 @@ async function main() {
             }
 
             const versionFilePath = path.join(MIRROR_DIR, registryDomain, 'scalr', 'scalr', `${version}.json`);
-            fs.writeFileSync(versionFilePath, JSON.stringify(versionData, null, 4));
+            await writeFile(versionFilePath, JSON.stringify(versionData, null, 4));
         }
 
         const indexData = { versions: {} };
@@ -8172,7 +8174,7 @@ async function main() {
         }
 
         const indexFilePath = path.join(MIRROR_DIR, registryDomain, 'scalr', 'scalr', 'index.json');
-        fs.writeFileSync(indexFilePath, JSON.stringify(indexData, null, 4));
+        await writeFile(indexFilePath, JSON.stringify(indexData, null, 4));
 
         const bucketPath = GCSBucket + '/providers';
         if (!dryRun) {

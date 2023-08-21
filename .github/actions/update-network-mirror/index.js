@@ -1,8 +1,10 @@
 const core = require('@actions/core');
 const exec = require('@actions/exec');
 
+const util = require('util');
 const fetch = require('node-fetch');
-const fs = require('fs');
+const mkdir = util.promisify(require('fs').mkdir);
+const writeFile = util.promisify(require('fs').writeFile);
 const path = require('path');
 
 
@@ -32,7 +34,7 @@ async function main() {
             return keyA < keyB ? -1 : keyA > keyB ? 1 : 0;
         });
 
-        fs.mkdirSync(path.join(MIRROR_DIR, registryDomain, 'scalr', 'scalr'), { recursive: true });
+        await mkdir(path.join(MIRROR_DIR, registryDomain, 'scalr', 'scalr'), { recursive: true });
 
         for (const { version, platforms } of versions) {
             console.log(`Processing ${version}`);
@@ -47,7 +49,7 @@ async function main() {
             }
 
             const versionFilePath = path.join(MIRROR_DIR, registryDomain, 'scalr', 'scalr', `${version}.json`);
-            fs.writeFileSync(versionFilePath, JSON.stringify(versionData, null, 4));
+            await writeFile(versionFilePath, JSON.stringify(versionData, null, 4));
         }
 
         const indexData = { versions: {} };
@@ -56,7 +58,7 @@ async function main() {
         }
 
         const indexFilePath = path.join(MIRROR_DIR, registryDomain, 'scalr', 'scalr', 'index.json');
-        fs.writeFileSync(indexFilePath, JSON.stringify(indexData, null, 4));
+        await writeFile(indexFilePath, JSON.stringify(indexData, null, 4));
 
         const bucketPath = GCSBucket + '/providers';
         if (!dryRun) {

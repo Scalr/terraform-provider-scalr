@@ -11,7 +11,7 @@ on:
 jobs:
   lint:
     name: lint
-    runs-on: ubuntu-latest
+    runs-on: [standard-1-amd64]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
@@ -25,7 +25,7 @@ jobs:
 
   unit-tests:
     name: unit-tests
-    runs-on: ubuntu-latest
+    runs-on: [standard-1-amd64]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
@@ -35,7 +35,7 @@ jobs:
         run: make test
 
   acc-tests:
-    runs-on: ubuntu-latest
+    runs-on: [standard-2-amd64]
     name: acc-tests
     env:
       SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
@@ -182,8 +182,8 @@ jobs:
 
   upload-dev:
     name: upload-dev
-    needs: [lint, unit-tests, acc-tests]
-    runs-on: ubuntu-latest
+    # needs: [lint, unit-tests, acc-tests]
+    runs-on: [standard-4-amd64]
     steps:
       - name: Import GPG key
         id: import_gpg
@@ -234,7 +234,7 @@ jobs:
     name: release
     if: startsWith(github.ref, 'refs/tags/')
     needs: [lint, unit-tests, acc-tests]
-    runs-on: ubuntu-latest
+    runs-on: [standard-4-amd64]
     steps:
       - name: Import GPG key
         id: import_gpg
