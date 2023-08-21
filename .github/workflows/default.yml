@@ -182,7 +182,7 @@ jobs:
 
   upload-dev:
     name: upload-dev
-    # needs: [lint, unit-tests, acc-tests]
+    needs: [lint, unit-tests, acc-tests]
     runs-on: ubuntu-latest
     steps:
       - name: Import GPG key
