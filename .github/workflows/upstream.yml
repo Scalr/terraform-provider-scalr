@@ -27,7 +27,7 @@ on:
 
 jobs:
   acc-tests:
-    runs-on: [standard-2-amd64]
+    runs-on: ubuntu-latest
     name: acc-tests
     env:
       ORG_ADMIN_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
