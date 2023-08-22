@@ -22,6 +22,7 @@ jobs:
         with:
           version: v1.48.0
           args: --timeout 2m
+
   unit-tests:
     name: unit-tests
     runs-on: ubuntu-latest
@@ -32,6 +33,7 @@ jobs:
           go-version: "1.18"
       - name: Run unit tests
         run: make test
+
   acc-tests:
     runs-on: ubuntu-latest
     name: acc-tests
@@ -177,6 +179,7 @@ jobs:
           fatmouse/python-builder:master \
           python -u clickfile.py te rm \
           --no-wait ${{ env.RUN_TAG }}
+
   upload-dev:
     name: upload-dev
     needs: [lint, unit-tests, acc-tests]
@@ -214,12 +217,19 @@ jobs:
         env:
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
       - name: Upload provider to registry
-        env:
-          DOMAIN: ${{ secrets.DEV_DOMAIN }}
-          BUCKET_NAME: ${{ secrets.DEV_BUCKET_NAME }}
-          GPG_KEY_ID: ${{ steps.import_gpg.outputs.fingerprint }}
-          GPG_PUB_KEY: ${{ steps.import_gpg.outputs.pubkey }}
-        run: bash scripts/upload.sh
+        uses: ./.github/actions/upload-provider
+        with:
+          gcs-bucket: ${{ secrets.DEV_BUCKET_NAME }}
+          registry-domain: ${{ secrets.DEV_DOMAIN }}
+          gpg-key-id: ${{ steps.import_gpg.outputs.fingerprint }}
+          gpg-pub-key: ${{ steps.import_gpg.outputs.pubkey }}
+      - name: Update network mirror
+        uses: ./.github/actions/update-network-mirror
+        with:
+          gcs-bucket: ${{ secrets.DEV_BUCKET_NAME }}
+          registry-domain: ${{ secrets.DEV_DOMAIN }}
+          dry-run: false
+
   release:
     name: release
     if: startsWith(github.ref, 'refs/tags/')
@@ -255,9 +265,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
       - name: Upload provider to registry
-        env:
-          DOMAIN: ${{ secrets.DOMAIN }}
-          BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
-          GPG_KEY_ID: ${{ steps.import_gpg.outputs.fingerprint }}
-          GPG_PUB_KEY: ${{ steps.import_gpg.outputs.pubkey }}
-        run: bash -eucx scripts/upload.sh
+        uses: ./.github/actions/upload-provider
+        with:
+          gcs-bucket: ${{ secrets.BUCKET_NAME }}
+          registry-domain: ${{ secrets.DOMAIN }}
+          gpg-key-id: ${{ steps.import_gpg.outputs.fingerprint }}
+          gpg-pub-key: ${{ steps.import_gpg.outputs.pubkey }}
+      - name: Update network mirror
+        uses: ./.github/actions/update-network-mirror
+        with:
+          gcs-bucket: ${{ secrets.BUCKET_NAME }}
+          registry-domain: ${{ secrets.DOMAIN }}
+          dry-run: false

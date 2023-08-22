@@ -1,0 +1,34 @@
+
+name: 'Update Network mirror'
+description: |-
+  Update registry's network mirror with new provider versions.
+  This action is needed for support of JFrog terraform artifacts registry.
+  JFrog fetches infromation about terraform providers from another network mirror,
+  therefore Scalr provider registry needs to implement this network mirror.
+
+  Strucure of network mirror is simple:
+  root
+  └── providers
+      └── registry.scalr.dev
+          └── scalr
+              └── scalr
+                  ├── 1.0.0.json
+                  ├── 1.0.2.json
+                  └── index.json
+
+inputs:
+  registry-domain:
+    description: 'Domain name of terraform registry.'
+    required: true
+  gcs-bucket:
+    description: 'GCS bucket name'
+    required: true
+  dry-run:
+    description: 'Dry run'
+    required: false
+    default: 'true'
+
+
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
