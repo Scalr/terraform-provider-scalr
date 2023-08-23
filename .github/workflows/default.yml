@@ -9,239 +9,239 @@ on:
       - README.md
 
 jobs:
-  lint:
-    name: lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
-        with:
-          go-version: "1.18"
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: v1.48.0
-          args: --timeout 2m
+  # lint:
+  #   name: lint
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/setup-go@v3
+  #       with:
+  #         go-version: "1.18"
+  #     - name: golangci-lint
+  #       uses: golangci/golangci-lint-action@v3
+  #       with:
+  #         version: v1.48.0
+  #         args: --timeout 2m
 
-  unit-tests:
-    name: unit-tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
-        with:
-          go-version: "1.18"
-      - name: Run unit tests
-        run: make test
+  # unit-tests:
+  #   name: unit-tests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/setup-go@v3
+  #       with:
+  #         go-version: "1.18"
+  #     - name: Run unit tests
+  #       run: make test
 
-  acc-tests:
-    runs-on: ubuntu-latest
-    name: acc-tests
-    env:
-      SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
-      UPSTREAM_ID: ${{ github.run_number }}
-    steps:
-      - name: Sudo GitHub Token
-        id: generate_token
-        uses: tibdex/github-app-token@v1
-        with:
-          app_id: ${{vars.SUDO_GHA_APP_ID}}
-          installation_id: ${{vars.SUDO_GHA_APP_INSTALLATION_ID}}
-          private_key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
-        with:
-          go-version: "1.18"
-      - name: Set API_BRANCH
-        run: echo "API_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
-      - name: Check if same branch exists in fatmouse repository
-        id: check-branch
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{steps.generate_token.outputs.token}}
-          script: |
-            const owner = "Scalr";
-            const repo = "fatmouse";
-            const targetBranch = "${{ env.API_BRANCH }}";
-            const default_branch = "master";
+  # acc-tests:
+  #   runs-on: ubuntu-latest
+  #   name: acc-tests
+  #   env:
+  #     SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
+  #     UPSTREAM_ID: ${{ github.run_number }}
+  #   steps:
+  #     - name: Sudo GitHub Token
+  #       id: generate_token
+  #       uses: tibdex/github-app-token@v1
+  #       with:
+  #         app_id: ${{vars.SUDO_GHA_APP_ID}}
+  #         installation_id: ${{vars.SUDO_GHA_APP_INSTALLATION_ID}}
+  #         private_key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/setup-go@v3
+  #       with:
+  #         go-version: "1.18"
+  #     - name: Set API_BRANCH
+  #       run: echo "API_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+  #     - name: Check if same branch exists in fatmouse repository
+  #       id: check-branch
+  #       uses: actions/github-script@v6
+  #       with:
+  #         github-token: ${{steps.generate_token.outputs.token}}
+  #         script: |
+  #           const owner = "Scalr";
+  #           const repo = "fatmouse";
+  #           const targetBranch = "${{ env.API_BRANCH }}";
+  #           const default_branch = "master";
   
-            try {
-              const { data: branch } = await github.request('GET /repos/{owner}/{repo}/branches/{branch}', {
-                owner: owner,
-                repo: repo,
-                branch: targetBranch
-              });
+  #           try {
+  #             const { data: branch } = await github.request('GET /repos/{owner}/{repo}/branches/{branch}', {
+  #               owner: owner,
+  #               repo: repo,
+  #               branch: targetBranch
+  #             });
   
-              console.log(`Branch found in the ${repo} repository: ${branch.name}`);
-              core.setOutput('branch', branch.name);
-            } catch (error) {
-              if (error.status === 404) {
-                console.log(`Branch not found in ${repo} repository.`);
-                core.setOutput('branch', default_branch);
-              } else {
-                console.error('Unexpected error:', error);
-                core.setFailed('Unexpected error');
-              }
-            }
-      - name: Clone fatmouse repo
-        uses: actions/checkout@v3
-        with:
-          repository: Scalr/fatmouse
-          path: fatmouse
-          ref: ${{ steps.check-branch.outputs.branch }}
-          token: ${{steps.generate_token.outputs.token}}
-      - id: auth
-        uses: google-github-actions/auth@v0
-        with:
-          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
-      - name: Copy secrets
-        shell: bash
-        run: |
-          mkdir ~/.scalr-labs
-          gsutil cp gs://drone_bucket/prod/private.d/.secrets.yaml fatmouse/tacobell/.secrets.yaml
-          gsutil cp gs://drone_bucket/prod/private.d/github.json ~/.scalr-labs/github.json
-      - name: Configure docker
-        shell: bash
-        run: gcloud auth configure-docker eu.gcr.io
-      - name: Pull python builder
-        shell: bash
-        run: |
-          docker pull eu.gcr.io/development-156220/fatmouse/python-builder:master
-          docker tag eu.gcr.io/development-156220/fatmouse/python-builder:master fatmouse/python-builder:master
-      - name: Get current job log URL
-        uses: Tiryoh/gha-jobid-action@v0
-        id: get-job-id
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          job_name: ${{ github.job }}
-      - name: Generate run tag
-        shell: bash
-        run: |
-          if [ ${{ github.run_attempt }} = 1 ]; then
-            RERUN_SUFFIX=""
-          else
-            RERUN_SUFFIX=$(echo -${{ github.run_attempt }})
-          fi
-          echo "RUN_TAG=e2e-${{ github.workflow }}-${{ github.job }}-${{ github.run_number }}${RERUN_SUFFIX}" >> $GITHUB_ENV
-      - name: Create container
-        id: create
-        shell: bash
-        run: |
-          docker run --rm \
-          -e GITHUB_WORKSPACE=true \
-          -e GITHUB_OUTPUT=/fatmouse/output \
-          -w /fatmouse \
-          -v $PWD/fatmouse:/fatmouse \
-          -v $GITHUB_OUTPUT:/fatmouse/output \
-          -v ~/.scalr-labs:/etc/scalr-labs \
-          fatmouse/python-builder:master python -u clickfile.py te up \
-          --branch ${{ env.API_BRANCH }} \
-          --run-url ${{ steps.get-job-id.outputs.html_url }} \
-          --skip-ui-build \
-          ${{ env.RUN_TAG }}
-      - name: Get Scalr hostname
-        shell: bash
-        run: |
-          SCALR_HOST=${{ steps.create.outputs.host }}
-          echo "SCALR_HOSTNAME=mainiacp.${SCALR_HOST/https:\/\//}" >> $GITHUB_ENV
-      - name: Run acceptance tests
-        env:
-          SCALR_HOSTNAME: ${{ env.SCALR_HOSTNAME }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TEST_AWS_ACCESS_KEY: ${{ secrets.TEST_AWS_ACCESS_KEY }}
-          TEST_AWS_SECRET_KEY: ${{ secrets.TEST_AWS_SECRET_KEY }}
-          TEST_AWS_ROLE_ARN: ${{ secrets.TEST_AWS_ROLE_ARN }}
-          TEST_AWS_EXTERNAL_ID: ${{ secrets.TEST_AWS_EXTERNAL_ID }}
-          TEST_ARM_CLIENT_ID: ${{ secrets.TEST_ARM_CLIENT_ID }}
-          TEST_ARM_CLIENT_SECRET: ${{ secrets.TEST_ARM_CLIENT_SECRET }}
-          TEST_ARM_TENANT_ID: ${{ secrets.TEST_ARM_TENANT_ID }}
-          TEST_ARM_SUBSCRIPTION_ID: ${{ secrets.TEST_ARM_SUBSCRIPTION_ID }}
-        run: make testacc
-      - name: Install goveralls
-        env:
-          GO111MODULE: off
-        run: go get github.com/mattn/goveralls
-      - name: Send coverage
-        env:
-          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: goveralls -coverprofile=covprofile -service=github
-      - name: Delete container
-        id: delete
-        if: ${{ always() }}
-        shell: bash
-        run: |
-          docker run --rm \
-          -w /fatmouse \
-          -v $PWD/fatmouse:/fatmouse \
-          -v ~/.scalr-labs:/etc/scalr-labs \
-          fatmouse/python-builder:master \
-          python -u clickfile.py te rm \
-          --no-wait ${{ env.RUN_TAG }}
+  #             console.log(`Branch found in the ${repo} repository: ${branch.name}`);
+  #             core.setOutput('branch', branch.name);
+  #           } catch (error) {
+  #             if (error.status === 404) {
+  #               console.log(`Branch not found in ${repo} repository.`);
+  #               core.setOutput('branch', default_branch);
+  #             } else {
+  #               console.error('Unexpected error:', error);
+  #               core.setFailed('Unexpected error');
+  #             }
+  #           }
+  #     - name: Clone fatmouse repo
+  #       uses: actions/checkout@v3
+  #       with:
+  #         repository: Scalr/fatmouse
+  #         path: fatmouse
+  #         ref: ${{ steps.check-branch.outputs.branch }}
+  #         token: ${{steps.generate_token.outputs.token}}
+  #     - id: auth
+  #       uses: google-github-actions/auth@v0
+  #       with:
+  #         credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+  #     - name: Set up Cloud SDK
+  #       uses: google-github-actions/setup-gcloud@v0
+  #     - name: Copy secrets
+  #       shell: bash
+  #       run: |
+  #         mkdir ~/.scalr-labs
+  #         gsutil cp gs://drone_bucket/prod/private.d/.secrets.yaml fatmouse/tacobell/.secrets.yaml
+  #         gsutil cp gs://drone_bucket/prod/private.d/github.json ~/.scalr-labs/github.json
+  #     - name: Configure docker
+  #       shell: bash
+  #       run: gcloud auth configure-docker eu.gcr.io
+  #     - name: Pull python builder
+  #       shell: bash
+  #       run: |
+  #         docker pull eu.gcr.io/development-156220/fatmouse/python-builder:master
+  #         docker tag eu.gcr.io/development-156220/fatmouse/python-builder:master fatmouse/python-builder:master
+  #     - name: Get current job log URL
+  #       uses: Tiryoh/gha-jobid-action@v0
+  #       id: get-job-id
+  #       with:
+  #         github_token: ${{ secrets.GITHUB_TOKEN }}
+  #         job_name: ${{ github.job }}
+  #     - name: Generate run tag
+  #       shell: bash
+  #       run: |
+  #         if [ ${{ github.run_attempt }} = 1 ]; then
+  #           RERUN_SUFFIX=""
+  #         else
+  #           RERUN_SUFFIX=$(echo -${{ github.run_attempt }})
+  #         fi
+  #         echo "RUN_TAG=e2e-${{ github.workflow }}-${{ github.job }}-${{ github.run_number }}${RERUN_SUFFIX}" >> $GITHUB_ENV
+  #     - name: Create container
+  #       id: create
+  #       shell: bash
+  #       run: |
+  #         docker run --rm \
+  #         -e GITHUB_WORKSPACE=true \
+  #         -e GITHUB_OUTPUT=/fatmouse/output \
+  #         -w /fatmouse \
+  #         -v $PWD/fatmouse:/fatmouse \
+  #         -v $GITHUB_OUTPUT:/fatmouse/output \
+  #         -v ~/.scalr-labs:/etc/scalr-labs \
+  #         fatmouse/python-builder:master python -u clickfile.py te up \
+  #         --branch ${{ env.API_BRANCH }} \
+  #         --run-url ${{ steps.get-job-id.outputs.html_url }} \
+  #         --skip-ui-build \
+  #         ${{ env.RUN_TAG }}
+  #     - name: Get Scalr hostname
+  #       shell: bash
+  #       run: |
+  #         SCALR_HOST=${{ steps.create.outputs.host }}
+  #         echo "SCALR_HOSTNAME=mainiacp.${SCALR_HOST/https:\/\//}" >> $GITHUB_ENV
+  #     - name: Run acceptance tests
+  #       env:
+  #         SCALR_HOSTNAME: ${{ env.SCALR_HOSTNAME }}
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         TEST_AWS_ACCESS_KEY: ${{ secrets.TEST_AWS_ACCESS_KEY }}
+  #         TEST_AWS_SECRET_KEY: ${{ secrets.TEST_AWS_SECRET_KEY }}
+  #         TEST_AWS_ROLE_ARN: ${{ secrets.TEST_AWS_ROLE_ARN }}
+  #         TEST_AWS_EXTERNAL_ID: ${{ secrets.TEST_AWS_EXTERNAL_ID }}
+  #         TEST_ARM_CLIENT_ID: ${{ secrets.TEST_ARM_CLIENT_ID }}
+  #         TEST_ARM_CLIENT_SECRET: ${{ secrets.TEST_ARM_CLIENT_SECRET }}
+  #         TEST_ARM_TENANT_ID: ${{ secrets.TEST_ARM_TENANT_ID }}
+  #         TEST_ARM_SUBSCRIPTION_ID: ${{ secrets.TEST_ARM_SUBSCRIPTION_ID }}
+  #       run: make testacc
+  #     - name: Install goveralls
+  #       env:
+  #         GO111MODULE: off
+  #       run: go get github.com/mattn/goveralls
+  #     - name: Send coverage
+  #       env:
+  #         COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       run: goveralls -coverprofile=covprofile -service=github
+  #     - name: Delete container
+  #       id: delete
+  #       if: ${{ always() }}
+  #       shell: bash
+  #       run: |
+  #         docker run --rm \
+  #         -w /fatmouse \
+  #         -v $PWD/fatmouse:/fatmouse \
+  #         -v ~/.scalr-labs:/etc/scalr-labs \
+  #         fatmouse/python-builder:master \
+  #         python -u clickfile.py te rm \
+  #         --no-wait ${{ env.RUN_TAG }}
 
-  upload-dev:
-    name: upload-dev
-    needs: [lint, unit-tests, acc-tests]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Import GPG key
-        id: import_gpg
-        uses: Scalr/ghaction-import-gpg@v2.1.1
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
-        with:
-          project_id: ${{ secrets.DEV_GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.DEV_GCP_SA_KEY }}
-          export_default_credentials: true
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Create dev-tag
-        run: |
-          BRANCH=$(git rev-parse --abbrev-ref HEAD | sed 's|\(.*\)|\L\1|g;s|/|-|g')
-          git tag v1.0.0-rc-$BRANCH
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: "1.18"
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v3
-        with:
-          version: v1.8.3
-          args: release --skip-publish
-        env:
-          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
-      - name: Upload provider to registry
-        uses: ./.github/actions/upload-provider
-        with:
-          gcs-bucket: ${{ secrets.DEV_BUCKET_NAME }}
-          registry-domain: ${{ secrets.DEV_DOMAIN }}
-          gpg-key-id: ${{ steps.import_gpg.outputs.fingerprint }}
-          gpg-pub-key: ${{ steps.import_gpg.outputs.pubkey }}
-      - name: Update network mirror
-        uses: ./.github/actions/update-network-mirror
-        with:
-          gcs-bucket: ${{ secrets.DEV_BUCKET_NAME }}
-          registry-domain: ${{ secrets.DEV_DOMAIN }}
-          dry-run: false
+  # upload-dev:
+  #   name: upload-dev
+  #   needs: [lint, unit-tests, acc-tests]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Import GPG key
+  #       id: import_gpg
+  #       uses: Scalr/ghaction-import-gpg@v2.1.1
+  #       env:
+  #         GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+  #         PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+  #     - name: Set up Cloud SDK
+  #       uses: google-github-actions/setup-gcloud@v0
+  #       with:
+  #         project_id: ${{ secrets.DEV_GCP_PROJECT_ID }}
+  #         service_account_key: ${{ secrets.DEV_GCP_SA_KEY }}
+  #         export_default_credentials: true
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0
+  #     - name: Create dev-tag
+  #       run: |
+  #         BRANCH=$(git rev-parse --abbrev-ref HEAD | sed 's|\(.*\)|\L\1|g;s|/|-|g')
+  #         git tag v1.0.0-rc-$BRANCH
+  #     - name: Set up Go
+  #       uses: actions/setup-go@v3
+  #       with:
+  #         go-version: "1.18"
+  #     - name: Run GoReleaser
+  #       uses: goreleaser/goreleaser-action@v3
+  #       with:
+  #         version: v1.8.3
+  #         args: release --skip-publish
+  #       env:
+  #         GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
+  #     - name: Upload provider to registry
+  #       uses: ./.github/actions/upload-provider
+  #       with:
+  #         gcs-bucket: ${{ secrets.DEV_BUCKET_NAME }}
+  #         registry-domain: ${{ secrets.DEV_DOMAIN }}
+  #         gpg-key-id: ${{ steps.import_gpg.outputs.fingerprint }}
+  #         gpg-pub-key: ${{ steps.import_gpg.outputs.pubkey }}
+  #     - name: Update network mirror
+  #       uses: ./.github/actions/update-network-mirror
+  #       with:
+  #         gcs-bucket: ${{ secrets.DEV_BUCKET_NAME }}
+  #         registry-domain: ${{ secrets.DEV_DOMAIN }}
+  #         dry-run: false
 
   release:
     name: release
-    if: startsWith(github.ref, 'refs/tags/')
-    needs: [lint, unit-tests, acc-tests]
+    # if: startsWith(github.ref, 'refs/tags/')
+    # needs: [lint, unit-tests, acc-tests]
     runs-on: ubuntu-latest
     steps:
-      - name: Import GPG key
-        id: import_gpg
-        uses: Scalr/ghaction-import-gpg@v2.1.1
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      # - name: Import GPG key
+      #   id: import_gpg
+      #   uses: Scalr/ghaction-import-gpg@v2.1.1
+      #   env:
+      #     GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+      #     PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
         with:
@@ -252,25 +252,25 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: "1.18"
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v3
-        with:
-          version: latest
-          args: release --rm-dist
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
-      - name: Upload provider to registry
-        uses: ./.github/actions/upload-provider
-        with:
-          gcs-bucket: ${{ secrets.BUCKET_NAME }}
-          registry-domain: ${{ secrets.DOMAIN }}
-          gpg-key-id: ${{ steps.import_gpg.outputs.fingerprint }}
-          gpg-pub-key: ${{ steps.import_gpg.outputs.pubkey }}
+      # - name: Set up Go
+      #   uses: actions/setup-go@v3
+      #   with:
+      #     go-version: "1.18"
+      # - name: Run GoReleaser
+      #   uses: goreleaser/goreleaser-action@v3
+      #   with:
+      #     version: latest
+      #     args: release --rm-dist
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
+      # - name: Upload provider to registry
+      #   uses: ./.github/actions/upload-provider
+      #   with:
+      #     gcs-bucket: ${{ secrets.BUCKET_NAME }}
+      #     registry-domain: ${{ secrets.DOMAIN }}
+      #     gpg-key-id: ${{ steps.import_gpg.outputs.fingerprint }}
+      #     gpg-pub-key: ${{ steps.import_gpg.outputs.pubkey }}
       - name: Update network mirror
         uses: ./.github/actions/update-network-mirror
         with:

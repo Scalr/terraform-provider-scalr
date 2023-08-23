@@ -8180,7 +8180,7 @@ async function main() {
         if (!dryRun) {
             await exec.exec(
                 'gsutil -m -h "Cache-Control:private, max-age=0, no-transform"'
-                + ` rsync -d -r ${MIRROR_DIR}/ ${bucketPath}/`
+                + ` rsync -r ${MIRROR_DIR}/ ${bucketPath}/`
             );
         }
 
