@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `scalr_provider_configuration`: Fix error message if aws credentials type is wrong.
+
 ## [1.4.0] - 2023-08-11
 
 ### Changed
