@@ -310,7 +310,7 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 				return diag.Errorf("'audience' field is required for 'oidc' credentials type of aws provider configuration")
 			}
 		} else if *configurationOptions.AwsCredentialsType != "access_keys" {
-			return diag.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys'", *configurationOptions.AwsCredentialsType)
+			return diag.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys', 'oidc'", *configurationOptions.AwsCredentialsType)
 		} else if !accessKeyIdExists || !accessSecretKeyExists {
 			return diag.Errorf("'access_key' and 'secret_key' fields are required for 'access_keys' credentials type of aws provider configuration")
 		}
@@ -679,7 +679,7 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 					return diag.Errorf("'audience' field is required for 'oidc' credentials type of aws provider configuration")
 				}
 			} else if *configurationOptions.AwsCredentialsType != "access_keys" {
-				return diag.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys'", *configurationOptions.AwsCredentialsType)
+				return diag.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys', 'oidc'", *configurationOptions.AwsCredentialsType)
 			} else if !accessKeyIdExists || !accessSecretKeyExists {
 				return diag.Errorf("'access_key' and 'secret_key' fields are required for 'access_keys' credentials type of aws provider configuration")
 			}
