@@ -121,6 +121,7 @@ jobs:
           --branch ${{ env.API_BRANCH }} \
           --run-url ${{ steps.get-job-id.outputs.html_url }} \
           --skip-ui-build \
+          --agent-pool-id="${{vars.TACO_APOOL_ID}}" \
           ${{ env.RUN_TAG }}
       - name: Get Scalr hostname
         shell: bash
