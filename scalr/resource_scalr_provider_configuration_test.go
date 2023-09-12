@@ -14,6 +14,28 @@ import (
 	"github.com/scalr/go-scalr"
 )
 
+func TestAccProviderConfiguration_import(t *testing.T) {
+	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrProviderConfigurationCustomImportConfig(rName),
+			},
+			{
+				ResourceName:      "scalr_provider_configuration.kubernetes",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccProviderConfiguration_custom(t *testing.T) {
 	var providerConfiguration scalr.ProviderConfiguration
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
@@ -126,6 +148,26 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 				Config:      testAccScalrProviderConfigurationCustomWithAwsAttrConfig(rName),
 				PlanOnly:    true,
 				ExpectError: regexp.MustCompile("Provider type can't be changed."),
+			},
+		},
+	})
+}
+
+func TestAccProviderConfiguration_aws_custom(t *testing.T) {
+	var providerConfiguration scalr.ProviderConfiguration
+	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrProviderConfigurationCustomConfigAws(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.custom_aws", &providerConfiguration),
+					testAccCheckProviderConfigurationCustomAwsValues(&providerConfiguration, rName),
+				),
 			},
 		},
 	})
@@ -246,6 +288,7 @@ func TestAccProviderConfiguration_google(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "azurerm.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "custom.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.project", project),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.auth_type", "service-account-key"),
 				),
 			},
 			{
@@ -260,7 +303,94 @@ func TestAccProviderConfiguration_google(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "azurerm.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "custom.#", "0"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.project", project),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.auth_type", "service-account-key"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "scalr.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccProviderConfiguration_google_oidc(t *testing.T) {
+	var providerConfiguration scalr.ProviderConfiguration
+	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	_, project := getGoogleTestingCreds(t)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrProviderConfigurationGoogleOidcConfig(rName, project),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.google", &providerConfiguration),
+					testAccCheckProviderConfigurationGoogleValues(&providerConfiguration, rName, project),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "name", rName),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "export_shell_variables", "false"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "aws.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.#", "1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "azurerm.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "custom.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.project", project),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.auth_type", "oidc"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.service_account_email", "test-oidc@example.com"),
+				),
+			},
+			{
+				Config: testAccScalrProviderConfigurationGoogleOidcUpdatedConfig(rNewName, project),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.google", &providerConfiguration),
+					testAccCheckProviderConfigurationGoogleUpdatedValues(&providerConfiguration, rNewName, project),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "name", rNewName),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "export_shell_variables", "true"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "aws.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.#", "1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "azurerm.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "custom.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.project", project),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "scalr.#", "0"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.auth_type", "oidc"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.service_account_email", "changed-test-oidc@example.com"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccProviderConfiguration_aws_oidc(t *testing.T) {
+	var providerConfiguration scalr.ProviderConfiguration
+	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrProviderConfigurationAWSOidcConfig(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.aws", &providerConfiguration),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "name", rName),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "export_shell_variables", "false"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.#", "1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.role_arn", "arn:aws:iam::123456789012:role/scalr-oidc-role"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.credentials_type", "oidc"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.audience", "aws.scalr-run-workload"),
+				),
+			},
+			{
+				Config: testAccScalrProviderConfigurationAWSOidcUpdatedConfig(rNewName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.aws", &providerConfiguration),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "name", rNewName),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "export_shell_variables", "false"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.#", "1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.role_arn", "arn:aws:iam::123456789012:role/scalr-oidc-role2"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.credentials_type", "oidc"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.audience", "aws.scalr-run-workload2"),
 				),
 			},
 		},
@@ -410,6 +540,21 @@ func testAccCheckProviderConfigurationAwsValues(providerConfiguration *scalr.Pro
 		}
 		if providerConfiguration.AwsAccountType != "regular" {
 			return fmt.Errorf("bad aws account type, expected \"%s\", got: %#v", "regular", providerConfiguration.AwsAccountType)
+		}
+		return nil
+	}
+}
+
+func testAccCheckProviderConfigurationCustomAwsValues(providerConfiguration *scalr.ProviderConfiguration, name string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if providerConfiguration.Name != name {
+			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, providerConfiguration.Name)
+		}
+		if providerConfiguration.ProviderName != "aws" {
+			return fmt.Errorf("bad provider type, expected \"%s\", got: %#v", "aws", providerConfiguration.ProviderName)
+		}
+		if !providerConfiguration.IsCustom {
+			return fmt.Errorf("bad is-custom attr, expected \"%s\", got: %#v", "aws", providerConfiguration.IsCustom)
 		}
 		return nil
 	}
@@ -641,6 +786,35 @@ resource "scalr_provider_configuration" "kubernetes" {
 }
 `, name, defaultAccount)
 }
+
+func testAccScalrProviderConfigurationCustomImportConfig(name string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "kubernetes" {
+  name                   = "%s"
+  account_id             = "%s"
+  environments           = ["*"]
+  custom {
+    provider_name = "kubernetes"
+    argument {
+      name        = "config_path"
+      value       = "~/.kube/config"
+      sensitive   = false
+      description = "A path to a kube config file. some typo..."
+    }
+    argument {
+      name      = "client_id"
+      value     = "ID18021989"
+      sensitive = false
+    }
+    argument {
+      name  = "host"
+      value = "my-host"
+    }
+  }
+}
+`, name, defaultAccount)
+}
+
 func testAccScalrProviderConfigurationCustomConfigUpdated(name string) string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
@@ -668,6 +842,30 @@ resource "scalr_provider_configuration" "kubernetes" {
     argument {
       name  = "username"
       value = "my-username"
+    }
+  }
+}
+`, defaultAccount, name, defaultAccount)
+}
+
+func testAccScalrProviderConfigurationCustomConfigAws(name string) string {
+	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name                    = "test-provider-configuration-env"
+  account_id              = "%s"
+  cost_estimation_enabled = false
+}
+
+resource "scalr_provider_configuration" "custom_aws" {
+  name         = "%s"
+  account_id   = "%s"
+  environments = ["${scalr_environment.test.id}"]
+  custom {
+    provider_name = "aws"
+    argument {
+      name        = "region"
+      value       = "us-east-1"
+      sensitive   = false
     }
   }
 }
@@ -727,6 +925,65 @@ resource "scalr_provider_configuration" "aws" {
   }
 }
 `, name, defaultAccount, accessKeyId, secretAccessKey, roleArn, externalId)
+}
+
+func testAccScalrProviderConfigurationGoogleOidcConfig(name, project string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "google" {
+  name       = "%s"
+  account_id = "%s"
+  google {
+    project     			= "%s"
+    auth_type				= "oidc"
+	service_account_email	= "test-oidc@example.com"
+	workload_provider_name	= "projects/123/locations/global/workloadIdentityPools/testpool/providers/dev"
+  }
+}
+`, name, defaultAccount, project)
+}
+
+func testAccScalrProviderConfigurationGoogleOidcUpdatedConfig(name, project string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "google" {
+  name       = "%s"
+  account_id = "%s"
+  export_shell_variables = true
+  google {
+    project     			= "%s"
+    auth_type				= "oidc"
+	service_account_email	= "changed-test-oidc@example.com"
+	workload_provider_name	= "projects/123/locations/global/workloadIdentityPools/testpool/providers/dev"
+  }
+}
+`, name, defaultAccount, project)
+}
+
+func testAccScalrProviderConfigurationAWSOidcConfig(name string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "aws" {
+  name       = "%s"
+  account_id = "%s"
+  aws {
+    credentials_type           = "oidc"
+    role_arn                   = "arn:aws:iam::123456789012:role/scalr-oidc-role"
+    audience = "aws.scalr-run-workload"
+  }
+}
+`, name, defaultAccount)
+}
+
+func testAccScalrProviderConfigurationAWSOidcUpdatedConfig(name string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "aws" {
+  name       = "%s"
+  account_id = "%s"
+  aws {
+    credentials_type           = "oidc"
+    role_arn                   = "arn:aws:iam::123456789012:role/scalr-oidc-role2"
+    audience = "aws.scalr-run-workload2"
+  }
+}
+`, name, defaultAccount)
 }
 
 func testAccScalrProviderConfigurationGoogleConfig(name, credentials, project string) string {

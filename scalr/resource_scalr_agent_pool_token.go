@@ -43,7 +43,7 @@ func resourceScalrAgentPoolTokenCreate(ctx context.Context, d *schema.ResourceDa
 	poolID := d.Get("agent_pool_id").(string)
 
 	// Create a new options struct
-	options := scalr.AgentPoolTokenCreateOptions{}
+	options := scalr.AccessTokenCreateOptions{}
 
 	if desc, ok := d.GetOk("description"); ok {
 		options.Description = scalr.String(desc.(string))
@@ -73,7 +73,7 @@ func resourceScalrAgentPoolTokenRead(ctx context.Context, d *schema.ResourceData
 	}
 
 	log.Printf("[DEBUG] Read configuration of agent pool token: %s", id)
-	options := scalr.AgentPoolTokenListOptions{}
+	options := scalr.AccessTokenListOptions{}
 
 	for {
 		tokensList, err := scalrClient.AgentPoolTokens.List(ctx, poolID, options)

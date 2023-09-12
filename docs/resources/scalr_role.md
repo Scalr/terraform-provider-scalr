@@ -24,7 +24,7 @@ resource "scalr_role" "writer" {
 ## Argument Reference
 
 * `name` - (Required) Name of the role.
-* `account_id` - (Required) ID of the account.
+* `account_id` - (Optional) ID of the account.
 * `permissions` - (Required) Array of permission names.
 * `description` - (Optional) Verbose description of the role.
 

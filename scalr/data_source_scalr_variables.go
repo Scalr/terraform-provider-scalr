@@ -77,8 +77,10 @@ func dataSourceScalrVariables() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"category": {
 				Type:     schema.TypeString,
@@ -102,6 +104,8 @@ func dataSourceScalrVariablesRead(ctx context.Context, d *schema.ResourceData, m
 	filters := scalr.VariableFilter{}
 	options := scalr.VariableListOptions{Filter: &filters}
 
+	filters.Account = scalr.String(d.Get("account_id").(string))
+
 	if keysI, ok := d.GetOk("keys"); ok {
 		keys := make([]string, 0)
 		for _, keyI := range keysI.(*schema.Set).List() {
@@ -113,9 +117,6 @@ func dataSourceScalrVariablesRead(ctx context.Context, d *schema.ResourceData, m
 	}
 	if categoryI, ok := d.GetOk("category"); ok {
 		filters.Category = scalr.String(categoryI.(string))
-	}
-	if accountI, ok := d.GetOk("account_id"); ok {
-		filters.Account = scalr.String(accountI.(string))
 	}
 	if envIdsI, ok := d.GetOk("environment_ids"); ok {
 		envIds := make([]string, 0)

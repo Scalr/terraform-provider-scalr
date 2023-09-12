@@ -2,7 +2,7 @@ package scalr
 
 import (
 	"context"
-	"errors"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -12,6 +12,9 @@ import (
 
 func dataSourceScalrEndpoint() *schema.Resource {
 	return &schema.Resource{
+		DeprecationMessage: "Datasource `scalr_endpoint` is deprecated, the endpoint information" +
+			" is included in the `scalr_webhook` resource.",
+
 		ReadContext: dataSourceScalrEndpointRead,
 
 		Schema: map[string]*schema.Schema{
@@ -20,19 +23,20 @@ func dataSourceScalrEndpoint() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 				AtLeastOneOf: []string{"name"},
 			},
 
 			"name": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"id"},
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 
 			"max_attempts": {
 				Type:     schema.TypeInt,
-				Optional: true,
+				Computed: true,
 			},
 
 			"secret_key": {
@@ -52,15 +56,15 @@ func dataSourceScalrEndpoint() *schema.Resource {
 			},
 
 			"account_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 
 			"environment_id": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Optional: true,
 			},
 		},
 	}
@@ -69,34 +73,35 @@ func dataSourceScalrEndpoint() *schema.Resource {
 func dataSourceScalrEndpointRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
-	// Get the ID
+	// Get IDs
 	endpointID := d.Get("id").(string)
 	endpointName := d.Get("name").(string)
-
 	accountID := d.Get("account_id").(string)
 
 	var endpoint *scalr.Endpoint
 	var err error
 
+	log.Printf("[DEBUG] Read endpoint with ID '%s' and name '%s'", endpointID, endpointName)
 	if endpointID != "" {
-		log.Printf("[DEBUG] Read endpoint with ID: %s", endpointID)
 		endpoint, err = scalrClient.Endpoints.Read(ctx, endpointID)
-	} else {
-		log.Printf("[DEBUG] Read configuration of endpoint: %s", endpointName)
-		options := GetEndpointByNameOptions{
-			Name: &endpointName,
+		if err != nil {
+			return diag.Errorf("Error retrieving endpoint: %v", err)
 		}
-		if accountID != "" {
-			options.Account = &accountID
+		if endpointName != "" && endpointName != endpoint.Name {
+			return diag.Errorf("Could not find endpoint with ID '%s' and name '%s'", endpointID, endpointName)
+		}
+	} else {
+		options := GetEndpointByNameOptions{
+			Name:    &endpointName,
+			Account: &accountID,
 		}
 		endpoint, err = GetEndpointByName(ctx, options, scalrClient)
-	}
-
-	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return diag.Errorf("Could not find endpoint %s: %v", endpointID, err)
+		if err != nil {
+			return diag.Errorf("Error retrieving endpoint: %v", err)
 		}
-		return diag.Errorf("Error retrieving endpoint: %v", err)
+		if endpointID != "" && endpointID != endpoint.ID {
+			return diag.Errorf("Could not find endpoint with ID '%s' and name '%s'", endpointID, endpointName)
+		}
 	}
 
 	// Update the config.

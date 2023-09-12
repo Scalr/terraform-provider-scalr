@@ -37,6 +37,20 @@ resource "scalr_provider_configuration" "aws" {
 }
 ```
 
+```hcl
+resource "scalr_provider_configuration" "oidc" {
+  name                   = "oidc_dev_us_east_1"
+  account_id             = "acc-xxxxxxxxx"
+  export_shell_variables = false
+  environments           = ["*"]
+  aws {
+    credentials_type           = "oidc"
+    role_arn                   = "arn:aws:iam::123456789012:role/scalr-oidc-role"
+    audience = "aws.scalr-run-workload"
+  }
+}
+```
+
 To get into more advanced AWS usage please refer to the official [AWS module](https://github.com/Scalr/terraform-scalr-provider-configuration-aws).
 
 ### AzureRM provider:
@@ -54,6 +68,20 @@ resource "scalr_provider_configuration" "azurerm" {
 }
 ```
 
+```hcl
+resource "scalr_provider_configuration" "azurerm_oidc" {
+  name       = "azurerm"
+  account_id = "acc-xxxxxxxxx"
+  azurerm {
+    auth_type       = "oidc"
+    audience        = "scalr-workload-identity"
+    client_id       = "my-client-id"
+    tenant_id       = "my-tenant-id"
+    subscription_id = "my-subscription-id"
+  }
+}
+```
+
 ### Google provider:
 
 ```hcl
@@ -63,6 +91,19 @@ resource "scalr_provider_configuration" "google" {
   google {
     project     = "my-project"
     credentials = "my-credentials"
+  }
+}
+```
+
+```hcl
+resource "scalr_provider_configuration" "google" {
+  name       = "google_main"
+  account_id = "acc-xxxxxxxxx"
+  google {
+    auth_type              = "oidc"
+    project                = "my-project"
+    service_account_email  = "user@example.com"
+    workload_provider_name = "projects/123/locations/global/workloadIdentityPools/pool-name/providers/provider-name"
   }
 }
 ```
@@ -95,7 +136,7 @@ resource "scalr_provider_configuration" "kubernetes" {
 
 ## Argument Reference
 
-* `account_id` - (Required) The account that owns the object, specified as an ID.
+* `account_id` - (Optional) The account that owns the object, specified as an ID.
 * `name` - (Required) The name of the Scalr provider configuration. This field is unique for the account.
 * `export_shell_variables` - (Optional) Export provider variables into the run environment. This option is available for built-in (Scalr, AWS, AzureRM, Google) providers only.
 * `environments` - (Optional) The list of environment identifiers that the provider configuration is shared to. Use `["*"]` to share with all environments.
@@ -105,23 +146,29 @@ resource "scalr_provider_configuration" "kubernetes" {
     * `token` - (Optional) The Scalr token which should be used.
 * `aws` - (Optional) Settings for the aws provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.
    The `aws` block supports the following:
-  * `account_type` - (Required) The type of AWS account, available options: `regular`, `gov-cloud`, `cn-cloud`.
-  * `credentials_type` - (Required) The type of AWS credentials, available options: `access_keys`, `role_delegation`.
+  * `credentials_type` - (Required) The type of AWS credentials, available options: `access_keys`, `role_delegation`, `oidc`.
+  * `account_type` - (Optional) The type of AWS account, available options: `regular`, `gov-cloud`, `cn-cloud`.
   * `trusted_entity_type` - (Optional) Trusted entity type, available options: `aws_account`, `aws_service`. This option is required with `role_delegation` credentials type.
-  * `role_arn` - (Optional) Amazon Resource Name (ARN) of the IAM Role to assume. This option is required with the `role_delegation` credentials type.
+  * `role_arn` - (Optional) Amazon Resource Name (ARN) of the IAM Role to assume. This option is required with the `role_delegation` and `oidc` credentials type.
   * `external_id` - (Optional) External identifier to use when assuming the role. This option is required with `role_delegation` credentials type and `aws_account` trusted entity type.
   * `secret_key` - (Optional) AWS secret key. This option is required with `access_keys` credentials type.
   * `access_key` - (Optional) AWS access key. This option is required with `access_keys` credentials type.
+  * `audience` - (Optional) The value of the `aud` claim for the identity token. This option is required with `oidc` credentials type.
 * `google` - (Optional) Settings for the google provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.
    The `google` block supports the following:
-  * `credentials` - (Required) Service account key file in JSON format.
+  * `auth_type` - (Optional) Authentication type, either `service-account-key` (default) or `oidc`.
+  * `credentials` - (Optional) Service account key file in JSON format, required when `auth_type` is `service-account-key`.
+  * `service_account_email` - (Optional) The service account email used to authenticate to GCP, required when `auth_type` is `oidc`.
+  * `workload_provider_name` - (Optional) The canonical name of the workload identity provider, required when `auth_type` is `oidc`.
   * `project` - (Optional) The default project to manage resources in. If another project is specified on a resource, it will take precedence.
 * `azurerm` - (Optional) Settings for the azurerm provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.
    The `azurerm` block supports the following:
+  * `auth_type` - (Optional) Authentication type, either `client-secrets` (default) or `oidc`.
   * `client_id` - (Required) The Client ID that should be used.
-  * `client_secret` - (Required) The Client Secret that should be used.
+  * `client_secret` - (Optional) The Client Secret that should be used, required when `auth_type` is `client-secrets`.
   * `tenant_id` - (Required) The Tenant ID that should be used.
   * `subscription_id` - (Optional) The Subscription ID that should be used. If skipped, it must be set as a shell variable in the workspace or as a part of the source configuration.
+  * `audience` - (Optional) The value of the `aud` claim for the identity token. This option is required with `oidc` authentication type.
 * `custom` - (Optional) Settings for the provider configuration that does not have scalr support as a built-in provider. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.
    The `custom` block supports the following:
   * `provider_name` - (Required) The name of a Terraform provider.

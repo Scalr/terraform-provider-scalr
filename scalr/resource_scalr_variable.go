@@ -125,10 +125,11 @@ func resourceScalrVariable() *schema.Resource {
 			},
 
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
+				ForceNew:    true,
 			},
 		},
 	}
@@ -151,6 +152,7 @@ func resourceScalrVariableCreate(ctx context.Context, d *schema.ResourceData, me
 		Sensitive:    scalr.Bool(d.Get("sensitive").(bool)),
 		Final:        scalr.Bool(d.Get("final").(bool)),
 		QueryOptions: &scalr.VariableWriteQueryOptions{Force: scalr.Bool(d.Get("force").(bool))},
+		Account:      &scalr.Account{ID: d.Get("account_id").(string)},
 	}
 
 	// Get and check the workspace.
@@ -175,13 +177,6 @@ func resourceScalrVariableCreate(ctx context.Context, d *schema.ResourceData, me
 				"Error retrieving environment %s: %v", environmentId, err)
 		}
 		options.Environment = env
-	}
-
-	// Get the account
-	if accountId, ok := d.GetOk("account_id"); ok {
-		options.Account = &scalr.Account{
-			ID: accountId.(string),
-		}
 	}
 
 	log.Printf("[DEBUG] Create %s variable: %s", category, key)

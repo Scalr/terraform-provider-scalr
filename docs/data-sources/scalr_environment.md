@@ -7,9 +7,15 @@ Retrieves the details of a Scalr environment.
 
 ```hcl
 data "scalr_environment" "test" {
-  id = "env-xxxxxxxxxx" # optional, can only use id or name for the environment filter, if both are used there will be a conflict.
-  account_id = "acc-xxxxxxxx" # mandatory if a user has access to a few accounts and the environment name is not unique
-  name = "environment-name"  # optional, can only use id or name for the environment filter, if both are used there will be a conflict.
+  id         = "env-xxxxxxx"
+  account_id = "acc-xxxxxxx"
+}
+```
+
+```hcl
+data "scalr_environment" "test" {
+  name       = "environment-name"
+  account_id = "acc-xxxxxxx"
 }
 ```
 
@@ -27,8 +33,7 @@ All arguments plus:
 
 * `created_by` - Details of the user that created the environment.
 * `cost_estimation_enabled` - Boolean indicates if cost estimation is enabled for the environment.
-* `status` - The status of an environment. 
-* `cloud_credentials` - List of the environment cloud-credentials IDs, in the format `cred-<RANDOM STRING>`.
+* `status` - The status of an environment.
 * `policy_groups` - List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.
 * `tag_ids` - List of tag IDs associated with the environment.
 

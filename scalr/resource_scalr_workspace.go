@@ -87,6 +87,12 @@ func resourceScalrWorkspace() *schema.Resource {
 				Default:  false,
 			},
 
+			"deletion_protection_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
+
 			"var_files": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -100,7 +106,7 @@ func resourceScalrWorkspace() *schema.Resource {
 				Type:       schema.TypeBool,
 				Optional:   true,
 				Computed:   true,
-				Deprecated: "The attribute `operations` is deprecated. Use `execution-mode` instead",
+				Deprecated: "The attribute `operations` is deprecated. Use `execution_mode` instead",
 			},
 
 			"execution_mode": {
@@ -182,7 +188,7 @@ func resourceScalrWorkspace() *schema.Resource {
 					},
 					false,
 				),
-				Default: string(scalr.AutoQueueRunsModeSkipFirst),
+				Computed: true,
 			},
 
 			"vcs_repo": {
@@ -306,11 +312,12 @@ func resourceScalrWorkspaceCreate(ctx context.Context, d *schema.ResourceData, m
 
 	// Create a new options struct.
 	options := scalr.WorkspaceCreateOptions{
-		Name:           scalr.String(name),
-		AutoApply:      scalr.Bool(d.Get("auto_apply").(bool)),
-		ForceLatestRun: scalr.Bool(d.Get("force_latest_run").(bool)),
-		Environment:    &scalr.Environment{ID: environmentID},
-		Hooks:          &scalr.HooksOptions{},
+		Name:                      scalr.String(name),
+		AutoApply:                 scalr.Bool(d.Get("auto_apply").(bool)),
+		ForceLatestRun:            scalr.Bool(d.Get("force_latest_run").(bool)),
+		DeletionProtectionEnabled: scalr.Bool(d.Get("deletion_protection_enabled").(bool)),
+		Environment:               &scalr.Environment{ID: environmentID},
+		Hooks:                     &scalr.HooksOptions{},
 	}
 
 	// Process all configured options.
@@ -460,6 +467,7 @@ func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, met
 	_ = d.Set("name", workspace.Name)
 	_ = d.Set("auto_apply", workspace.AutoApply)
 	_ = d.Set("force_latest_run", workspace.ForceLatestRun)
+	_ = d.Set("deletion_protection_enabled", workspace.DeletionProtectionEnabled)
 	_ = d.Set("operations", workspace.Operations)
 	_ = d.Set("execution_mode", workspace.ExecutionMode)
 	_ = d.Set("terraform_version", workspace.TerraformVersion)
@@ -479,6 +487,8 @@ func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, met
 
 	if workspace.AgentPool != nil {
 		_ = d.Set("agent_pool_id", workspace.AgentPool.ID)
+	} else {
+		_ = d.Set("agent_pool_id", "")
 	}
 
 	var mv string
@@ -562,14 +572,15 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 	if d.HasChange("name") || d.HasChange("auto_apply") || d.HasChange("auto_queue_runs") ||
 		d.HasChange("terraform_version") || d.HasChange("working_directory") || d.HasChange("force_latest_run") ||
 		d.HasChange("vcs_repo") || d.HasChange("operations") || d.HasChange("execution_mode") ||
-		d.HasChange("vcs_provider_id") || d.HasChange("agent_pool_id") ||
+		d.HasChange("vcs_provider_id") || d.HasChange("agent_pool_id") || d.HasChange("deletion_protection_enabled") ||
 		d.HasChange("hooks") || d.HasChange("module_version_id") || d.HasChange("var_files") ||
 		d.HasChange("run_operation_timeout") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
-			Name:           scalr.String(d.Get("name").(string)),
-			AutoApply:      scalr.Bool(d.Get("auto_apply").(bool)),
-			ForceLatestRun: scalr.Bool(d.Get("force_latest_run").(bool)),
+			Name:                      scalr.String(d.Get("name").(string)),
+			AutoApply:                 scalr.Bool(d.Get("auto_apply").(bool)),
+			ForceLatestRun:            scalr.Bool(d.Get("force_latest_run").(bool)),
+			DeletionProtectionEnabled: scalr.Bool(d.Get("deletion_protection_enabled").(bool)),
 			Hooks: &scalr.HooksOptions{
 				PreInit:   scalr.String(""),
 				PrePlan:   scalr.String(""),

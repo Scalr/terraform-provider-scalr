@@ -3,6 +3,8 @@
 
 Manage the state of endpoints in Scalr. Create, update and destroy
 
+> **WARNING:** This resource is deprecated and will be removed in the next major version.
+
 ## Example Usage
 
 Basic usage:

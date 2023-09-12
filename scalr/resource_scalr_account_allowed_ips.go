@@ -3,9 +3,11 @@ package scalr
 import (
 	"context"
 	"errors"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"fmt"
 	"log"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/scalr/go-scalr"
@@ -23,8 +25,10 @@ func resourceScalrAccountAllowedIps() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"account_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 
 			"allowed_ips": {
@@ -85,8 +89,12 @@ func resourceScalrAccountAllowedIpsRead(ctx context.Context, d *schema.ResourceD
 		return diag.Errorf("Error retrieving account: %v", err)
 	}
 
+	allowedIpsAsString := fmt.Sprintf("%v", d.Get("allowed_ips").([]interface{}))
 	for i, ip := range account.AllowedIPs {
-		account.AllowedIPs[i] = strings.TrimSuffix(ip, "/32")
+		if !strings.Contains(allowedIpsAsString, ip) {
+			ip = strings.TrimSuffix(ip, "/32")
+		}
+		account.AllowedIPs[i] = ip
 	}
 
 	// Update the config.

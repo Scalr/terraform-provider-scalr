@@ -2,11 +2,13 @@ package scalr
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/scalr/go-scalr"
 )
 
 func TestAccScalrVariablesDataSource(t *testing.T) {
@@ -16,7 +18,8 @@ func TestAccScalrVariablesDataSource(t *testing.T) {
 		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrVariablesDataSourceInitConfig, // depends_on works improperly with data sources
+				Config:    testAccScalrVariablesDataSourceInitConfig, // depends_on works improperly with data sources
+				PreConfig: deleteAllVariables,
 			},
 			{
 				Config: testAccScalrVariablesDataSourceConfig,
@@ -27,7 +30,12 @@ func TestAccScalrVariablesDataSource(t *testing.T) {
 					),
 					testCheckResourceVarsInDatasource(
 						"data.scalr_variables.account",
-						[]string{"scalr_variable.workspace2_host", "scalr_variable.workspace_host", "scalr_variable.secret"},
+						[]string{
+							"scalr_variable.workspace2_host",
+							"scalr_variable.workspace_host",
+							"scalr_variable.secret",
+							"scalr_variable.address",
+						},
 					),
 					testCheckResourceVarsInDatasource(
 						"data.scalr_variables.workspace",
@@ -48,6 +56,26 @@ func TestAccScalrVariablesDataSource(t *testing.T) {
 			},
 		},
 	})
+}
+
+func deleteAllVariables() {
+	scalrClient, err := createScalrClient()
+	if err != nil {
+		log.Fatalf("Cant remove default variables before test: %s", err)
+		return
+	}
+	variables, err := scalrClient.Variables.List(ctx, scalr.VariableListOptions{})
+	if err != nil {
+		log.Fatalf("Cant remove default variables before test: %s", err)
+		return
+	}
+	for _, variable := range variables.Items {
+		err = scalrClient.Variables.Delete(ctx, variable.ID)
+		if err != nil {
+			log.Fatalf("Cant remove default variables before test: %s", err)
+			return
+		}
+	}
 }
 
 func testCheckResourceVarsInDatasource(dsName string, origNames []string) resource.TestCheckFunc {
@@ -155,19 +183,18 @@ data "scalr_variables" "shell" {
 }
 
 data "scalr_variables" "host" {
-	keys = ["host"]
+  keys = ["host"]
 }
 
 data "scalr_variables" "workspace" {
-	workspace_ids=[scalr_workspace.test.id]
+  workspace_ids=[scalr_workspace.test.id]
 }
 
 data "scalr_variables" "workspace_and_null" {
-	workspace_ids=[scalr_workspace.test.id, "null"]
+  workspace_ids=[scalr_workspace.test.id, "null"]
 }
 
 data "scalr_variables" "account" {
-	account_id = "%[1]s"
+  account_id = "%[1]s"
 }
-
 `, defaultAccount)

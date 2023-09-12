@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"sync"
+	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/scalr/go-scalr"
@@ -42,9 +43,11 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 		SchemaVersion: 0,
 		Schema: map[string]*schema.Schema{
 			"account_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
+				ForceNew:    true,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -69,7 +72,8 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"account_type": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
+							Default:  "regular",
 						},
 						"credentials_type": {
 							Type:     schema.TypeString,
@@ -96,6 +100,10 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 							Optional:  true,
 							Sensitive: true,
 						},
+						"audience": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -106,6 +114,11 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				ExactlyOneOf: []string{"aws", "azurerm", "scalr", "custom"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"auth_type": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "service-account-key",
+						},
 						"project": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -113,8 +126,16 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 						},
 						"credentials": {
 							Type:      schema.TypeString,
-							Required:  true,
+							Optional:  true,
 							Sensitive: true,
+						},
+						"service_account_email": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"workload_provider_name": {
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 					},
 				},
@@ -126,13 +147,22 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				ExactlyOneOf: []string{"aws", "google", "scalr", "custom"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"auth_type": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "client-secrets",
+						},
+						"audience": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 						"client_id": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 						"client_secret": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
 						},
 						"tenant_id": {
 							Type:     schema.TypeString,
@@ -270,16 +300,53 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 			if *configurationOptions.AwsTrustedEntityType == "aws_account" && (!externalIdExists || (len(externalIdI.(string)) == 0)) {
 				return diag.Errorf("'external_id' field is required for 'role_delegation' credentials type with 'aws_account' trusted entity type of aws provider configuration")
 			}
+		} else if *configurationOptions.AwsCredentialsType == "oidc" {
+			configurationOptions.AwsRoleArn = scalr.String(d.Get("aws.0.role_arn").(string))
+			configurationOptions.AwsAudience = scalr.String(d.Get("aws.0.audience").(string))
+			if len(*configurationOptions.AwsRoleArn) == 0 {
+				return diag.Errorf("'role_arn' field is required for 'oidc' credentials type of aws provider configuration")
+			}
+			if len(*configurationOptions.AwsAudience) == 0 {
+				return diag.Errorf("'audience' field is required for 'oidc' credentials type of aws provider configuration")
+			}
 		} else if *configurationOptions.AwsCredentialsType != "access_keys" {
-			return diag.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys'", *configurationOptions.AwsCredentialsType)
+			return diag.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys', 'oidc'", *configurationOptions.AwsCredentialsType)
 		} else if !accessKeyIdExists || !accessSecretKeyExists {
 			return diag.Errorf("'access_key' and 'secret_key' fields are required for 'access_keys' credentials type of aws provider configuration")
 		}
 
 	} else if _, ok := d.GetOk("google"); ok {
 		configurationOptions.ProviderName = scalr.String("google")
+		configurationOptions.GoogleAuthType = scalr.String(d.Get("google.0.auth_type").(string))
 
-		configurationOptions.GoogleCredentials = scalr.String(d.Get("google.0.credentials").(string))
+		googleCredentials, googleCredentialsExists := d.GetOk("google.0.credentials")
+		googleCredentialsExists = googleCredentialsExists && len(googleCredentials.(string)) > 0
+		serviceAccountEmail, serviceAccountEmailExists := d.GetOk("google.0.service_account_email")
+		serviceAccountEmailExists = serviceAccountEmailExists && len(serviceAccountEmail.(string)) > 0
+		workloadProviderName, workloadProviderNameExists := d.GetOk("google.0.workload_provider_name")
+		workloadProviderNameExists = workloadProviderNameExists && len(workloadProviderName.(string)) > 0
+
+		if *configurationOptions.GoogleAuthType == "service-account-key" {
+			if !googleCredentialsExists {
+				return diag.Errorf("'credentials' field is required for 'service-account-key' auth type of google provider configuration")
+			}
+			if serviceAccountEmailExists || workloadProviderNameExists {
+				return diag.Errorf("'service_account_email' and 'workload_provider_name' fields of google provider configuration can be used only with 'oidc' auth type")
+			}
+			configurationOptions.GoogleCredentials = scalr.String(googleCredentials.(string))
+		} else if *configurationOptions.GoogleAuthType == "oidc" {
+			if !serviceAccountEmailExists || !workloadProviderNameExists {
+				return diag.Errorf("'service_account_email' and 'workload_provider_name' fields are required for 'oidc' auth type of google provider configuration")
+			}
+			if googleCredentialsExists {
+				return diag.Errorf("'credentials' field of google provider configuration can be used only with 'service-account-key' auth type")
+			}
+			configurationOptions.GoogleServiceAccountEmail = scalr.String(serviceAccountEmail.(string))
+			configurationOptions.GoogleWorkloadProviderName = scalr.String(workloadProviderName.(string))
+		} else {
+			return diag.Errorf("unknown google provider configuration auth type: '%s', allowed: 'service-account-key', 'oidc'", *configurationOptions.GoogleAuthType)
+		}
+
 		if v, ok := d.GetOk("google.0.project"); ok {
 			configurationOptions.GoogleProject = scalr.String(v.(string))
 		}
@@ -287,11 +354,28 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 	} else if _, ok := d.GetOk("azurerm"); ok {
 		configurationOptions.ProviderName = scalr.String("azurerm")
 		configurationOptions.AzurermClientId = scalr.String(d.Get("azurerm.0.client_id").(string))
-		configurationOptions.AzurermClientSecret = scalr.String(d.Get("azurerm.0.client_secret").(string))
 		configurationOptions.AzurermSubscriptionId = scalr.String(d.Get("azurerm.0.subscription_id").(string))
-		if v, ok := d.GetOk("azurerm.0.tenant_id"); ok {
-			configurationOptions.AzurermTenantId = scalr.String(v.(string))
+		configurationOptions.AzurermTenantId = scalr.String(d.Get("azurerm.0.tenant_id").(string))
+
+		authType := d.Get("azurerm.0.auth_type").(string)
+		if authType == "oidc" {
+			audience, audienceExists := d.GetOk("azurerm.0.audience")
+			if !audienceExists {
+				return diag.Errorf("'audience' field is required for 'oidc' auth type of azurerm provider configuration")
+			}
+			configurationOptions.AzurermAudience = scalr.String(audience.(string))
+			configurationOptions.AzurermAuthType = scalr.String("oidc")
+		} else if authType == "client-secrets" {
+			client_secret, secretExists := d.GetOk("azurerm.0.client_secret")
+			if !secretExists {
+				return diag.Errorf("'client_secret' field is required for 'client-secrets' auth type of azurerm provider configuration")
+			}
+			configurationOptions.AzurermClientSecret = scalr.String(client_secret.(string))
+			configurationOptions.AzurermAuthType = scalr.String("client-secrets")
+		} else {
+			return diag.Errorf("unknown azurerm provider configuration auth type: '%s', allowed: 'client-secrets', 'oidc'", authType)
 		}
+
 	} else if _, ok := d.GetOk("scalr"); ok {
 		configurationOptions.ProviderName = scalr.String("scalr")
 		configurationOptions.ScalrHostname = scalr.String(d.Get("scalr.0.hostname").(string))
@@ -300,6 +384,7 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 	} else if v, ok := d.GetOk("custom"); ok {
 		custom := v.([]interface{})[0].(map[string]interface{})
 		configurationOptions.ProviderName = scalr.String(custom["provider_name"].(string))
+		configurationOptions.IsCustom = scalr.Bool(true)
 
 		for _, v := range custom["argument"].(*schema.Set).List() {
 			argument := v.(map[string]interface{})
@@ -371,89 +456,47 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 		_ = d.Set("environments", environmentIDs)
 	}
 
-	switch providerConfiguration.ProviderName {
-	case "aws":
-		aws := make(map[string]interface{})
-
-		aws["account_type"] = providerConfiguration.AwsAccountType
-		aws["credentials_type"] = providerConfiguration.AwsCredentialsType
-
-		if stateSecretKeyI, ok := d.GetOk("aws.0.secret_key"); ok {
-			aws["secret_key"] = stateSecretKeyI.(string)
-		}
-
-		if len(providerConfiguration.AwsAccessKey) > 0 {
-			aws["access_key"] = providerConfiguration.AwsAccessKey
-		}
-		if len(providerConfiguration.AwsTrustedEntityType) > 0 {
-			aws["trusted_entity_type"] = providerConfiguration.AwsTrustedEntityType
-		}
-		if len(providerConfiguration.AwsTrustedEntityType) > 0 {
-			aws["role_arn"] = providerConfiguration.AwsRoleArn
-		}
-		if len(providerConfiguration.AwsTrustedEntityType) > 0 {
-			aws["external_id"] = providerConfiguration.AwsExternalId
-		}
-
-		_ = d.Set("aws", []map[string]interface{}{aws})
-	case "google":
-		google := make(map[string]interface{})
-
-		stateGoogleParameters := d.Get("google").([]interface{})[0].(map[string]interface{})
-		google["credentials"] = stateGoogleParameters["credentials"].(string)
-
-		if len(providerConfiguration.GoogleProject) > 0 {
-			google["project"] = providerConfiguration.GoogleProject
-		}
-
-		_ = d.Set("google", []map[string]interface{}{google})
-	case "scalr":
-		stateScalrParameters := d.Get("scalr").([]interface{})[0].(map[string]interface{})
-		stateToken := stateScalrParameters["token"].(string)
-
-		_ = d.Set("scalr", []map[string]interface{}{
-			{
-				"hostname": providerConfiguration.ScalrHostname,
-				"token":    stateToken,
-			},
-		})
-	case "azurerm":
-		stateAzurermParameters := d.Get("azurerm").([]interface{})[0].(map[string]interface{})
-		stateClientSecret := stateAzurermParameters["client_secret"].(string)
-
-		_ = d.Set("azurerm", []map[string]interface{}{
-			{
-				"client_id":       providerConfiguration.AzurermClientId,
-				"client_secret":   stateClientSecret,
-				"subscription_id": providerConfiguration.AzurermSubscriptionId,
-				"tenant_id":       providerConfiguration.AzurermTenantId,
-			},
-		})
-	default:
-		stateCustom := d.Get("custom").([]interface{})[0].(map[string]interface{})
-
-		stateValues := make(map[string]string)
-		for _, v := range stateCustom["argument"].(*schema.Set).List() {
-			argument := v.(map[string]interface{})
-			if value, ok := argument["value"]; ok {
-				stateValues[argument["name"].(string)] = value.(string)
-			}
-		}
-
+	if providerConfiguration.IsCustom {
 		var currentArguments []map[string]interface{}
-		for _, argument := range providerConfiguration.Parameters {
-			currentArgument := map[string]interface{}{
-				"name":        argument.Key,
-				"sensitive":   argument.Sensitive,
-				"value":       argument.Value,
-				"description": argument.Description,
-			}
 
-			if stateValue, ok := stateValues[argument.Key]; argument.Sensitive && ok {
-				currentArgument["value"] = stateValue
-			}
+		if stateCustomI, ok := d.GetOk("custom"); ok {
+			stateCustom := stateCustomI.([]interface{})
+			if len(stateCustom) > 0 {
+				stateCustomMap := stateCustom[0].(map[string]interface{})
 
-			currentArguments = append(currentArguments, currentArgument)
+				stateValues := make(map[string]string)
+				for _, v := range stateCustomMap["argument"].(*schema.Set).List() {
+					argument := v.(map[string]interface{})
+					if value, ok := argument["value"]; ok {
+						stateValues[argument["name"].(string)] = value.(string)
+					}
+				}
+
+				for _, argument := range providerConfiguration.Parameters {
+					currentArgument := map[string]interface{}{
+						"name":        argument.Key,
+						"sensitive":   argument.Sensitive,
+						"value":       argument.Value,
+						"description": argument.Description,
+					}
+
+					if stateValue, ok := stateValues[argument.Key]; argument.Sensitive && ok {
+						currentArgument["value"] = stateValue
+					}
+
+					currentArguments = append(currentArguments, currentArgument)
+				}
+			}
+		} else {
+			for _, argument := range providerConfiguration.Parameters {
+				currentArgument := map[string]interface{}{
+					"name":        argument.Key,
+					"sensitive":   argument.Sensitive,
+					"value":       argument.Value,
+					"description": argument.Description,
+				}
+				currentArguments = append(currentArguments, currentArgument)
+			}
 		}
 		_ = d.Set("custom", []map[string]interface{}{
 			{
@@ -461,6 +504,100 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 				"argument":      currentArguments,
 			},
 		})
+	} else {
+		switch providerConfiguration.ProviderName {
+		case "aws":
+			aws := make(map[string]interface{})
+
+			aws["account_type"] = providerConfiguration.AwsAccountType
+			aws["credentials_type"] = providerConfiguration.AwsCredentialsType
+
+			if stateSecretKeyI, ok := d.GetOk("aws.0.secret_key"); ok {
+				aws["secret_key"] = stateSecretKeyI.(string)
+			}
+
+			if len(providerConfiguration.AwsAccessKey) > 0 {
+				aws["access_key"] = providerConfiguration.AwsAccessKey
+			}
+			if len(providerConfiguration.AwsTrustedEntityType) > 0 {
+				aws["trusted_entity_type"] = providerConfiguration.AwsTrustedEntityType
+			}
+			if len(providerConfiguration.AwsRoleArn) > 0 {
+				aws["role_arn"] = providerConfiguration.AwsRoleArn
+			}
+			if len(providerConfiguration.AwsExternalId) > 0 {
+				aws["external_id"] = providerConfiguration.AwsExternalId
+			}
+			if len(providerConfiguration.AwsAudience) > 0 {
+				aws["audience"] = providerConfiguration.AwsAudience
+			}
+
+			_ = d.Set("aws", []map[string]interface{}{aws})
+		case "google":
+			google := make(map[string]interface{})
+
+			google["auth_type"] = providerConfiguration.GoogleAuthType
+
+			var stateCredentials string
+			if stateGoogleParametersI, ok := d.GetOk("google"); ok {
+				stateGoogleParameters := stateGoogleParametersI.([]interface{})
+				if len(stateGoogleParameters) > 0 {
+					stateCredentials = stateGoogleParameters[0].(map[string]interface{})["credentials"].(string)
+					google["credentials"] = stateCredentials
+				}
+			}
+
+			if len(providerConfiguration.GoogleProject) > 0 {
+				google["project"] = providerConfiguration.GoogleProject
+			}
+			if len(providerConfiguration.GoogleServiceAccountEmail) > 0 {
+				google["service_account_email"] = providerConfiguration.GoogleServiceAccountEmail
+			}
+			if len(providerConfiguration.GoogleWorkloadProviderName) > 0 {
+				google["workload_provider_name"] = providerConfiguration.GoogleWorkloadProviderName
+			}
+
+			_ = d.Set("google", []map[string]interface{}{google})
+		case "scalr":
+			var stateToken string
+			if stateScalrParametersI, ok := d.GetOk("scalr"); ok {
+				stateScalrParameters := stateScalrParametersI.([]interface{})
+				if len(stateScalrParameters) > 0 {
+					stateToken = stateScalrParameters[0].(map[string]interface{})["token"].(string)
+				}
+			}
+
+			_ = d.Set("scalr", []map[string]interface{}{
+				{
+					"hostname": providerConfiguration.ScalrHostname,
+					"token":    stateToken,
+				},
+			})
+
+		case "azurerm":
+			var stateClientSecret string
+			if stateAzurermParametersI, ok := d.GetOk("azurerm"); ok {
+				stateAzurermParameters := stateAzurermParametersI.([]interface{})
+				if len(stateAzurermParameters) > 0 {
+					stateClientSecret = stateAzurermParameters[0].(map[string]interface{})["client_secret"].(string)
+				}
+			}
+			auth_type := "client-secrets"
+			if len(providerConfiguration.AzurermAuthType) > 0 {
+				auth_type = providerConfiguration.AzurermAuthType
+			}
+
+			_ = d.Set("azurerm", []map[string]interface{}{
+				{
+					"client_id":       providerConfiguration.AzurermClientId,
+					"client_secret":   stateClientSecret,
+					"subscription_id": providerConfiguration.AzurermSubscriptionId,
+					"tenant_id":       providerConfiguration.AzurermTenantId,
+					"audience":        providerConfiguration.AzurermAudience,
+					"auth_type":       auth_type,
+				},
+			})
+		}
 	}
 	return nil
 }
@@ -532,13 +669,51 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 				if *configurationOptions.AwsTrustedEntityType == "aws_account" && (!externalIdExists || (len(externalIdI.(string)) == 0)) {
 					return diag.Errorf("'external_id' field is required for 'role_delegation' credentials type with 'aws_account' entity type of aws provider configuration")
 				}
+			} else if *configurationOptions.AwsCredentialsType == "oidc" {
+				configurationOptions.AwsRoleArn = scalr.String(d.Get("aws.0.role_arn").(string))
+				configurationOptions.AwsAudience = scalr.String(d.Get("aws.0.audience").(string))
+				if len(*configurationOptions.AwsRoleArn) == 0 {
+					return diag.Errorf("'role_arn' field is required for 'oidc' credentials type of aws provider configuration")
+				}
+				if len(*configurationOptions.AwsAudience) == 0 {
+					return diag.Errorf("'audience' field is required for 'oidc' credentials type of aws provider configuration")
+				}
 			} else if *configurationOptions.AwsCredentialsType != "access_keys" {
-				return diag.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys'", *configurationOptions.AwsCredentialsType)
+				return diag.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys', 'oidc'", *configurationOptions.AwsCredentialsType)
 			} else if !accessKeyIdExists || !accessSecretKeyExists {
 				return diag.Errorf("'access_key' and 'secret_key' fields are required for 'access_keys' credentials type of aws provider configuration")
 			}
 		} else if _, ok := d.GetOk("google"); ok {
-			configurationOptions.GoogleCredentials = scalr.String(d.Get("google.0.credentials").(string))
+			configurationOptions.GoogleAuthType = scalr.String(d.Get("google.0.auth_type").(string))
+
+			googleCredentials, googleCredentialsExists := d.GetOk("google.0.credentials")
+			googleCredentialsExists = googleCredentialsExists && len(googleCredentials.(string)) > 0
+			serviceAccountEmail, serviceAccountEmailExists := d.GetOk("google.0.service_account_email")
+			serviceAccountEmailExists = serviceAccountEmailExists && len(serviceAccountEmail.(string)) > 0
+			workloadProviderName, workloadProviderNameExists := d.GetOk("google.0.workload_provider_name")
+			workloadProviderNameExists = workloadProviderNameExists && len(workloadProviderName.(string)) > 0
+
+			if *configurationOptions.GoogleAuthType == "service-account-key" {
+				if !googleCredentialsExists {
+					return diag.Errorf("'credentials' field is required for 'service-account-key' auth type of google provider configuration")
+				}
+				if serviceAccountEmailExists || workloadProviderNameExists {
+					return diag.Errorf("'service_account_email' and 'workload_provider_name' fields of google provider configuration can be used only with 'oidc' auth type")
+				}
+				configurationOptions.GoogleCredentials = scalr.String(googleCredentials.(string))
+			} else if *configurationOptions.GoogleAuthType == "oidc" {
+				if !serviceAccountEmailExists || !workloadProviderNameExists {
+					return diag.Errorf("'service_account_email' and 'workload_provider_name' fields are required for 'oidc' auth type of google provider configuration")
+				}
+				if googleCredentialsExists {
+					return diag.Errorf("'credentials' field of google provider configuration can be used only with 'service-account-key' auth type")
+				}
+				configurationOptions.GoogleServiceAccountEmail = scalr.String(serviceAccountEmail.(string))
+				configurationOptions.GoogleWorkloadProviderName = scalr.String(workloadProviderName.(string))
+			} else {
+				return diag.Errorf("unknown google provider configuration auth type: '%s', allowed: 'service-account-key', 'oidc'", *configurationOptions.GoogleAuthType)
+			}
+
 			if v, ok := d.GetOk("google.0.project"); ok {
 				configurationOptions.GoogleProject = scalr.String(v.(string))
 			}
@@ -547,11 +722,28 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 			configurationOptions.ScalrToken = scalr.String(d.Get("scalr.0.token").(string))
 		} else if _, ok := d.GetOk("azurerm"); ok {
 			configurationOptions.AzurermClientId = scalr.String(d.Get("azurerm.0.client_id").(string))
-			configurationOptions.AzurermClientSecret = scalr.String(d.Get("azurerm.0.client_secret").(string))
 			configurationOptions.AzurermSubscriptionId = scalr.String(d.Get("azurerm.0.subscription_id").(string))
-			if v, ok := d.GetOk("azurerm.0.tenant_id"); ok {
-				configurationOptions.AzurermTenantId = scalr.String(v.(string))
+			configurationOptions.AzurermTenantId = scalr.String(d.Get("azurerm.0.tenant_id").(string))
+
+			authType := d.Get("azurerm.0.auth_type").(string)
+			if authType == "oidc" {
+				audience, audienceExists := d.GetOk("azurerm.0.audience")
+				if !audienceExists {
+					return diag.Errorf("'audience' field is required for 'oidc' auth type of azurerm provider configuration")
+				}
+				configurationOptions.AzurermAudience = scalr.String(audience.(string))
+				configurationOptions.AzurermAuthType = scalr.String("oidc")
+			} else if authType == "client-secrets" {
+				client_secret, secretExists := d.GetOk("azurerm.0.client_secret")
+				if !secretExists {
+					return diag.Errorf("'client_secret' field is required for 'client-secrets' auth type of azurerm provider configuration")
+				}
+				configurationOptions.AzurermClientSecret = scalr.String(client_secret.(string))
+				configurationOptions.AzurermAuthType = scalr.String("client-secrets")
+			} else {
+				return diag.Errorf("unknown azurerm provider configuration auth type: '%s', allowed: 'client-secrets', 'oidc'", authType)
 			}
+
 		}
 		_, err := scalrClient.ProviderConfigurations.Update(ctx, id, configurationOptions)
 		if err != nil {
@@ -675,7 +867,7 @@ func resourceScalrProviderConfigurationDelete(ctx context.Context, d *schema.Res
 	return nil
 }
 
-// changeParameters is used to change parameters for provider configuratio.
+// changeParameters is used to change parameters for provider configuration.
 func changeParameters(
 	ctx context.Context,
 	client *scalr.Client,
@@ -747,15 +939,18 @@ func changeParameters(
 
 	for i := 0; i < numParallel; i++ {
 		go func() {
+			reqCtx, reqCancel := context.WithTimeout(context.Background(), time.Second*10)
+			defer reqCancel()
+
 			for t := range inputCh {
 				if t.createOption != nil {
-					parameter, err := client.ProviderConfigurationParameters.Create(ctx, configurationID, *t.createOption)
+					parameter, err := client.ProviderConfigurationParameters.Create(reqCtx, configurationID, *t.createOption)
 					resultCh <- result{created: parameter, err: err}
 				} else if t.updateOption != nil {
-					parameter, err := client.ProviderConfigurationParameters.Update(ctx, t.updateOption.ID, *t.updateOption)
+					parameter, err := client.ProviderConfigurationParameters.Update(reqCtx, t.updateOption.ID, *t.updateOption)
 					resultCh <- result{updated: parameter, err: err}
 				} else {
-					err := client.ProviderConfigurationParameters.Delete(ctx, *t.deleteId)
+					err := client.ProviderConfigurationParameters.Delete(reqCtx, *t.deleteId)
 					resultCh <- result{deleted: t.deleteId, err: err}
 				}
 			}

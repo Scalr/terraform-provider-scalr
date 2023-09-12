@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/scalr/go-scalr"
 )
 
@@ -12,13 +13,16 @@ func dataSourceScalrVcsProvider() *schema.Resource {
 		ReadContext: dataSourceScalrVcsProviderRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"vcs_type": {
 				Type:     schema.TypeString,
@@ -31,11 +35,16 @@ func dataSourceScalrVcsProvider() *schema.Resource {
 				Optional: true,
 			},
 			"account_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"environment_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"agent_pool_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -49,18 +58,24 @@ func dataSourceScalrVcsProvider() *schema.Resource {
 
 func dataSourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
-	options := scalr.VcsProvidersListOptions{}
+	options := scalr.VcsProvidersListOptions{
+		Account: scalr.String(d.Get("account_id").(string)),
+	}
+
+	if vcsProviderID, ok := d.GetOk("id"); ok {
+		options.ID = scalr.String(vcsProviderID.(string))
+	}
 
 	if name, ok := d.GetOk("name"); ok {
 		options.Query = scalr.String(name.(string))
 	}
 
-	if accountId, ok := d.GetOk("account_id"); ok {
-		options.Account = scalr.String(accountId.(string))
-	}
-
 	if envId, ok := d.GetOk("environment_id"); ok {
 		options.Environment = scalr.String(envId.(string))
+	}
+
+	if agentPoolID, ok := d.GetOk("agent_pool_id"); ok {
+		options.AgentPool = scalr.String(agentPoolID.(string))
 	}
 
 	if vcsType, ok := d.GetOk("vcs_type"); ok {
@@ -93,8 +108,10 @@ func dataSourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData,
 	_ = d.Set("vcs_type", vcsProvider.VcsType)
 	_ = d.Set("name", vcsProvider.Name)
 	_ = d.Set("url", vcsProvider.Url)
-	_ = d.Set("account_id", vcsProvider.Account.ID)
 	_ = d.Set("environments", envIds)
+	if vcsProvider.AgentPool != nil {
+		_ = d.Set("agent_pool_id", vcsProvider.AgentPool.ID)
+	}
 	d.SetId(vcsProvider.ID)
 
 	return nil

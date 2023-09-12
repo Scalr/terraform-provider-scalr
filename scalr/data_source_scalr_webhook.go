@@ -2,7 +2,7 @@ package scalr
 
 import (
 	"context"
-	"errors"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -20,14 +20,15 @@ func dataSourceScalrWebhook() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 				AtLeastOneOf: []string{"name"},
 			},
 
 			"name": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"id"},
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 
 			"enabled": {
@@ -49,25 +50,73 @@ func dataSourceScalrWebhook() *schema.Resource {
 			"endpoint_id": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Deprecated: "Attribute `endpoint_id` is deprecated, the endpoint information" +
+					" is included in the `scalr_webhook` resource.",
 			},
 
 			"account_id": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Optional:     true,
-				RequiredWith: []string{"name"},
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
+				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 
 			"environment_id": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Optional: true,
+				Deprecated: "The attribute `environment_id` is deprecated. The webhook is created on the" +
+					" account level and the environments to which it is exposed" +
+					" are controlled by the `environments` attribute.",
 			},
 
 			"workspace_id": {
+				Type:       schema.TypeString,
+				Computed:   true,
+				Deprecated: "The attribute `workspace_id` is deprecated.",
+			},
+
+			"url": {
 				Type:     schema.TypeString,
 				Computed: true,
-				Optional: true,
+			},
+
+			"secret_key": {
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
+			},
+
+			"timeout": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+
+			"max_attempts": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+
+			"header": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"value": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+
+			"environments": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -81,53 +130,91 @@ func dataSourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, met
 	webhookName := d.Get("name").(string)
 	accountID := d.Get("account_id").(string)
 
-	var webhook *scalr.Webhook
+	var newWebhook *scalr.WebhookIntegration
 	var err error
 
+	log.Printf("[DEBUG] Read configuration of webhook with ID '%s' and name '%s'", webhookID, webhookName)
+	// First read from new API by ID or search by name, as the new API
+	// works both with old-style and new-style webhooks
 	if webhookID != "" {
-		log.Printf("[DEBUG] Read configuration of webhook: %s", webhookID)
-		webhook, err = scalrClient.Webhooks.Read(ctx, webhookID)
+		newWebhook, err = scalrClient.WebhookIntegrations.Read(ctx, webhookID)
+		if err != nil {
+			return diag.Errorf("Error retrieving webhook: %v", err)
+		}
+		if webhookName != "" && webhookName != newWebhook.Name {
+			return diag.Errorf("Could not find webhook with ID '%s' and name '%s'", webhookID, webhookName)
+		}
 	} else {
-		log.Printf("[DEBUG] Read configuration of webhook: %s", webhookName)
 		options := GetWebhookByNameOptions{
-			Name: &webhookName,
+			Name:    &webhookName,
+			Account: &accountID,
 		}
-		if accountID != "" {
-			options.Account = &accountID
+		newWebhook, err = GetWebhookByName(ctx, options, scalrClient)
+		if err != nil {
+			return diag.Errorf("Error retrieving webhook: %v", err)
 		}
-		webhook, err = GetWebhookByName(ctx, options, scalrClient)
+		if webhookID != "" && webhookID != newWebhook.ID {
+			return diag.Errorf("Could not find webhook with ID '%s' and name '%s'", webhookID, webhookName)
+		}
 	}
-
+	// Having the webhook found, read from old API then
+	// to populate deprecated fields available only in old API
+	oldWebhook, err := scalrClient.Webhooks.Read(ctx, newWebhook.ID)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return diag.Errorf("Could not find webhook %s: %v", webhookID, err)
-		}
 		return diag.Errorf("Error retrieving webhook: %v", err)
 	}
 
 	// Update the config.
-	_ = d.Set("name", webhook.Name)
-	_ = d.Set("enabled", webhook.Enabled)
-	_ = d.Set("last_triggered_at", webhook.LastTriggeredAt)
+	_ = d.Set("name", newWebhook.Name)
+	_ = d.Set("account_id", newWebhook.Account.ID)
+	_ = d.Set("enabled", newWebhook.Enabled)
+	_ = d.Set("last_triggered_at", newWebhook.LastTriggeredAt)
+	_ = d.Set("url", newWebhook.Url)
+	_ = d.Set("secret_key", newWebhook.SecretKey)
+	_ = d.Set("timeout", newWebhook.Timeout)
+	_ = d.Set("max_attempts", newWebhook.MaxAttempts)
 
 	events := make([]string, 0)
-	if webhook.Events != nil {
-		for _, event := range webhook.Events {
+	if newWebhook.Events != nil {
+		for _, event := range newWebhook.Events {
 			events = append(events, event.ID)
 		}
 	}
 	_ = d.Set("events", events)
 
-	if webhook.Workspace != nil {
-		_ = d.Set("workspace_id", webhook.Workspace.ID)
+	headers := make([]map[string]interface{}, 0)
+	if newWebhook.Headers != nil {
+		for _, header := range newWebhook.Headers {
+			headers = append(headers, map[string]interface{}{
+				"name":  header.Name,
+				"value": header.Value,
+			})
+		}
 	}
-	if webhook.Environment != nil {
-		_ = d.Set("environment_id", webhook.Environment.ID)
+	_ = d.Set("header", headers)
+
+	if newWebhook.IsShared {
+		_ = d.Set("environments", []string{"*"})
+	} else {
+		environmentIDs := make([]string, 0)
+		for _, environment := range newWebhook.Environments {
+			environmentIDs = append(environmentIDs, environment.ID)
+		}
+		_ = d.Set("environments", environmentIDs)
 	}
-	if webhook.Endpoint != nil {
-		_ = d.Set("endpoint_id", webhook.Endpoint.ID)
+
+	// Add deprecated attributes from old-style webhook
+	if oldWebhook.Workspace != nil {
+		_ = d.Set("workspace_id", oldWebhook.Workspace.ID)
 	}
-	d.SetId(webhook.ID)
+	if oldWebhook.Environment != nil {
+		_ = d.Set("environment_id", oldWebhook.Environment.ID)
+	}
+	if oldWebhook.Endpoint != nil {
+		_ = d.Set("endpoint_id", oldWebhook.Endpoint.ID)
+	}
+
+	d.SetId(newWebhook.ID)
 
 	return nil
 }
