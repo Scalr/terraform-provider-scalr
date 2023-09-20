@@ -1,6 +1,6 @@
 # Data Source `scalr_iam_user`
 
-Retrieves the details of a Scalr user.
+Test: Retrieves the details of a Scalr user.
 
 ## Example Usage
 

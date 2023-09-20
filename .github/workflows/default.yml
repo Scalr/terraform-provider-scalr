@@ -26,11 +26,11 @@ jobs:
       - name: Validate generated code
         shell: bash
         run: |
-          if [ -n "$(git status --porcelain)" ]; then
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "ok";
+          else
             echo "*** Unexpected differences after code generation. Run 'go generate' and commit.";
             exit 1;
-          else
-            echo "ok";
           fi
 
   unit-tests:
