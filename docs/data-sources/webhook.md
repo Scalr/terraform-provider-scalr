@@ -1,3 +1,10 @@
+---
+title: "Data Source scalr_webhook"
+category: "6380b9efad50240652eec1fc"
+description: |-
+  Retrieves the details of a webhook.
+---
+
 # Data Source `scalr_webhook`
 
 Retrieves the details of a webhook.

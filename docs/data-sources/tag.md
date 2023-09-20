@@ -1,3 +1,10 @@
+---
+title: "Data Source scalr_tag"
+category: "6380b9efad50240652eec1fc"
+description: |-
+  Retrieves information about a tag.
+---
+
 # Data Source `scalr_tag`
 
 Retrieves information about a tag.

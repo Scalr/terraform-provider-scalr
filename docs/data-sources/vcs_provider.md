@@ -1,3 +1,10 @@
+---
+title: "Data Source scalr_vcs_provider"
+category: "6380b9efad50240652eec1fc"
+description: |-
+  Retrieves the details of a VCS provider.
+---
+
 # Data Source `scalr_vcs_provider`
 
 Retrieves the details of a VCS provider.

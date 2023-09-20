@@ -1,3 +1,10 @@
+---
+title: "Data Source scalr_role"
+category: "6380b9efad50240652eec1fc"
+description: |-
+  This data source is used to retrieve details of a single role.
+---
+
 # Data Source `scalr_role`
 
 This data source is used to retrieve details of a single role.

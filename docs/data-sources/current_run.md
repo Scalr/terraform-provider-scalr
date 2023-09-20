@@ -1,3 +1,11 @@
+---
+title: "Data Source scalr_current_run"
+category: "6380b9efad50240652eec1fc"
+description: |-
+  Allows you to get information about the current Terraform run when using a Scalr remote backend workspace, including VCS (Git) metadata.
+  No arguments are required. The data source returns details of the current run based on the SCALR_RUN_ID shell variable that is automatically exported in the Scalr remoted backend.
+---
+
 # Data Source `scalr_current_run`
 
 Allows you to get information about the current Terraform run when using a Scalr remote backend workspace, including VCS (Git) metadata.

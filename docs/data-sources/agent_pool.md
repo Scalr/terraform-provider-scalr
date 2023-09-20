@@ -1,3 +1,10 @@
+---
+title: "Data Source scalr_agent_pool"
+category: "6380b9efad50240652eec1fc"
+description: |-
+  Retrieves the details of an agent pool.
+---
+
 # Data Source `scalr_agent_pool`
 
 Retrieves the details of an agent pool.

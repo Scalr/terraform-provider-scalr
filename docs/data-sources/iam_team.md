@@ -1,3 +1,10 @@
+---
+title: "Data Source scalr_iam_team"
+category: "6380b9efad50240652eec1fc"
+description: |-
+  Retrieves the details of a Scalr team.
+---
+
 # Data Source `scalr_iam_team`
 
 Retrieves the details of a Scalr team.

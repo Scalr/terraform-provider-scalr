@@ -1,3 +1,10 @@
+---
+title: "Data Source scalr_variable"
+category: "6380b9efad50240652eec1fc"
+description: |-
+  Retrieves the details of a variable.
+---
+
 # Data Source `scalr_variable`
 
 Retrieves the details of a variable.

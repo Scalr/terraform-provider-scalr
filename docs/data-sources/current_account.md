@@ -1,3 +1,11 @@
+---
+title: "Data Source scalr_current_account"
+category: "6380b9efad50240652eec1fc"
+description: |-
+  Retrieves the details of current account when using Scalr remote backend.
+  No arguments are required. The data source returns details of the current account based on the SCALR_ACCOUNT_ID environment variable that is automatically exported in the Scalr remote backend.
+---
+
 # Data Source `scalr_current_account`
 
 Retrieves the details of current account when using Scalr remote backend.

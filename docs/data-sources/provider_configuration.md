@@ -1,3 +1,10 @@
+---
+title: "Data Source scalr_provider_configuration"
+category: "6380b9efad50240652eec1fc"
+description: |-
+  Retrieves information about a single provider configuration.
+---
+
 # Data Source `scalr_provider_configuration`
 
 Retrieves information about a single provider configuration.

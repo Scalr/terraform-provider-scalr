@@ -1,3 +1,10 @@
+---
+title: "{{.Type}} {{.Name}}"
+category: "6380b9efad50240652eec1fc"
+description: |-
+{{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
+---
+
 # {{.Type}} `{{.Name}}`
 
 {{ .Description | trimspace }}

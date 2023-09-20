@@ -1,3 +1,10 @@
+---
+title: "Data Source scalr_service_account"
+category: "6380b9efad50240652eec1fc"
+description: |-
+  Retrieves information about a service account.
+---
+
 # Data Source `scalr_service_account`
 
 Retrieves information about a service account.

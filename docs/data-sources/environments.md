@@ -1,3 +1,10 @@
+---
+title: "Data Source scalr_environments"
+category: "6380b9efad50240652eec1fc"
+description: |-
+  Retrieves a list of environment ids by name or tags.
+---
+
 # Data Source `scalr_environments`
 
 Retrieves a list of environment ids by name or tags.

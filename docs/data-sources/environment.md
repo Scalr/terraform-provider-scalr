@@ -1,3 +1,10 @@
+---
+title: "Data Source scalr_environment"
+category: "6380b9efad50240652eec1fc"
+description: |-
+  Retrieves the details of a Scalr environment.
+---
+
 # Data Source `scalr_environment`
 
 Retrieves the details of a Scalr environment.

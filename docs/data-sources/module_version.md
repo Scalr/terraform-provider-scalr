@@ -1,3 +1,10 @@
+---
+title: "Data Source scalr_module_version"
+category: "6380b9efad50240652eec1fc"
+description: |-
+  Retrieves the module version data by module source and semantic version.
+---
+
 # Data Source `scalr_module_version`
 
 Retrieves the module version data by module source and semantic version.

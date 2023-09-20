@@ -1,3 +1,10 @@
+---
+title: "Data Source scalr_workspaces"
+category: "6380b9efad50240652eec1fc"
+description: |-
+  Retrieves a list of workspace ids by name or tags.
+---
+
 # Data Source `scalr_workspaces`
 
 Retrieves a list of workspace ids by name or tags.
