@@ -258,7 +258,7 @@ jobs:
       - name: Show versions
         uses: readmeio/rdme@v8
         with:
-          rdme: versions
+          rdme: versions --key=${{ secrets.README_API_KEY }}
 
   release:
     name: release
