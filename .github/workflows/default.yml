@@ -22,12 +22,17 @@ jobs:
         with:
           version: v1.48.0
           args: --timeout 2m
-      - name: generate
+      - name: Generate
         run: go generate ./...
-      - name: validate generated code
+      - name: Validate generated code
+        shell: bash
         run: |
-          git diff --compact-summary --exit-code || \
-            (echo "*** Unexpected differences after code generation. Run 'go generate' and commit."; exit 1)
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "*** Unexpected differences after code generation. Run 'go generate' and commit.";
+            exit 1;
+          else
+            echo "ok";
+          fi
 
   unit-tests:
     name: unit-tests
