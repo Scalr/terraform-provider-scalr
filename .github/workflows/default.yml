@@ -241,6 +241,20 @@ jobs:
           registry-domain: ${{ secrets.DEV_DOMAIN }}
           dry-run: false
 
+  readme-preview:
+    # todo: only when .docs/ has changed
+    name: readme-preview
+    needs: [lint]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo 📚
+        uses: actions/checkout@v3
+
+      - name: Run `docs` command 🚀
+        uses: readmeio/rdme@v8
+        with:
+          rdme: docs ./docs --key=${{ secrets.README_API_KEY }} --version=0.0.3 --dryRun
+
   release:
     name: release
     if: startsWith(github.ref, 'refs/tags/')
