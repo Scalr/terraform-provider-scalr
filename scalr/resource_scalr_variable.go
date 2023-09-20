@@ -15,6 +15,7 @@ import (
 
 func resourceScalrVariable() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manage the state of the variables in Scalr. Create, update and destroy.",
 		CreateContext: resourceScalrVariableCreate,
 		ReadContext:   resourceScalrVariableRead,
 		UpdateContext: resourceScalrVariableUpdate,
@@ -57,21 +58,24 @@ func resourceScalrVariable() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"key": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Key of the variable.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 
 			"value": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Default:   "",
-				Sensitive: true,
+				Description: "Variable value.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "",
+				Sensitive:   true,
 			},
 
 			"category": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "Indicates if this is a Terraform or shell variable. Allowed values are `terraform` or `shell`.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 				ValidateFunc: validation.StringInSlice(
 					[]string{
 						string(scalr.CategoryEnv),
@@ -83,48 +87,56 @@ func resourceScalrVariable() *schema.Resource {
 			},
 
 			"hcl": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Description: "Set (true/false) to configure the variable as a string of HCL code. Has no effect for `category = \"shell\"` variables. Default `false`.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
 			},
 
 			"sensitive": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Description: "Set (true/false) to configure as sensitive. Sensitive variable values are not visible after being set. Default `false`.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "Variable verbose description, defaults to empty string.",
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 
 			"final": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Description: "Set (true/false) to configure as final. Indicates whether the variable can be overridden on a lower scope down the Scalr organizational model. Default `false`.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
 			},
 
 			"force": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Description: "Set (true/false) to configure as force. Allows creating final variables on higher scope, even if the same variable exists on lower scope (lower is to be deleted). Default `false`.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
 			},
 
 			"workspace_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Description: "The workspace that owns the variable, specified as an ID, in the format `ws-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
 			},
 
 			"environment_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Description: "The environment that owns the variable, specified as an ID, in the format `env-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
 			},
 
 			"account_id": {
+				Description: "The account that owns the variable, specified as an ID, in the format `acc-<RANDOM STRING>`.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,

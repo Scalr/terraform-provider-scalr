@@ -1,0 +1,1 @@
+terraform import scalr_provider_configuration.example pcfg-xxxxxxxxxxxxxxx

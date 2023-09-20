@@ -14,6 +14,7 @@ import (
 
 func resourceScalrWebhook() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manage the state of webhooks in Scalr. Creates, updates and destroy.",
 		CreateContext: resourceScalrWebhookCreate,
 		ReadContext:   resourceScalrWebhookRead,
 		UpdateContext: resourceScalrWebhookUpdate,
@@ -32,24 +33,28 @@ func resourceScalrWebhook() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"name": {
+				Description:      "Name of the webhook.",
 				Type:             schema.TypeString,
 				Required:         true,
 				ValidateDiagFunc: validation.ToDiagFunc(validation.StringIsNotWhiteSpace),
 			},
 
 			"enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Description: "Set (true/false) to enable/disable the webhook.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
 			},
 
 			"last_triggered_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "Date/time when webhook was last triggered.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 
 			"events": {
-				Type: schema.TypeList,
+				Description: "List of event IDs.",
+				Type:        schema.TypeList,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 					ValidateDiagFunc: validation.ToDiagFunc(
@@ -64,8 +69,9 @@ func resourceScalrWebhook() *schema.Resource {
 			},
 
 			"endpoint_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "ID of the endpoint, in the format `ep-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Optional:    true,
 				Deprecated: "Attribute `endpoint_id` is deprecated, please set the endpoint information" +
 					" in the webhook itself.",
 				// If `endpoint_id` is set in configuration, we consider this an old-style webhook,
@@ -80,6 +86,7 @@ func resourceScalrWebhook() *schema.Resource {
 			},
 
 			"url": {
+				Description:      "Endpoint URL. Required if `endpoint_id` is not set.",
 				Type:             schema.TypeString,
 				Optional:         true,
 				Computed:         true,
@@ -88,13 +95,15 @@ func resourceScalrWebhook() *schema.Resource {
 			},
 
 			"secret_key": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Computed:  true,
-				Sensitive: true,
+				Description: "Secret key to sign the webhook payload.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Sensitive:   true,
 			},
 
 			"timeout": {
+				Description:      "Endpoint timeout (in seconds).",
 				Type:             schema.TypeInt,
 				Optional:         true,
 				Default:          15,
@@ -102,6 +111,7 @@ func resourceScalrWebhook() *schema.Resource {
 			},
 
 			"max_attempts": {
+				Description:      "Max delivery attempts of the payload.",
 				Type:             schema.TypeInt,
 				Optional:         true,
 				Default:          3,
@@ -109,16 +119,19 @@ func resourceScalrWebhook() *schema.Resource {
 			},
 
 			"header": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Description: "Additional headers to set in the webhook request.",
+				Type:        schema.TypeSet,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
+							Description:  "The name of the header.",
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringIsNotWhiteSpace,
 						},
 						"value": {
+							Description:  "The value of the header.",
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validation.StringIsNotWhiteSpace,
@@ -128,6 +141,7 @@ func resourceScalrWebhook() *schema.Resource {
 			},
 
 			"account_id": {
+				Description: "ID of the account, in the format `acc-<RANDOM STRING>`.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
@@ -136,15 +150,17 @@ func resourceScalrWebhook() *schema.Resource {
 			},
 
 			"workspace_id": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				Deprecated: "The attribute `workspace_id` is deprecated.",
+				Description: "ID of the workspace, in the format `ws-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Deprecated:  "The attribute `workspace_id` is deprecated.",
 			},
 
 			"environment_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Description: "ID of the environment, in the format `env-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
 				Deprecated: "The attribute `environment_id` is deprecated. The webhook is created on the" +
 					" account level and the environments to which it is exposed" +
 					" are controlled by the `environments` attribute.",
@@ -152,10 +168,11 @@ func resourceScalrWebhook() *schema.Resource {
 			},
 
 			"environments": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "The list of environment identifiers that the webhook is shared to. Use `[\"*\"]` to share with all environments.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}

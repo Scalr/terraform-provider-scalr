@@ -12,26 +12,31 @@ import (
 
 func dataSourceScalrProviderConfigurations() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves a list of provider configuration ids by name or type.",
 		ReadContext: dataSourceScalrProviderConfigurationsRead,
 		Schema: map[string]*schema.Schema{
 			"ids": {
-				Type:     schema.TypeList,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Computed: true,
+				Description: "The list of provider configuration IDs, in the format [`pcfg-xxxxxxxxxxx`, `pcfg-yyyyyyyyy`].",
+				Type:        schema.TypeList,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Computed:    true,
 			},
 			"account_id": {
+				Description: "The identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "The query used in a Scalr provider configuration name filter.",
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 			"provider_name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "The name of a Terraform provider.",
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 		},
 	}

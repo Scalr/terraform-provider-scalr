@@ -12,6 +12,7 @@ import (
 
 func resourceScalrAgentPoolToken() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manage the state of agent pool's tokens in Scalr. Create, update and destroy.",
 		CreateContext: resourceScalrAgentPoolTokenCreate,
 		ReadContext:   resourceScalrAgentPoolTokenRead,
 		UpdateContext: resourceScalrAgentPoolTokenUpdate,
@@ -19,18 +20,21 @@ func resourceScalrAgentPoolToken() *schema.Resource {
 		SchemaVersion: 0,
 		Schema: map[string]*schema.Schema{
 			"description": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Description of the token.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"agent_pool_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "ID of the agent pool.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"token": {
-				Type:      schema.TypeString,
-				Computed:  true,
-				Sensitive: true,
+				Description: "The token of the agent pool.",
+				Type:        schema.TypeString,
+				Computed:    true,
+				Sensitive:   true,
 			},
 		},
 	}

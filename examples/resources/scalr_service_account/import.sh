@@ -1,0 +1,1 @@
+terraform import scalr_service_account.default sa-xxxxxxxxxx

@@ -12,6 +12,7 @@ import (
 
 func resourceScalrWorkspaceRunSchedule() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Allows workspace admins to automate the configuration of recurring runs for a workspace.",
 		CreateContext: resourceScalrWorkspaceRunScheduleCreate,
 		ReadContext:   resourceScalrWorkspaceRunScheduleRead,
 		UpdateContext: resourceScalrWorkspaceRunScheduleUpdate,
@@ -21,19 +22,27 @@ func resourceScalrWorkspaceRunSchedule() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "The ID of this resource. Equals to the ID of the workspace.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"workspace_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "ID of the workspace, in the format `ws-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"apply_schedule": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Description: "Cron expression for when apply run should be created.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "",
 			},
 			"destroy_schedule": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Description: "Cron expression for when destroy run should be created.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "",
 			},
 		},
 	}

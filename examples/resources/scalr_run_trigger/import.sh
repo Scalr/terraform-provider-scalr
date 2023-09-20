@@ -1,0 +1,1 @@
+terraform import scalr_run_trigger.set_downstream rt-xxxxxxxxxx

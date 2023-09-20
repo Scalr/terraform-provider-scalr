@@ -13,6 +13,7 @@ import (
 
 func resourceScalrEnvironment() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manage the state of environments in Scalr. Creates, updates and destroys.",
 		CreateContext: resourceScalrEnvironmentCreate,
 		ReadContext:   resourceScalrEnvironmentRead,
 		DeleteContext: resourceScalrEnvironmentDelete,
@@ -23,39 +24,47 @@ func resourceScalrEnvironment() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Name of the environment.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"cost_estimation_enabled": {
-				Type:     schema.TypeBool,
-				Computed: true,
-				Optional: true,
+				Description: "Set (true/false) to enable/disable cost estimation for the environment. Default `true`.",
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Optional:    true,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The status of the environment.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"created_by": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: "Details of the user that created the environment.",
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"username": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Username of creator.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"email": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Email address of creator.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"full_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Full name of creator.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"account_id": {
+				Description: "ID of the environment account, in the format `acc-<RANDOM STRING>`.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
@@ -63,21 +72,24 @@ func resourceScalrEnvironment() *schema.Resource {
 				ForceNew:    true,
 			},
 			"policy_groups": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"default_provider_configurations": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Computed: true,
+				Description: "List of IDs of provider configurations, used in the environment workspaces by default.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Computed:    true,
 			},
 			"tag_ids": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "List of tag IDs associated with the environment.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}

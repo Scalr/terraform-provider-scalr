@@ -12,53 +12,63 @@ import (
 
 func dataSourceScalrAccessPolicy() *schema.Resource {
 	return &schema.Resource{
+		Description: "This data source is used to retrieve details of a single access policy by id.",
+
 		ReadContext: dataSourceScalrAccessPolicyRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "The access policy ID.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"is_system": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
 			"subject": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: "Defines the subject of the access policy.",
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "The subject ID, `user-<RANDOM STRING>` for user, `team-<RANDOM STRING>` for team, `sa-<RANDOM STRING>` for service account.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "The subject type, is one of `user`, `team`, or `service_account`.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"scope": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: "Defines the scope where access policy is applied.",
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "The scope ID, `acc-<RANDOM STRING>` for account, `env-<RANDOM STRING>` for environment, `ws-<RANDOM STRING>` for workspace.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "The scope identity type, is one of `account`, `environment`, or `workspace`.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"role_ids": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "The list of the role IDs.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}

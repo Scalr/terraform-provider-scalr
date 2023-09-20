@@ -16,6 +16,10 @@ var resourceScalrProviderConfigurationDefaultMutex sync.Mutex
 
 func resourceScalrProviderConfigurationDefault() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manage defaults of provider configurations for environments in Scalr. Create and destroy." +
+			"\n\n**Note:** To make the provider configuration default, it must be shared with the specified environment." +
+			" See the definition of the resource [`scalr_provider_configuration`](provider_configuration.md)" +
+			" and attribute `environments` to learn more.",
 		CreateContext: resourceScalrProviderConfigurationDefaultCreate,
 		ReadContext:   resourceScalrProviderConfigurationDefaultRead,
 		DeleteContext: resourceScalrProviderConfigurationDefaultDelete,
@@ -24,15 +28,22 @@ func resourceScalrProviderConfigurationDefault() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "The ID of the provider configuration default. It is a combination of the environment and provider configuration IDs in the format `env-xxxxxxxx/pcfg-xxxxxxxx`",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"provider_configuration_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "ID of the provider configuration, in the format `pcfg-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"environment_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "ID of the environment, in the format `env-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 		},
 	}

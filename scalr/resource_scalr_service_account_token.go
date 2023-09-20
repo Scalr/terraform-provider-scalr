@@ -12,24 +12,28 @@ import (
 
 func resourceScalrServiceAccountToken() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manage the state of service account's tokens in Scalr. Create, update and destroy.",
 		CreateContext: resourceScalrServiceAccountTokenCreate,
 		ReadContext:   resourceScalrServiceAccountTokenRead,
 		UpdateContext: resourceScalrServiceAccountTokenUpdate,
 		DeleteContext: resourceScalrServiceAccountTokenDelete,
 		Schema: map[string]*schema.Schema{
 			"service_account_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "ID of the service account.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "Description of the token.",
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 			"token": {
-				Type:      schema.TypeString,
-				Computed:  true,
-				Sensitive: true,
+				Description: "The token of the service account.",
+				Type:        schema.TypeString,
+				Computed:    true,
+				Sensitive:   true,
 			},
 		},
 	}

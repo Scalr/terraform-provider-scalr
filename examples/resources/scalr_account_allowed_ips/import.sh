@@ -1,0 +1,1 @@
+terraform import scalr_account_allowed_ips.default acc-xxxxxxxxx

@@ -12,6 +12,7 @@ import (
 
 func resourceScalrAgentPool() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manage the state of agent pools in Scalr. Create, update and destroy.",
 		CreateContext: resourceScalrAgentPoolCreate,
 		ReadContext:   resourceScalrAgentPoolRead,
 		UpdateContext: resourceScalrAgentPoolUpdate,
@@ -22,10 +23,12 @@ func resourceScalrAgentPool() *schema.Resource {
 		SchemaVersion: 0,
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Name of the agent pool.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"account_id": {
+				Description: "ID of the account.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
@@ -34,14 +37,16 @@ func resourceScalrAgentPool() *schema.Resource {
 			},
 
 			"environment_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Description: "ID of the environment.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
 			},
 			"vcs_enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Description: "Indicates whether the VCS support is enabled for agents in the pool.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
 			},
 		},
 	}

@@ -12,6 +12,7 @@ import (
 
 func dataSourceScalrEndpoint() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves the details of a webhook endpoint.",
 		DeprecationMessage: "Datasource `scalr_endpoint` is deprecated, the endpoint information" +
 			" is included in the `scalr_webhook` resource.",
 
@@ -20,6 +21,7 @@ func dataSourceScalrEndpoint() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 
 			"id": {
+				Description:  "The endpoint ID, in the format `ep-<RANDOM STRING>`.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -28,6 +30,7 @@ func dataSourceScalrEndpoint() *schema.Resource {
 			},
 
 			"name": {
+				Description:  "Name of the endpoint.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -35,27 +38,32 @@ func dataSourceScalrEndpoint() *schema.Resource {
 			},
 
 			"max_attempts": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Description: "Max delivery attempts of the payload.",
+				Type:        schema.TypeInt,
+				Computed:    true,
 			},
 
 			"secret_key": {
-				Type:      schema.TypeString,
-				Computed:  true,
-				Sensitive: true,
+				Description: "Secret key to sign the webhook payload.",
+				Type:        schema.TypeString,
+				Computed:    true,
+				Sensitive:   true,
 			},
 
 			"url": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "Endpoint URL.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 
 			"timeout": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Description: "Endpoint timeout (in seconds).",
+				Type:        schema.TypeInt,
+				Computed:    true,
 			},
 
 			"account_id": {
+				Description: "ID of the account, in the format `acc-<RANDOM STRING>`.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
@@ -63,8 +71,9 @@ func dataSourceScalrEndpoint() *schema.Resource {
 			},
 
 			"environment_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "ID of the environment, in the format `env-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 		},
 	}

@@ -12,9 +12,11 @@ import (
 
 func dataSourceScalrEnvironment() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves the details of a Scalr environment.",
 		ReadContext: dataSourceEnvironmentRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
+				Description:  "The environment ID, in the format `env-<RANDOM STRING>`.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -22,54 +24,64 @@ func dataSourceScalrEnvironment() *schema.Resource {
 				AtLeastOneOf: []string{"name"},
 			},
 			"name": {
+				Description:  "Name of the environment.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"cost_estimation_enabled": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Description: "Boolean indicates if cost estimation is enabled for the environment.",
+				Type:        schema.TypeBool,
+				Computed:    true,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The status of an environment.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"created_by": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: "Details of the user that created the environment.",
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"username": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Username of creator.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"email": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Email address of creator.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"full_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Full name of creator.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"account_id": {
+				Description: "ID of the environment account, in the format `acc-<RANDOM STRING>`",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"policy_groups": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"tag_ids": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "List of tag IDs associated with the environment.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		}}
 }

@@ -12,20 +12,28 @@ import (
 
 func resourceScalrRunTrigger() *schema.Resource {
 	return &schema.Resource{
+		Description: "Run triggers are a way to chain workspaces together. The use case for this is that" +
+			" you might have one or more upstream workspaces that need to automatically kick off" +
+			" a downstream workspace based on a successful run in the upstream workspace." +
+			" To set a trigger, go to the downstream workspace and set the upstream workspace(s)." +
+			" Now, whenever the upstream workspace has a successful run, the downstream workspace" +
+			" will automatically start a run.",
 		CreateContext: resourceScalrRunTriggerCreate,
 		DeleteContext: resourceScalrRunTriggerDelete,
 		ReadContext:   resourceScalrRunTriggerRead,
 
 		Schema: map[string]*schema.Schema{
 			"downstream_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "The identifier of the workspace in which new runs will be triggered.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"upstream_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "The identifier of the upstream workspace.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 		},
 	}

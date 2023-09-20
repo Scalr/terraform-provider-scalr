@@ -10,10 +10,12 @@ import (
 
 func dataSourceScalrIamTeam() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves the details of a Scalr team.",
 		ReadContext: dataSourceScalrIamTeamRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
+				Description:  "Identifier of the team.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -21,29 +23,34 @@ func dataSourceScalrIamTeam() *schema.Resource {
 				AtLeastOneOf: []string{"name"},
 			},
 			"name": {
+				Description:  "Name of the team.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "A verbose description of the team.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"account_id": {
+				Description: "The identifier of the Scalr account.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"identity_provider_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "An identifier of an identity provider team is linked to, in the format `idp-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"users": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "The list of the user identifiers that belong to the team.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}

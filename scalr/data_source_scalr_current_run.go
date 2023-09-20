@@ -19,56 +19,71 @@ const (
 // https://iacp.docs.scalr.com/en/latest/working-with-iacp/opa.html#policy-checking-process
 func dataSourceScalrCurrentRun() *schema.Resource {
 	return &schema.Resource{
+		Description: "Allows you to get information about the current Terraform run" +
+			" when using a Scalr remote backend workspace, including VCS (Git) metadata." +
+			"\n\nNo arguments are required. The data source returns details of the current run based on the" +
+			" `SCALR_RUN_ID` shell variable that is automatically exported in the Scalr remoted backend.",
 		ReadContext: dataSourceScalrCurrentRunRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The ID of the run, in the format `run-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"environment_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The ID of the environment, in the format `env-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"workspace_name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "Workspace name.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"vcs": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Optional: true,
+				Description: "Contains details of the VCS configuration if the workspace is linked to a VCS repo.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"repository_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "ID of the VCS repo in the format `:org/:repo`.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						// TODO: add path
 						"branch": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "The linked VCS repo branch.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"commit": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Description: "Details of the last commit to the linked VCS repo.",
+							Type:        schema.TypeList,
+							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"sha": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Description: "SHA of the last commit.",
+										Type:        schema.TypeString,
+										Computed:    true,
 									},
 									"message": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Description: "Message for the last commit.",
+										Type:        schema.TypeString,
+										Computed:    true,
 									},
 									"author": {
-										Type:     schema.TypeList,
-										Computed: true,
+										Description: "Details of the author of the last commit.",
+										Type:        schema.TypeList,
+										Computed:    true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"username": {
-													Type:     schema.TypeString,
-													Computed: true,
+													Description: "Username of the author in the VCS.",
+													Type:        schema.TypeString,
+													Computed:    true,
 												},
 												// TODO: add email and name
 											},
@@ -81,20 +96,24 @@ func dataSourceScalrCurrentRun() *schema.Resource {
 				},
 			},
 			"source": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The source of the run (VCS, API, Manual).",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"message": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "Message describing how the run was triggered.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"is_destroy": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Description: "Boolean indicates if this is a \"destroy\" run.",
+				Type:        schema.TypeBool,
+				Computed:    true,
 			},
 			"is_dry": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Description: "Boolean indicates if this is a dry run, i.e. triggered by a Pull Request (PR). No apply phase if this is true.",
+				Type:        schema.TypeBool,
+				Computed:    true,
 			},
 			// TODO: add cost_estimate, credentials(?), created_by
 		},

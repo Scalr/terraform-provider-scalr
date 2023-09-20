@@ -11,9 +11,11 @@ import (
 
 func dataSourceScalrServiceAccount() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves information about a service account.",
 		ReadContext: dataSourceScalrServiceAccountRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
+				Description:  "The identifier of the service account in the format `sa-<RANDOM STRING>`.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -21,45 +23,54 @@ func dataSourceScalrServiceAccount() *schema.Resource {
 				AtLeastOneOf: []string{"email"},
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "Name of the service account.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"email": {
+				Description:  "The email of the service account.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "Description of the service account.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The status of the service account.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"account_id": {
+				Description: "ID of the account, in the format `acc-<RANDOM STRING>`.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"created_by": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: "Details of the user that created the service account.",
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"username": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Username of creator.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"email": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Email address of creator.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"full_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Full name of creator.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 					},
 				},

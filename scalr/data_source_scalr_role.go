@@ -12,10 +12,12 @@ import (
 
 func dataSourceScalrRole() *schema.Resource {
 	return &schema.Resource{
+		Description: "This data source is used to retrieve details of a single role.",
 		ReadContext: dataSourceScalrRoleRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
+				Description:  "ID of the role.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -23,12 +25,14 @@ func dataSourceScalrRole() *schema.Resource {
 				AtLeastOneOf: []string{"name"},
 			},
 			"name": {
+				Description:  "Name of the role.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"account_id": {
+				Description: "ID of the account.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
@@ -36,19 +40,22 @@ func dataSourceScalrRole() *schema.Resource {
 			},
 
 			"is_system": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Description: "Boolean indicates if the role can be edited.",
+				Type:        schema.TypeBool,
+				Computed:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "Verbose description of the role.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 
 			"permissions": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "Array of permission names.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}

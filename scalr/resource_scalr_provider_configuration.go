@@ -17,6 +17,10 @@ const numParallel = 10
 
 func resourceScalrProviderConfiguration() *schema.Resource {
 	return &schema.Resource{
+		Description: "A provider configuration helps organizations manage provider secrets in a centralized way." +
+			" It natively supports the management of the major providers like Scalr, AWS, AzureRM," +
+			" and Google Cloud Platform, but also allows registering any custom provider." +
+			" Please have a look at the basic usage examples for each provider type.",
 		CreateContext: resourceScalrProviderConfigurationCreate,
 		ReadContext:   resourceScalrProviderConfigurationRead,
 		UpdateContext: resourceScalrProviderConfigurationUpdate,
@@ -43,6 +47,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 		SchemaVersion: 0,
 		Schema: map[string]*schema.Schema{
 			"account_id": {
+				Description: "The account that owns the object, specified as an ID.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
@@ -50,20 +55,24 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				ForceNew:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "The name of the Scalr provider configuration. This field is unique for the account.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"export_shell_variables": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Description: "Export provider variables into the run environment. This option is available for built-in (Scalr, AWS, AzureRM, Google) providers only.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
 			},
 			"environments": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "The list of environment identifiers that the provider configuration is shared to. Use `[\"*\"]` to share with all environments.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"aws": {
+				Description:  "Settings for the aws provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.",
 				Type:         schema.TypeList,
 				Optional:     true,
 				MaxItems:     1,
@@ -71,43 +80,52 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"account_type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "regular",
+							Description: "The type of AWS account, available options: `regular`, `gov-cloud`, `cn-cloud`.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "regular",
 						},
 						"credentials_type": {
-							Type:     schema.TypeString,
-							Required: true,
+							Description: "The type of AWS credentials, available options: `access_keys`, `role_delegation`, `oidc`.",
+							Type:        schema.TypeString,
+							Required:    true,
 						},
 						"trusted_entity_type": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "Trusted entity type, available options: `aws_account`, `aws_service`. This option is required with `role_delegation` credentials type.",
+							Type:        schema.TypeString,
+							Optional:    true,
 						},
 						"role_arn": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "Amazon Resource Name (ARN) of the IAM Role to assume. This option is required with the `role_delegation` and `oidc` credentials type.",
+							Type:        schema.TypeString,
+							Optional:    true,
 						},
 						"external_id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "External identifier to use when assuming the role. This option is required with `role_delegation` credentials type and `aws_account` trusted entity type.",
+							Type:        schema.TypeString,
+							Optional:    true,
 						},
 						"access_key": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "AWS access key. This option is required with `access_keys` credentials type.",
+							Type:        schema.TypeString,
+							Optional:    true,
 						},
 						"secret_key": {
-							Type:      schema.TypeString,
-							Optional:  true,
-							Sensitive: true,
+							Description: "AWS secret key. This option is required with `access_keys` credentials type.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Sensitive:   true,
 						},
 						"audience": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "The value of the `aud` claim for the identity token. This option is required with `oidc` credentials type.",
+							Type:        schema.TypeString,
+							Optional:    true,
 						},
 					},
 				},
 			},
 			"google": {
+				Description:  "Settings for the google provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.",
 				Type:         schema.TypeList,
 				Optional:     true,
 				MaxItems:     1,
@@ -115,32 +133,38 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"auth_type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "service-account-key",
+							Description: "Authentication type, either `service-account-key` (default) or `oidc`.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "service-account-key",
 						},
 						"project": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Description: "The default project to manage resources in. If another project is specified on a resource, it will take precedence.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
 						},
 						"credentials": {
-							Type:      schema.TypeString,
-							Optional:  true,
-							Sensitive: true,
+							Description: "Service account key file in JSON format, required when `auth_type` is `service-account-key`.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Sensitive:   true,
 						},
 						"service_account_email": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "The service account email used to authenticate to GCP, required when `auth_type` is `oidc`.",
+							Type:        schema.TypeString,
+							Optional:    true,
 						},
 						"workload_provider_name": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "The canonical name of the workload identity provider, required when `auth_type` is `oidc`.",
+							Type:        schema.TypeString,
+							Optional:    true,
 						},
 					},
 				},
 			},
 			"azurerm": {
+				Description:  "Settings for the azurerm provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.",
 				Type:         schema.TypeList,
 				Optional:     true,
 				MaxItems:     1,
@@ -148,34 +172,41 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"auth_type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "client-secrets",
+							Description: "Authentication type, either `client-secrets` (default) or `oidc`.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "client-secrets",
 						},
 						"audience": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "The value of the `aud` claim for the identity token. This option is required with `oidc` authentication type.",
+							Type:        schema.TypeString,
+							Optional:    true,
 						},
 						"client_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Description: "The Client ID that should be used.",
+							Type:        schema.TypeString,
+							Required:    true,
 						},
 						"client_secret": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "The Client Secret that should be used, required when `auth_type` is `client-secrets`.",
+							Type:        schema.TypeString,
+							Optional:    true,
 						},
 						"tenant_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Description: "The Tenant ID that should be used.",
+							Type:        schema.TypeString,
+							Required:    true,
 						},
 						"subscription_id": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "The Subscription ID that should be used. If skipped, it must be set as a shell variable in the workspace or as a part of the source configuration.",
+							Type:        schema.TypeString,
+							Optional:    true,
 						},
 					},
 				},
 			},
 			"scalr": {
+				Description:  "Settings for the Scalr provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.",
 				Type:         schema.TypeList,
 				Optional:     true,
 				MaxItems:     1,
@@ -183,18 +214,21 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"hostname": {
-							Type:     schema.TypeString,
-							Required: true,
+							Description: "The Scalr hostname which should be used.",
+							Type:        schema.TypeString,
+							Required:    true,
 						},
 						"token": {
-							Type:      schema.TypeString,
-							Required:  true,
-							Sensitive: true,
+							Description: "The Scalr token which should be used.",
+							Type:        schema.TypeString,
+							Required:    true,
+							Sensitive:   true,
 						},
 					},
 				},
 			},
 			"custom": {
+				Description:  "Settings for the provider configuration that does not have scalr support as a built-in provider. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.",
 				Type:         schema.TypeList,
 				Optional:     true,
 				MaxItems:     1,
@@ -202,32 +236,38 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"provider_name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Description: "The name of a Terraform provider.",
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
 						},
 						"argument": {
-							Type:     schema.TypeSet,
-							Required: true,
-							MinItems: 1,
+							Description: "The provider configuration argument. Multiple instances are allowed per block.",
+							Type:        schema.TypeSet,
+							Required:    true,
+							MinItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": {
-										Type:     schema.TypeString,
-										Required: true,
+										Description: "The name of the provider configuration argument.",
+										Type:        schema.TypeString,
+										Required:    true,
 									},
 									"value": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Description: "The value of the provider configuration argument.",
+										Type:        schema.TypeString,
+										Optional:    true,
 									},
 									"sensitive": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Default:  false,
+										Description: "Set (true/false) to configure as sensitive. Default `false`.",
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
 									},
 									"description": {
-										Type:     schema.TypeString,
-										Optional: true,
+										Description: "The description of the provider configuration argument.",
+										Type:        schema.TypeString,
+										Optional:    true,
 									},
 								},
 							},

@@ -1,0 +1,13 @@
+# {{.Type}} `{{.Name}}`
+
+{{ .Description | trimspace }}
+
+> **WARNING:** This datasource is deprecated and will be removed in the next major version.
+
+{{ if .HasExample -}}
+## Example Usage
+
+{{tffile .ExampleFile }}
+{{- end }}
+
+{{ .SchemaMarkdown | trimspace }}

@@ -1,0 +1,1 @@
+terraform import scalr_provider_configuration_default.example env-xxxxxxxx/pcfg-xxxxxxxx

@@ -13,20 +13,24 @@ import (
 
 func dataSourceModuleVersion() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves the module version data by module source and semantic version.",
 		ReadContext: dataSourceModuleVersionRead,
 		Schema: map[string]*schema.Schema{
 			"source": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "The module source.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"version": {
+				Description:  "The semantic version. If omitted, the latest module version is selected",
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The identifier of а module version. Example: `modver-xxxx`",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 		}}
 }

@@ -1,0 +1,1 @@
+terraform import scalr_workspace_run_schedule.example ws-xxxxxxxxxx

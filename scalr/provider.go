@@ -44,16 +44,21 @@ func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"hostname": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: fmt.Sprintf("Scalr instance hostname without scheme. Defaults to %s.", defaultHostname),
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: fmt.Sprintf("The Scalr hostname to connect to. Defaults to `%s`."+
+					" Can be overridden by setting the `SCALR_HOSTNAME` environment variable.",
+					defaultHostname),
 				DefaultFunc: schema.EnvDefaultFunc("SCALR_HOSTNAME", defaultHostname),
 			},
 
 			"token": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Scalr API token.",
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: "The token used to authenticate with Scalr." +
+					" Can be overridden by setting the `SCALR_TOKEN` environment variable." +
+					" See [Scalr provider configuration](https://docs.scalr.io/docs/scalr)" +
+					" for information on generating a token.",
 				DefaultFunc: schema.EnvDefaultFunc("SCALR_TOKEN", nil),
 			},
 		},

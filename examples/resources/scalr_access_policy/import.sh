@@ -1,0 +1,1 @@
+terraform import scalr_access_policy.example ap-te2cteuismsqocd
