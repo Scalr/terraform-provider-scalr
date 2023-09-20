@@ -12,7 +12,7 @@ import (
 
 func dataSourceScalrAccessPolicy() *schema.Resource {
 	return &schema.Resource{
-		Description: "This data source is used to retrieve details of a single access policy by id..",
+		Description: "This data source is used to retrieve details of a single access policy by id.",
 
 		ReadContext: dataSourceScalrAccessPolicyRead,
 
