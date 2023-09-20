@@ -3,7 +3,6 @@ name: default
 on:
   push:
     paths-ignore:
-#      - docs/**
       - CHANGELOG.md
       - CONTRIBUTING.md
       - README.md
