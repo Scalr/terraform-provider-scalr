@@ -1,4 +1,12 @@
-# Data Source `scalr_access_policy`
+---
+title: "scalr_access_policy"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_datasource_scalr_access_policy"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 1
+---
+## Data Source Overview
 
 This data source is used to retrieve details of a single access policy by id.
 

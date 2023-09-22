@@ -1,4 +1,12 @@
-# Resource `scalr_service_account`
+---
+title: "scalr_service_account"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_service_account"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 15
+---
+## Resource Overview
 
 Manages the state of service accounts in Scalr.
 

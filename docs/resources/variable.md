@@ -1,4 +1,12 @@
-# Resource `scalr_variable`
+---
+title: "scalr_variable"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_variable"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 19
+---
+## Resource Overview
 
 Manage the state of the variables in Scalr. Create, update and destroy.
 

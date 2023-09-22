@@ -8,12 +8,12 @@ resource "scalr_webhook" "example1" {
   events       = ["run:completed", "run:errored"]
   environments = ["env-xxxxxxxxxx"]
   header {
-    name      = "header1"
-    value     = "value1"
+    name  = "header1"
+    value = "value1"
   }
   header {
-    name      = "header2"
-    value     = "value2"
+    name  = "header2"
+    value = "value2"
   }
 }
 

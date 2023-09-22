@@ -1,11 +1,12 @@
 ---
-title: "Data Source scalr_workspaces"
+title: "scalr_workspaces"
 category: "6380b9efad50240652eec1fc"
-description: |-
-  Retrieves a list of workspace ids by name or tags.
+slug: "provider_datasource_scalr_workspaces"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 23
 ---
-
-# Data Source `scalr_workspaces`
+## Data Source Overview
 
 Retrieves a list of workspace ids by name or tags.
 

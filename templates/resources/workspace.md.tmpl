@@ -1,4 +1,11 @@
-# {{.Type}} `{{.Name}}`
+---
+title: "{{.Name}}"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_{{.Name}}"
+parentDocSlug: "provider_resources"
+hidden: false
+---
+## {{.Type}} Overview
 
 {{ .Description | trimspace }}
 
@@ -15,6 +22,10 @@
 ### CLI-driven
 
 {{tffile "examples/resources/scalr_workspace/cli.tf" }}
+
+### Create tagged workspaces
+
+{{tffile "examples/resources/scalr_workspace/tags.tf" }}
 
 {{ .SchemaMarkdown | trimspace }}
 

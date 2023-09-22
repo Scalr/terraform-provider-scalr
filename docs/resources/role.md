@@ -1,4 +1,12 @@
-# Resource `scalr_role`
+---
+title: "scalr_role"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_role"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 13
+---
+## Resource Overview
 
 Manage the Scalr IAM roles. Create, update and destroy.
 

@@ -1,4 +1,12 @@
-# Resource `scalr_access_policy`
+---
+title: "scalr_access_policy"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_access_policy"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 1
+---
+## Resource Overview
 
 Manages the Scalr IAM access policies. Create, update and destroy.
 

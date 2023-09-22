@@ -1,4 +1,12 @@
-# Resource `scalr_module`
+---
+title: "scalr_module"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_module"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 8
+---
+## Resource Overview
 
 Manages the state of a module in the Private Modules Registry. Create and destroy operations are available only.
 

@@ -1,11 +1,12 @@
 ---
-title: "Data Source scalr_environments"
+title: "scalr_environments"
 category: "6380b9efad50240652eec1fc"
-description: |-
-  Retrieves a list of environment ids by name or tags.
+slug: "provider_datasource_scalr_environments"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 7
 ---
-
-# Data Source `scalr_environments`
+## Data Source Overview
 
 Retrieves a list of environment ids by name or tags.
 

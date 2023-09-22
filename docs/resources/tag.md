@@ -1,4 +1,12 @@
-# Resource `scalr_tag`
+---
+title: "scalr_tag"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_tag"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 18
+---
+## Resource Overview
 
 Manages the state of tags in Scalr.
 

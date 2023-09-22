@@ -1,4 +1,12 @@
-# Resource `scalr_provider_configuration_default`
+---
+title: "scalr_provider_configuration_default"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_provider_configuration_default"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 12
+---
+## Resource Overview
 
 Manage defaults of provider configurations for environments in Scalr. Create and destroy.
 

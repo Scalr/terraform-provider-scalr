@@ -1,11 +1,12 @@
 ---
-title: "Data Source scalr_tag"
+title: "scalr_tag"
 category: "6380b9efad50240652eec1fc"
-description: |-
-  Retrieves information about a tag.
+slug: "provider_datasource_scalr_tag"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 16
 ---
-
-# Data Source `scalr_tag`
+## Data Source Overview
 
 Retrieves information about a tag.
 

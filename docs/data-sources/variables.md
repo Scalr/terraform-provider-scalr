@@ -1,4 +1,12 @@
-# Data Source `scalr_variables`
+---
+title: "scalr_variables"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_datasource_scalr_variables"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 18
+---
+## Data Source Overview
 
 Retrieves the list of variables by the given filters.
 

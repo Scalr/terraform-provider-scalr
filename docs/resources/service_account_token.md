@@ -1,4 +1,12 @@
-# Resource `scalr_service_account_token`
+---
+title: "scalr_service_account_token"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_service_account_token"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 16
+---
+## Resource Overview
 
 Manage the state of service account's tokens in Scalr. Create, update and destroy.
 

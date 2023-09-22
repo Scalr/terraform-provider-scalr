@@ -1,11 +1,12 @@
 ---
-title: "Data Source scalr_environment"
+title: "scalr_environment"
 category: "6380b9efad50240652eec1fc"
-description: |-
-  Retrieves the details of a Scalr environment.
+slug: "provider_datasource_scalr_environment"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 6
 ---
-
-# Data Source `scalr_environment`
+## Data Source Overview
 
 Retrieves the details of a Scalr environment.
 

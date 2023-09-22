@@ -1,8 +1,16 @@
-# Resource `scalr_endpoint`
+---
+title: "scalr_endpoint"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_endpoint"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 5
+---
+## Resource Overview
 
 Manage the state of endpoints in Scalr. Create, update and destroy.
 
-> **WARNING:** This resource is deprecated and will be removed in the next major version.
+> 🚧 This resource is deprecated and will be removed in the next major version.
 
 ## Example Usage
 

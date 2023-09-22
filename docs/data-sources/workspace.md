@@ -1,4 +1,12 @@
-# Data Source `scalr_workspace`
+---
+title: "scalr_workspace"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_datasource_scalr_workspace"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 21
+---
+## Data Source Overview
 
 Retrieves the details of a single workspace.
 

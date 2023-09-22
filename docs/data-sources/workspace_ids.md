@@ -1,11 +1,12 @@
 ---
-title: "Data Source scalr_workspace_ids"
+title: "scalr_workspace_ids"
 category: "6380b9efad50240652eec1fc"
-description: |-
-  Retrieves a map of workspace IDs based on the names provided. Wildcards are accepted.
+slug: "provider_datasource_scalr_workspace_ids"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 22
 ---
-
-# Data Source `scalr_workspace_ids`
+## Data Source Overview
 
 Retrieves a map of workspace IDs based on the names provided. Wildcards are accepted.
 

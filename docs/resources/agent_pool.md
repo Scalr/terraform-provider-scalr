@@ -1,4 +1,12 @@
-# Resource `scalr_agent_pool`
+---
+title: "scalr_agent_pool"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_agent_pool"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 3
+---
+## Resource Overview
 
 Manage the state of agent pools in Scalr. Create, update and destroy.
 

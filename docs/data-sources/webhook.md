@@ -1,11 +1,12 @@
 ---
-title: "Data Source scalr_webhook"
+title: "scalr_webhook"
 category: "6380b9efad50240652eec1fc"
-description: |-
-  Retrieves the details of a webhook.
+slug: "provider_datasource_scalr_webhook"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 20
 ---
-
-# Data Source `scalr_webhook`
+## Data Source Overview
 
 Retrieves the details of a webhook.
 

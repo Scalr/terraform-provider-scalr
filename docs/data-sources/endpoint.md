@@ -1,8 +1,16 @@
-# Data Source `scalr_endpoint`
+---
+title: "scalr_endpoint"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_datasource_scalr_endpoint"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 5
+---
+## Data Source Overview
 
 Retrieves the details of a webhook endpoint.
 
-> **WARNING:** This datasource is deprecated and will be removed in the next major version.
+> 🚧 This datasource is deprecated and will be removed in the next major version.
 
 ## Example Usage
 

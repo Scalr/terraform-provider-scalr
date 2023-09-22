@@ -1,4 +1,12 @@
-# Resource `scalr_workspace`
+---
+title: "scalr_workspace"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_workspace"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 22
+---
+## Resource Overview
 
 Manage the state of workspaces in Scalr. Create, update and destroy.
 
@@ -74,14 +82,38 @@ resource "scalr_workspace" "example" {
 
 ```terraform
 data "scalr_environment" "example" {
-  name = "env-name"
+  name       = "env-name"
   account_id = "acc-xxxxxxxxxx"
 }
 
 resource "scalr_workspace" "example" {
-  name           = "my-workspace-name"
-  environment_id = data.scalr_environment.example.id
+  name              = "my-workspace-name"
+  environment_id    = data.scalr_environment.example.id
   working_directory = "example/path"
+}
+```
+
+### Create tagged workspaces
+
+```terraform
+resource "scalr_tag" "team-a" {
+  name = "TeamA"
+}
+
+resource "scalr_tag" "team-b" {
+  name = "TeamB"
+}
+
+resource "scalr_workspace" "example-a" {
+  environment_id = "env-xxxxxxxxxx"
+  name           = "example-a"
+  tag_ids        = [scalr_tag.team-a.id]
+}
+
+resource "scalr_workspace" "example-b" {
+  environment_id = "env-xxxxxxxxxx"
+  name           = "example-b"
+  tag_ids        = [scalr_tag.team-b.id]
 }
 ```
 

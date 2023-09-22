@@ -1,11 +1,12 @@
 ---
-title: "Data Source scalr_role"
+title: "scalr_role"
 category: "6380b9efad50240652eec1fc"
-description: |-
-  This data source is used to retrieve details of a single role.
+slug: "provider_datasource_scalr_role"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 14
 ---
-
-# Data Source `scalr_role`
+## Data Source Overview
 
 This data source is used to retrieve details of a single role.
 

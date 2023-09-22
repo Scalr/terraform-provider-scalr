@@ -1,11 +1,12 @@
 ---
-title: "Data Source scalr_agent_pool"
+title: "scalr_agent_pool"
 category: "6380b9efad50240652eec1fc"
-description: |-
-  Retrieves the details of an agent pool.
+slug: "provider_datasource_scalr_agent_pool"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 2
 ---
-
-# Data Source `scalr_agent_pool`
+## Data Source Overview
 
 Retrieves the details of an agent pool.
 

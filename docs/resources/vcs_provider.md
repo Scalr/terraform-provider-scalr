@@ -1,4 +1,12 @@
-# Resource `scalr_vcs_provider`
+---
+title: "scalr_vcs_provider"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_vcs_provider"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 20
+---
+## Resource Overview
 
 Manage the Scalr VCS provider. Create, update and destroy.
 

@@ -1,11 +1,12 @@
 ---
-title: "Data Source scalr_service_account"
+title: "scalr_service_account"
 category: "6380b9efad50240652eec1fc"
-description: |-
-  Retrieves information about a service account.
+slug: "provider_datasource_scalr_service_account"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 15
 ---
-
-# Data Source `scalr_service_account`
+## Data Source Overview
 
 Retrieves information about a service account.
 

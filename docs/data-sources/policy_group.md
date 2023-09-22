@@ -1,4 +1,12 @@
-# Data Source `scalr_policy_group`
+---
+title: "scalr_policy_group"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_datasource_scalr_policy_group"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 11
+---
+## Data Source Overview
 
 Retrieves the details of a policy group.
 

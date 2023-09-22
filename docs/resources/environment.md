@@ -1,4 +1,12 @@
-# Resource `scalr_environment`
+---
+title: "scalr_environment"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_environment"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 6
+---
+## Resource Overview
 
 Manage the state of environments in Scalr. Creates, updates and destroys.
 

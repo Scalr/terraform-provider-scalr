@@ -1,11 +1,12 @@
 ---
-title: "Data Source scalr_provider_configuration"
+title: "scalr_provider_configuration"
 category: "6380b9efad50240652eec1fc"
-description: |-
-  Retrieves information about a single provider configuration.
+slug: "provider_datasource_scalr_provider_configuration"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 12
 ---
-
-# Data Source `scalr_provider_configuration`
+## Data Source Overview
 
 Retrieves information about a single provider configuration.
 

@@ -1,4 +1,12 @@
-# Resource `scalr_webhook`
+---
+title: "scalr_webhook"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_webhook"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 21
+---
+## Resource Overview
 
 Manage the state of webhooks in Scalr. Creates, updates and destroy.
 
@@ -15,12 +23,12 @@ resource "scalr_webhook" "example1" {
   events       = ["run:completed", "run:errored"]
   environments = ["env-xxxxxxxxxx"]
   header {
-    name      = "header1"
-    value     = "value1"
+    name  = "header1"
+    value = "value1"
   }
   header {
-    name      = "header2"
-    value     = "value2"
+    name  = "header2"
+    value = "value2"
   }
 }
 

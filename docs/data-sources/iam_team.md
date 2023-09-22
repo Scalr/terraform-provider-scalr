@@ -1,11 +1,12 @@
 ---
-title: "Data Source scalr_iam_team"
+title: "scalr_iam_team"
 category: "6380b9efad50240652eec1fc"
-description: |-
-  Retrieves the details of a Scalr team.
+slug: "provider_datasource_scalr_iam_team"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 8
 ---
-
-# Data Source `scalr_iam_team`
+## Data Source Overview
 
 Retrieves the details of a Scalr team.
 

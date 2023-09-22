@@ -1,4 +1,12 @@
-# Resource `scalr_iam_team`
+---
+title: "scalr_iam_team"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_iam_team"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 7
+---
+## Resource Overview
 
 Manages the Scalr IAM teams: performs create, update and destroy actions.
 

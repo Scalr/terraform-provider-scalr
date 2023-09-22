@@ -1,11 +1,12 @@
 ---
-title: "Data Source scalr_iam_user"
+title: "scalr_iam_user"
 category: "6380b9efad50240652eec1fc"
-description: |-
-  Retrieves the details of a Scalr user.
+slug: "provider_datasource_scalr_iam_user"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 9
 ---
-
-# Data Source `scalr_iam_user`
+## Data Source Overview
 
 Retrieves the details of a Scalr user.
 

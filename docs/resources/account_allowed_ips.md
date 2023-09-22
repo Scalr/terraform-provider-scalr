@@ -1,4 +1,12 @@
-# Resource `scalr_account_allowed_ips`
+---
+title: "scalr_account_allowed_ips"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_account_allowed_ips"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 2
+---
+## Resource Overview
 
 Manages the list of allowed IPs for an account in Scalr. Create, update and destroy.
 

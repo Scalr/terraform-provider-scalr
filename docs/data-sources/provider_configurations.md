@@ -1,11 +1,12 @@
 ---
-title: "Data Source scalr_provider_configurations"
+title: "scalr_provider_configurations"
 category: "6380b9efad50240652eec1fc"
-description: |-
-  Retrieves a list of provider configuration ids by name or type.
+slug: "provider_datasource_scalr_provider_configurations"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 13
 ---
-
-# Data Source `scalr_provider_configurations`
+## Data Source Overview
 
 Retrieves a list of provider configuration ids by name or type.
 

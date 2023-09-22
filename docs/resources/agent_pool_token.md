@@ -1,4 +1,12 @@
-# Resource `scalr_agent_pool_token`
+---
+title: "scalr_agent_pool_token"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_agent_pool_token"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 4
+---
+## Resource Overview
 
 Manage the state of agent pool's tokens in Scalr. Create, update and destroy.
 

@@ -1,4 +1,12 @@
-# Resource `scalr_workspace_run_schedule`
+---
+title: "scalr_workspace_run_schedule"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_workspace_run_schedule"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 23
+---
+## Resource Overview
 
 Allows workspace admins to automate the configuration of recurring runs for a workspace.
 

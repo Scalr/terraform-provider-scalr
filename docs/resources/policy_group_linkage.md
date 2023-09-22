@@ -1,4 +1,12 @@
-# Resource `scalr_policy_group_linkage`
+---
+title: "scalr_policy_group_linkage"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_policy_group_linkage"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 10
+---
+## Resource Overview
 
 Manage policy group to environment linking in Scalr. Create, update and destroy.
 

@@ -1,11 +1,11 @@
 ---
-title: "{{.Type}} {{.Name}}"
+title: "{{.Name}}"
 category: "6380b9efad50240652eec1fc"
-description: |-
-{{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
+slug: "provider_datasource_{{.Name}}"
+parentDocSlug: "provider_datasources"
+hidden: false
 ---
-
-# {{.Type}} `{{.Name}}`
+## {{.Type}} Overview
 
 {{ .Description | trimspace }}
 

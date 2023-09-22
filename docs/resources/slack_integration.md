@@ -1,4 +1,12 @@
-# Resource `scalr_slack_integration`
+---
+title: "scalr_slack_integration"
+category: "6380b9efad50240652eec1fc"
+slug: "provider_resource_scalr_slack_integration"
+parentDocSlug: "provider_resources"
+hidden: false
+order: 17
+---
+## Resource Overview
 
 Manage the state of Slack integrations in Scalr. Create, update and destroy.
 

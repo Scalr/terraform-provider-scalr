@@ -1,11 +1,12 @@
 ---
-title: "Data Source scalr_variable"
+title: "scalr_variable"
 category: "6380b9efad50240652eec1fc"
-description: |-
-  Retrieves the details of a variable.
+slug: "provider_datasource_scalr_variable"
+parentDocSlug: "provider_datasources"
+hidden: false
+order: 17
 ---
-
-# Data Source `scalr_variable`
+## Data Source Overview
 
 Retrieves the details of a variable.
 
