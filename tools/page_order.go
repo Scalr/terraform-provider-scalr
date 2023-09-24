@@ -30,7 +30,7 @@ func main() {
 
 	order := 1
 	for _, f := range files {
-		fmt.Printf("📄 Processing %q, order = %d...\n", filepath.Base(f), order)
+		fmt.Printf("> Processing %q, order = %d...\n", filepath.Base(f), order)
 
 		bytes, err := os.ReadFile(f)
 		if err != nil {
@@ -49,7 +49,7 @@ func main() {
 					lines = append(lines[:j+1], lines[j:]...)
 					lines[j] = fmt.Sprintf("order: %d", order)
 					order++
-					fmt.Println("  Added order record.")
+					fmt.Println("  * Added order record.")
 					break
 				} else {
 					frontMatterFound = true
@@ -59,7 +59,7 @@ func main() {
 			if frontMatterFound && strings.HasPrefix(l, "order:") {
 				lines[j] = fmt.Sprintf("order: %d", order)
 				order++
-				fmt.Println("  Updated order record.")
+				fmt.Println("  * Updated order record.")
 				break
 			}
 		}
@@ -68,7 +68,7 @@ func main() {
 			if err != nil {
 				log.Fatalln(err)
 			}
-			fmt.Println("  💾 Saved.")
+			fmt.Println("  * File saved.")
 		} else {
 			fmt.Println("  ? No Front Matter block detected, skipping.")
 		}

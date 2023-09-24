@@ -1,6 +1,6 @@
 ---
 title: "scalr_agent_pool_token"
-category: "6380b9efad50240652eec1fc"
+categorySlug: "scalr-terraform-provider"
 slug: "provider_resource_scalr_agent_pool_token"
 parentDocSlug: "provider_resources"
 hidden: false

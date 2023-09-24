@@ -1,6 +1,6 @@
 ---
 title: "scalr_iam_team"
-category: "6380b9efad50240652eec1fc"
+categorySlug: "scalr-terraform-provider"
 slug: "provider_datasource_scalr_iam_team"
 parentDocSlug: "provider_datasources"
 hidden: false

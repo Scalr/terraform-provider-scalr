@@ -1,6 +1,6 @@
 ---
 title: "scalr_policy_group_linkage"
-category: "6380b9efad50240652eec1fc"
+categorySlug: "scalr-terraform-provider"
 slug: "provider_resource_scalr_policy_group_linkage"
 parentDocSlug: "provider_resources"
 hidden: false

@@ -1,6 +1,6 @@
 ---
 title: "scalr_service_account_token"
-category: "6380b9efad50240652eec1fc"
+categorySlug: "scalr-terraform-provider"
 slug: "provider_resource_scalr_service_account_token"
 parentDocSlug: "provider_resources"
 hidden: false

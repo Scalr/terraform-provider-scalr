@@ -1,6 +1,6 @@
 ---
 title: "scalr_module"
-category: "6380b9efad50240652eec1fc"
+categorySlug: "scalr-terraform-provider"
 slug: "provider_resource_scalr_module"
 parentDocSlug: "provider_resources"
 hidden: false

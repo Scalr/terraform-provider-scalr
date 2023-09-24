@@ -1,6 +1,6 @@
 ---
 title: "scalr_provider_configuration"
-category: "6380b9efad50240652eec1fc"
+categorySlug: "scalr-terraform-provider"
 slug: "provider_datasource_scalr_provider_configuration"
 parentDocSlug: "provider_datasources"
 hidden: false
