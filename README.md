@@ -12,7 +12,7 @@ from the [releases page](https://github.com/Scalr/terraform-provider-scalr/relea
 that is compatible with your Scalr server version (under the "required" section).
 Extract the archive to get the provider binary.
 
-Follow the instructions on the [official documentation page](https://docs.scalr.com/en/latest/scalr-terraform-provider/index.html) to learn how to use it.
+Follow the instructions on the [official documentation page](https://docs.scalr.io/docs/overview) to learn how to use it.
 ## Developing the provider
 ### Requirements
 - [Terraform](https://www.terraform.io/downloads.html) >= 0.15.x
