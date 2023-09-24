@@ -22,7 +22,7 @@ jobs:
           version: v1.48.0
           args: --timeout 2m
       - name: Generate
-        run: go generate ./...
+        run: go generate
       - name: Validate generated code
         shell: bash
         run: |
@@ -32,6 +32,16 @@ jobs:
             echo "*** Unexpected differences after code generation. Run 'go generate' and commit.";
             exit 1;
           fi
+
+  docs-preview:
+    name: 'Docs: preview'
+    needs: [lint]
+    uses: ./.github/workflows/rdme.yml
+    with:
+      version: '0.0.4'
+      dry: true
+    secrets:
+      README_API_KEY: ${{ secrets.README_API_KEY }}
 
   unit-tests:
     name: unit-tests
@@ -241,25 +251,6 @@ jobs:
           registry-domain: ${{ secrets.DEV_DOMAIN }}
           dry-run: false
 
-  readme-preview:
-    # todo: only when .docs/ has changed
-    name: readme-preview
-    needs: [lint]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repo 📚
-        uses: actions/checkout@v3
-
-      - name: Run `docs` command 🚀
-        uses: readmeio/rdme@v8
-        with:
-          rdme: docs ./docs --key=${{ secrets.README_API_KEY }} --version=0.0.3 --dryRun
-
-      - name: Show versions
-        uses: readmeio/rdme@v8
-        with:
-          rdme: versions --key=${{ secrets.README_API_KEY }}
-
   release:
     name: release
     if: startsWith(github.ref, 'refs/tags/')
@@ -307,3 +298,13 @@ jobs:
           gcs-bucket: ${{ secrets.BUCKET_NAME }}
           registry-domain: ${{ secrets.DOMAIN }}
           dry-run: false
+
+  docs-publish:
+    name: 'Docs: publish'
+    needs: [ release ]
+    uses: ./.github/workflows/rdme.yml
+    with:
+      version: '0.0.4'
+      dry: false
+    secrets:
+      README_API_KEY: ${{ secrets.README_API_KEY }}
