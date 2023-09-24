@@ -23,8 +23,9 @@ The main steps to follow when adding a resource are:
 - implement resource structs and CRUD methods in [Scalr Go Client](https://github.com/Scalr/go-scalr/) [^1]
 - pin `go-scalr` dependency to proper commit: `go get github.com/Scalr/go-scalr@<commit-sha>` [^1]
 - add `scalr/resource_scalr_<name>.go`, `scalr/datasource_scalr_<name>.go`, implement schemas and methods
-  > **Important**
-  > Always fill in the 'Description' field for the resource/datasource schema and for every attribute in it
+  
+  > [!IMPORTANT]
+  > Always fill in the `Description` field for the resource/datasource schema and for every attribute in it
   with clean and useful information. This will be collected and compiled into the documentation website.
 - add new resources to [provider schema](./scalr/provider.go)
 - add corresponding `*_test.go` files for each new module with acceptance tests
@@ -128,7 +129,7 @@ rather than using create or update logic which only triggers during apply
   - when a slice must be initialized with an empty slice instead of zero value,
     prefer allocating it with `make` function instead of empty slice literal (`make([]int, 0)` over `[]int{}`)
 
-    > **Note**
+    > [!NOTE]
     > When choosing the initial value for slice, take into account that zero-value slice marshals into `null`,
     while an empty slice will produce `[]`.
 - always cleanup `go.sum` after modifying project dependencies:
