@@ -14,9 +14,9 @@ Manages the state of a module in the Private Modules Registry. Create and destro
 
 ```terraform
 resource "scalr_module" "example" {
-  account_id      = "acc-xxxxxxxxx"
-  environment_id  = "env-xxxxxxxxx"
-  vcs_provider_id = "vcs-xxxxxxxxx"
+  account_id      = "acc-xxxxxxxxxx"
+  environment_id  = "env-xxxxxxxxxx"
+  vcs_provider_id = "vcs-xxxxxxxxxx"
   vcs_repo {
     identifier = "org/repo"
     path       = "example/terraform-<provider>-<name>"
@@ -63,5 +63,5 @@ Optional:
 Import is supported using the following syntax:
 
 ```shell
-terraform import scalr_module.example mod-xxxxxxxxxxxxxxx
+terraform import scalr_module.example mod-xxxxxxxxxx
 ```

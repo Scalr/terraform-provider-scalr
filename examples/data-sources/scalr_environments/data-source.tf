@@ -7,9 +7,9 @@ data "scalr_environments" "app-frontend" {
 }
 
 data "scalr_environments" "tagged" {
-  tag_ids = ["tag-xxxxxxxxxxx", "tag-yyyyyyyyyyy"]
+  tag_ids = ["tag-xxxxxxxxxx", "tag-yyyyyyyyyy"]
 }
 
 data "scalr_environments" "all" {
-  account_id = "acc-xxxxxxxxxxx"
+  account_id = "acc-xxxxxxxxxx"
 }

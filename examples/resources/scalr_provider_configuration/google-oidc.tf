@@ -1,6 +1,6 @@
 resource "scalr_provider_configuration" "google" {
   name       = "google_main"
-  account_id = "acc-xxxxxxxxx"
+  account_id = "acc-xxxxxxxxxx"
   google {
     auth_type              = "oidc"
     project                = "my-project"

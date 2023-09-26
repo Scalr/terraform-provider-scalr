@@ -15,7 +15,7 @@ Manage the state of agent pools in Scalr. Create, update and destroy.
 ```terraform
 resource "scalr_agent_pool" "default" {
   name       = "default-pool"
-  account_id = "acc-xxxxxxxx"
+  account_id = "acc-xxxxxxxxxx"
 }
 ```
 
@@ -41,5 +41,5 @@ resource "scalr_agent_pool" "default" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import scalr_agent_pool.default apool-xxxxxxxxx
+terraform import scalr_agent_pool.example apool-xxxxxxxxxx
 ```

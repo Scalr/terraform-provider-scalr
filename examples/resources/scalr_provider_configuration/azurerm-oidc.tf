@@ -1,6 +1,6 @@
 resource "scalr_provider_configuration" "azurerm_oidc" {
   name       = "azurerm"
-  account_id = "acc-xxxxxxxxx"
+  account_id = "acc-xxxxxxxxxx"
   azurerm {
     auth_type       = "oidc"
     audience        = "scalr-workload-identity"

@@ -1,12 +1,12 @@
 data "scalr_variable" "example1" {
-  id         = "var-xxxxxxx"
-  account_id = "acc-xxxxxxx"
+  id         = "var-xxxxxxxxxx"
+  account_id = "acc-xxxxxxxxxx"
 }
 
 data "scalr_variable" "example2" {
   key            = "key"
   category       = "terraform"
-  account_id     = "acc-xxxxxxx"
-  environment_id = "env-xxxxxxx"
-  workspace_id   = "ws-xxxxxxx"
+  account_id     = "acc-xxxxxxxxxx"
+  environment_id = "env-xxxxxxxxxx"
+  workspace_id   = "ws-xxxxxxxxxx"
 }

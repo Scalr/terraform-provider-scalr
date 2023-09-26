@@ -15,7 +15,7 @@ Manages the Scalr IAM access policies. Create, update and destroy.
 ```terraform
 resource "scalr_role" "reader" {
   name        = "Reader"
-  account_id  = "acc-xxxxxxxx"
+  account_id  = "acc-xxxxxxxxxx"
   description = "Read access to all resources."
 
   permissions = [
@@ -26,11 +26,11 @@ resource "scalr_role" "reader" {
 resource "scalr_access_policy" "team_read_all_on_acc_scope" {
   subject {
     type = "team"
-    id   = "team-xxxxxxx"
+    id   = "team-xxxxxxxxxx"
   }
   scope {
     type = "account"
-    id   = "acc-xxxxxxx"
+    id   = "acc-xxxxxxxxxx"
   }
 
   role_ids = [
@@ -75,5 +75,5 @@ Required:
 Import is supported using the following syntax:
 
 ```shell
-terraform import scalr_access_policy.example ap-te2cteuismsqocd
+terraform import scalr_access_policy.example ap-xxxxxxxxxx
 ```

@@ -1,1 +1,1 @@
-terraform import scalr_endpoint.default ep-xxxxxxxxx
+terraform import scalr_endpoint.example ep-xxxxxxxxxx

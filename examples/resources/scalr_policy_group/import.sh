@@ -1,1 +1,1 @@
-terraform import scalr_policy_group.example pgrp-xxxxxxxxxxxxxxx
+terraform import scalr_policy_group.example pgrp-xxxxxxxxxx

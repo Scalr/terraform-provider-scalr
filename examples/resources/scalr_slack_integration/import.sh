@@ -1,1 +1,1 @@
-terraform import scalr_slack_integration.default in-xxxxxxxxxx
+terraform import scalr_slack_integration.example in-xxxxxxxxxx

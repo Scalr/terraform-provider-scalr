@@ -1,1 +1,1 @@
-terraform import scalr_module.example mod-xxxxxxxxxxxxxxx
+terraform import scalr_module.example mod-xxxxxxxxxx

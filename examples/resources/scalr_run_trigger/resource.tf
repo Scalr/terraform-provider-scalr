@@ -1,11 +1,11 @@
 data "scalr_workspace" "downstream" {
   name           = "downstream"
-  environment_id = "env-xxxxxxxxx"
+  environment_id = "env-xxxxxxxxxx"
 }
 
 data "scalr_workspace" "upstream" {
   name           = "upstream"
-  environment_id = "env-xxxxxxxxx"
+  environment_id = "env-xxxxxxxxxx"
 }
 
 resource "scalr_run_trigger" "set_downstream" {

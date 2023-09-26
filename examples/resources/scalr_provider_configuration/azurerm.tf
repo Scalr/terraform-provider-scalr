@@ -1,6 +1,6 @@
 resource "scalr_provider_configuration" "azurerm" {
   name       = "azurerm"
-  account_id = "acc-xxxxxxxxx"
+  account_id = "acc-xxxxxxxxxx"
   azurerm {
     client_id       = "my-client-id"
     client_secret   = "my-client-secret"

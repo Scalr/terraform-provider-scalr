@@ -14,7 +14,7 @@ This data source is used to retrieve details of a single access policy by id.
 
 ```terraform
 data "scalr_access_policy" "example" {
-  id = "ap-xxxxxxxxx"
+  id = "ap-xxxxxxxxxx"
 }
 
 output "scope_id" {

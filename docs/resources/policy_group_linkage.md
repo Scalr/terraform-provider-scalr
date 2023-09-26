@@ -14,8 +14,8 @@ Manage policy group to environment linking in Scalr. Create, update and destroy.
 
 ```terraform
 resource "scalr_policy_group_linkage" "example" {
-  policy_group_id = "pgrp-xxxxxxxx"
-  environment_id  = "env-xxxxxxxx"
+  policy_group_id = "pgrp-xxxxxxxxxx"
+  environment_id  = "env-xxxxxxxxxx"
 }
 ```
 
@@ -36,5 +36,5 @@ resource "scalr_policy_group_linkage" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import scalr_policy_group_linkage.example pgrp-xxxxxxxxxxxxxxx/env-yyyyyyyyyyyyyyy
+terraform import scalr_policy_group_linkage.example pgrp-xxxxxxxxxx/env-xxxxxxxxxx
 ```

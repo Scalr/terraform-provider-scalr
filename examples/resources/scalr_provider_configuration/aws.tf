@@ -1,8 +1,8 @@
 resource "scalr_provider_configuration" "aws" {
   name                   = "aws_dev_us_east_1"
-  account_id             = "acc-xxxxxxxxx"
+  account_id             = "acc-xxxxxxxxxx"
   export_shell_variables = false
-  environments           = ["env-yyyyyyyyy"]
+  environments           = ["env-xxxxxxxxxx"]
   aws {
     account_type     = "regular"
     credentials_type = "access_keys"

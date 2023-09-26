@@ -16,9 +16,9 @@ Manages the Scalr IAM teams: performs create, update and destroy actions.
 resource "scalr_iam_team" "example" {
   name        = "dev"
   description = "Developers"
-  account_id  = "acc-xxxxxxxx"
+  account_id  = "acc-xxxxxxxxxx"
 
-  users = ["user-xxxxxxxx", "user-yyyyyyyy"]
+  users = ["user-xxxxxxxxxx", "user-yyyyyyyyyy"]
 }
 ```
 
@@ -45,5 +45,5 @@ resource "scalr_iam_team" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import scalr_iam_team.example team-xxxxxxxxxxxxxxx
+terraform import scalr_iam_team.example team-xxxxxxxxxx
 ```

@@ -1,1 +1,1 @@
-terraform import scalr_iam_team.example team-xxxxxxxxxxxxxxx
+terraform import scalr_iam_team.example team-xxxxxxxxxx

@@ -14,7 +14,7 @@ Manages the list of allowed IPs for an account in Scalr. Create, update and dest
 
 ```terraform
 resource "scalr_account_allowed_ips" "default" {
-  account_id  = "acc-xxxxxxxx"
+  account_id  = "acc-xxxxxxxxxx"
   allowed_ips = ["127.0.0.1", "192.168.0.0/24"]
 }
 ```
@@ -41,5 +41,5 @@ resource "scalr_account_allowed_ips" "default" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import scalr_account_allowed_ips.default acc-xxxxxxxxx
+terraform import scalr_account_allowed_ips.example acc-xxxxxxxxxx
 ```

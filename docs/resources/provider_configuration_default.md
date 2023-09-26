@@ -16,8 +16,8 @@ Manage defaults of provider configurations for environments in Scalr. Create and
 
 ```terraform
 resource "scalr_provider_configuration_default" "example" {
-  environment_id            = "env-xxxxxxxx"
-  provider_configuration_id = "pcfg-xxxxxxxx"
+  environment_id            = "env-xxxxxxxxxx"
+  provider_configuration_id = "pcfg-xxxxxxxxxx"
 }
 ```
 
@@ -38,5 +38,5 @@ resource "scalr_provider_configuration_default" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import scalr_provider_configuration_default.example env-xxxxxxxx/pcfg-xxxxxxxx
+terraform import scalr_provider_configuration_default.example env-xxxxxxxxxx/pcfg-xxxxxxxxxx
 ```

@@ -1,6 +1,6 @@
 resource "scalr_role" "reader" {
   name        = "Reader"
-  account_id  = "acc-xxxxxxxx"
+  account_id  = "acc-xxxxxxxxxx"
   description = "Read access to all resources."
 
   permissions = [
@@ -11,11 +11,11 @@ resource "scalr_role" "reader" {
 resource "scalr_access_policy" "team_read_all_on_acc_scope" {
   subject {
     type = "team"
-    id   = "team-xxxxxxx"
+    id   = "team-xxxxxxxxxx"
   }
   scope {
     type = "account"
-    id   = "acc-xxxxxxx"
+    id   = "acc-xxxxxxxxxx"
   }
 
   role_ids = [

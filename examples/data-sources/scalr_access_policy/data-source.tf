@@ -1,5 +1,5 @@
 data "scalr_access_policy" "example" {
-  id = "ap-xxxxxxxxx"
+  id = "ap-xxxxxxxxxx"
 }
 
 output "scope_id" {

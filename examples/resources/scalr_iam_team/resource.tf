@@ -1,7 +1,7 @@
 resource "scalr_iam_team" "example" {
   name        = "dev"
   description = "Developers"
-  account_id  = "acc-xxxxxxxx"
+  account_id  = "acc-xxxxxxxxxx"
 
-  users = ["user-xxxxxxxx", "user-yyyyyyyy"]
+  users = ["user-xxxxxxxxxx", "user-yyyyyyyyyy"]
 }

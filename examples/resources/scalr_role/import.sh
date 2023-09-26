@@ -1,1 +1,1 @@
-terraform import scalr_role.example role-xxxxxxxxxxxxxxx
+terraform import scalr_role.example role-xxxxxxxxxx

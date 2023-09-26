@@ -1,6 +1,6 @@
 resource "scalr_provider_configuration" "kubernetes" {
   name       = "k8s"
-  account_id = "acc-xxxxxxxxx"
+  account_id = "acc-xxxxxxxxxx"
   custom {
     provider_name = "kubernetes"
     argument {

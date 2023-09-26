@@ -4,13 +4,13 @@ data "scalr_workspaces" "exact-names" {
 
 data "scalr_workspaces" "app-frontend" {
   name           = "like:app-frontend-"
-  environment_id = "env-xxxxxxxxxxx"
+  environment_id = "env-xxxxxxxxxx"
 }
 
 data "scalr_workspaces" "tagged" {
-  tag_ids = ["tag-xxxxxxxxxxx", "tag-yyyyyyyyyyy"]
+  tag_ids = ["tag-xxxxxxxxxx", "tag-xxxxxxxxxx"]
 }
 
 data "scalr_workspaces" "all" {
-  environment_id = "env-xxxxxxxxxxx"
+  environment_id = "env-xxxxxxxxxx"
 }

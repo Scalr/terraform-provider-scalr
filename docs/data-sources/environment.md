@@ -14,13 +14,13 @@ Retrieves the details of a Scalr environment.
 
 ```terraform
 data "scalr_environment" "example1" {
-  id         = "env-xxxxxxx"
-  account_id = "acc-xxxxxxx"
+  id         = "env-xxxxxxxxxx"
+  account_id = "acc-xxxxxxxxxx"
 }
 
 data "scalr_environment" "example2" {
   name       = "environment-name"
-  account_id = "acc-xxxxxxx"
+  account_id = "acc-xxxxxxxxxx"
 }
 ```
 

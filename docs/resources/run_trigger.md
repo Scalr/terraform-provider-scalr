@@ -15,12 +15,12 @@ Run triggers are a way to chain workspaces together. The use case for this is th
 ```terraform
 data "scalr_workspace" "downstream" {
   name           = "downstream"
-  environment_id = "env-xxxxxxxxx"
+  environment_id = "env-xxxxxxxxxx"
 }
 
 data "scalr_workspace" "upstream" {
   name           = "upstream"
-  environment_id = "env-xxxxxxxxx"
+  environment_id = "env-xxxxxxxxxx"
 }
 
 resource "scalr_run_trigger" "set_downstream" {
@@ -47,5 +47,5 @@ resource "scalr_run_trigger" "set_downstream" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import scalr_run_trigger.set_downstream rt-xxxxxxxxxx
+terraform import scalr_run_trigger.example rt-xxxxxxxxxx
 ```

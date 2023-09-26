@@ -14,13 +14,13 @@ Retrieves the details of a VCS provider.
 
 ```terraform
 data "scalr_vcs_provider" "example1" {
-  id         = "vcs-xxxxxxx"
-  account_id = "acc-xxxxxxx"
+  id         = "vcs-xxxxxxxxxx"
+  account_id = "acc-xxxxxxxxxx"
 }
 
 data "scalr_vcs_provider" "example2" {
   name       = "example"
-  account_id = "acc-xxx"
+  account_id = "acc-xxxxxxxxxx"
 }
 ```
 

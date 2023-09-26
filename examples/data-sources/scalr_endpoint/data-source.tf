@@ -1,9 +1,9 @@
 data "scalr_endpoint" "example1" {
-  id         = "ep-xxxxxxxxxxx"
-  account_id = "acc-xxxxxxx"
+  id         = "ep-xxxxxxxxxx"
+  account_id = "acc-xxxxxxxxxx"
 }
 
 data "scalr_endpoint" "example2" {
   name       = "endpoint_name"
-  account_id = "acc-xxxxxxx"
+  account_id = "acc-xxxxxxxxxx"
 }

@@ -1,1 +1,1 @@
-terraform import scalr_environment.default env-xxxxxxxxx
+terraform import scalr_environment.example env-xxxxxxxxxx

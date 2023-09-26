@@ -1,1 +1,1 @@
-terraform import scalr_agent_pool.default apool-xxxxxxxxx
+terraform import scalr_agent_pool.example apool-xxxxxxxxxx

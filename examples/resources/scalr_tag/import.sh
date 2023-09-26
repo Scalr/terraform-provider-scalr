@@ -1,1 +1,1 @@
-terraform import scalr_tag.default tag-xxxxxxxxxx
+terraform import scalr_tag.example tag-xxxxxxxxxx

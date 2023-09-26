@@ -21,7 +21,7 @@ resource "scalr_endpoint" "example" {
   timeout        = 15
   max_attempts   = 3
   url            = "https://my-endpoint.url"
-  environment_id = "env-xxxxxxxxxxxx"
+  environment_id = "env-xxxxxxxxxx"
 }
 ```
 
@@ -65,5 +65,5 @@ resource "scalr_endpoint" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import scalr_endpoint.default ep-xxxxxxxxx
+terraform import scalr_endpoint.example ep-xxxxxxxxxx
 ```

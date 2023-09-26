@@ -15,7 +15,7 @@ Manage the Scalr IAM roles. Create, update and destroy.
 ```terraform
 resource "scalr_role" "writer" {
   name        = "Writer"
-  account_id  = "acc-xxxxxxxx"
+  account_id  = "acc-xxxxxxxxxx"
   description = "Write access to all resources."
 
   permissions = [
@@ -49,5 +49,5 @@ resource "scalr_role" "writer" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import scalr_role.example role-xxxxxxxxxxxxxxx
+terraform import scalr_role.example role-xxxxxxxxxx
 ```

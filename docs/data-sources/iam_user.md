@@ -14,7 +14,7 @@ Retrieves the details of a Scalr user.
 
 ```terraform
 data "scalr_iam_user" "example1" {
-  id = "user-xxxxxxx"
+  id = "user-xxxxxxxxxx"
 }
 
 data "scalr_iam_user" "example2" {

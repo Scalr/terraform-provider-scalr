@@ -16,8 +16,9 @@ A provider configuration helps organizations manage provider secrets in a centra
 
 ```terraform
 resource "scalr_provider_configuration" "scalr" {
-  name       = "scalr"
-  account_id = "acc-xxxxxxxxx"
+  name         = "scalr"
+  account_id   = "acc-xxxxxxxxxx"
+  environments = ["*"]
   scalr {
     hostname = "scalr.host.example.com"
     token    = "my-scalr-token"
@@ -30,9 +31,9 @@ resource "scalr_provider_configuration" "scalr" {
 ```terraform
 resource "scalr_provider_configuration" "aws" {
   name                   = "aws_dev_us_east_1"
-  account_id             = "acc-xxxxxxxxx"
+  account_id             = "acc-xxxxxxxxxx"
   export_shell_variables = false
-  environments           = ["env-yyyyyyyyy"]
+  environments           = ["env-xxxxxxxxxx"]
   aws {
     account_type     = "regular"
     credentials_type = "access_keys"
@@ -45,7 +46,7 @@ resource "scalr_provider_configuration" "aws" {
 ```terraform
 resource "scalr_provider_configuration" "oidc" {
   name                   = "oidc_dev_us_east_1"
-  account_id             = "acc-xxxxxxxxx"
+  account_id             = "acc-xxxxxxxxxx"
   export_shell_variables = false
   environments           = ["*"]
   aws {
@@ -63,7 +64,7 @@ To get into more advanced AWS usage please refer to the official [AWS module](ht
 ```terraform
 resource "scalr_provider_configuration" "azurerm" {
   name       = "azurerm"
-  account_id = "acc-xxxxxxxxx"
+  account_id = "acc-xxxxxxxxxx"
   azurerm {
     client_id       = "my-client-id"
     client_secret   = "my-client-secret"
@@ -76,7 +77,7 @@ resource "scalr_provider_configuration" "azurerm" {
 ```terraform
 resource "scalr_provider_configuration" "azurerm_oidc" {
   name       = "azurerm"
-  account_id = "acc-xxxxxxxxx"
+  account_id = "acc-xxxxxxxxxx"
   azurerm {
     auth_type       = "oidc"
     audience        = "scalr-workload-identity"
@@ -92,7 +93,7 @@ resource "scalr_provider_configuration" "azurerm_oidc" {
 ```terraform
 resource "scalr_provider_configuration" "google" {
   name       = "google_main"
-  account_id = "acc-xxxxxxxxx"
+  account_id = "acc-xxxxxxxxxx"
   google {
     project     = "my-project"
     credentials = "my-credentials"
@@ -103,7 +104,7 @@ resource "scalr_provider_configuration" "google" {
 ```terraform
 resource "scalr_provider_configuration" "google" {
   name       = "google_main"
-  account_id = "acc-xxxxxxxxx"
+  account_id = "acc-xxxxxxxxxx"
   google {
     auth_type              = "oidc"
     project                = "my-project"
@@ -118,7 +119,7 @@ resource "scalr_provider_configuration" "google" {
 ```terraform
 resource "scalr_provider_configuration" "kubernetes" {
   name       = "k8s"
-  account_id = "acc-xxxxxxxxx"
+  account_id = "acc-xxxxxxxxxx"
   custom {
     provider_name = "kubernetes"
     argument {
@@ -243,5 +244,5 @@ Required:
 Import is supported using the following syntax:
 
 ```shell
-terraform import scalr_provider_configuration.example pcfg-xxxxxxxxxxxxxxx
+terraform import scalr_provider_configuration.example pcfg-xxxxxxxxxx
 ```

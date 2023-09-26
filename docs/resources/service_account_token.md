@@ -14,7 +14,7 @@ Manage the state of service account's tokens in Scalr. Create, update and destro
 
 ```terraform
 resource "scalr_service_account_token" "default" {
-  service_account_id = "sa-xxxxxxx"
+  service_account_id = "sa-xxxxxxxxxx"
   description        = "Some description"
 }
 ```

@@ -15,7 +15,7 @@ Manages the state of tags in Scalr.
 ```terraform
 resource "scalr_tag" "example" {
   name       = "tag-name"
-  account_id = "acc-xxxxxxxxx"
+  account_id = "acc-xxxxxxxxxx"
 }
 ```
 
@@ -39,5 +39,5 @@ resource "scalr_tag" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import scalr_tag.default tag-xxxxxxxxxx
+terraform import scalr_tag.example tag-xxxxxxxxxx
 ```

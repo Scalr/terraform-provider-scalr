@@ -1,7 +1,7 @@
 resource "scalr_module" "example" {
-  account_id      = "acc-xxxxxxxxx"
-  environment_id  = "env-xxxxxxxxx"
-  vcs_provider_id = "vcs-xxxxxxxxx"
+  account_id      = "acc-xxxxxxxxxx"
+  environment_id  = "env-xxxxxxxxxx"
+  vcs_provider_id = "vcs-xxxxxxxxxx"
   vcs_repo {
     identifier = "org/repo"
     path       = "example/terraform-<provider>-<name>"

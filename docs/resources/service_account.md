@@ -17,7 +17,7 @@ resource "scalr_service_account" "example" {
   name        = "sa-name"
   description = "Lorem ipsum"
   status      = "Active"
-  account_id  = "acc-xxxxxxxxx"
+  account_id  = "acc-xxxxxxxxxx"
 }
 ```
 
@@ -54,5 +54,5 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-terraform import scalr_service_account.default sa-xxxxxxxxxx
+terraform import scalr_service_account.example sa-xxxxxxxxxx
 ```

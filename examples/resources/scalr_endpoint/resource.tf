@@ -4,5 +4,5 @@ resource "scalr_endpoint" "example" {
   timeout        = 15
   max_attempts   = 3
   url            = "https://my-endpoint.url"
-  environment_id = "env-xxxxxxxxxxxx"
+  environment_id = "env-xxxxxxxxxx"
 }
