@@ -13,9 +13,11 @@ import (
 
 func dataSourceScalrAgentPool() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves the details of an agent pool.",
 		ReadContext: dataSourceScalrAgentPoolRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
+				Description:  "ID of the agent pool.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -23,18 +25,21 @@ func dataSourceScalrAgentPool() *schema.Resource {
 				AtLeastOneOf: []string{"name"},
 			},
 			"name": {
+				Description:  "A name of the agent pool.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"vcs_enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Description: "Indicates whether the VCS support is enabled for agents in the pool.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"account_id": {
+				Description: "An identifier of the Scalr account.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
@@ -42,14 +47,16 @@ func dataSourceScalrAgentPool() *schema.Resource {
 			},
 
 			"environment_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "An identifier of the Scalr environment.",
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 
 			"workspace_ids": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "The list of IDs of linked workspaces.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}

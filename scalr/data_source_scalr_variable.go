@@ -10,9 +10,11 @@ import (
 
 func dataSourceScalrVariable() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves the details of a variable.",
 		ReadContext: dataSourceScalrVariableRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
+				Description:  "ID of a Scalr variable.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -20,52 +22,62 @@ func dataSourceScalrVariable() *schema.Resource {
 				AtLeastOneOf: []string{"key"},
 			},
 			"key": {
+				Description:  "The name of a Scalr variable.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"category": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Description: "The category of a Scalr variable.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
 			},
 			"account_id": {
+				Description: "ID of the account, in the format `acc-<RANDOM STRING>`",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"environment_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Description: "The identifier of the Scalr environment, in the format `env-<RANDOM STRING>`. Used to shrink the scope of the variable in case the variable name exists in multiple environments.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
 			},
 			"workspace_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Description: "The identifier of the Scalr workspace, in the format `ws-<RANDOM STRING>`. Used to shrink the scope of the variable in case the variable name exists on multiple workspaces.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
 			},
 			// computed attributes
 			"hcl": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Description: "If the variable is configured as a string of HCL code.",
+				Type:        schema.TypeBool,
+				Computed:    true,
 			},
 			"sensitive": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Description: "If the variable is configured as sensitive.",
+				Type:        schema.TypeBool,
+				Computed:    true,
 			},
 			"final": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Description: "If the variable is configured as final. Indicates whether the variable can be overridden on a lower scope down the Scalr organizational model.",
+				Type:        schema.TypeBool,
+				Computed:    true,
 			},
 			"value": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "Variable value.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "Variable verbose description, defaults to empty string.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 		}}
 }

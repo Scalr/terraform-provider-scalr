@@ -12,6 +12,7 @@ import (
 
 func resourceScalrPolicyGroup() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manage the state of policy groups in Scalr. Create, update and destroy.",
 		CreateContext: resourceScalrPolicyGroupCreate,
 		ReadContext:   resourceScalrPolicyGroupRead,
 		UpdateContext: resourceScalrPolicyGroupUpdate,
@@ -22,46 +23,55 @@ func resourceScalrPolicyGroup() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "The name of a policy group.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "A system status of the Policy group.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"error_message": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "A detailed error if Scalr failed to process the policy group.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"opa_version": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Description: "The version of Open Policy Agent to run policies against. If omitted, the system default version is assigned.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
 			},
 			"vcs_repo": {
-				Type:     schema.TypeList,
-				Required: true,
-				MinItems: 1,
-				MaxItems: 1,
+				Description: "The VCS meta-data to create the policy from.",
+				Type:        schema.TypeList,
+				Required:    true,
+				MinItems:    1,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"identifier": {
-							Type:     schema.TypeString,
-							Required: true,
+							Description: "The reference to the VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.",
+							Type:        schema.TypeString,
+							Required:    true,
 						},
 						"branch": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Description: "The branch of a repository the policy group is associated with. If omitted, the repository default branch will be used.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
 						},
 						"path": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "The subdirectory of the VCS repository where OPA policies are stored. If omitted or submitted as an empty string, this defaults to the repository's root.",
+							Type:        schema.TypeString,
+							Optional:    true,
 						},
 					},
 				},
 			},
 			"account_id": {
+				Description: "The identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
@@ -69,33 +79,39 @@ func resourceScalrPolicyGroup() *schema.Resource {
 				ForceNew:    true,
 			},
 			"vcs_provider_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "The identifier of a VCS provider, in the format `vcs-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"policies": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: "A list of the OPA policies the group verifies each run.",
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "A name of the policy.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"enabled": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Description: "If set to `false`, the policy will not be verified during a run.",
+							Type:        schema.TypeBool,
+							Computed:    true,
 						},
 						"enforced_level": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "An enforcement level of the policy.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"environments": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "A list of the environments the policy group is linked to.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}

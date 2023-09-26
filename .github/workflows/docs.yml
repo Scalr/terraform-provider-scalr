@@ -1,0 +1,25 @@
+name: '🚀 Publish the documentation'
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Readme documentation version'
+        required: true
+        type: string
+        default: '0.0.4'
+      dry:
+        description: 'Perform a dry run (preview the changes without publishing)'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  docs:
+    name: Docs
+    uses: ./.github/workflows/rdme.yml
+    with:
+      version: ${{ inputs.version }}
+      dry: ${{ inputs.dry }}
+    secrets:
+      README_API_KEY: ${{ secrets.README_API_KEY }}

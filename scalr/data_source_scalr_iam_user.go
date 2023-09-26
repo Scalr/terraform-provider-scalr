@@ -12,10 +12,12 @@ import (
 
 func dataSourceScalrIamUser() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves the details of a Scalr user.",
 		ReadContext: dataSourceScalrIamUserRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
+				Description:  "An identifier of a user.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -23,32 +25,38 @@ func dataSourceScalrIamUser() *schema.Resource {
 				AtLeastOneOf: []string{"email"},
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "A system status of the user.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"email": {
+				Description:  "An email of a user.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"username": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "A username of the user.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"full_name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "A full name of the user.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"identity_providers": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "A list of the identity providers the user belongs to.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"teams": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "A list of the team identifiers the user belongs to.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}

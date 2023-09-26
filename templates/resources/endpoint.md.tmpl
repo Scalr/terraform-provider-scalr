@@ -1,0 +1,35 @@
+---
+title: "{{.Name}}"
+categorySlug: "scalr-terraform-provider"
+slug: "provider_resource_{{.Name}}"
+parentDocSlug: "provider_resources"
+hidden: false
+---
+## {{.Type}} Overview
+
+{{ .Description | trimspace }}
+
+> 🚧 This resource is deprecated and will be removed in the next major version.
+
+{{ if .HasExample -}}
+## Example Usage
+
+{{tffile .ExampleFile }}
+{{- end }}
+
+{{ .SchemaMarkdown | trimspace }}
+
+## Useful snippets
+
+The secret key can be generated using the `random_string` resource.
+
+{{tffile "examples/resources/scalr_endpoint/secret-key.tf" }}
+
+{{- if .HasImport }}
+
+## Import
+
+Import is supported using the following syntax:
+
+{{codefile "shell" .ImportFile}}
+{{- end }}

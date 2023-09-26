@@ -1,0 +1,47 @@
+---
+title: "{{.Name}}"
+categorySlug: "scalr-terraform-provider"
+slug: "provider_datasource_{{.Name}}"
+parentDocSlug: "provider_datasources"
+hidden: false
+---
+## {{.Type}} Overview
+
+{{ .Description | trimspace }}
+
+{{ if .HasExample -}}
+## Example Usage
+
+{{tffile .ExampleFile }}
+{{- end }}
+
+<!-- Manually filling the schema here because of https://github.com/hashicorp/terraform-plugin-docs/issues/28 -->
+## Schema
+
+### Required
+
+- `id` (String) The access policy ID.
+
+### Read-Only
+
+- `is_system` (Boolean)
+- `role_ids` (List of String) The list of the role IDs.
+- `scope` (List of Object) Defines the scope where access policy is applied. (see [below for nested schema](#nestedatt--scope))
+- `subject` (List of Object) Defines the subject of the access policy. (see [below for nested schema](#nestedatt--subject))
+
+<a id="nestedatt--scope"></a>
+### Nested Schema for `scope`
+
+Read-Only:
+
+- `id` (String) The scope ID, `acc-<RANDOM STRING>` for account, `env-<RANDOM STRING>` for environment, `ws-<RANDOM STRING>` for workspace.
+- `type` (String) The scope identity type, is one of `account`, `environment`, or `workspace`.
+
+
+<a id="nestedatt--subject"></a>
+### Nested Schema for `subject`
+
+Read-Only:
+
+- `id` (String) The subject ID, `user-<RANDOM STRING>` for user, `team-<RANDOM STRING>` for team, `sa-<RANDOM STRING>` for service account.
+- `type` (String) The subject type, is one of `user`, `team`, or `service_account`.

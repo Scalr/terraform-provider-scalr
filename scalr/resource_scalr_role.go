@@ -15,6 +15,7 @@ import (
 
 func resourceScalrRole() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manage the Scalr IAM roles. Create, update and destroy.",
 		CreateContext: resourceScalrRoleCreate,
 		ReadContext:   resourceScalrRoleRead,
 		UpdateContext: resourceScalrRoleUpdate,
@@ -32,10 +33,12 @@ func resourceScalrRole() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Name of the role.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"account_id": {
+				Description: "ID of the account.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
@@ -44,21 +47,24 @@ func resourceScalrRole() *schema.Resource {
 			},
 
 			"is_system": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Description: "Boolean indicates if the role can be edited. System roles are maintained by Scalr and cannot be changed.",
+				Type:        schema.TypeBool,
+				Computed:    true,
 			},
 
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "Verbose description of the role.",
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 
 			"permissions": {
-				Type:     schema.TypeList,
-				Required: true,
-				MinItems: 1,
-				MaxItems: 128,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "Array of permission names.",
+				Type:        schema.TypeList,
+				Required:    true,
+				MinItems:    1,
+				MaxItems:    128,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}

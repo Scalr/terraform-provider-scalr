@@ -11,28 +11,33 @@ import (
 
 func dataSourceScalrEnvironments() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves a list of environment ids by name or tags.",
 		ReadContext: dataSourceScalrEnvironmentsRead,
 
 		Schema: map[string]*schema.Schema{
 			"account_id": {
+				Description: "ID of the account, in the format `acc-<RANDOM STRING>`.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "The query used in a Scalr environment name filter.",
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 			"tag_ids": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Optional: true,
+				Description: "List of tag IDs associated with the environment.",
+				Type:        schema.TypeSet,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Optional:    true,
 			},
 			"ids": {
-				Type:     schema.TypeList,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Computed: true,
+				Description: "The list of environment IDs, in the format [`env-xxxxxxxxxxx`, `env-yyyyyyyyy`].",
+				Type:        schema.TypeList,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Computed:    true,
 			},
 		},
 	}

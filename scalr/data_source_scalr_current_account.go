@@ -11,15 +11,20 @@ import (
 
 func dataSourceScalrCurrentAccount() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves the details of current account when using Scalr remote backend." +
+			"\n\nNo arguments are required. The data source returns details of the current account based on the" +
+			" `SCALR_ACCOUNT_ID` environment variable that is automatically exported in the Scalr remote backend.",
 		ReadContext: dataSourceScalrCurrentAccountRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The identifier of the account.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The name of the account.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 		},
 	}

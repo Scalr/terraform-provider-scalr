@@ -15,6 +15,7 @@ import (
 
 func resourceScalrWorkspace() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manage the state of workspaces in Scalr. Create, update and destroy.",
 		CreateContext: resourceScalrWorkspaceCreate,
 		ReadContext:   resourceScalrWorkspaceRead,
 		UpdateContext: resourceScalrWorkspaceUpdate,
@@ -49,53 +50,62 @@ func resourceScalrWorkspace() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Name of the workspace.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 
 			"environment_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "ID of the environment, in the format `env-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"vcs_provider_id": {
+				Description:   "ID of VCS provider - required if vcs-repo present and vice versa, in the format `vcs-<RANDOM STRING>`.",
 				Type:          schema.TypeString,
 				Optional:      true,
 				ConflictsWith: []string{"module_version_id"},
 				RequiredWith:  []string{"vcs_repo"},
 			},
 			"module_version_id": {
+				Description:   "The identifier of a module version in the format `modver-<RANDOM STRING>`. This attribute conflicts with `vcs_provider_id` and `vcs_repo` attributes.",
 				Type:          schema.TypeString,
 				Optional:      true,
 				ConflictsWith: []string{"vcs_provider_id", "vcs_repo"},
 			},
 			"agent_pool_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "The identifier of an agent pool in the format `apool-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 
 			"auto_apply": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Description: "Set (true/false) to configure if `terraform apply` should automatically run when `terraform plan` ends without error. Default `false`.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
 			},
 
 			"force_latest_run": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Description: "Set (true/false) to configure if latest new run will be automatically raised in priority. Default `false`.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
 			},
 
 			"deletion_protection_enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Description: "Indicates if the workspace has the protection from an accidental state lost. If enabled and the workspace has resource, the deletion will not be allowed. Default `true`.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
 			},
 
 			"var_files": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Description: "A list of paths to the `.tfvars` file(s) to be used as part of the workspace configuration.",
+				Type:        schema.TypeList,
+				Optional:    true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validation.NoZeroValues,
@@ -103,16 +113,18 @@ func resourceScalrWorkspace() *schema.Resource {
 			},
 
 			"operations": {
-				Type:       schema.TypeBool,
-				Optional:   true,
-				Computed:   true,
-				Deprecated: "The attribute `operations` is deprecated. Use `execution_mode` instead",
+				Description: "Set (true/false) to configure workspace remote execution. When `false` workspace is only used to store state. Defaults to `true`.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Deprecated:  "The attribute `operations` is deprecated. Use `execution_mode` instead",
 			},
 
 			"execution_mode": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Description: "Which execution mode to use. Valid values are `remote` and `local`. When set to `local`, the workspace will be used for state storage only. Defaults to `remote` (not set, backend default is used).",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
 				ValidateFunc: validation.StringInSlice(
 					[]string{
 						string(scalr.WorkspaceExecutionModeRemote),
@@ -123,61 +135,74 @@ func resourceScalrWorkspace() *schema.Resource {
 			},
 
 			"terraform_version": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Description: "The version of Terraform to use for this workspace. Defaults to the latest available version.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"working_directory": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Description: "A relative path that Terraform will be run in. Defaults to the root of the repository `\"\"`.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "",
 			},
 
 			"hooks": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Description: "Settings for the workspaces custom hooks.",
+				Type:        schema.TypeList,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"pre_init": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "",
+							Description: "Action that will be called before the init phase.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "",
 						},
 
 						"pre_plan": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "",
+							Description: "Action that will be called before the plan phase.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "",
 						},
 
 						"post_plan": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "",
+							Description: "Action that will be called after plan phase.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "",
 						},
 
 						"pre_apply": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "",
+							Description: "Action that will be called before apply phase.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "",
 						},
 
 						"post_apply": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "",
+							Description: "Action that will be called after apply phase.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "",
 						},
 					},
 				},
 			},
 
 			"has_resources": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Description: "The presence of active terraform resources in the current state version.",
+				Type:        schema.TypeBool,
+				Computed:    true,
 			},
 
 			"auto_queue_runs": {
+				Description: "Indicates if runs have to be queued automatically when a new configuration version is uploaded. Supported values are `skip_first`, `always`, `never`:" +
+					"\n  * `skip_first` - after the very first configuration version is uploaded into the workspace the run will not be triggered. But the following configurations will do. This is the default behavior." +
+					"\n  * `always` - runs will be triggered automatically on every upload of the configuration version." +
+					"\n  * `never` - configuration versions are uploaded into the workspace, but runs will not be triggered.",
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringInSlice(
@@ -192,6 +217,7 @@ func resourceScalrWorkspace() *schema.Resource {
 			},
 
 			"vcs_repo": {
+				Description:   "Settings for the workspace's VCS repository.",
 				Type:          schema.TypeList,
 				Optional:      true,
 				MinItems:      1,
@@ -201,87 +227,102 @@ func resourceScalrWorkspace() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"identifier": {
-							Type:     schema.TypeString,
-							Required: true,
+							Description: "A reference to your VCS repository in the format `:org/:repo`, it refers to the organization and repository in your VCS provider.",
+							Type:        schema.TypeString,
+							Required:    true,
 						},
 
 						"branch": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "The repository branch where Terraform will be run from. If omitted, the repository default branch will be used.",
+							Type:        schema.TypeString,
+							Optional:    true,
 						},
 
 						"path": {
-							Type:       schema.TypeString,
-							Default:    "",
-							Optional:   true,
-							Deprecated: "The attribute `vcs-repo.path` is deprecated. Use working-directory and trigger-prefixes instead.",
+							Description: "The repository subdirectory that Terraform will execute from. If omitted or submitted as an empty string, this defaults to the repository's root.",
+							Type:        schema.TypeString,
+							Default:     "",
+							Optional:    true,
+							Deprecated:  "The attribute `vcs-repo.path` is deprecated. Use working-directory and trigger-prefixes instead.",
 						},
 
 						"trigger_prefixes": {
-							Type:     schema.TypeList,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Optional: true,
-							Computed: true,
+							Description: "List of paths (relative to `path`), whose changes will trigger a run for the workspace using this binding when the CV is created. If omitted or submitted as an empty list, any change in `path` will trigger a new run.",
+							Type:        schema.TypeList,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Optional:    true,
+							Computed:    true,
 						},
 
 						"dry_runs_enabled": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  true,
+							Description: "Set (true/false) to configure the VCS driven dry runs should run when pull request to configuration versions branch created. Default `true`.",
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
 						},
 						"ingress_submodules": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Description: "Designates whether to clone git submodules of the VCS repository.",
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
 						},
 					},
 				},
 			},
 
 			"created_by": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: "Details of the user that created the workspace.",
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"username": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Username of creator.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"email": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Email address of creator.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"full_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Full name of creator.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"run_operation_timeout": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Description: "The number of minutes run operation can be executed before termination. Defaults to `0` (not set, backend default is used).",
+				Type:        schema.TypeInt,
+				Optional:    true,
 			},
 			"provider_configuration": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Description: "Provider configurations used in workspace runs.",
+				Type:        schema.TypeSet,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Description: "The identifier of provider configuration.",
+							Type:        schema.TypeString,
+							Required:    true,
 						},
 						"alias": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "The alias of provider configuration.",
+							Type:        schema.TypeString,
+							Optional:    true,
 						},
 					},
 				},
 			},
 			"tag_ids": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "List of tag IDs associated with the workspace.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}

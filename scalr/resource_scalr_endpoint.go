@@ -12,6 +12,7 @@ import (
 
 func resourceScalrEndpoint() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manage the state of endpoints in Scalr. Create, update and destroy.",
 		DeprecationMessage: "Resource `scalr_endpoint` is deprecated, the endpoint information" +
 			" is included in the `scalr_webhook` resource.",
 		CreateContext: resourceScalrEndpointCreate,
@@ -32,37 +33,43 @@ func resourceScalrEndpoint() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Name of the endpoint.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 
 			"max_attempts": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
+				Description: "Max delivery attempts.",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"url": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Endpoint URL.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 
 			"secret_key": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Computed:  true,
-				Sensitive: true,
+				Description: "Secret key to sign payload.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Sensitive:   true,
 			},
 
 			"timeout": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
+				Description: "Endpoint timeout (in sec).",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
 			},
 
 			"environment_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "ID of the environment, in the format `env-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 		},
 	}

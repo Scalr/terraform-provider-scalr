@@ -15,6 +15,7 @@ import (
 
 func resourceScalrAccountAllowedIps() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manages the list of allowed IPs for an account in Scalr. Create, update and destroy.",
 		CreateContext: resourceScalrAccountAllowedIpsCreate,
 		ReadContext:   resourceScalrAccountAllowedIpsRead,
 		UpdateContext: resourceScalrAccountAllowedIpsUpdate,
@@ -24,7 +25,13 @@ func resourceScalrAccountAllowedIps() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "The ID of this resource. Equals to the ID of the account.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"account_id": {
+				Description: "ID of the account.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
@@ -32,6 +39,9 @@ func resourceScalrAccountAllowedIps() *schema.Resource {
 			},
 
 			"allowed_ips": {
+				Description: "The list of allowed IPs or CIDRs." +
+					"\n\n  **Warning**: if you don't specify the current IP address, you may lose access to the account." +
+					" To restore it the account owner has to raise a [support ticket](https://support.scalr.com).",
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				MinItems: 1,

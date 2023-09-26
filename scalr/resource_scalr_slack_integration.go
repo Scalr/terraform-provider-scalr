@@ -12,6 +12,8 @@ import (
 
 func resourceScalrSlackIntegration() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manage the state of Slack integrations in Scalr. Create, update and destroy." +
+			"\n\n**Note:** Slack workspace should be connected to Scalr account before using this resource.",
 		CreateContext: resourceScalrSlackIntegrationCreate,
 		ReadContext:   resourceScalrSlackIntegrationRead,
 		UpdateContext: resourceScalrSlackIntegrationUpdate,
@@ -22,12 +24,14 @@ func resourceScalrSlackIntegration() *schema.Resource {
 		SchemaVersion: 0,
 		Schema: map[string]*schema.Schema{
 			"name": {
+				Description:      "Name of the Slack integration.",
 				Type:             schema.TypeString,
 				Required:         true,
 				ValidateDiagFunc: validation.ToDiagFunc(validation.StringIsNotWhiteSpace),
 			},
 			"events": {
-				Type: schema.TypeSet,
+				Description: "Terraform run events you would like to receive a Slack notifications for. Supported values are `run_approval_required`, `run_success`, `run_errored`.",
+				Type:        schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 					ValidateDiagFunc: validation.ToDiagFunc(
@@ -45,11 +49,13 @@ func resourceScalrSlackIntegration() *schema.Resource {
 				MinItems: 1,
 			},
 			"channel_id": {
+				Description:      "Slack channel ID the event will be sent to.",
 				Type:             schema.TypeString,
 				Required:         true,
 				ValidateDiagFunc: validation.ToDiagFunc(validation.StringIsNotWhiteSpace),
 			},
 			"account_id": {
+				Description: "ID of the account.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
@@ -57,7 +63,8 @@ func resourceScalrSlackIntegration() *schema.Resource {
 				ForceNew:    true,
 			},
 			"environments": {
-				Type: schema.TypeSet,
+				Description: "List of environments where events should be triggered.",
+				Type:        schema.TypeSet,
 				Elem: &schema.Schema{
 					Type:             schema.TypeString,
 					ValidateDiagFunc: validation.ToDiagFunc(validation.StringIsNotWhiteSpace),
@@ -66,7 +73,8 @@ func resourceScalrSlackIntegration() *schema.Resource {
 				MinItems: 1,
 			},
 			"workspaces": {
-				Type: schema.TypeSet,
+				Description: "List of workspaces where events should be triggered. Workspaces should be in provided environments. If no workspace is given for a specified environment, events will trigger in all of its workspaces.",
+				Type:        schema.TypeSet,
 				Elem: &schema.Schema{
 					Type:             schema.TypeString,
 					ValidateDiagFunc: validation.ToDiagFunc(validation.StringIsNotWhiteSpace),

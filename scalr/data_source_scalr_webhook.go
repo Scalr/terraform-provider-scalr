@@ -12,11 +12,13 @@ import (
 
 func dataSourceScalrWebhook() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves the details of a webhook.",
 		ReadContext: dataSourceScalrWebhookRead,
 
 		Schema: map[string]*schema.Schema{
 
 			"id": {
+				Description:  "The webhook ID, in the format `wh-<RANDOM STRING>`.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -25,6 +27,7 @@ func dataSourceScalrWebhook() *schema.Resource {
 			},
 
 			"name": {
+				Description:  "Name of the webhook.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -32,29 +35,34 @@ func dataSourceScalrWebhook() *schema.Resource {
 			},
 
 			"enabled": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Description: "Boolean indicates if the webhook is enabled.",
+				Type:        schema.TypeBool,
+				Computed:    true,
 			},
 
 			"last_triggered_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "Date/time when webhook was last triggered.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 
 			"events": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "List of event IDs.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"endpoint_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "ID of the endpoint, in the format `ep-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Computed:    true,
 				Deprecated: "Attribute `endpoint_id` is deprecated, the endpoint information" +
 					" is included in the `scalr_webhook` resource.",
 			},
 
 			"account_id": {
+				Description: "ID of the account, in the format `acc-<RANDOM STRING>`.",
 				Type:        schema.TypeString,
 				Computed:    true,
 				Optional:    true,
@@ -62,61 +70,71 @@ func dataSourceScalrWebhook() *schema.Resource {
 			},
 
 			"environment_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "ID of the environment, in the format `env-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Computed:    true,
 				Deprecated: "The attribute `environment_id` is deprecated. The webhook is created on the" +
 					" account level and the environments to which it is exposed" +
 					" are controlled by the `environments` attribute.",
 			},
 
 			"workspace_id": {
-				Type:       schema.TypeString,
-				Computed:   true,
-				Deprecated: "The attribute `workspace_id` is deprecated.",
+				Description: "ID of the workspace, in the format `ws-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Computed:    true,
+				Deprecated:  "The attribute `workspace_id` is deprecated.",
 			},
 
 			"url": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "Endpoint URL.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 
 			"secret_key": {
-				Type:      schema.TypeString,
-				Computed:  true,
-				Sensitive: true,
+				Description: "Secret key to sign the webhook payload.",
+				Type:        schema.TypeString,
+				Computed:    true,
+				Sensitive:   true,
 			},
 
 			"timeout": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Description: "Endpoint timeout (in seconds).",
+				Type:        schema.TypeInt,
+				Computed:    true,
 			},
 
 			"max_attempts": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Description: "Max delivery attempts of the payload.",
+				Type:        schema.TypeInt,
+				Computed:    true,
 			},
 
 			"header": {
-				Type:     schema.TypeSet,
-				Computed: true,
+				Description: "Additional headers to set in the webhook request.",
+				Type:        schema.TypeSet,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "The name of the header.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"value": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "The value of the header.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 					},
 				},
 			},
 
 			"environments": {
-				Type:     schema.TypeSet,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "The list of environment identifiers that the webhook is shared to, or `[\"*\"]` if shared with all environments.",
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}

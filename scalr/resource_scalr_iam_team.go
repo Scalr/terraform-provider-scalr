@@ -13,6 +13,7 @@ import (
 
 func resourceScalrIamTeam() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manages the Scalr IAM teams: performs create, update and destroy actions.",
 		CreateContext: resourceScalrIamTeamCreate,
 		ReadContext:   resourceScalrIamTeamRead,
 		UpdateContext: resourceScalrIamTeamUpdate,
@@ -23,14 +24,17 @@ func resourceScalrIamTeam() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "A name of the team.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "A verbose description of the team.",
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 			"account_id": {
+				Description: "An identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
@@ -38,15 +42,17 @@ func resourceScalrIamTeam() *schema.Resource {
 				ForceNew:    true,
 			},
 			"identity_provider_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Description: "An identifier of the login identity provider, in the format `idp-<RANDOM STRING>`. This is required when `account_id` is not specified.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
 			},
 			"users": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "A list of the user identifiers to add to the team.",
+				Type:        schema.TypeList,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}

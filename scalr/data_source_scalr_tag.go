@@ -11,9 +11,11 @@ import (
 
 func dataSourceScalrTag() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves information about a tag.",
 		ReadContext: dataSourceScalrTagRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
+				Description:  "The identifier of the tag in the format `tag-<RANDOM STRING>`.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -21,12 +23,14 @@ func dataSourceScalrTag() *schema.Resource {
 				AtLeastOneOf: []string{"name"},
 			},
 			"name": {
+				Description:  "The name of the tag.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"account_id": {
+				Description: "The ID of the Scalr account, in the format `acc-<RANDOM STRING>`.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,

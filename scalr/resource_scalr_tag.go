@@ -11,6 +11,7 @@ import (
 
 func resourceScalrTag() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manages the state of tags in Scalr.",
 		CreateContext: resourceScalrTagCreate,
 		ReadContext:   resourceScalrTagRead,
 		UpdateContext: resourceScalrTagUpdate,
@@ -21,10 +22,12 @@ func resourceScalrTag() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "Name of the tag.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"account_id": {
+				Description: "ID of the account, in the format `acc-<RANDOM STRING>`.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,

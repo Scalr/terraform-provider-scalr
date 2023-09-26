@@ -11,23 +11,27 @@ import (
 
 func dataSourceScalrWorkspaceIDs() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves a map of workspace IDs based on the names provided. Wildcards are accepted.",
 		ReadContext: dataSourceScalrWorkspaceIDsRead,
 
 		Schema: map[string]*schema.Schema{
 			"names": {
-				Type:     schema.TypeList,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Required: true,
+				Description: "A list of names to search for. If a name does not exist, it will not throw an error, it will just not exist in the returned output. Use `[\"*\"]` to select all workspaces.",
+				Type:        schema.TypeList,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Required:    true,
 			},
 
 			"environment_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "ID of the environment, in the format `env-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 
 			"ids": {
-				Type:     schema.TypeMap,
-				Computed: true,
+				Description: "A map of workspace names and their opaque IDs, in the format `env_id/name`.",
+				Type:        schema.TypeMap,
+				Computed:    true,
 			},
 		},
 	}

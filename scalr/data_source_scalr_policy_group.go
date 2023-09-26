@@ -12,10 +12,12 @@ import (
 
 func dataSourceScalrPolicyGroup() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves the details of a policy group.",
 		ReadContext: dataSourceScalrPolicyGroupRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
+				Description:  "The identifier of a policy group.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -23,77 +25,92 @@ func dataSourceScalrPolicyGroup() *schema.Resource {
 				AtLeastOneOf: []string{"name"},
 			},
 			"name": {
+				Description:  "The name of a policy group.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "A system status of the policy group.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"error_message": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "An error details if Scalr failed to process the policy group.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"opa_version": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The version of the Open Policy Agent that the policy group is using.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"vcs_repo": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: "Contains VCS-related meta-data for the policy group.",
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"identifier": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "A reference to the VCS repository in the format `:org/:repo`, it stands for the organization and repository.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"branch": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "A branch of a repository the policy group is associated with.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"path": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "A subdirectory of a VCS repository where OPA policies are stored.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"account_id": {
+				Description: "The identifier of the Scalr account.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"vcs_provider_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The VCS provider identifier for the repository where the policy group resides. In the format `vcs-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"policies": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: "A list of the OPA policies the policy group verifies each run.",
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "A name of a policy.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"enabled": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Description: "If set to `false`, the policy will not be verified on a run.",
+							Type:        schema.TypeBool,
+							Computed:    true,
 						},
 						"enforced_level": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "An enforcement level of a policy.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 					},
 				},
 			},
 			"environments": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "A list of the environments the policy group is linked to.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}

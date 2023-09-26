@@ -12,6 +12,7 @@ import (
 
 func resourceScalrServiceAccount() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manages the state of service accounts in Scalr.",
 		CreateContext: resourceScalrServiceAccountCreate,
 		ReadContext:   resourceScalrServiceAccountRead,
 		UpdateContext: resourceScalrServiceAccountUpdate,
@@ -22,22 +23,26 @@ func resourceScalrServiceAccount() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "Name of the service account.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"email": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The email of the service account.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "Description of the service account.",
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Description: "The status of the service account. Valid values are `Active` and `Inactive`. Defaults to `Active`.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
 				ValidateFunc: validation.StringInSlice(
 					[]string{
 						string(scalr.ServiceAccountStatusActive),
@@ -47,6 +52,7 @@ func resourceScalrServiceAccount() *schema.Resource {
 				),
 			},
 			"account_id": {
+				Description: "ID of the account, in the format `acc-<RANDOM STRING>`.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
@@ -54,21 +60,25 @@ func resourceScalrServiceAccount() *schema.Resource {
 				ForceNew:    true,
 			},
 			"created_by": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: "Details of the user that created the service account.",
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"username": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Username of creator.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"email": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Email address of creator.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"full_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Full name of creator.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 					},
 				},

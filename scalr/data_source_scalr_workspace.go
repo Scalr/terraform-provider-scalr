@@ -13,10 +13,12 @@ import (
 
 func dataSourceScalrWorkspace() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves the details of a single workspace.",
 		ReadContext: dataSourceScalrWorkspaceRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
+				Description:  "ID of the workspace.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -25,6 +27,7 @@ func dataSourceScalrWorkspace() *schema.Resource {
 			},
 
 			"name": {
+				Description:  "Name of the workspace.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -32,149 +35,182 @@ func dataSourceScalrWorkspace() *schema.Resource {
 			},
 
 			"environment_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "ID of the environment, in the format `env-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 
 			"vcs_provider_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "The identifier of a VCS provider in the format `vcs-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 
 			"module_version_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "The identifier of a module version in the format `modver-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 
 			"agent_pool_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "The identifier of an agent pool in the format `apool-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 
 			"auto_apply": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Description: "Boolean indicates if `terraform apply` will be automatically run when `terraform plan` ends without error.",
+				Type:        schema.TypeBool,
+				Computed:    true,
 			},
 
 			"force_latest_run": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Description: "Boolean indicates if latest new run will be automatically raised in priority.",
+				Type:        schema.TypeBool,
+				Computed:    true,
 			},
 
 			"deletion_protection_enabled": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Description: "Boolean, indicates if the workspace has the protection from an accidental state lost. If enabled and the workspace has resource, the deletion will not be allowed.",
+				Type:        schema.TypeBool,
+				Computed:    true,
 			},
 
 			"operations": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Description: "Boolean indicates if the workspace is being used for remote execution.",
+				Type:        schema.TypeBool,
+				Computed:    true,
 			},
 
 			"execution_mode": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "Execution mode of the workspace.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 
 			"terraform_version": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The version of Terraform used for this workspace.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 
 			"working_directory": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "A relative path that Terraform will execute within.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 
 			"has_resources": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Description: "The presence of active terraform resources in the current state version.",
+				Type:        schema.TypeBool,
+				Computed:    true,
 			},
 
 			"auto_queue_runs": {
+				Description: "Indicates if runs have to be queued automatically when a new configuration version is uploaded." +
+					"\n\n  Supported values are `skip_first`, `always`, `never`:" +
+					"\n\n  * `skip_first` - after the very first configuration version is uploaded into the workspace the run will not be triggered. But the following configurations will do. This is the default behavior." +
+					"\n  * `always` - runs will be triggered automatically on every upload of the configuration version." +
+					"\n  * `never` - configuration versions are uploaded into the workspace, but runs will not be triggered.",
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
 			"hooks": {
-				Type:     schema.TypeList,
-				Optional: true,
+				Description: "List of custom hooks in a workspace.",
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"pre_init": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "Script or action configured to call before init phase.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"pre_plan": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "Script or action configured to call before plan phase.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 
 						"post_plan": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "Script or action configured to call after plan phase.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 
 						"pre_apply": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "Script or action configured to call before apply phase.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 
 						"post_apply": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "Script or action configured to call after apply phase.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 					},
 				},
 			},
 
 			"vcs_repo": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: "If a workspace is linked to a VCS repository this block shows the details, otherwise `{}`",
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"identifier": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "The reference to the VCS repository in the format `:org/:repo`, this refers to the organization and repository in your VCS provider.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"path": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Path within the repo, if any.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"dry_runs_enabled": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Description: "Boolean indicates the VCS-driven dry runs should run when the pull request to the configuration versions branch is created.",
+							Type:        schema.TypeBool,
+							Computed:    true,
 						},
 						"ingress_submodules": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Description: "Designates whether to clone git submodules of the VCS repository.",
+							Type:        schema.TypeBool,
+							Computed:    true,
 						},
 					},
 				},
 			},
 
 			"tag_ids": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "List of tag IDs associated with the workspace.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
 			"created_by": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: "Details of the user that created the workspace.",
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"username": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Username of creator.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"email": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Email address of creator.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 						"full_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Description: "Full name of creator.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 					},
 				},

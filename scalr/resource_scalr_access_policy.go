@@ -44,6 +44,7 @@ func (s Subject) IsValid() error {
 
 func resourceScalrAccessPolicy() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manages the Scalr IAM access policies. Create, update and destroy.",
 		CreateContext: resourceScalrAccessPolicyCreate,
 		ReadContext:   resourceScalrAccessPolicyRead,
 		UpdateContext: resourceScalrAccessPolicyUpdate,
@@ -54,24 +55,28 @@ func resourceScalrAccessPolicy() *schema.Resource {
 		SchemaVersion: 0,
 		Schema: map[string]*schema.Schema{
 			"is_system": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Description: "The access policy is a built-in read-only policy that cannot be updated or deleted.",
+				Type:        schema.TypeBool,
+				Computed:    true,
 			},
 			"subject": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
+				Description: "Defines the subject of the access policy.",
+				Type:        schema.TypeList,
+				Required:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Description: "The subject ID, `user-<RANDOM STRING>` for user, `team-<RANDOM STRING>` for team, `sa-<RANDOM STRING>` for service account.",
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Description: "The subject type, is one of `user`, `team`, or `service_account`.",
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
 							ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
 								v := val.(string)
 								if err := Subject(v).IsValid(); err != nil {
@@ -84,20 +89,23 @@ func resourceScalrAccessPolicy() *schema.Resource {
 				},
 			},
 			"scope": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
+				Description: "Defines the scope where access policy is applied.",
+				Type:        schema.TypeList,
+				Required:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Description: "The scope ID, `acc-<RANDOM STRING>` for account, `env-<RANDOM STRING>` for environment, `ws-<RANDOM STRING>` for workspace.",
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Description: "The scope identity type, is one of `account`, `environment`, or `workspace`.",
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
 							ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
 								v := val.(string)
 								if err := Scope(v).IsValid(); err != nil {
@@ -109,11 +117,12 @@ func resourceScalrAccessPolicy() *schema.Resource {
 				},
 			},
 			"role_ids": {
-				Type:     schema.TypeList,
-				Required: true,
-				MinItems: 1,
-				MaxItems: 128,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "The list of the role IDs.",
+				Type:        schema.TypeList,
+				Required:    true,
+				MinItems:    1,
+				MaxItems:    128,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}

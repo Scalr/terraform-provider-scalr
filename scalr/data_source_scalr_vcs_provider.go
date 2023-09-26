@@ -10,48 +10,56 @@ import (
 
 func dataSourceScalrVcsProvider() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves the details of a VCS provider.",
 		ReadContext: dataSourceScalrVcsProviderRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
+				Description:  "Identifier of the VCS provider.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"name": {
+				Description:  "Name of the VCS provider.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
 			"vcs_type": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Description: "Type of the VCS provider. For example, `github`.",
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    true,
 			},
 			"url": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Description: "The URL to the VCS provider installation.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"account_id": {
+				Description: "ID of the account, in the format `acc-<RANDOM STRING>`.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				DefaultFunc: scalrAccountIDDefaultFunc,
 			},
 			"environment_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "ID of the environment the VCS provider has to be linked to, in the format `env-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 			"agent_pool_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Description: "The id of the agent pool to connect Scalr to self-hosted VCS provider, in the format `apool-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Optional:    true,
 			},
 			"environments": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "List of the identifiers of environments the VCS provider is linked to.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		}}
 }

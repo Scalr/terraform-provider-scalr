@@ -1,0 +1,1 @@
+terraform import scalr_vcs_provider.example vcs-xxxxxxxxxx

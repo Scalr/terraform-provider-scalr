@@ -1,0 +1,51 @@
+---
+title: "Overview"
+categorySlug: "scalr-terraform-provider"
+slug: "provider_overview"
+order: 0
+hidden: false
+---
+The Scalr Terraform provider can be used to manage objects in Scalr with Terraform.
+
+Using the Scalr Terraform provider is a best practice as you scale your Terraform and Scalr operations. It is not required, but many customers have a Scalr admin environment and workspace(s), which use the provider to manage all other objects in Scalr.
+
+Some customers have built a Scalr "vending" machine, which continues the automation already done with cloud vending machines. The goal is to vend out Scalr environments and/or workspaces as teams are onboarded with objects preconfigured to allow for a seamless onboarding experience.
+
+## Usage
+
+To use the Scalr provider, add the following code block to your code:
+
+{{tffile "examples/provider/usage.tf" }}
+
+The latest information on the provider version can be found at https://registry.scalr.io.
+The GPG key information for the provider can be found at https://registry.scalr.io/scalr_pubkey.asc.
+The fingerprint for the provider is `1EF68C8041FC80714FF7A4017F685A20F41004C4`.
+
+## Authentication
+
+To authenticate to the provider, you must obtain a Scalr API token and call the provider with it:
+
+{{tffile "examples/provider/auth.tf" }}
+
+If authentication is being done with shell variables, the following variables can be used:
+
+```shell
+export SCALR_HOSTNAME="<account>.scalr.io"
+export SCALR_TOKEN="xxxxxxxxxxxxxxxxxx"
+```
+
+If you have tokens stored in files locally, the `~/.terraform.d/credentials.tfrc.json` file will take precedence over those in `~/.terraformrc`.
+
+## Service Account Authentication
+
+As mentioned, a best practice is to use the Scalr Terraform provider to manage objects within Scalr.
+
+If you are using Scalr to execute the Terraform runs that call the Scalr provider, you must override a default token set for each run. The default token has minimal permissions to allow for the run execution, which means the run will fail if you don't set the `SCALR_TOKEN` variable in the workspace. It is recommended to use a [service account](/docs/identity-and-access-management#service-accounts) for the token.
+
+![SCALR_TOKEN Variable](https://files.readme.io/2a1d8e3-Screen_Shot_2022-11-28_at_12.19.04_PM.png)
+
+## Example - Scalr Ignite
+
+Not sure where to get started? Take a look at the Ignite repo, which will deploy a sample organizational structure in Scalr through the Terraform provider. This is meant to give you a starting point which you can build upon and is also a great example of how you can use YAML with the provider if needed: https://github.com/sierra-cedar/scalr-ignite.
+
+{{ .SchemaMarkdown | trimspace }}

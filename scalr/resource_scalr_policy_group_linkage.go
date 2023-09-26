@@ -14,6 +14,7 @@ import (
 
 func resourceScalrPolicyGroupLinkage() *schema.Resource {
 	return &schema.Resource{
+		Description:   "Manage policy group to environment linking in Scalr. Create, update and destroy.",
 		CreateContext: resourceScalrPolicyGroupLinkageCreate,
 		ReadContext:   resourceScalrPolicyGroupLinkageRead,
 		DeleteContext: resourceScalrPolicyGroupLinkageDelete,
@@ -22,15 +23,22 @@ func resourceScalrPolicyGroupLinkage() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "The ID of the policy group linkage. It is a combination of the policy group and environment IDs in the format `pgrp-xxxxxxxxxxxxxxx/env-yyyyyyyyyyyyyyy`",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"policy_group_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "ID of the policy group, in the format `pgrp-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"environment_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "ID of the environment, in the format `env-<RANDOM STRING>`.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 		},
 	}

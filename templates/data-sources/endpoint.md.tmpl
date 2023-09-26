@@ -1,0 +1,20 @@
+---
+title: "{{.Name}}"
+categorySlug: "scalr-terraform-provider"
+slug: "provider_datasource_{{.Name}}"
+parentDocSlug: "provider_datasources"
+hidden: false
+---
+## {{.Type}} Overview
+
+{{ .Description | trimspace }}
+
+> 🚧 This datasource is deprecated and will be removed in the next major version.
+
+{{ if .HasExample -}}
+## Example Usage
+
+{{tffile .ExampleFile }}
+{{- end }}
+
+{{ .SchemaMarkdown | trimspace }}
