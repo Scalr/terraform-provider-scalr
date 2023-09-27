@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `scalr_vcs_provider`: Added new `draft_pr_runs_enabled` attribute
+- `scalr_vcs_provider`: Added new `draft_pr_runs_enabled` attribute ([#278](https://github.com/Scalr/terraform-provider-scalr/pull/278))
 
 ## [1.4.0] - 2023-08-11
 
