@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `scalr_provider_configuration`: Fixed error message if aws credentials type is wrong. ([#275](https://github.com/Scalr/terraform-provider-scalr/pull/275))
+- `data.scalr_enviroment`: Added new attribute `default_provider_configurations` ([#279](https://github.com/Scalr/terraform-provider-scalr/pull/279))
 
 ## [1.4.0] - 2023-08-11
 
