@@ -42,6 +42,12 @@ func dataSourceScalrProviderConfiguration() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
+			"environments": {
+				Description: "The environments that use this provider configuration.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -78,6 +84,14 @@ func dataSourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Res
 
 	providerConfiguration := providerConfigurations.Items[0]
 	d.SetId(providerConfiguration.ID)
+	_ = d.Set("provider_name", providerConfiguration.ProviderName)
+
+	environments := make([]string, 0)
+	for _, environment := range providerConfiguration.Environments {
+		environments = append(environments, environment.ID)
+	}
+
+	_ = d.Set("environments", environments)
 
 	return nil
 }
