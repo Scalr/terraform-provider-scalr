@@ -83,6 +83,8 @@ func dataSourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Res
 	}
 
 	providerConfiguration := providerConfigurations.Items[0]
+	d.SetId(providerConfiguration.ID)
+	_ = d.Set("provider_name", providerConfiguration.ProviderName)
 
 	if providerConfiguration.IsShared {
 		_ = d.Set("environments", []string{"*"})
