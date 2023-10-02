@@ -96,7 +96,5 @@ func dataSourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Res
 		_ = d.Set("environments", environments)
 	}
 
-	d.SetId(providerConfiguration.ID)
-
 	return nil
 }
