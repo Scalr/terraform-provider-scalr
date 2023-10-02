@@ -26,6 +26,7 @@ func TestAccVcsProvider_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "vcs_type", string(scalr.Github)),
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "url", "https://github.com"),
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "environments.0", "*"),
+					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "draft_pr_runs_enabled", "false"),
 				),
 			},
 			{
@@ -36,6 +37,7 @@ func TestAccVcsProvider_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "account_id", defaultAccount),
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "vcs_type", string(scalr.Github)),
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "url", "https://github.com"),
+					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "draft_pr_runs_enabled", "true"),
 				),
 			},
 			{
@@ -159,5 +161,6 @@ resource "scalr_vcs_provider" "test" {
   account_id     = "%s"
   vcs_type="%s"
   token = "%s"
+  draft_pr_runs_enabled = true
 }`, defaultAccount, string(vcsType), token)
 }
