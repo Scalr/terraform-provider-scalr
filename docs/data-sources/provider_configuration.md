@@ -38,4 +38,4 @@ data "scalr_provider_configuration" "azure" {
 
 ### Read-Only
 
-- `environments` (List of String) The environments that use this provider configuration.
+- `environments` (List of String) The list of environment identifiers that the provider configuration is shared to, or `["*"]` if shared with all environments.
