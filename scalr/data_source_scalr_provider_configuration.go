@@ -43,7 +43,7 @@ func dataSourceScalrProviderConfiguration() *schema.Resource {
 				Optional:    true,
 			},
 			"environments": {
-				Description: "The environments that use this provider configuration.",
+				Description: "The list of environment identifiers that the provider configuration is shared to, or `[\"*\"]` if shared with all environments.",
 				Type:        schema.TypeList,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
@@ -83,15 +83,18 @@ func dataSourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Res
 	}
 
 	providerConfiguration := providerConfigurations.Items[0]
-	d.SetId(providerConfiguration.ID)
-	_ = d.Set("provider_name", providerConfiguration.ProviderName)
 
-	environments := make([]string, 0)
-	for _, environment := range providerConfiguration.Environments {
-		environments = append(environments, environment.ID)
+	if providerConfiguration.IsShared {
+		_ = d.Set("environments", []string{"*"})
+	} else {
+		environments := make([]string, 0)
+		for _, environment := range providerConfiguration.Environments {
+			environments = append(environments, environment.ID)
+		}
+		_ = d.Set("environments", environments)
 	}
 
-	_ = d.Set("environments", environments)
+	d.SetId(providerConfiguration.ID)
 
 	return nil
 }
