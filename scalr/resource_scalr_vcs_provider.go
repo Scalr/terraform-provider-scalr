@@ -90,6 +90,12 @@ func resourceScalrVcsProvider() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"draft_pr_runs_enabled": {
+				Description: "Enable draft PR runs for the VCS provider.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+			},
 		},
 	}
 }
@@ -122,6 +128,10 @@ func resourceScalrVcsProviderCreate(ctx context.Context, d *schema.ResourceData,
 		options.AgentPool = &scalr.AgentPool{
 			ID: agentPoolID.(string),
 		}
+	}
+
+	if draftPRsRunEnabled, ok := d.GetOk("draft_pr_runs_enabled"); ok {
+		options.DraftPrRunsEnabled = scalr.Bool(draftPRsRunEnabled.(bool))
 	}
 
 	if environmentsI, ok := d.GetOk("environments"); ok {
@@ -212,6 +222,10 @@ func resourceScalrVcsProviderUpdate(ctx context.Context, d *schema.ResourceData,
 		options.AgentPool = &scalr.AgentPool{
 			ID: agentPoolID.(string),
 		}
+	}
+
+	if d.HasChange("draft_pr_runs_enabled") {
+		options.DraftPrRunsEnabled = scalr.Bool(d.Get("draft_pr_runs_enabled").(bool))
 	}
 
 	if environmentsI, ok := d.GetOk("environments"); ok {
