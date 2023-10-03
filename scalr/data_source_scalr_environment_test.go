@@ -50,6 +50,7 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.email"),
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.username"),
+					resource.TestCheckResourceAttr("data.scalr_environment.test", "default_provider_configurations.#", "0"),
 				),
 			},
 			{

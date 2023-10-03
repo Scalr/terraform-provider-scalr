@@ -83,6 +83,12 @@ func dataSourceScalrEnvironment() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"default_provider_configurations": {
+				Description: "List of IDs of provider configurations, used in the environment workspaces by default.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 		}}
 }
 
@@ -141,6 +147,15 @@ func dataSourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 	_ = d.Set("policy_groups", policyGroups)
+
+	defaultProviderConfigurations := make([]string, 0)
+	if environment.DefaultProviderConfigurations != nil {
+		for _, provider := range environment.DefaultProviderConfigurations {
+			defaultProviderConfigurations = append(defaultProviderConfigurations, provider.ID)
+		}
+	}
+
+	_ = d.Set("default_provider_configurations", defaultProviderConfigurations)
 
 	var tags []string
 	if len(environment.Tags) != 0 {
