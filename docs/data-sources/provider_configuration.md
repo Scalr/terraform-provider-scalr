@@ -35,3 +35,7 @@ data "scalr_provider_configuration" "azure" {
 - `id` (String) The provider configuration ID, in the format `pcfg-xxxxxxxxxxx`.
 - `name` (String) The name of a Scalr provider configuration.
 - `provider_name` (String) The name of a Terraform provider.
+
+### Read-Only
+
+- `environments` (List of String) The list of environment identifiers that the provider configuration is shared to, or `["*"]` if shared with all environments.

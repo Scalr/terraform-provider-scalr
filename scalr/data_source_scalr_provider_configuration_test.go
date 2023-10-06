@@ -2,6 +2,7 @@ package scalr
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"regexp"
 	"testing"
 
@@ -35,11 +36,27 @@ func TestAccScalrProviderConfigurationDataSource(t *testing.T) {
 				),
 			},
 			{
+				Config: testAccScalrProviderConfigurationDataSourceScalrConfig,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckEqualID("data.scalr_provider_configuration.scalr", "scalr_provider_configuration.scalr"),
+					resource.TestCheckResourceAttr("data.scalr_provider_configuration.scalr", "name", rName),
+					resource.TestCheckResourceAttr("data.scalr_provider_configuration.scalr", "account_id", defaultAccount),
+					resource.TestCheckResourceAttr("data.scalr_provider_configuration.scalr", "provider_name", "scalr"),
+				),
+			},
+			{
 				Config: testAccScalrProviderConfigurationDataSourceInitConfig,
 			},
 		},
 	})
 }
+
+var rName = acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+
+var testAccScalrProviderConfigurationDataSourceScalrConfig = testAccScalrProviderConfigurationScalrConfig(rName) + `
+data "scalr_provider_configuration" "scalr" {
+	  name = scalr_provider_configuration.scalr.name
+}`
 
 var testAccScalrProviderConfigurationDataSourceInitConfig = fmt.Sprintf(`
 resource "scalr_provider_configuration" "kubernetes" {
