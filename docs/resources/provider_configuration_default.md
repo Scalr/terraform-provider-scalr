@@ -10,7 +10,7 @@ order: 12
 
 Manage defaults of provider configurations for environments in Scalr. Create and destroy.
 
-**Note:** To make the provider configuration default, it must be shared with the specified environment. See the definition of the resource [`scalr_provider_configuration`](provider_configuration.md) and attribute `environments` to learn more.
+**Note:** To make the provider configuration default, it must be shared with the specified environment. See the definition of the resource [`scalr_provider_configuration`](provider_resource_scalr_provider_configuration) and attribute `environments` to learn more.
 
 ## Example Usage
 

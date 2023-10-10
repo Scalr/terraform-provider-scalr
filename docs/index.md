@@ -5,6 +5,8 @@ slug: "provider_overview"
 order: 0
 hidden: false
 ---
+# Scalr Provider
+
 The Scalr Terraform provider can be used to manage objects in Scalr with Terraform.
 
 Using the Scalr Terraform provider is a best practice as you scale your Terraform and Scalr operations. It is not required, but many customers have a Scalr admin environment and workspace(s), which use the provider to manage all other objects in Scalr.
@@ -54,7 +56,7 @@ If you have tokens stored in files locally, the `~/.terraform.d/credentials.tfrc
 
 As mentioned, a best practice is to use the Scalr Terraform provider to manage objects within Scalr.
 
-If you are using Scalr to execute the Terraform runs that call the Scalr provider, you must override a default token set for each run. The default token has minimal permissions to allow for the run execution, which means the run will fail if you don't set the `SCALR_TOKEN` variable in the workspace. It is recommended to use a [service account](/docs/identity-and-access-management#service-accounts) for the token.
+If you are using Scalr to execute the Terraform runs that call the Scalr provider, you must override a default token set for each run. The default token has minimal permissions to allow for the run execution, which means the run will fail if you don't set the `SCALR_TOKEN` variable in the workspace. It is recommended to use a [service account](https://docs.scalr.io/docs/identity-and-access-management#service-accounts) for the token.
 
 ![SCALR_TOKEN Variable](https://files.readme.io/2a1d8e3-Screen_Shot_2022-11-28_at_12.19.04_PM.png)
 
@@ -68,4 +70,4 @@ Not sure where to get started? Take a look at the Ignite repo, which will deploy
 ### Optional
 
 - `hostname` (String) The Scalr hostname to connect to. Defaults to `scalr.io`. Can be overridden by setting the `SCALR_HOSTNAME` environment variable.
-- `token` (String) The token used to authenticate with Scalr. Can be overridden by setting the `SCALR_TOKEN` environment variable. See [Scalr provider configuration](/docs/scalr) for information on generating a token.
+- `token` (String) The token used to authenticate with Scalr. Can be overridden by setting the `SCALR_TOKEN` environment variable. See [Scalr provider configuration](https://docs.scalr.io/docs/scalr) for information on generating a token.
