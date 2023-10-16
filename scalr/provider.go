@@ -57,7 +57,7 @@ func Provider() *schema.Provider {
 				Optional: true,
 				Description: "The token used to authenticate with Scalr." +
 					" Can be overridden by setting the `SCALR_TOKEN` environment variable." +
-					" See [Scalr provider configuration](/docs/scalr)" +
+					" See [Scalr provider configuration](https://docs.scalr.io/docs/scalr)" +
 					" for information on generating a token.",
 				DefaultFunc: schema.EnvDefaultFunc("SCALR_TOKEN", nil),
 			},

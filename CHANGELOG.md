@@ -9,13 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `scalr_provider_configuration`: Fixed error message if aws credentials type is wrong. ([#275](https://github.com/Scalr/terraform-provider-scalr/pull/275))
-- `data.scalr_enviroment`: Added new attribute `default_provider_configurations` ([#279](https://github.com/Scalr/terraform-provider-scalr/pull/279))
 - `scalr_workspace`: Added new attribute `vcs-repo.trigger_patterns` ([#282](https://github.com/Scalr/terraform-provider-scalr/pull/282))
+
+## [1.5.0] - 2023-10-13
 
 ### Added
 
-- `scalr_vcs_provider`: Added new `draft_pr_runs_enabled` attribute ([#278](https://github.com/Scalr/terraform-provider-scalr/pull/278))
+- `scalr_vcs_provider`: new attribute `draft_pr_runs_enabled` ([#278](https://github.com/Scalr/terraform-provider-scalr/pull/278))
+- `data.scalr_enviroment`: new attribute `default_provider_configurations` ([#279](https://github.com/Scalr/terraform-provider-scalr/pull/279))
+- `data.scalr_provider_configuration`: new attribute `environments` ([#285](https://github.com/Scalr/terraform-provider-scalr/pull/280/files))
+
+### Fixed
+
+- `scalr_provider_configuration`: fixed error message if aws credentials type is wrong ([#275](https://github.com/Scalr/terraform-provider-scalr/pull/275))
+- `data.scalr_provider_configuration`: fixed `provider-name` attribute not populating ([#285](https://github.com/Scalr/terraform-provider-scalr/pull/280/files))
 
 ## [1.4.0] - 2023-08-11
 
@@ -734,7 +741,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.5.0
 [1.4.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.4.0
 [1.3.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.3.0
 [1.2.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.2.0
