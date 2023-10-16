@@ -47,6 +47,28 @@ resource "scalr_workspace" "example" {
     alias = "us_east2"
   }
 }
+
+resource "scalr_workspace" "trigger_patterns" {
+  name            = "trigger_patterns"
+  environment_id  = data.scalr_environment.example.id
+  vcs_provider_id = data.scalr_vcs_provider.example.id
+
+  working_directory = "example/path"
+
+  vcs_repo {
+    identifier       = "org/repo"
+    branch           = "dev"
+    trigger_patterns = <<-EOT
+    !*.MD
+    !/**/test/
+
+    /infrastructure/environments/pre/
+    /infrastructure/modules/app/
+    /infrastructure/modules/db/
+    /infrastructure/modules/queue/
+    EOT
+  }
+}
 ```
 
 ### Module-driven
@@ -191,7 +213,8 @@ Optional:
 - `dry_runs_enabled` (Boolean) Set (true/false) to configure the VCS driven dry runs should run when pull request to configuration versions branch created. Default `true`.
 - `ingress_submodules` (Boolean) Designates whether to clone git submodules of the VCS repository.
 - `path` (String, Deprecated) The repository subdirectory that Terraform will execute from. If omitted or submitted as an empty string, this defaults to the repository's root.
-- `trigger_prefixes` (List of String) List of paths (relative to `path`), whose changes will trigger a run for the workspace using this binding when the CV is created. If omitted or submitted as an empty list, any change in `path` will trigger a new run.
+- `trigger_patterns` (String) The gitignore-style patterns for files, whose changes will trigger a run for the workspace using this binding when the CV is created. Conflicts with `trigger_prefixes`. If `trigger_prefixes` and `trigger_patterns` are omitted, any change in `path` will trigger a new run.
+- `trigger_prefixes` (List of String) List of paths (relative to `path`), whose changes will trigger a run for the workspace using this binding when the CV is created. Conflicts with `trigger_patterns`. If `trigger_prefixes` and `trigger_patterns` are omitted, any change in `path` will trigger a new run.
 
 
 <a id="nestedatt--created_by"></a>

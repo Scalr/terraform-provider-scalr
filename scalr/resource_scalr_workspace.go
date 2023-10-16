@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -247,11 +248,18 @@ func resourceScalrWorkspace() *schema.Resource {
 						},
 
 						"trigger_prefixes": {
-							Description: "List of paths (relative to `path`), whose changes will trigger a run for the workspace using this binding when the CV is created. If omitted or submitted as an empty list, any change in `path` will trigger a new run.",
-							Type:        schema.TypeList,
-							Elem:        &schema.Schema{Type: schema.TypeString},
-							Optional:    true,
-							Computed:    true,
+							Description:   "List of paths (relative to `path`), whose changes will trigger a run for the workspace using this binding when the CV is created. Conflicts with `trigger_patterns`. If `trigger_prefixes` and `trigger_patterns` are omitted, any change in `path` will trigger a new run.",
+							Type:          schema.TypeList,
+							Elem:          &schema.Schema{Type: schema.TypeString},
+							Optional:      true,
+							Computed:      true,
+							ConflictsWith: []string{"vcs_repo.0.trigger_patterns"},
+						},
+						"trigger_patterns": {
+							Description:   "The gitignore-style patterns for files, whose changes will trigger a run for the workspace using this binding when the CV is created. Conflicts with `trigger_prefixes`. If `trigger_prefixes` and `trigger_patterns` are omitted, any change in `path` will trigger a new run.",
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"vcs_repo.0.trigger_prefixes"},
 						},
 
 						"dry_runs_enabled": {
@@ -418,6 +426,7 @@ func resourceScalrWorkspaceCreate(ctx context.Context, d *schema.ResourceData, m
 			Identifier:        scalr.String(vcsRepo["identifier"].(string)),
 			Path:              scalr.String(vcsRepo["path"].(string)),
 			TriggerPrefixes:   &triggerPrefixes,
+			TriggerPatterns:   scalr.String(vcsRepo["trigger_patterns"].(string)),
 			DryRunsEnabled:    scalr.Bool(vcsRepo["dry_runs_enabled"].(bool)),
 			IngressSubmodules: scalr.Bool(vcsRepo["ingress_submodules"].(bool)),
 		}
@@ -555,6 +564,7 @@ func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, met
 			"identifier":         workspace.VCSRepo.Identifier,
 			"path":               workspace.VCSRepo.Path,
 			"trigger_prefixes":   workspace.VCSRepo.TriggerPrefixes,
+			"trigger_patterns":   workspace.VCSRepo.TriggerPatterns,
 			"dry_runs_enabled":   workspace.VCSRepo.DryRunsEnabled,
 			"ingress_submodules": workspace.VCSRepo.IngressSubmodules,
 		})
@@ -691,6 +701,7 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 				Branch:            scalr.String(vcsRepo["branch"].(string)),
 				Path:              scalr.String(vcsRepo["path"].(string)),
 				TriggerPrefixes:   &triggerPrefixes,
+				TriggerPatterns:   scalr.String(vcsRepo["trigger_patterns"].(string)),
 				DryRunsEnabled:    scalr.Bool(vcsRepo["dry_runs_enabled"].(bool)),
 				IngressSubmodules: scalr.Bool(vcsRepo["ingress_submodules"].(bool)),
 			}
