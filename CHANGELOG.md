@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
+## [1.6.0] - 2023-10-27
 
-- `scalr_workspace`: Added new attribute `vcs-repo.trigger_patterns` ([#282](https://github.com/Scalr/terraform-provider-scalr/pull/282))
+### Added
+
+- `scalr_workspace`: new attribute `vcs-repo.trigger_patterns` ([#282](https://github.com/Scalr/terraform-provider-scalr/pull/282))
 
 ## [1.5.0] - 2023-10-13
 
@@ -741,7 +743,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.6.0
 [1.5.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.5.0
 [1.4.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.4.0
 [1.3.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.3.0
