@@ -35,7 +35,7 @@ data "scalr_policy_group" "example2" {
 
 ### Read-Only
 
-- `environments` (List of String) A list of the environments the policy group is linked to, or ["*"] if enforced in all environments.
+- `environments` (List of String) A list of the environments the policy group is linked to.
 - `error_message` (String) An error details if Scalr failed to process the policy group.
 - `opa_version` (String) The version of the Open Policy Agent that the policy group is using.
 - `policies` (List of Object) A list of the OPA policies the policy group verifies each run. (see [below for nested schema](#nestedatt--policies))

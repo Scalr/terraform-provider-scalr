@@ -107,7 +107,7 @@ func dataSourceScalrPolicyGroup() *schema.Resource {
 				},
 			},
 			"environments": {
-				Description: "A list of the environments the policy group is linked to.",
+				Description: "A list of the environments the policy group is linked to, or `[\"*\"]` if enforced in all environments.",
 				Type:        schema.TypeList,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},

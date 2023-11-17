@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `scalr_workspace`: new attribute `vcs-repo.trigger_patterns` ([#282](https://github.com/Scalr/terraform-provider-scalr/pull/282))
 
+### Changed
+
+- `scalr_policy_group`: `environments` attribute became optional instead of read-only ([#288](https://github.com/Scalr/terraform-provider-scalr/pull/288))
+
+
 ## [1.5.0] - 2023-10-13
 
 ### Added

@@ -38,8 +38,8 @@ resource "scalr_policy_group" "example" {
 ### Optional
 
 - `account_id` (String) The identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.
+- `environments` (List of String) A list of the environments the policy group is linked to. Use `["*"]` to enforce in all environments.
 - `opa_version` (String) The version of Open Policy Agent to run policies against. If omitted, the system default version is assigned.
-- `environments` (List of String) A list of the environments the policy group is linked to. Use ["*"] to enforce in all environments.
 
 ### Read-Only
 
