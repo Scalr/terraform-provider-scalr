@@ -39,10 +39,10 @@ resource "scalr_policy_group" "example" {
 
 - `account_id` (String) The identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.
 - `opa_version` (String) The version of Open Policy Agent to run policies against. If omitted, the system default version is assigned.
+- `environments` (List of String) A list of the environments the policy group is linked to. Use ["*"] to enforce in all environments.
 
 ### Read-Only
 
-- `environments` (List of String) A list of the environments the policy group is linked to.
 - `error_message` (String) A detailed error if Scalr failed to process the policy group.
 - `id` (String) The ID of this resource.
 - `policies` (List of Object) A list of the OPA policies the group verifies each run. (see [below for nested schema](#nestedatt--policies))
