@@ -32,6 +32,7 @@ resource "scalr_service_account" "example" {
 
 - `account_id` (String) ID of the account, in the format `acc-<RANDOM STRING>`.
 - `description` (String) Description of the service account.
+- `owners` (Set of String) The teams, the service account belongs to.
 - `status` (String) The status of the service account. Valid values are `Active` and `Inactive`. Defaults to `Active`.
 
 ### Read-Only

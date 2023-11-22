@@ -38,6 +38,7 @@ data "scalr_service_account" "example2" {
 - `created_by` (List of Object) Details of the user that created the service account. (see [below for nested schema](#nestedatt--created_by))
 - `description` (String) Description of the service account.
 - `name` (String) Name of the service account.
+- `owners` (List of String) The teams, the service account belongs to.
 - `status` (String) The status of the service account.
 
 <a id="nestedatt--created_by"></a>

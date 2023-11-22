@@ -2,11 +2,12 @@ package scalr
 
 import (
 	"context"
+	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/scalr/go-scalr"
-	"log"
 )
 
 func dataSourceScalrServiceAccount() *schema.Resource {
@@ -75,6 +76,12 @@ func dataSourceScalrServiceAccount() *schema.Resource {
 					},
 				},
 			},
+			"owners": {
+				Description: "The teams, the service account belongs to.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -124,6 +131,13 @@ func dataSourceScalrServiceAccountRead(ctx context.Context, d *schema.ResourceDa
 			"full_name": sa.CreatedBy.FullName,
 		})
 	}
+
+	owners := make([]string, 0)
+	for _, owner := range sa.Owners {
+		owners = append(owners, owner.ID)
+	}
+	_ = d.Set("owners", owners)
+
 	_ = d.Set("name", sa.Name)
 	_ = d.Set("email", sa.Email)
 	_ = d.Set("description", sa.Description)
