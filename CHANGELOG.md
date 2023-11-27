@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `scalr_policy_group`: `environments` attribute became optional instead of read-only ([#288](https://github.com/Scalr/terraform-provider-scalr/pull/288))
+
 ## [1.6.0] - 2023-10-27
 
 ### Added

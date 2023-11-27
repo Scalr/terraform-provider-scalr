@@ -4,10 +4,9 @@ import (
 	"context"
 	"errors"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/scalr/go-scalr"
+	"log"
 )
 
 func resourceScalrPolicyGroup() *schema.Resource {
@@ -108,9 +107,9 @@ func resourceScalrPolicyGroup() *schema.Resource {
 				},
 			},
 			"environments": {
-				Description: "A list of the environments the policy group is linked to.",
+				Description: "A list of the environments the policy group is linked to. Use `[\"*\"]` to enforce in all environments.",
 				Type:        schema.TypeList,
-				Computed:    true,
+				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
@@ -141,6 +140,24 @@ func resourceScalrPolicyGroupCreate(ctx context.Context, d *schema.ResourceData,
 		VCSRepo:     vcsOpt,
 		Account:     &scalr.Account{ID: accountID},
 		VcsProvider: &scalr.VcsProvider{ID: vcsProviderID},
+		IsEnforced:  scalr.Bool(false),
+	}
+
+	environments := make([]*scalr.Environment, 0)
+	if environmentsI, ok := d.GetOk("environments"); ok {
+		environmentsIDs := environmentsI.([]interface{})
+		if (len(environmentsIDs) == 1) && environmentsIDs[0].(string) == "*" {
+			opts.IsEnforced = scalr.Bool(true)
+		} else if len(environmentsIDs) > 0 {
+			for _, env := range environmentsIDs {
+				if env.(string) == "*" {
+					return diag.Errorf(
+						"impossible to enforce the policy group in all and on a limited list of environments. Please remove either wildcard or environment identifiers",
+					)
+				}
+				environments = append(environments, &scalr.Environment{ID: env.(string)})
+			}
+		}
 	}
 
 	// Optional attributes
@@ -154,6 +171,25 @@ func resourceScalrPolicyGroupCreate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	d.SetId(pg.ID)
+
+	if len(environments) > 0 && !*opts.IsEnforced {
+		pgEnvs := make([]*scalr.PolicyGroupEnvironment, 0)
+		for _, env := range environments {
+			pgEnvs = append(pgEnvs, &scalr.PolicyGroupEnvironment{ID: env.ID})
+		}
+		pgEnvsOpts := scalr.PolicyGroupEnvironmentsCreateOptions{
+			PolicyGroupID:           pg.ID,
+			PolicyGroupEnvironments: pgEnvs,
+		}
+		err = scalrClient.PolicyGroupEnvironments.Create(ctx, pgEnvsOpts)
+		if err != nil {
+			defer func(ctx context.Context, pgID string) {
+				_ = scalrClient.PolicyGroups.Delete(ctx, pgID)
+			}(ctx, pg.ID)
+			return diag.Errorf("error linking environments to policy group '%s': %v", name, err)
+		}
+	}
+
 	return resourceScalrPolicyGroupRead(ctx, d, meta)
 }
 
@@ -197,13 +233,16 @@ func resourceScalrPolicyGroupRead(ctx context.Context, d *schema.ResourceData, m
 	}
 	_ = d.Set("policies", policies)
 
-	var envs []string
-	if len(pg.Environments) != 0 {
-		for _, env := range pg.Environments {
-			envs = append(envs, env.ID)
+	if pg.IsEnforced {
+		allEnvironments := []string{"*"}
+		_ = d.Set("environments", allEnvironments)
+	} else {
+		environmentIDs := make([]string, 0)
+		for _, environment := range pg.Environments {
+			environmentIDs = append(environmentIDs, environment.ID)
 		}
+		_ = d.Set("environments", environmentIDs)
 	}
-	_ = d.Set("environments", envs)
 
 	return nil
 }
@@ -214,7 +253,8 @@ func resourceScalrPolicyGroupUpdate(ctx context.Context, d *schema.ResourceData,
 	id := d.Id()
 
 	if d.HasChange("name") || d.HasChange("opa_version") ||
-		d.HasChange("vcs_provider_id") || d.HasChange("vcs_repo") {
+		d.HasChange("vcs_provider_id") || d.HasChange("vcs_repo") ||
+		d.HasChange("environments") {
 
 		name := d.Get("name").(string)
 		vcsProviderID := d.Get("vcs_provider_id").(string)
@@ -234,15 +274,49 @@ func resourceScalrPolicyGroupUpdate(ctx context.Context, d *schema.ResourceData,
 			Name:        scalr.String(name),
 			VCSRepo:     vcsOpt,
 			VcsProvider: &scalr.VcsProvider{ID: vcsProviderID},
+			IsEnforced:  scalr.Bool(false),
 		}
 		if opaVersion, ok := d.GetOk("opa_version"); ok {
 			opts.OpaVersion = scalr.String(opaVersion.(string))
+		}
+
+		environments := make([]*scalr.Environment, 0)
+		if environmentsI, ok := d.GetOk("environments"); ok {
+			environmentsIDs := environmentsI.([]interface{})
+			if (len(environmentsIDs) == 1) && environmentsIDs[0].(string) == "*" {
+				opts.IsEnforced = scalr.Bool(true)
+			} else if len(environmentsIDs) > 0 {
+				for _, env := range environmentsIDs {
+					if env.(string) == "*" {
+						return diag.Errorf(
+							"impossible to enforce the policy group in all and on a limited list of environments. Please remove either wildcard or environment identifiers",
+						)
+					}
+					environments = append(environments, &scalr.Environment{ID: env.(string)})
+				}
+			}
 		}
 
 		log.Printf("[DEBUG] Update policy group %s", id)
 		_, err := scalrClient.PolicyGroups.Update(ctx, id, opts)
 		if err != nil {
 			return diag.Errorf("error updating policy group %s: %v", id, err)
+		}
+
+		if !*opts.IsEnforced {
+			pgEnvs := make([]*scalr.PolicyGroupEnvironment, 0)
+			for _, env := range environments {
+				pgEnvs = append(pgEnvs, &scalr.PolicyGroupEnvironment{ID: env.ID})
+			}
+			pgEnvsOpts := scalr.PolicyGroupEnvironmentsUpdateOptions{
+				PolicyGroupID:           id,
+				PolicyGroupEnvironments: pgEnvs,
+			}
+
+			err = scalrClient.PolicyGroupEnvironments.Update(ctx, pgEnvsOpts)
+			if err != nil {
+				return diag.Errorf("error updating environments for policy group %s: %v", id, err)
+			}
 		}
 	}
 
