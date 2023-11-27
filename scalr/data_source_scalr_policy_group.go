@@ -107,7 +107,7 @@ func dataSourceScalrPolicyGroup() *schema.Resource {
 				},
 			},
 			"environments": {
-				Description: "A list of the environments the policy group is linked to.",
+				Description: "A list of the environments the policy group is linked to, or `[\"*\"]` if enforced in all environments.",
 				Type:        schema.TypeList,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
@@ -183,13 +183,15 @@ func dataSourceScalrPolicyGroupRead(ctx context.Context, d *schema.ResourceData,
 	}
 	_ = d.Set("policies", policies)
 
-	var envs []string
-	if len(pg.Environments) != 0 {
+	if pg.IsEnforced {
+		_ = d.Set("environments", []string{"*"})
+	} else {
+		envs := make([]string, 0)
 		for _, env := range pg.Environments {
 			envs = append(envs, env.ID)
 		}
+		_ = d.Set("environments", envs)
 	}
-	_ = d.Set("environments", envs)
 
 	d.SetId(pg.ID)
 
