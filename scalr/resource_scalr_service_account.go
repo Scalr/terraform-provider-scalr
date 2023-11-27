@@ -3,11 +3,12 @@ package scalr
 import (
 	"context"
 	"errors"
+	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/scalr/go-scalr"
-	"log"
 )
 
 func resourceScalrServiceAccount() *schema.Resource {
@@ -83,6 +84,12 @@ func resourceScalrServiceAccount() *schema.Resource {
 					},
 				},
 			},
+			"owners": {
+				Description: "The teams, the service account belongs to.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -108,6 +115,12 @@ func resourceScalrServiceAccountRead(ctx context.Context, d *schema.ResourceData
 	_ = d.Set("description", sa.Description)
 	_ = d.Set("status", sa.Status)
 	_ = d.Set("account_id", sa.Account.ID)
+
+	owners := make([]string, 0)
+	for _, owner := range sa.Owners {
+		owners = append(owners, owner.ID)
+	}
+	_ = d.Set("owners", owners)
 
 	var createdBy []interface{}
 	if sa.CreatedBy != nil {
@@ -142,6 +155,14 @@ func resourceScalrServiceAccountCreate(ctx context.Context, d *schema.ResourceDa
 		options.Status = scalr.ServiceAccountStatusPtr(saStatus)
 	}
 
+	if owners, ok := d.GetOk("owners"); ok {
+		ownerResources := make([]*scalr.Team, 0)
+		for _, ownerId := range owners.(*schema.Set).List() {
+			ownerResources = append(ownerResources, &scalr.Team{ID: ownerId.(string)})
+		}
+		options.Owners = ownerResources
+	}
+
 	log.Printf("[DEBUG] Create service account %s in account %s", name, accountID)
 	sa, err := scalrClient.ServiceAccounts.Create(ctx, options)
 	if err != nil {
@@ -168,6 +189,18 @@ func resourceScalrServiceAccountUpdate(ctx context.Context, d *schema.ResourceDa
 	if d.HasChange("status") {
 		status := scalr.ServiceAccountStatus(d.Get("status").(string))
 		options.Status = scalr.ServiceAccountStatusPtr(status)
+	}
+
+	if d.HasChange("owners") {
+		ownerResources := make([]*scalr.Team, 0)
+		if owners, ok := d.GetOk("owners"); ok {
+			for _, ownerId := range owners.(*schema.Set).List() {
+				ownerResources = append(ownerResources, &scalr.Team{ID: ownerId.(string)})
+			}
+			options.Owners = ownerResources
+		} else {
+			options.Owners = ownerResources
+		}
 	}
 
 	log.Printf("[DEBUG] Update service account %s", id)

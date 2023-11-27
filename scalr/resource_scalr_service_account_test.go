@@ -2,10 +2,11 @@ package scalr
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
-	"testing"
 )
 
 func TestAccScalrServiceAccount_basic(t *testing.T) {
@@ -35,6 +36,9 @@ func TestAccScalrServiceAccount_basic(t *testing.T) {
 					),
 					resource.TestCheckResourceAttr(
 						"scalr_service_account.test", "created_by.#", "1",
+					),
+					resource.TestCheckResourceAttr(
+						"scalr_service_account.test", "owners.#", "1",
 					),
 				),
 			},
@@ -87,6 +91,9 @@ func TestAccScalrServiceAccount_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_service_account.test", "status", string(scalr.ServiceAccountStatusInactive),
 					),
+					resource.TestCheckResourceAttr(
+						"scalr_service_account.test", "owners.#", "0",
+					),
 				),
 			},
 		},
@@ -99,6 +106,13 @@ resource scalr_service_account test {
   name        = "test-sa-%d"
   description = "desc-%[1]d"
   status      = "%[2]s"
+  owners      = [scalr_iam_team.test.id]
+}
+
+resource "scalr_iam_team" "test" {
+	name        = "test-%[1]d-owner"
+	description = "Test team"
+	users       = []
 }`, rInt, scalr.ServiceAccountStatusActive)
 }
 
