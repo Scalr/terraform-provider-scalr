@@ -48,6 +48,7 @@ hidden: false
 - `operations` (Boolean) Boolean indicates if the workspace is being used for remote execution.
 - `tag_ids` (List of String) List of tag IDs associated with the workspace.
 - `terraform_version` (String) The version of Terraform used for this workspace.
+- `iac_platform` (String) The IaC platform used for this workspace.
 - `vcs_provider_id` (String) The identifier of a VCS provider in the format `vcs-<RANDOM STRING>`.
 - `vcs_repo` (List of Object) If a workspace is linked to a VCS repository this block shows the details, otherwise `{}` (see [below for nested schema](#nestedatt--vcs_repo))
 - `working_directory` (String) A relative path that Terraform will execute within.
