@@ -251,6 +251,8 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "terraform_version", "1.1.9"),
 					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "iac_platform", string(scalr.WorkspaceIaCPlatformTerraform)),
+					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", "terraform/test"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "run_operation_timeout", "200"),
@@ -287,6 +289,8 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeLocal)),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "terraform_version", "1.1.9"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "iac_platform", string(scalr.WorkspaceIaCPlatformTerraform)),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", "terraform/test"),
 					resource.TestCheckResourceAttr(

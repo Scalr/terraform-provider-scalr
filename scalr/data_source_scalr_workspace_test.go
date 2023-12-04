@@ -41,6 +41,8 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.test", "terraform_version", "1.1.9"),
 					resource.TestCheckResourceAttr(
+						"data.scalr_workspace.test", "iac_platform", "terraform"),
+					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.test", "working_directory", "terraform/test"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.test", "auto_queue_runs", "skip_first"),
@@ -115,6 +117,7 @@ resource scalr_workspace test {
   environment_id 		= scalr_environment.test.id
   auto_apply            = true
   terraform_version     = "1.1.9"
+  iac_platform          = "terraform"
   working_directory     = "terraform/test"
   hooks {
     pre_init   = "./scripts/pre-init.sh"

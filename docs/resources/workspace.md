@@ -159,6 +159,7 @@ resource "scalr_workspace" "example-b" {
 - `execution_mode` (String) Which execution mode to use. Valid values are `remote` and `local`. When set to `local`, the workspace will be used for state storage only. Defaults to `remote` (not set, backend default is used).
 - `force_latest_run` (Boolean) Set (true/false) to configure if latest new run will be automatically raised in priority. Default `false`.
 - `hooks` (Block List) Settings for the workspaces custom hooks. (see [below for nested schema](#nestedblock--hooks))
+- `iac_platform` (String) The IaC platform to use for this workspace. Valid values are `terraform` and `opentofu`. Defaults to `terraform`.
 - `module_version_id` (String) The identifier of a module version in the format `modver-<RANDOM STRING>`. This attribute conflicts with `vcs_provider_id` and `vcs_repo` attributes.
 - `operations` (Boolean, Deprecated) Set (true/false) to configure workspace remote execution. When `false` workspace is only used to store state. Defaults to `true`.
 - `provider_configuration` (Block Set) Provider configurations used in workspace runs. (see [below for nested schema](#nestedblock--provider_configuration))
