@@ -94,6 +94,12 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Computed:    true,
 			},
 
+			"iac_platform": {
+				Description: "The IaC platform used for this workspace.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
+
 			"working_directory": {
 				Description: "A relative path that Terraform will execute within.",
 				Type:        schema.TypeString,
@@ -262,6 +268,7 @@ func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, m
 	_ = d.Set("operations", workspace.Operations)
 	_ = d.Set("execution_mode", workspace.ExecutionMode)
 	_ = d.Set("terraform_version", workspace.TerraformVersion)
+	_ = d.Set("iac_platform", workspace.IaCPlatform)
 	_ = d.Set("working_directory", workspace.WorkingDirectory)
 	_ = d.Set("has_resources", workspace.HasResources)
 	_ = d.Set("auto_queue_runs", workspace.AutoQueueRuns)

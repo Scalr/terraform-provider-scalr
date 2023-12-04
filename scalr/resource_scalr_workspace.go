@@ -4,14 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/scalr/go-scalr"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-
-	"github.com/scalr/go-scalr"
 )
 
 func resourceScalrWorkspace() *schema.Resource {
@@ -140,6 +139,22 @@ func resourceScalrWorkspace() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
+			},
+
+			"iac_platform": {
+				Description: "The IaC platform to use for this workspace. Valid values are `terraform` and `opentofu`. Defaults to `terraform`.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     string(scalr.WorkspaceIaCPlatformTerraform),
+				ValidateDiagFunc: validation.ToDiagFunc(
+					validation.StringInSlice(
+						[]string{
+							string(scalr.WorkspaceIaCPlatformTerraform),
+							string(scalr.WorkspaceIaCPlatformOpenTofu),
+						},
+						false,
+					),
+				),
 			},
 
 			"working_directory": {
@@ -390,6 +405,10 @@ func resourceScalrWorkspaceCreate(ctx context.Context, d *schema.ResourceData, m
 		options.TerraformVersion = scalr.String(tfVersion.(string))
 	}
 
+	if iacPlatform, ok := d.GetOk("iac_platform"); ok {
+		options.IacPlatform = scalr.WorkspaceIaCPlatformPtr(scalr.WorkspaceIaCPlatform(iacPlatform.(string)))
+	}
+
 	if workingDir, ok := d.GetOk("working_directory"); ok {
 		options.WorkingDirectory = scalr.String(workingDir.(string))
 	}
@@ -521,6 +540,7 @@ func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, met
 	_ = d.Set("operations", workspace.Operations)
 	_ = d.Set("execution_mode", workspace.ExecutionMode)
 	_ = d.Set("terraform_version", workspace.TerraformVersion)
+	_ = d.Set("iac_platform", workspace.IaCPlatform)
 	_ = d.Set("working_directory", workspace.WorkingDirectory)
 	_ = d.Set("environment_id", workspace.Environment.ID)
 	_ = d.Set("has_resources", workspace.HasResources)
@@ -625,7 +645,7 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 		d.HasChange("vcs_repo") || d.HasChange("operations") || d.HasChange("execution_mode") ||
 		d.HasChange("vcs_provider_id") || d.HasChange("agent_pool_id") || d.HasChange("deletion_protection_enabled") ||
 		d.HasChange("hooks") || d.HasChange("module_version_id") || d.HasChange("var_files") ||
-		d.HasChange("run_operation_timeout") {
+		d.HasChange("run_operation_timeout") || d.HasChange("iac_platform") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
 			Name:                      scalr.String(d.Get("name").(string)),
@@ -660,6 +680,10 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 
 		if tfVersion, ok := d.GetOk("terraform_version"); ok {
 			options.TerraformVersion = scalr.String(tfVersion.(string))
+		}
+
+		if iacPlatform, ok := d.GetOk("iac_platform"); ok {
+			options.IacPlatform = scalr.WorkspaceIaCPlatformPtr(scalr.WorkspaceIaCPlatform(iacPlatform.(string)))
 		}
 
 		if v, ok := d.Get("var_files").([]interface{}); ok {
