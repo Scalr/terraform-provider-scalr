@@ -146,12 +146,14 @@ func resourceScalrWorkspace() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     string(scalr.WorkspaceIaCPlatformTerraform),
-				ValidateFunc: validation.StringInSlice(
-					[]string{
-						string(scalr.WorkspaceIaCPlatformTerraform),
-						string(scalr.WorkspaceIaCPlatformOpenTofu),
-					},
-					false,
+				ValidateDiagFunc: validation.ToDiagFunc(
+					validation.StringInSlice(
+						[]string{
+							string(scalr.WorkspaceIaCPlatformTerraform),
+							string(scalr.WorkspaceIaCPlatformOpenTofu),
+						},
+						false,
+					),
 				),
 			},
 
