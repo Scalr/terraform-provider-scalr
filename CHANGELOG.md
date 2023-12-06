@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `scalr_policy_group`: `environments` attribute became optional instead of read-only ([#288](https://github.com/Scalr/terraform-provider-scalr/pull/288))
 
+### Removed
+
+- `scalr_variable`: validation of `workspace_id` on `scalr_variable` creation with `terraform` category ([#291](https://github.com/Scalr/terraform-provider-scalr/pull/291))
+
 ## [1.6.0] - 2023-10-27
 
 ### Added
