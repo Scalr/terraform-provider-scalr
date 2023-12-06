@@ -390,28 +390,6 @@ resource scalr_variable test {
 }`, rInt, defaultAccount)
 }
 
-func testAccScalrVariableNotTerraformOnMultiscope(rInt int) string {
-	return fmt.Sprintf(`
-resource scalr_environment test {
-  name       = "test-env-%[1]d"
-  account_id = "%[2]s"
-}
-
-resource scalr_workspace test {
-  name           = "test-ws-%[1]d"
-  environment_id = scalr_environment.test.id
-}
-
-resource scalr_variable test {
-  key            = "var_on_ws_%[1]d"
-  value          = "test"
-  category       = "terraform"
-  account_id     = "%[2]s"
-  environment_id = scalr_environment.test.id
-  description  = "Test not terraform variable"
-}`, rInt, defaultAccount)
-}
-
 func testAccScalrVariableOnAllScopes(rInt int) string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
