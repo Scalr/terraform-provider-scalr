@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `data.scalr_service_account`: new attribute `owners` ([#289](https://github.com/Scalr/terraform-provider-scalr/pull/289))
 - `scalr_workspace`: new attribute `iac-platform` ([#290](https://github.com/Scalr/terraform-provider-scalr/pull/290))
 - `data.scalr_workspace`: new attribute `iac-platform` ([#290](https://github.com/Scalr/terraform-provider-scalr/pull/290))
+- `data.scalr_vcs_provider`: new attribute `draft_pr_runs_enabled` ([#293](https://github.com/Scalr/terraform-provider-scalr/pull/293))
 
 ### Changed
 

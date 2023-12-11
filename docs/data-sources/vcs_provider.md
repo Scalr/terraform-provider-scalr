@@ -35,6 +35,7 @@ data "scalr_vcs_provider" "example2" {
 - `id` (String) Identifier of the VCS provider.
 - `name` (String) Name of the VCS provider.
 - `vcs_type` (String) Type of the VCS provider. For example, `github`.
+- `draft_pr_runs_enabled` (Boolean) Whether to enable draft PR runs.
 
 ### Read-Only
 
