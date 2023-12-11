@@ -31,11 +31,11 @@ data "scalr_vcs_provider" "example2" {
 
 - `account_id` (String) ID of the account, in the format `acc-<RANDOM STRING>`.
 - `agent_pool_id` (String) The id of the agent pool to connect Scalr to self-hosted VCS provider, in the format `apool-<RANDOM STRING>`.
+- `draft_pr_runs_enabled` (Boolean) Indicates whether the draft pull-request runs are enabled for this VCS provider.
 - `environment_id` (String) ID of the environment the VCS provider has to be linked to, in the format `env-<RANDOM STRING>`.
 - `id` (String) Identifier of the VCS provider.
 - `name` (String) Name of the VCS provider.
 - `vcs_type` (String) Type of the VCS provider. For example, `github`.
-- `draft_pr_runs_enabled` (Boolean) Whether to enable draft PR runs.
 
 ### Read-Only
 
