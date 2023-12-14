@@ -61,6 +61,12 @@ func dataSourceScalrVcsProvider() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"draft_pr_runs_enabled": {
+				Description: "Indicates whether the draft pull-request runs are enabled for this VCS provider.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+			},
 		}}
 }
 
@@ -117,6 +123,7 @@ func dataSourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData,
 	_ = d.Set("name", vcsProvider.Name)
 	_ = d.Set("url", vcsProvider.Url)
 	_ = d.Set("environments", envIds)
+	_ = d.Set("draft_pr_runs_enabled", vcsProvider.DraftPrRunsEnabled)
 	if vcsProvider.AgentPool != nil {
 		_ = d.Set("agent_pool_id", vcsProvider.AgentPool.ID)
 	}

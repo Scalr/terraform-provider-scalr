@@ -27,6 +27,8 @@ func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 						"data.scalr_vcs_provider.test", "url", "https://github.com"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_vcs_provider.test", "account_id", defaultAccount),
+					resource.TestCheckResourceAttr(
+						"data.scalr_vcs_provider.test", "draft_pr_runs_enabled", "false"),
 				),
 			},
 			{
