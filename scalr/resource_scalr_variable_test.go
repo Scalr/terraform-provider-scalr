@@ -112,23 +112,6 @@ func TestAccScalrVariable_scopes(t *testing.T) {
 	})
 }
 
-func TestAccScalrVariable_notTerraformOnMultiscope(t *testing.T) {
-	rInt := GetRandomInteger()
-	r := regexp.MustCompile("Attribute 'workspace_id' is required for variable with category 'terraform'.")
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrVariableDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config:      testAccScalrVariableNotTerraformOnMultiscope(rInt),
-				ExpectError: r,
-			},
-		},
-	})
-}
-
 func TestAccScalrVariable_update(t *testing.T) {
 	rInt := GetRandomInteger()
 	variable := &scalr.Variable{}
@@ -404,28 +387,6 @@ resource scalr_variable test {
   category       = "shell"
   workspace_id   = scalr_workspace.test.id
   description    = "Test update"
-}`, rInt, defaultAccount)
-}
-
-func testAccScalrVariableNotTerraformOnMultiscope(rInt int) string {
-	return fmt.Sprintf(`
-resource scalr_environment test {
-  name       = "test-env-%[1]d"
-  account_id = "%[2]s"
-}
-
-resource scalr_workspace test {
-  name           = "test-ws-%[1]d"
-  environment_id = scalr_environment.test.id
-}
-
-resource scalr_variable test {
-  key            = "var_on_ws_%[1]d"
-  value          = "test"
-  category       = "terraform"
-  account_id     = "%[2]s"
-  environment_id = scalr_environment.test.id
-  description  = "Test not terraform variable"
 }`, rInt, defaultAccount)
 }
 

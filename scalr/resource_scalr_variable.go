@@ -175,10 +175,6 @@ func resourceScalrVariableCreate(ctx context.Context, d *schema.ResourceData, me
 				"Error retrieving workspace %s: %v", workspaceID, err)
 		}
 		options.Workspace = ws
-	} else {
-		if category == scalr.CategoryTerraform {
-			return diag.Errorf("Attribute 'workspace_id' is required for variable with category 'terraform'.")
-		}
 	}
 
 	// Get and check the environment
