@@ -6,8 +6,8 @@ BUILD_ENV=CGO_ENABLED=0
 TAG=$(shell PAGER= git tag --points-at HEAD)
 BRANCH=$(subst /,-,$(shell git branch --show-current))
 VERSION=$(if $(VER),$(VER),$(if $(TAG),$(TAG),$(BRANCH)))
-USER_PLUGIN_DIR_LINUX=${HOME}/.terraform.d/plugins/scalr.io/scalr/scalr/$(VERSION)/linux_amd64
-USER_PLUGIN_DIR=${HOME}/.terraform.d/plugins/scalr.io/scalr/scalr/$(VERSION)/$(PLATFORM)
+USER_PLUGIN_DIR_LINUX=${HOME}/.terraform.d/plugins/registry.scalr.io/scalr/scalr/$(VERSION)/linux_amd64
+USER_PLUGIN_DIR=${HOME}/.terraform.d/plugins/registry.scalr.io/scalr/scalr/$(VERSION)/$(PLATFORM)
 BIN_NAME := terraform-provider-scalr_$(VERSION)
 ARGS=-ldflags='-X github.com/scalr/terraform-provider-scalr/version.ProviderVersion=$(TAG) -X github.com/scalr/terraform-provider-scalr/version.Branch=$(BRANCH)'
 UPSTREAM_COMMIT_DESCRIPTION="Scalr terraform provider acceptance tests"
