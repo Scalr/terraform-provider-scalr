@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2023-12-22
+
 ### Added
 
 - `scalr_service_account`: new attribute `owners` ([#289](https://github.com/Scalr/terraform-provider-scalr/pull/289))
@@ -760,7 +762,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.7.0
 [1.6.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.6.0
 [1.5.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.5.0
 [1.4.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.4.0
