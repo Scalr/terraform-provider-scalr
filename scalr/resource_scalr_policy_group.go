@@ -110,6 +110,7 @@ func resourceScalrPolicyGroup() *schema.Resource {
 				Description: "A list of the environments the policy group is linked to. Use `[\"*\"]` to enforce in all environments.",
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
