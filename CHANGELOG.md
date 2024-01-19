@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] - 2024-01-19
+
 ### Fixed
 
 - `scalr_policy_group`: fixed unexpected unlinking of environments from policy group on re-run ([#297](https://github.com/Scalr/terraform-provider-scalr/pull/297))
@@ -766,7 +768,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.8.0...HEAD
+[1.8.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.8.0
 [1.7.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.7.0
 [1.6.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.6.0
 [1.5.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.5.0
