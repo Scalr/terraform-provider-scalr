@@ -12,7 +12,7 @@ Allows workspace admins to automate the configuration of recurring runs for a wo
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "scalr_workspace_run_schedule" "example" {
   workspace_id     = "ws-xxxxxxxxxx"
   apply_schedule   = "30 3 5 3-5 2"

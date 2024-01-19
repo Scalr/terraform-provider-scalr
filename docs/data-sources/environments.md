@@ -12,7 +12,7 @@ Retrieves a list of environment ids by name or tags.
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_environments" "exact-names" {
   name = "in:production,development"
 }

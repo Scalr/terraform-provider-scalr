@@ -12,7 +12,7 @@ Retrieves the list of variables by the given filters.
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_variables" "example" {
   keys             = ["key1", "key2", "key3"]
   category         = "terraform" # or shell

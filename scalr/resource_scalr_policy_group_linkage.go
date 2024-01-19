@@ -15,7 +15,7 @@ import (
 func resourceScalrPolicyGroupLinkage() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manage policy group to environment linking in Scalr. Create, update and destroy." +
-			"\n\n**Note:** To manage a linkage use either this resource or `environments` attribute of " +
+			"\n\n-> **Note** To manage a linkage use either this resource or the `environments` attribute of the " +
 			"[`scalr_policy_group`](provider_resource_scalr_policy_group) resource.",
 		CreateContext: resourceScalrPolicyGroupLinkageCreate,
 		ReadContext:   resourceScalrPolicyGroupLinkageRead,

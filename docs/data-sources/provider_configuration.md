@@ -12,7 +12,7 @@ Retrieves information about a single provider configuration.
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_provider_configuration" "aws" {
   id = "pcfg-xxxxxxxxxx"
 }

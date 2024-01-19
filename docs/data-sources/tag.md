@@ -12,7 +12,7 @@ Retrieves information about a tag.
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_tag" "example1" {
   id         = "tag-xxxxxxxxxx"
   account_id = "acc-xxxxxxxxxx"

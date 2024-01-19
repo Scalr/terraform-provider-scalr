@@ -12,7 +12,7 @@ Manage the state of policy groups in Scalr. Create, update and destroy.
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "scalr_policy_group" "example" {
   name            = "instance_types"
   opa_version     = "0.29.4"
@@ -38,7 +38,7 @@ resource "scalr_policy_group" "example" {
 ### Optional
 
 - `account_id` (String) The identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.
-- `environments` (List of String) A list of the environments the policy group is linked to. Use `["*"]` to enforce in all environments. To manage a linkage use either this attribute or `scalr_policy_group_linkage` resource.
+- `environments` (List of String) A list of the environments the policy group is linked to. Use `["*"]` to enforce in all environments. To manage a linkage use either this attribute or the `scalr_policy_group_linkage` resource.
 - `opa_version` (String) The version of Open Policy Agent to run policies against. If omitted, the system default version is assigned.
 
 ### Read-Only

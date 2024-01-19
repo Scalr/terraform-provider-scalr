@@ -12,7 +12,7 @@ Manages the state of service accounts in Scalr.
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "scalr_service_account" "example" {
   name        = "sa-name"
   description = "Lorem ipsum"

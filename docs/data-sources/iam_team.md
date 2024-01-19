@@ -12,7 +12,7 @@ Retrieves the details of a Scalr team.
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_iam_team" "example1" {
   id         = "team-xxxxxxxxxx"
   account_id = "acc-xxxxxxxxxx"

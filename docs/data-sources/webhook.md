@@ -12,7 +12,7 @@ Retrieves the details of a webhook.
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_webhook" "example1" {
   id         = "wh-xxxxxxxxxx"
   account_id = "acc-xxxxxxxxxx"

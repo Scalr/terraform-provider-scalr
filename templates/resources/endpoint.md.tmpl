@@ -5,11 +5,11 @@ slug: "provider_resource_{{.Name}}"
 parentDocSlug: "provider_resources"
 hidden: false
 ---
-## {{.Type}} Overview
+## {{.Type}}: {{.Name}}
 
 {{ .Description | trimspace }}
 
-> 🚧 This resource is deprecated and will be removed in the next major version.
+!> **Warning** This resource is deprecated and will be removed in the next major version.
 
 {{ if .HasExample -}}
 ## Example Usage

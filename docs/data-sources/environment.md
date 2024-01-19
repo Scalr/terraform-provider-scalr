@@ -12,7 +12,7 @@ Retrieves the details of a Scalr environment.
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_environment" "example1" {
   id         = "env-xxxxxxxxxx"
   account_id = "acc-xxxxxxxxxx"

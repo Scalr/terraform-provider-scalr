@@ -12,7 +12,7 @@ Retrieves the module version data by module source and semantic version.
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_module_version" "example" {
   source  = "env-xxxxxxxxxx/resource-name/scalr"
   version = "1.0.0"

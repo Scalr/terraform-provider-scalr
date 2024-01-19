@@ -14,7 +14,7 @@ No arguments are required. The data source returns details of the current accoun
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_current_account" "account" {}
 ```
 

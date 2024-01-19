@@ -12,7 +12,7 @@ Run triggers are a way to chain workspaces together. The use case for this is th
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_workspace" "downstream" {
   name           = "downstream"
   environment_id = "env-xxxxxxxxxx"

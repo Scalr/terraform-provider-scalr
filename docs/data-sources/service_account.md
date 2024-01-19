@@ -12,7 +12,7 @@ Retrieves information about a service account.
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_service_account" "example1" {
   id         = "sa-xxxxxxxxxx"
   account_id = "acc-xxxxxxxxxx"

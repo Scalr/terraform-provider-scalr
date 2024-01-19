@@ -12,7 +12,7 @@ Retrieves a map of workspace IDs based on the names provided. Wildcards are acce
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_workspace_ids" "app-frontend" {
   names          = ["app-frontend-prod", "app-frontend-dev1", "app-frontend-staging"]
   environment_id = "env-xxxxxxxxxx"

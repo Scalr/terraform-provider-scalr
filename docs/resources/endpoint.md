@@ -14,7 +14,7 @@ Manage the state of endpoints in Scalr. Create, update and destroy.
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "scalr_endpoint" "example" {
   name           = "my-endpoint-name"
   secret_key     = "my-secret-key"
@@ -48,7 +48,7 @@ resource "scalr_endpoint" "example" {
 
 The secret key can be generated using the `random_string` resource.
 
-```hcl
+```terraform
 resource "random_string" "r" {
   length = 16
 }

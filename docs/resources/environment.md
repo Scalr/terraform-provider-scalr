@@ -12,7 +12,7 @@ Manage the state of environments in Scalr. Creates, updates and destroys.
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "scalr_environment" "test" {
   name                            = "test-env"
   account_id                      = "acc-xxxxxxxxxx"

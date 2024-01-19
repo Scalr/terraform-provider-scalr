@@ -12,7 +12,7 @@ Retrieves the details of a variable.
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_variable" "example1" {
   id         = "var-xxxxxxxxxx"
   account_id = "acc-xxxxxxxxxx"

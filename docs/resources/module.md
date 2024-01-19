@@ -12,7 +12,7 @@ Manages the state of a module in the Private Modules Registry. Create and destro
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "scalr_module" "example" {
   account_id      = "acc-xxxxxxxxxx"
   environment_id  = "env-xxxxxxxxxx"

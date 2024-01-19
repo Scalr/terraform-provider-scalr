@@ -12,7 +12,7 @@ Manage the state of agent pools in Scalr. Create, update and destroy.
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "scalr_agent_pool" "default" {
   name       = "default-pool"
   account_id = "acc-xxxxxxxxxx"

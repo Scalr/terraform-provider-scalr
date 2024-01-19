@@ -14,7 +14,7 @@ Manage the state of Slack integrations in Scalr. Create, update and destroy.
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "scalr_slack_integration" "test" {
   name         = "my-channel"
   account_id   = "acc-xxxxxxxxxx"

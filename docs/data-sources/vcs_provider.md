@@ -12,7 +12,7 @@ Retrieves the details of a VCS provider.
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_vcs_provider" "example1" {
   id         = "vcs-xxxxxxxxxx"
   account_id = "acc-xxxxxxxxxx"

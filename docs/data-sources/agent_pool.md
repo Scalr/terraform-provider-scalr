@@ -12,7 +12,7 @@ Retrieves the details of an agent pool.
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_agent_pool" "example1" {
   id         = "apool-xxxxxxxxxx"
   account_id = "acc-xxxxxxxxxx"

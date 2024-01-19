@@ -12,7 +12,7 @@ Manage the state of agent pool's tokens in Scalr. Create, update and destroy.
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "scalr_agent_pool_token" "default" {
   description   = "Some description"
   agent_pool_id = "apool-xxxxxxxxxx"

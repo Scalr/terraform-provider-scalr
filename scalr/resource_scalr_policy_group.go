@@ -108,7 +108,7 @@ func resourceScalrPolicyGroup() *schema.Resource {
 			},
 			"environments": {
 				Description: "A list of the environments the policy group is linked to. Use `[\"*\"]` to enforce in all environments. " +
-					"To manage a linkage use either this attribute or `scalr_policy_group_linkage` resource.",
+					"To manage a linkage use either this attribute or the `scalr_policy_group_linkage` resource.",
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,

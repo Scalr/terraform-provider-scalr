@@ -12,7 +12,7 @@ Manages the Scalr IAM teams: performs create, update and destroy actions.
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "scalr_iam_team" "example" {
   name        = "dev"
   description = "Developers"

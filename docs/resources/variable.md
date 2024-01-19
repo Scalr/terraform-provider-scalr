@@ -12,7 +12,7 @@ Manage the state of the variables in Scalr. Create, update and destroy.
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "scalr_variable" "example1" {
   key          = "my_key_name"
   value        = "my_value_name"

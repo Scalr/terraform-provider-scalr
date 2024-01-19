@@ -12,7 +12,7 @@ Retrieves the details of a single workspace.
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_workspace" "example1" {
   id             = "ws-xxxxxxxxxx"
   environment_id = "env-xxxxxxxxxx"

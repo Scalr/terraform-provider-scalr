@@ -14,7 +14,7 @@ No arguments are required. The data source returns details of the current run ba
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_current_run" "example" {}
 ```
 

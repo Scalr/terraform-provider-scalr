@@ -12,7 +12,7 @@ Retrieves a list of workspace ids by name or tags.
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_workspaces" "exact-names" {
   name = "in:production,development"
 }

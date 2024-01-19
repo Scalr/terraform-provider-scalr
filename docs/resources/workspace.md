@@ -14,7 +14,7 @@ Manage the state of workspaces in Scalr. Create, update and destroy.
 
 ### VCS-driven
 
-```hcl
+```terraform
 data "scalr_vcs_provider" "example" {
   name       = "vcs-name"
   account_id = "acc-xxxxxxxxxx"
@@ -73,7 +73,7 @@ resource "scalr_workspace" "trigger_patterns" {
 
 ### Module-driven
 
-```hcl
+```terraform
 data "scalr_environment" "example" {
   name       = "env-name"
   account_id = "acc-xxxxxxxxxx"
@@ -102,7 +102,7 @@ resource "scalr_workspace" "example" {
 
 ### CLI-driven
 
-```hcl
+```terraform
 data "scalr_environment" "example" {
   name       = "env-name"
   account_id = "acc-xxxxxxxxxx"
@@ -117,7 +117,7 @@ resource "scalr_workspace" "example" {
 
 ### Create tagged workspaces
 
-```hcl
+```terraform
 resource "scalr_tag" "team-a" {
   name = "TeamA"
 }

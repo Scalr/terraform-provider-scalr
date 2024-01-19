@@ -12,7 +12,7 @@ Manage the Scalr IAM roles. Create, update and destroy.
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "scalr_role" "writer" {
   name        = "Writer"
   account_id  = "acc-xxxxxxxxxx"

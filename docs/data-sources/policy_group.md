@@ -12,7 +12,7 @@ Retrieves the details of a policy group.
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_policy_group" "example1" {
   id         = "pgrp-xxxxxxxxxx"
   account_id = "acc-xxxxxxxxxx"

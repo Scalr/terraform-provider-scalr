@@ -12,7 +12,7 @@ This data source is used to retrieve details of a single role.
 
 ## Example Usage
 
-```hcl
+```terraform
 # To retrieve a custom role, an account id and role id (or name) are required:
 
 data "scalr_role" "example1" {

@@ -14,7 +14,7 @@ Retrieves the details of a webhook endpoint.
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_endpoint" "example1" {
   id         = "ep-xxxxxxxxxx"
   account_id = "acc-xxxxxxxxxx"

@@ -12,7 +12,7 @@ This data source is used to retrieve details of a single access policy by id.
 
 ## Example Usage
 
-```hcl
+```terraform
 data "scalr_access_policy" "example" {
   id = "ap-xxxxxxxxxx"
 }

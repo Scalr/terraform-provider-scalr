@@ -12,7 +12,7 @@ Manages the Scalr IAM access policies. Create, update and destroy.
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "scalr_role" "reader" {
   name        = "Reader"
   account_id  = "acc-xxxxxxxxxx"

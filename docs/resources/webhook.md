@@ -12,7 +12,7 @@ Manage the state of webhooks in Scalr. Creates, updates and destroy.
 
 ## Example Usage
 
-```hcl
+```terraform
 resource "scalr_webhook" "example1" {
   name         = "my-webhook-1"
   enabled      = true
