@@ -6,7 +6,7 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 3
 ---
-## Data Source Overview
+## Data Source: scalr_current_account
 
 Retrieves the details of current account when using Scalr remote backend.
 
@@ -14,7 +14,7 @@ No arguments are required. The data source returns details of the current accoun
 
 ## Example Usage
 
-```terraform
+```hcl
 data "scalr_current_account" "account" {}
 ```
 

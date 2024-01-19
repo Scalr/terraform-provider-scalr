@@ -6,13 +6,13 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 9
 ---
-## Data Source Overview
+## Data Source: scalr_iam_user
 
 Retrieves the details of a Scalr user.
 
 ## Example Usage
 
-```terraform
+```hcl
 data "scalr_iam_user" "example1" {
   id = "user-xxxxxxxxxx"
 }

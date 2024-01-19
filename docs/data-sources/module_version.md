@@ -6,13 +6,13 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 10
 ---
-## Data Source Overview
+## Data Source: scalr_module_version
 
 Retrieves the module version data by module source and semantic version.
 
 ## Example Usage
 
-```terraform
+```hcl
 data "scalr_module_version" "example" {
   source  = "env-xxxxxxxxxx/resource-name/scalr"
   version = "1.0.0"

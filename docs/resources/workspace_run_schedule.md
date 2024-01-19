@@ -6,13 +6,13 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 23
 ---
-## Resource Overview
+## Resource: scalr_workspace_run_schedule
 
 Allows workspace admins to automate the configuration of recurring runs for a workspace.
 
 ## Example Usage
 
-```terraform
+```hcl
 resource "scalr_workspace_run_schedule" "example" {
   workspace_id     = "ws-xxxxxxxxxx"
   apply_schedule   = "30 3 5 3-5 2"

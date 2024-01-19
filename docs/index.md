@@ -17,7 +17,7 @@ Some customers have built a Scalr "vending" machine, which continues the automat
 
 To use the Scalr provider, add the following code block to your code:
 
-```terraform
+```hcl
 terraform {
   required_providers {
     scalr = {
@@ -28,7 +28,7 @@ terraform {
 }
 ```
 
-The latest information on the provider version can be found at https://registry.scalr.io.
+The latest information on the provider version can be found at https://library.tf/providers/Scalr/scalr/latest.
 The GPG key information for the provider can be found at https://registry.scalr.io/scalr_pubkey.asc.
 The fingerprint for the provider is `1EF68C8041FC80714FF7A4017F685A20F41004C4`.
 
@@ -36,7 +36,7 @@ The fingerprint for the provider is `1EF68C8041FC80714FF7A4017F685A20F41004C4`.
 
 To authenticate to the provider, you must obtain a Scalr API token and call the provider with it:
 
-```terraform
+```hcl
 provider "scalr" {
   hostname = var.hostname
   token    = var.api_token

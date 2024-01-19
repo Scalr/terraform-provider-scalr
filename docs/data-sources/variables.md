@@ -6,13 +6,13 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 18
 ---
-## Data Source Overview
+## Data Source: scalr_variables
 
 Retrieves the list of variables by the given filters.
 
 ## Example Usage
 
-```terraform
+```hcl
 data "scalr_variables" "example" {
   keys             = ["key1", "key2", "key3"]
   category         = "terraform" # or shell

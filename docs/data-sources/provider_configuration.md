@@ -6,13 +6,13 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 12
 ---
-## Data Source Overview
+## Data Source: scalr_provider_configuration
 
 Retrieves information about a single provider configuration.
 
 ## Example Usage
 
-```terraform
+```hcl
 data "scalr_provider_configuration" "aws" {
   id = "pcfg-xxxxxxxxxx"
 }

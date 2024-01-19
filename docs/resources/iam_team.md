@@ -6,13 +6,13 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 7
 ---
-## Resource Overview
+## Resource: scalr_iam_team
 
 Manages the Scalr IAM teams: performs create, update and destroy actions.
 
 ## Example Usage
 
-```terraform
+```hcl
 resource "scalr_iam_team" "example" {
   name        = "dev"
   description = "Developers"

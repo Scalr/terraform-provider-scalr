@@ -6,13 +6,13 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 9
 ---
-## Resource Overview
+## Resource: scalr_policy_group
 
 Manage the state of policy groups in Scalr. Create, update and destroy.
 
 ## Example Usage
 
-```terraform
+```hcl
 resource "scalr_policy_group" "example" {
   name            = "instance_types"
   opa_version     = "0.29.4"

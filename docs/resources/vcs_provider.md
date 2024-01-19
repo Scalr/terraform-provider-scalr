@@ -6,13 +6,13 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 20
 ---
-## Resource Overview
+## Resource: scalr_vcs_provider
 
 Manage the Scalr VCS provider. Create, update and destroy.
 
 ## Example Usage
 
-```terraform
+```hcl
 resource "scalr_vcs_provider" "example" {
   name       = "example-github"
   account_id = "acc-xxxxxxxxxx"

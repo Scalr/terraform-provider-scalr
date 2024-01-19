@@ -6,13 +6,13 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 19
 ---
-## Data Source Overview
+## Data Source: scalr_vcs_provider
 
 Retrieves the details of a VCS provider.
 
 ## Example Usage
 
-```terraform
+```hcl
 data "scalr_vcs_provider" "example1" {
   id         = "vcs-xxxxxxxxxx"
   account_id = "acc-xxxxxxxxxx"

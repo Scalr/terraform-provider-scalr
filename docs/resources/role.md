@@ -6,13 +6,13 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 13
 ---
-## Resource Overview
+## Resource: scalr_role
 
 Manage the Scalr IAM roles. Create, update and destroy.
 
 ## Example Usage
 
-```terraform
+```hcl
 resource "scalr_role" "writer" {
   name        = "Writer"
   account_id  = "acc-xxxxxxxxxx"

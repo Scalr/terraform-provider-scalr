@@ -6,13 +6,13 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 14
 ---
-## Resource Overview
+## Resource: scalr_run_trigger
 
 Run triggers are a way to chain workspaces together. The use case for this is that you might have one or more upstream workspaces that need to automatically kick off a downstream workspace based on a successful run in the upstream workspace. To set a trigger, go to the downstream workspace and set the upstream workspace(s). Now, whenever the upstream workspace has a successful run, the downstream workspace will automatically start a run.
 
 ## Example Usage
 
-```terraform
+```hcl
 data "scalr_workspace" "downstream" {
   name           = "downstream"
   environment_id = "env-xxxxxxxxxx"

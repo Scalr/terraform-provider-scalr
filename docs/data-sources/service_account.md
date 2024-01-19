@@ -6,13 +6,13 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 15
 ---
-## Data Source Overview
+## Data Source: scalr_service_account
 
 Retrieves information about a service account.
 
 ## Example Usage
 
-```terraform
+```hcl
 data "scalr_service_account" "example1" {
   id         = "sa-xxxxxxxxxx"
   account_id = "acc-xxxxxxxxxx"

@@ -6,13 +6,13 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 4
 ---
-## Resource Overview
+## Resource: scalr_agent_pool_token
 
 Manage the state of agent pool's tokens in Scalr. Create, update and destroy.
 
 ## Example Usage
 
-```terraform
+```hcl
 resource "scalr_agent_pool_token" "default" {
   description   = "Some description"
   agent_pool_id = "apool-xxxxxxxxxx"

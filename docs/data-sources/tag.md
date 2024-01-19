@@ -6,13 +6,13 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 16
 ---
-## Data Source Overview
+## Data Source: scalr_tag
 
 Retrieves information about a tag.
 
 ## Example Usage
 
-```terraform
+```hcl
 data "scalr_tag" "example1" {
   id         = "tag-xxxxxxxxxx"
   account_id = "acc-xxxxxxxxxx"

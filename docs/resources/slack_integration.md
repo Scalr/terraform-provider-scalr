@@ -6,15 +6,15 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 17
 ---
-## Resource Overview
+## Resource: scalr_slack_integration
 
 Manage the state of Slack integrations in Scalr. Create, update and destroy.
 
-**Note:** Slack workspace should be connected to Scalr account before using this resource.
+-> **Note** Slack workspace should be connected to Scalr account before using this resource.
 
 ## Example Usage
 
-```terraform
+```hcl
 resource "scalr_slack_integration" "test" {
   name         = "my-channel"
   account_id   = "acc-xxxxxxxxxx"

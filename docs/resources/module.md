@@ -6,13 +6,13 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 8
 ---
-## Resource Overview
+## Resource: scalr_module
 
 Manages the state of a module in the Private Modules Registry. Create and destroy operations are available only.
 
 ## Example Usage
 
-```terraform
+```hcl
 resource "scalr_module" "example" {
   account_id      = "acc-xxxxxxxxxx"
   environment_id  = "env-xxxxxxxxxx"

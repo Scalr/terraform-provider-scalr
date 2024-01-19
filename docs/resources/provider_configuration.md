@@ -6,7 +6,7 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 11
 ---
-## Resource Overview
+## Resource: scalr_provider_configuration
 
 A provider configuration helps organizations manage provider secrets in a centralized way. It natively supports the management of the major providers like Scalr, AWS, AzureRM, and Google Cloud Platform, but also allows registering any custom provider. Please have a look at the basic usage examples for each provider type.
 
@@ -14,7 +14,7 @@ A provider configuration helps organizations manage provider secrets in a centra
 
 ### Scalr provider
 
-```terraform
+```hcl
 resource "scalr_provider_configuration" "scalr" {
   name         = "scalr"
   account_id   = "acc-xxxxxxxxxx"
@@ -28,7 +28,7 @@ resource "scalr_provider_configuration" "scalr" {
 
 ### AWS provider
 
-```terraform
+```hcl
 resource "scalr_provider_configuration" "aws" {
   name                   = "aws_dev_us_east_1"
   account_id             = "acc-xxxxxxxxxx"
@@ -43,7 +43,7 @@ resource "scalr_provider_configuration" "aws" {
 }
 ```
 
-```terraform
+```hcl
 resource "scalr_provider_configuration" "oidc" {
   name                   = "oidc_dev_us_east_1"
   account_id             = "acc-xxxxxxxxxx"
@@ -61,7 +61,7 @@ To get into more advanced AWS usage please refer to the official [AWS module](ht
 
 ### AzureRM provider
 
-```terraform
+```hcl
 resource "scalr_provider_configuration" "azurerm" {
   name       = "azurerm"
   account_id = "acc-xxxxxxxxxx"
@@ -74,7 +74,7 @@ resource "scalr_provider_configuration" "azurerm" {
 }
 ```
 
-```terraform
+```hcl
 resource "scalr_provider_configuration" "azurerm_oidc" {
   name       = "azurerm"
   account_id = "acc-xxxxxxxxxx"
@@ -90,7 +90,7 @@ resource "scalr_provider_configuration" "azurerm_oidc" {
 
 ### Google provider
 
-```terraform
+```hcl
 resource "scalr_provider_configuration" "google" {
   name       = "google_main"
   account_id = "acc-xxxxxxxxxx"
@@ -101,7 +101,7 @@ resource "scalr_provider_configuration" "google" {
 }
 ```
 
-```terraform
+```hcl
 resource "scalr_provider_configuration" "google" {
   name       = "google_main"
   account_id = "acc-xxxxxxxxxx"
@@ -116,7 +116,7 @@ resource "scalr_provider_configuration" "google" {
 
 ### Custom providers
 
-```terraform
+```hcl
 resource "scalr_provider_configuration" "kubernetes" {
   name       = "k8s"
   account_id = "acc-xxxxxxxxxx"

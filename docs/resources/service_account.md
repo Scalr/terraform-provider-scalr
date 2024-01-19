@@ -6,13 +6,13 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 15
 ---
-## Resource Overview
+## Resource: scalr_service_account
 
 Manages the state of service accounts in Scalr.
 
 ## Example Usage
 
-```terraform
+```hcl
 resource "scalr_service_account" "example" {
   name        = "sa-name"
   description = "Lorem ipsum"

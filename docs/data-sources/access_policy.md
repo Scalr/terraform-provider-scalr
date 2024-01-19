@@ -6,13 +6,13 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 1
 ---
-## Data Source Overview
+## Data Source: scalr_access_policy
 
 This data source is used to retrieve details of a single access policy by id.
 
 ## Example Usage
 
-```terraform
+```hcl
 data "scalr_access_policy" "example" {
   id = "ap-xxxxxxxxxx"
 }

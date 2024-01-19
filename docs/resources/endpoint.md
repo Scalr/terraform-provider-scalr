@@ -6,15 +6,15 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 5
 ---
-## Resource Overview
+## Resource: scalr_endpoint
 
 Manage the state of endpoints in Scalr. Create, update and destroy.
 
-> 🚧 This resource is deprecated and will be removed in the next major version.
+!> **Warning** This resource is deprecated and will be removed in the next major version.
 
 ## Example Usage
 
-```terraform
+```hcl
 resource "scalr_endpoint" "example" {
   name           = "my-endpoint-name"
   secret_key     = "my-secret-key"
@@ -48,7 +48,7 @@ resource "scalr_endpoint" "example" {
 
 The secret key can be generated using the `random_string` resource.
 
-```terraform
+```hcl
 resource "random_string" "r" {
   length = 16
 }

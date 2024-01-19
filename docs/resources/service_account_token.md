@@ -6,13 +6,13 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 16
 ---
-## Resource Overview
+## Resource: scalr_service_account_token
 
 Manage the state of service account's tokens in Scalr. Create, update and destroy.
 
 ## Example Usage
 
-```terraform
+```hcl
 resource "scalr_service_account_token" "default" {
   service_account_id = "sa-xxxxxxxxxx"
   description        = "Some description"

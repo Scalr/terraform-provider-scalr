@@ -6,13 +6,13 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 11
 ---
-## Data Source Overview
+## Data Source: scalr_policy_group
 
 Retrieves the details of a policy group.
 
 ## Example Usage
 
-```terraform
+```hcl
 data "scalr_policy_group" "example1" {
   id         = "pgrp-xxxxxxxxxx"
   account_id = "acc-xxxxxxxxxx"

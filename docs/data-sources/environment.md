@@ -6,13 +6,13 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 6
 ---
-## Data Source Overview
+## Data Source: scalr_environment
 
 Retrieves the details of a Scalr environment.
 
 ## Example Usage
 
-```terraform
+```hcl
 data "scalr_environment" "example1" {
   id         = "env-xxxxxxxxxx"
   account_id = "acc-xxxxxxxxxx"

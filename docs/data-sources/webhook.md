@@ -6,13 +6,13 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 20
 ---
-## Data Source Overview
+## Data Source: scalr_webhook
 
 Retrieves the details of a webhook.
 
 ## Example Usage
 
-```terraform
+```hcl
 data "scalr_webhook" "example1" {
   id         = "wh-xxxxxxxxxx"
   account_id = "acc-xxxxxxxxxx"

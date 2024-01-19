@@ -6,13 +6,13 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 17
 ---
-## Data Source Overview
+## Data Source: scalr_variable
 
 Retrieves the details of a variable.
 
 ## Example Usage
 
-```terraform
+```hcl
 data "scalr_variable" "example1" {
   id         = "var-xxxxxxxxxx"
   account_id = "acc-xxxxxxxxxx"

@@ -6,13 +6,13 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 21
 ---
-## Data Source Overview
+## Data Source: scalr_workspace
 
 Retrieves the details of a single workspace.
 
 ## Example Usage
 
-```terraform
+```hcl
 data "scalr_workspace" "example1" {
   id             = "ws-xxxxxxxxxx"
   environment_id = "env-xxxxxxxxxx"

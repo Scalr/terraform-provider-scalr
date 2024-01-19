@@ -6,13 +6,13 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 18
 ---
-## Resource Overview
+## Resource: scalr_tag
 
 Manages the state of tags in Scalr.
 
 ## Example Usage
 
-```terraform
+```hcl
 resource "scalr_tag" "example" {
   name       = "tag-name"
   account_id = "acc-xxxxxxxxxx"

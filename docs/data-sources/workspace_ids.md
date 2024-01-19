@@ -6,13 +6,13 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 22
 ---
-## Data Source Overview
+## Data Source: scalr_workspace_ids
 
 Retrieves a map of workspace IDs based on the names provided. Wildcards are accepted.
 
 ## Example Usage
 
-```terraform
+```hcl
 data "scalr_workspace_ids" "app-frontend" {
   names          = ["app-frontend-prod", "app-frontend-dev1", "app-frontend-staging"]
   environment_id = "env-xxxxxxxxxx"

@@ -6,13 +6,13 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 13
 ---
-## Data Source Overview
+## Data Source: scalr_provider_configurations
 
 Retrieves a list of provider configuration ids by name or type.
 
 ## Example Usage
 
-```terraform
+```hcl
 data "scalr_provider_configurations" "aws" {
   name = "in:aws_dev,aws_demo,aws_prod"
 }
