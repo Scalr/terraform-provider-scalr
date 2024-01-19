@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `scalr_policy_group`: fixed unexpected unlinking of environments from policy group on re-run ([#297](https://github.com/Scalr/terraform-provider-scalr/pull/297))
+- fixed the data-source / resource headers and alerts.
 
 ## [1.7.0] - 2023-12-22
 
