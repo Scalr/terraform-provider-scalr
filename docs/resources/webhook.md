@@ -6,7 +6,7 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 21
 ---
-## Resource Overview
+## Resource: scalr_webhook
 
 Manage the state of webhooks in Scalr. Creates, updates and destroy.
 

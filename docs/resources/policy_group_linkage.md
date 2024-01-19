@@ -6,11 +6,11 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 10
 ---
-## Resource Overview
+## Resource: scalr_policy_group_linkage
 
 Manage policy group to environment linking in Scalr. Create, update and destroy.
 
-**Note:** To manage a linkage use either this resource or `environments` attribute of [`scalr_policy_group`](provider_resource_scalr_policy_group) resource.
+-> **Note** To manage a linkage use either this resource or the `environments` attribute of the [`scalr_policy_group`](provider_resource_scalr_policy_group) resource.
 
 ## Example Usage
 

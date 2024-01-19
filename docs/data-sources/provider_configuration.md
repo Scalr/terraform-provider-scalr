@@ -6,7 +6,7 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 12
 ---
-## Data Source Overview
+## Data Source: scalr_provider_configuration
 
 Retrieves information about a single provider configuration.
 

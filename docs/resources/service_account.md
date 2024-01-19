@@ -6,7 +6,7 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 15
 ---
-## Resource Overview
+## Resource: scalr_service_account
 
 Manages the state of service accounts in Scalr.
 

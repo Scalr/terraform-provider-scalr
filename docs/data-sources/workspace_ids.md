@@ -6,7 +6,7 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 22
 ---
-## Data Source Overview
+## Data Source: scalr_workspace_ids
 
 Retrieves a map of workspace IDs based on the names provided. Wildcards are accepted.
 

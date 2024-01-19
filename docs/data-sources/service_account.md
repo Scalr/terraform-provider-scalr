@@ -6,7 +6,7 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 15
 ---
-## Data Source Overview
+## Data Source: scalr_service_account
 
 Retrieves information about a service account.
 

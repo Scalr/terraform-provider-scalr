@@ -6,11 +6,11 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 5
 ---
-## Resource Overview
+## Resource: scalr_endpoint
 
 Manage the state of endpoints in Scalr. Create, update and destroy.
 
-> 🚧 This resource is deprecated and will be removed in the next major version.
+!> **Warning** This resource is deprecated and will be removed in the next major version.
 
 ## Example Usage
 

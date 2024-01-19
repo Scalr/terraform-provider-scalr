@@ -13,7 +13,7 @@ import (
 func resourceScalrSlackIntegration() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manage the state of Slack integrations in Scalr. Create, update and destroy." +
-			"\n\n**Note:** Slack workspace should be connected to Scalr account before using this resource.",
+			"\n\n-> **Note** Slack workspace should be connected to Scalr account before using this resource.",
 		CreateContext: resourceScalrSlackIntegrationCreate,
 		ReadContext:   resourceScalrSlackIntegrationRead,
 		UpdateContext: resourceScalrSlackIntegrationUpdate,

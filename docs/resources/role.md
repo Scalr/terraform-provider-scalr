@@ -6,7 +6,7 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 13
 ---
-## Resource Overview
+## Resource: scalr_role
 
 Manage the Scalr IAM roles. Create, update and destroy.
 

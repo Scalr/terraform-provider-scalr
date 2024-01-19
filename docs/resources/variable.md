@@ -6,7 +6,7 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 19
 ---
-## Resource Overview
+## Resource: scalr_variable
 
 Manage the state of the variables in Scalr. Create, update and destroy.
 

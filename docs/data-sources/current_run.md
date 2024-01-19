@@ -6,7 +6,7 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 4
 ---
-## Data Source Overview
+## Data Source: scalr_current_run
 
 Allows you to get information about the current Terraform run when using a Scalr remote backend workspace, including VCS (Git) metadata.
 

@@ -6,11 +6,11 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 5
 ---
-## Data Source Overview
+## Data Source: scalr_endpoint
 
 Retrieves the details of a webhook endpoint.
 
-> 🚧 This datasource is deprecated and will be removed in the next major version.
+!> **Warning** This datasource is deprecated and will be removed in the next major version.
 
 ## Example Usage
 

@@ -6,7 +6,7 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 3
 ---
-## Data Source Overview
+## Data Source: scalr_current_account
 
 Retrieves the details of current account when using Scalr remote backend.
 

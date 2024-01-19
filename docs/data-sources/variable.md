@@ -6,7 +6,7 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 17
 ---
-## Data Source Overview
+## Data Source: scalr_variable
 
 Retrieves the details of a variable.
 

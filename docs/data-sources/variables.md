@@ -6,7 +6,7 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 18
 ---
-## Data Source Overview
+## Data Source: scalr_variables
 
 Retrieves the list of variables by the given filters.
 

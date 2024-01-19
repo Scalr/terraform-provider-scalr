@@ -6,7 +6,7 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 2
 ---
-## Resource Overview
+## Resource: scalr_account_allowed_ips
 
 Manages the list of allowed IPs for an account in Scalr. Create, update and destroy.
 

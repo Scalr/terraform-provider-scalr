@@ -6,7 +6,7 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 11
 ---
-## Resource Overview
+## Resource: scalr_provider_configuration
 
 A provider configuration helps organizations manage provider secrets in a centralized way. It natively supports the management of the major providers like Scalr, AWS, AzureRM, and Google Cloud Platform, but also allows registering any custom provider. Please have a look at the basic usage examples for each provider type.
 

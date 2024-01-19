@@ -6,7 +6,7 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 6
 ---
-## Resource Overview
+## Resource: scalr_environment
 
 Manage the state of environments in Scalr. Creates, updates and destroys.
 

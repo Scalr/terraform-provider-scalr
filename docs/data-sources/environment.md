@@ -6,7 +6,7 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 6
 ---
-## Data Source Overview
+## Data Source: scalr_environment
 
 Retrieves the details of a Scalr environment.
 

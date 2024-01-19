@@ -6,7 +6,7 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 1
 ---
-## Resource Overview
+## Resource: scalr_access_policy
 
 Manages the Scalr IAM access policies. Create, update and destroy.
 

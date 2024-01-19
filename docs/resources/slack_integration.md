@@ -6,11 +6,11 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 17
 ---
-## Resource Overview
+## Resource: scalr_slack_integration
 
 Manage the state of Slack integrations in Scalr. Create, update and destroy.
 
-**Note:** Slack workspace should be connected to Scalr account before using this resource.
+-> **Note** Slack workspace should be connected to Scalr account before using this resource.
 
 ## Example Usage
 

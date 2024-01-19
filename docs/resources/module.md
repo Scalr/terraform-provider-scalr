@@ -6,7 +6,7 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 8
 ---
-## Resource Overview
+## Resource: scalr_module
 
 Manages the state of a module in the Private Modules Registry. Create and destroy operations are available only.
 

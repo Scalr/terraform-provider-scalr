@@ -6,7 +6,7 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 18
 ---
-## Resource Overview
+## Resource: scalr_tag
 
 Manages the state of tags in Scalr.
 

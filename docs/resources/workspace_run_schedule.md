@@ -6,7 +6,7 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 23
 ---
-## Resource Overview
+## Resource: scalr_workspace_run_schedule
 
 Allows workspace admins to automate the configuration of recurring runs for a workspace.
 

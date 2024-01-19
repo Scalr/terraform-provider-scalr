@@ -6,7 +6,7 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 22
 ---
-## Resource Overview
+## Resource: scalr_workspace
 
 Manage the state of workspaces in Scalr. Create, update and destroy.
 

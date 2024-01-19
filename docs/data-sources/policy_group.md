@@ -6,7 +6,7 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 11
 ---
-## Data Source Overview
+## Data Source: scalr_policy_group
 
 Retrieves the details of a policy group.
 

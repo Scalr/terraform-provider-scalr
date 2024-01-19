@@ -6,7 +6,7 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 8
 ---
-## Data Source Overview
+## Data Source: scalr_iam_team
 
 Retrieves the details of a Scalr team.
 

@@ -6,7 +6,7 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 10
 ---
-## Data Source Overview
+## Data Source: scalr_module_version
 
 Retrieves the module version data by module source and semantic version.
 

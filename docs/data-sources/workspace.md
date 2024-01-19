@@ -6,7 +6,7 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 21
 ---
-## Data Source Overview
+## Data Source: scalr_workspace
 
 Retrieves the details of a single workspace.
 

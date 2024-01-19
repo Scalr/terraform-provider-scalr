@@ -17,7 +17,7 @@ var resourceScalrProviderConfigurationDefaultMutex sync.Mutex
 func resourceScalrProviderConfigurationDefault() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manage defaults of provider configurations for environments in Scalr. Create and destroy." +
-			"\n\n**Note:** To make the provider configuration default, it must be shared with the specified environment." +
+			"\n\n-> **Note** To make the provider configuration default, it must be shared with the specified environment." +
 			" See the definition of the resource [`scalr_provider_configuration`](provider_resource_scalr_provider_configuration)" +
 			" and attribute `environments` to learn more.",
 		CreateContext: resourceScalrProviderConfigurationDefaultCreate,

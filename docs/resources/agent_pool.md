@@ -6,7 +6,7 @@ parentDocSlug: "provider_resources"
 hidden: false
 order: 3
 ---
-## Resource Overview
+## Resource: scalr_agent_pool
 
 Manage the state of agent pools in Scalr. Create, update and destroy.
 

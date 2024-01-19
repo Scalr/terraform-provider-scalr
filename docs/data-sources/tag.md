@@ -6,7 +6,7 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 16
 ---
-## Data Source Overview
+## Data Source: scalr_tag
 
 Retrieves information about a tag.
 

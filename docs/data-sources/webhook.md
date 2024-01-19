@@ -6,7 +6,7 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 20
 ---
-## Data Source Overview
+## Data Source: scalr_webhook
 
 Retrieves the details of a webhook.
 

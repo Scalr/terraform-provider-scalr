@@ -6,7 +6,7 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 14
 ---
-## Data Source Overview
+## Data Source: scalr_role
 
 This data source is used to retrieve details of a single role.
 

@@ -6,7 +6,7 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 2
 ---
-## Data Source Overview
+## Data Source: scalr_agent_pool
 
 Retrieves the details of an agent pool.
 

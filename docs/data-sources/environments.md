@@ -6,7 +6,7 @@ parentDocSlug: "provider_datasources"
 hidden: false
 order: 7
 ---
-## Data Source Overview
+## Data Source: scalr_environments
 
 Retrieves a list of environment ids by name or tags.
 
