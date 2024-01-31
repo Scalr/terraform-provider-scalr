@@ -3,11 +3,12 @@ package scalr
 import (
 	"context"
 	"errors"
+	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/scalr/go-scalr"
-	"log"
 )
 
 func resourceScalrSlackIntegration() *schema.Resource {
@@ -47,6 +48,18 @@ func resourceScalrSlackIntegration() *schema.Resource {
 				},
 				Required: true,
 				MinItems: 1,
+			},
+			"run_mode": {
+				Description: "What type of runs should be reported, available options: `all`, `apply`, `dry`.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "all",
+				ValidateDiagFunc: validation.ToDiagFunc(
+					validation.StringInSlice(
+						[]string{"all", "apply", "dry"},
+						false,
+					),
+				),
 			},
 			"channel_id": {
 				Description:      "Slack channel ID the event will be sent to.",
@@ -132,6 +145,7 @@ func resourceScalrSlackIntegrationCreate(ctx context.Context, d *schema.Resource
 		Name:         &name,
 		ChannelId:    scalr.String(d.Get("channel_id").(string)),
 		Events:       parseEvents(d),
+		RunMode:      scalr.String(d.Get("run_mode").(string)),
 		Account:      &scalr.Account{ID: accountID},
 		Environments: parseEnvironments(d),
 	}
@@ -179,6 +193,7 @@ func resourceScalrSlackIntegrationRead(ctx context.Context, d *schema.ResourceDa
 	_ = d.Set("name", slackIntegration.Name)
 	_ = d.Set("channel_id", slackIntegration.ChannelId)
 	_ = d.Set("events", slackIntegration.Events)
+	_ = d.Set("run_mode", slackIntegration.RunMode)
 	_ = d.Set("account_id", slackIntegration.Account.ID)
 
 	environmentIDs := make([]string, 0)
@@ -212,6 +227,10 @@ func resourceScalrSlackIntegrationUpdate(ctx context.Context, d *schema.Resource
 	if d.HasChange("events") {
 		events := parseEvents(d)
 		options.Events = events
+	}
+
+	if d.HasChange("run_mode") {
+		options.RunMode = scalr.String(d.Get("run_mode").(string))
 	}
 
 	if d.HasChange("environments") {
