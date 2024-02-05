@@ -44,6 +44,11 @@ func TestAccSlackIntegration_basic(t *testing.T) {
 						"account_id",
 						defaultAccount,
 					),
+					resource.TestCheckResourceAttr(
+						"scalr_slack_integration.test",
+						"run_mode",
+						"dry",
+					),
 					resource.TestCheckTypeSetElemAttr(
 						"scalr_slack_integration.test",
 						"events.*",
@@ -75,6 +80,11 @@ func TestAccSlackIntegration_basic(t *testing.T) {
 						"account_id",
 						defaultAccount,
 					),
+					resource.TestCheckResourceAttr(
+						"scalr_slack_integration.test",
+						"run_mode",
+						"apply",
+					),
 					resource.TestCheckTypeSetElemAttr(
 						"scalr_slack_integration.test",
 						"events.*",
@@ -100,6 +110,7 @@ resource scalr_environment test {
 resource "scalr_slack_integration" "test" {
   name           = "test-create"
   account_id     = scalr_environment.test.account_id
+  run_mode       = "dry"
   events		 = ["run_approval_required", "run_errored"]
   channel_id	 = "C123"
   environments = [scalr_environment.test.id]
@@ -114,6 +125,7 @@ resource scalr_environment test {
 resource "scalr_slack_integration" "test" {
   name           = "test-create2"
   account_id     = scalr_environment.test.account_id
+  run_mode       = "apply"
   events		 = ["run_success", "run_errored"]
   channel_id	 = "C123"
   environments = [scalr_environment.test.id]

@@ -19,6 +19,7 @@ resource "scalr_slack_integration" "test" {
   name         = "my-channel"
   account_id   = "acc-xxxxxxxxxx"
   events       = ["run_approval_required", "run_success", "run_errored"]
+  run_mode     = "apply"
   channel_id   = "xxxxxxxxxx" # Can be found in slack UI (channel settings/info popup)
   environments = ["env-xxxxxxxxxx"]
   workspaces   = ["ws-xxxxxxxxxx", "ws-yyyyyyyyyy"]
@@ -38,6 +39,7 @@ resource "scalr_slack_integration" "test" {
 ### Optional
 
 - `account_id` (String) ID of the account.
+- `run_mode` (String) What type of runs should be reported, available options: `all`, `apply`, `dry`.
 - `workspaces` (Set of String) List of workspaces where events should be triggered. Workspaces should be in provided environments. If no workspace is given for a specified environment, events will trigger in all of its workspaces.
 
 ### Read-Only
