@@ -149,7 +149,6 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Default:     true,
-							Computed:    true,
 						},
 						"credentials": {
 							Description: "Service account key file in JSON format, required when `auth_type` is `service-account-key`.",
