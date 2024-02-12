@@ -228,6 +228,7 @@ Optional:
 - `credentials` (String, Sensitive) Service account key file in JSON format, required when `auth_type` is `service-account-key`.
 - `project` (String) The default project to manage resources in. If another project is specified on a resource, it will take precedence.
 - `service_account_email` (String) The service account email used to authenticate to GCP, required when `auth_type` is `oidc`.
+- `use_default_project` (Boolean) If the project will be enforced.
 - `workload_provider_name` (String) The canonical name of the workload identity provider, required when `auth_type` is `oidc`.
 
 

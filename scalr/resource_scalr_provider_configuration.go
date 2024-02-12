@@ -144,6 +144,13 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 							Optional:    true,
 							Computed:    true,
 						},
+						"use_default_project": {
+							Description: "If the project will be enforced.",
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     true,
+							Computed:    true,
+						},
 						"credentials": {
 							Description: "Service account key file in JSON format, required when `auth_type` is `service-account-key`.",
 							Type:        schema.TypeString,
@@ -358,6 +365,7 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 	} else if _, ok := d.GetOk("google"); ok {
 		configurationOptions.ProviderName = scalr.String("google")
 		configurationOptions.GoogleAuthType = scalr.String(d.Get("google.0.auth_type").(string))
+		configurationOptions.GoogleUseDefaultProject = scalr.Bool(d.Get("google.0.use_default_project").(bool))
 
 		googleCredentials, googleCredentialsExists := d.GetOk("google.0.credentials")
 		googleCredentialsExists = googleCredentialsExists && len(googleCredentials.(string)) > 0
@@ -577,6 +585,7 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 			google := make(map[string]interface{})
 
 			google["auth_type"] = providerConfiguration.GoogleAuthType
+			google["use_default_project"] = providerConfiguration.GoogleUseDefaultProject
 
 			var stateCredentials string
 			if stateGoogleParametersI, ok := d.GetOk("google"); ok {
@@ -726,6 +735,7 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 		} else if _, ok := d.GetOk("google"); ok {
 			configurationOptions.GoogleAuthType = scalr.String(d.Get("google.0.auth_type").(string))
 
+			configurationOptions.GoogleUseDefaultProject = scalr.Bool(d.Get("google.0.use_default_project").(bool))
 			googleCredentials, googleCredentialsExists := d.GetOk("google.0.credentials")
 			googleCredentialsExists = googleCredentialsExists && len(googleCredentials.(string)) > 0
 			serviceAccountEmail, serviceAccountEmailExists := d.GetOk("google.0.service_account_email")
