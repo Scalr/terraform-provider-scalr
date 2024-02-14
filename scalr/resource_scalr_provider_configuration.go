@@ -145,7 +145,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 							Computed:    true,
 						},
 						"use_default_project": {
-							Description: "If the project will be enforced.",
+							Description: "If the project a credential is created in will be used by default.",
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Default:     true,
