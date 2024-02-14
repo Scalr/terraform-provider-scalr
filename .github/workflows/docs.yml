@@ -16,10 +16,11 @@ on:
 
 jobs:
   docs:
-    name: Docs
-    uses: ./.github/workflows/rdme.yml
-    with:
-      version: ${{ inputs.version }}
-      dry: ${{ inputs.dry }}
-    secrets:
-      README_API_KEY: ${{ secrets.README_API_KEY }}
+    name: Publish Docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Publish
+        uses: readmeio/rdme@v8
+        with:
+          rdme: docs ./docs --key=${{ secrets.README_API_KEY }} --version=${{ inputs.version }} ${{ inputs.dry == true && '--dryRun' || '' }}
