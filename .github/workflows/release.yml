@@ -1,4 +1,4 @@
-name: Release Provider
+name: release
 
 on:
   push:
