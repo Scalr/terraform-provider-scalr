@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `scalr_slack_integration`: new attribute `run_mode` ([#300](https://github.com/Scalr/terraform-provider-scalr/pull/300))
+- `scalr_provider_configuration.google`: new attribute `use_default_project` ([#301](https://github.com/Scalr/terraform-provider-scalr/pull/301))
 
 ## [1.8.0] - 2024-01-19
 
