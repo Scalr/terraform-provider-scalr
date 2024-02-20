@@ -16,3 +16,4 @@
 
 terraform-provider-scalr
 *.code-workspace
+.DS_Store

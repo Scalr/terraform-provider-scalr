@@ -45,19 +45,19 @@ jobs:
           installation_id: ${{vars.SUDO_GHA_APP_INSTALLATION_ID}}
           private_key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
       - uses: actions/checkout@v3
-      - name: Notify upstream about pending
+      - name: Notify Upstream about Pending
         run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=pending run_id=${{ github.run_id }}
       - uses: actions/setup-go@v3
         with:
           go-version: "1.19"
-      - name: Clone fatmouse repo
+      - name: Clone Fatmouse Repo
         uses: actions/checkout@v3
         with:
           repository: Scalr/fatmouse
           path: fatmouse
           ref: ${{ env.API_BRANCH }}
           token: ${{steps.generate_token.outputs.token}}
-      - name: Get pr labels
+      - name: Get Pull Request Labels
         id: pr-labels
         if: ${{ inputs.pr-id != '' }}
         uses: ./fatmouse/.github/actions/pr-labels
@@ -66,39 +66,35 @@ jobs:
           owner: Scalr
           repo: fatmouse
           pr_id: ${{ inputs.pr-id }}
-      - name: Set py-req on PR with label
+      - name: Set py-req on PR with Label
         if: ${{ inputs.pr-id != '' && contains(steps.pr-labels.outputs.labels, ' py-req ') }}
         run: echo "PY_REQ=yes" >> $GITHUB_ENV
       - id: auth
         uses: google-github-actions/auth@v0
         with:
           credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-      - name: Set up Cloud SDK
+      - name: Set Up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
       - name: Copy secrets
-        shell: bash
         run: |
           mkdir ~/.scalr-labs
           gsutil cp gs://tacobell_development-156220/.secrets.yaml fatmouse/tacobell/.secrets.yaml
           gsutil cp gs://tacobell_development-156220/github.json ~/.scalr-labs/github.json
-      - name: Configure docker
-        shell: bash
+      - name: Configure Docker
         run: gcloud auth configure-docker eu.gcr.io
-      - name: Pull python builder
-        shell: bash
+      - name: Pull Python Builder
         run: |
           echo "::group::Pull python builder image"
           docker pull eu.gcr.io/development-156220/fatmouse/python-builder:master
           docker tag eu.gcr.io/development-156220/fatmouse/python-builder:master fatmouse/python-builder:master
           echo "::endgroup::"
-      - name: Get current job log URL
+      - name: Get Current Job Log URL
         uses: Tiryoh/gha-jobid-action@v0
         id: get-job-id
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           job_name: ${{ github.job }}
-      - name: Generate run tag
-        shell: bash
+      - name: Generate Run Tag
         run: |
           if [ ${{ github.run_attempt }} = 1 ]; then
             RERUN_SUFFIX=""
@@ -106,9 +102,8 @@ jobs:
             RERUN_SUFFIX=$(echo -${{ github.run_attempt }})
           fi
           echo "RUN_TAG=e2e-${{ github.workflow }}-${{ github.job }}-${{ github.run_number }}${RERUN_SUFFIX}" >> $GITHUB_ENV
-      - name: Create container
+      - name: Create Container
         id: create
-        shell: bash
         run: |
           docker run --rm \
           -e GITHUB_WORKSPACE=true \
@@ -123,8 +118,7 @@ jobs:
           --skip-ui-build \
           --agent-pool-id="${{ !contains(steps.pr-labels.outputs.labels, ' e2e:tev2_on_server ') && vars.TACO_APOOL_ID || '' }}" \
           ${{ env.RUN_TAG }}
-      - name: Get Scalr hostname
-        shell: bash
+      - name: Get Scalr Hostname
         run: |
           SCALR_HOST=${{ steps.create.outputs.host }}
           echo "SCALR_HOSTNAME=mainiacp.${SCALR_HOST/https:\/\//}" >> $GITHUB_ENV
@@ -141,10 +135,9 @@ jobs:
           TEST_ARM_TENANT_ID: ${{ secrets.TEST_ARM_TENANT_ID }}
           TEST_ARM_SUBSCRIPTION_ID: ${{ secrets.TEST_ARM_SUBSCRIPTION_ID }}
         run: make testacc
-      - name: Delete container
+      - name: Delete Container
         id: delete
         if: ${{ always() }}
-        shell: bash
         run: |
           docker run --rm \
           -w /fatmouse \
@@ -153,9 +146,9 @@ jobs:
           fatmouse/python-builder:master \
           python -u clickfile.py te rm \
           --no-wait ${{ env.RUN_TAG }}
-      - name: Notify upstream about success
+      - name: Notify Upstream about Success
         if: ${{ success() }}
         run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=success run_id=${{ github.run_id }}
-      - name: Notify upstream about failure
+      - name: Notify Upstream about Failure
         if: ${{ failure() }}
         run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=failure run_id=${{ github.run_id }}
