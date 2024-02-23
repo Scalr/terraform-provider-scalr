@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.0] - 2024-02-23
+
 ### Added
 
 - `scalr_slack_integration`: new attribute `run_mode` ([#300](https://github.com/Scalr/terraform-provider-scalr/pull/300))
@@ -774,7 +776,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.8.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.9.0
 [1.8.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.8.0
 [1.7.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.7.0
 [1.6.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.6.0
