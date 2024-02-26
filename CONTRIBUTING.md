@@ -3,6 +3,8 @@
   * [Updating the changelog](#updating-the-changelog)
     * [Added](#added)
     * [Changed](#changed)
+    * [Fixed](#fixed)
+    * [Deprecated](#deprecated)
     * [Removed](#removed)
     * [Required](#required)
   * [Guidelines](#guidelines)
@@ -109,7 +111,7 @@ This section should detail any resources, attributes or features removed from th
 If the provider relies on changes introduced in a more recent version of Scalr we should specify its version here. If the provider can be used with an older version of Scalr there is no need to update this version from the previous release.
 
 ```
-- scalr server >= `8.63.0`
+- scalr-server >= `8.63.0`
 ```
 
 When in doubt refer to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
