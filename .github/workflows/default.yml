@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         with:
           go-version: "1.19"
       - name: Lint
@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         with:
           go-version: "1.19"
       - name: Run unit tests
@@ -78,7 +78,7 @@ jobs:
           installation_id: ${{vars.SUDO_GHA_APP_INSTALLATION_ID}}
           private_key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         with:
           go-version: "1.19"
       - name: Set API_BRANCH
@@ -229,7 +229,7 @@ jobs:
           BRANCH=$(git rev-parse --abbrev-ref HEAD | sed 's|\(.*\)|\L\1|g;s|/|-|g')
           git tag v1.0.0-rc-$BRANCH
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: "1.19"
       - name: Run GoReleaser
