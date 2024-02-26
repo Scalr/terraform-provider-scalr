@@ -24,8 +24,8 @@ The main steps to follow when adding a resource are:
 - pin `go-scalr` dependency to proper commit: `go get github.com/Scalr/go-scalr@<commit-sha>` [^1]
 - add `scalr/resource_scalr_<name>.go`, `scalr/datasource_scalr_<name>.go`, implement schemas and methods
   
-  > [!IMPORTANT]
-  > Always fill in the `Description` field for the resource/datasource schema and for every attribute in it
+> [!IMPORTANT]
+> Always fill in the `Description` field for the resource/datasource schema and for every attribute in it
   with clean and useful information. This will be collected and compiled into the documentation website.
 - add new resources to [provider schema](./scalr/provider.go)
 - add corresponding `*_test.go` files for each new module with acceptance tests
@@ -47,13 +47,22 @@ The format of the changelog for each release looks like this:
 ...
 ### Changed
 ...
+### Fixed
+...
+### Deprecated
+...
 ### Removed
 ...
 ### Required
 ...
 ```
 
-### Added
+> [!NOTE]
+> Changing single attribute is just as essential as modifying the resource or datasource.
+  Therefore any new, removed or deprecated attributes go to the corresponding 'Added', 'Removed' or 'Deprecated' section.
+  For example, it's easy to confuse adding new attribute with only 'changing' the resource, however it should belong to the 'Added' section, as it introduces a new feature.
+
+### <a name="added"></a>Added: for new features
 
 In this section we need to mention any resources, attributes or other features that have been added. This is generally a list of new things the user can do after this release. Example:
 
@@ -61,7 +70,7 @@ In this section we need to mention any resources, attributes or other features t
 - `scalr_workspace`: new attribute `environment_id` (Scalr environment ID, replaces `organization`) ([#11](https://github.com/Scalr/terraform-provider-scalr/pull/11))
 ```
 
-### Changed
+### <a name="changed"></a>Changed: for changes in existing functionality
 
 Existing resources, attributes or behaviour which changes in this release. Attribute changes are likely to break compatibility with older provider configs, however we should never break the state. If any attribute changes in this release it needs to include a state migration and a test for it.
 
@@ -71,7 +80,23 @@ Sometimes there will be changes in go-scalr which may affect the minimum require
 - `scalr_workspace`: attribute `id` is now in the `ws-<RANDOM STRING>` format ([#11](https://github.com/Scalr/terraform-provider-scalr/pull/11))
 ```
 
-### Removed
+### <a name="fixed"></a>Fixed: for any bug fixes
+
+Any changes that fix the issues in existing functionality. Example:
+
+```
+- `scalr_webhook`: fix handling resource destroy when resource no longer exists
+```
+
+### <a name="deprecated"></a>Deprecated: for soon-to-be removed features
+
+Mention any functionality that is considered now deprecated. Include any useful information on deprecation period, migration tips, etc. Example:
+
+```
+- `scalr_endpoint` is deprecated and will be removed in the next major version. The endpoint information is included in the `scalr_webhook` resource.
+```
+
+### <a name="removed"></a>Removed: for now removed features
 
 This section should detail any resources, attributes or features removed from the provider in this version. This generally means the user will need to make changes to their configs after updating. Example:
 
@@ -79,13 +104,15 @@ This section should detail any resources, attributes or features removed from th
 - `scalr_workspace`: drop attribute `organization` in favour of `environment_id` ([#11](https://github.com/Scalr/terraform-provider-scalr/pull/11))
 ```
 
-### Required
+### <a name="required"></a>Required: server version dependency
 
 If the provider relies on changes introduced in a more recent version of Scalr we should specify its version here. If the provider can be used with an older version of Scalr there is no need to update this version from the previous release.
 
 ```
 - scalr server >= `8.63.0`
 ```
+
+When in doubt refer to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Guidelines
 
@@ -129,9 +156,9 @@ rather than using create or update logic which only triggers during apply
   - when a slice must be initialized with an empty slice instead of zero value,
     prefer allocating it with `make` function instead of empty slice literal (`make([]int, 0)` over `[]int{}`)
 
-    > [!NOTE]
-    > When choosing the initial value for slice, take into account that zero-value slice marshals into `null`,
-    while an empty slice will produce `[]`.
+> [!NOTE]
+> When choosing the initial value for slice, take into account that zero-value slice marshals into `null`,
+  while an empty slice will produce `[]`.
 - always cleanup `go.sum` after modifying project dependencies:
   ```shell
   go mod tidy
