@@ -22,8 +22,8 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
         with:
           go-version: "1.19"
       - name: Lint
@@ -45,8 +45,8 @@ jobs:
     name: Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
         with:
           go-version: "1.19"
       - name: Run unit tests
@@ -57,7 +57,7 @@ jobs:
     needs: [ lint ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Preview
         uses: readmeio/rdme@v8
         with:
@@ -77,15 +77,15 @@ jobs:
           app_id: ${{vars.SUDO_GHA_APP_ID}}
           installation_id: ${{vars.SUDO_GHA_APP_INSTALLATION_ID}}
           private_key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
         with:
           go-version: "1.19"
       - name: Set API_BRANCH
         run: echo "API_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
       - name: Check if Same Branch Exists in Fatmouse Repo
         id: check-branch
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           github-token: ${{steps.generate_token.outputs.token}}
           script: |
@@ -113,18 +113,18 @@ jobs:
               }
             }
       - name: Clone Fatmouse Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: Scalr/fatmouse
           path: fatmouse
           ref: ${{ steps.check-branch.outputs.branch }}
           token: ${{steps.generate_token.outputs.token}}
       - id: Auth
-        uses: google-github-actions/auth@v0
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
       - name: Set Up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
+        uses: google-github-actions/setup-gcloud@v2
       - name: Copy Secrets
         run: |
           mkdir ~/.scalr-labs
@@ -221,7 +221,7 @@ jobs:
           service_account_key: ${{ secrets.DEV_GCP_SA_KEY }}
           export_default_credentials: true
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Create Development Tag
@@ -229,7 +229,7 @@ jobs:
           BRANCH=$(git rev-parse --abbrev-ref HEAD | sed 's|\(.*\)|\L\1|g;s|/|-|g')
           git tag v1.0.0-rc-$BRANCH
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: "1.19"
       - name: Run GoReleaser

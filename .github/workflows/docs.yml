@@ -19,7 +19,7 @@ jobs:
     name: Publish Docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Publish
         uses: readmeio/rdme@v8
         with:
