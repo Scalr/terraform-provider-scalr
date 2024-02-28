@@ -29,6 +29,9 @@ jobs:
   acc-tests:
     runs-on: ubuntu-latest
     name: acc-tests
+    concurrency:
+      group: ${{ github.workflow }}-${{ inputs.pr-id }}
+      cancel-in-progress: true
     env:
       ORG_ADMIN_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
       SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
