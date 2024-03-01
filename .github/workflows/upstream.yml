@@ -29,6 +29,9 @@ jobs:
   acc-tests:
     runs-on: ubuntu-latest
     name: acc-tests
+    concurrency:
+      group: ${{ github.workflow }}-${{ inputs.pr-id }}
+      cancel-in-progress: true
     env:
       ORG_ADMIN_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
       SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
@@ -44,14 +47,14 @@ jobs:
           app_id: ${{vars.SUDO_GHA_APP_ID}}
           installation_id: ${{vars.SUDO_GHA_APP_INSTALLATION_ID}}
           private_key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Notify Upstream about Pending
         run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=pending run_id=${{ github.run_id }}
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v5
         with:
           go-version: "1.19"
       - name: Clone Fatmouse Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: Scalr/fatmouse
           path: fatmouse
@@ -70,11 +73,11 @@ jobs:
         if: ${{ inputs.pr-id != '' && contains(steps.pr-labels.outputs.labels, ' py-req ') }}
         run: echo "PY_REQ=yes" >> $GITHUB_ENV
       - id: auth
-        uses: google-github-actions/auth@v0
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
       - name: Set Up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
+        uses: google-github-actions/setup-gcloud@v2
       - name: Copy secrets
         run: |
           mkdir ~/.scalr-labs
