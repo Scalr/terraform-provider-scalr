@@ -34,6 +34,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `scalr_policy_group`: `environments` attribute became optional instead of read-only ([#288](https://github.com/Scalr/terraform-provider-scalr/pull/288))
+
+### Fixed
+
 - `scalr_policy_group`: fixed setting HTTP headers on changing environments relationships ([#292](https://github.com/Scalr/terraform-provider-scalr/pull/292))
 
 ### Removed
@@ -61,20 +64,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.0] - 2023-08-11
 
+### Added
+
+- `scalr_provider_configuration`: new attributes `azurerm.auth_type`, `azurerm.audience` ([#265](https://github.com/Scalr/terraform-provider-scalr/pull/265))
+
 ### Changed
 
-- `scalr_provider_configuration`: 
-  - added new `azurerm.auth_type` and `azurerm.audience` attributes;
-  - `azurerm.client_secret` attribute became optional ([#265](https://github.com/Scalr/terraform-provider-scalr/pull/265))
-- `scalr_provider_configuration`: Updated documentation to fix a typo for the audience attribute for the `aws` provider.
+- `scalr_provider_configuration`: `azurerm.client_secret` attribute became optional ([#265](https://github.com/Scalr/terraform-provider-scalr/pull/265))
+
+### Fixed
+
+- `scalr_provider_configuration`: updated documentation to fix a typo for the audience attribute for the `aws` provider ([#268](https://github.com/Scalr/terraform-provider-scalr/pull/268))
+
+### Required
 
 - scalr-server >= `8.79.0`
 
 ## [1.3.0] - 2023-07-21
 
+### Added
+
+- `scalr_provider_configuration`: new attribute `aws.workload_identity_audience` ([#260](https://github.com/Scalr/terraform-provider-scalr/pull/260))
+
 ### Changed
 
-- `scalr_provider_configuration`: added new `aws.workload_identity_audience` attribute; `aws.account_type` attribute became optional ([#260](https://github.com/Scalr/terraform-provider-scalr/pull/260))
+- `scalr_provider_configuration`: `aws.account_type` attribute became optional ([#260](https://github.com/Scalr/terraform-provider-scalr/pull/260))
 
 ### Required
 
@@ -82,10 +96,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.0] - 2023-07-14
 
+### Added
+
+- `scalr_provider_configuration`: new attributes `google.auth_type`, `google.service_account_email` and `google.workload_provider_name` ([#256](https://github.com/Scalr/terraform-provider-scalr/pull/256))
+
 ### Changed
 
-- `scalr_provider_configuration`: added new `google.auth_type`, `google.service_account_email` and `google.workload_provider_name` attributes; `google.credentials` attribute became optional ([#256](https://github.com/Scalr/terraform-provider-scalr/pull/256))
-- `scalr_provider_configuration`: allow built-in providers to be registered as custom. ([#253](https://github.com/Scalr/terraform-provider-scalr/pull/253))
+- `scalr_provider_configuration`: `google.credentials` attribute became optional ([#256](https://github.com/Scalr/terraform-provider-scalr/pull/256))
+- `scalr_provider_configuration`: allow built-in providers to be registered as custom ([#253](https://github.com/Scalr/terraform-provider-scalr/pull/253))
 
 ### Required
 
@@ -98,14 +116,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **New resource:** `scalr_slack_integration` ([#249](https://github.com/Scalr/terraform-provider-scalr/pull/249))
 - The provider now supports loading the credentials stored by `terraform login` ([#221](https://github.com/Scalr/terraform-provider-scalr/pull/221))
 
-### Changed
-
-- `scar_enviroment`: removed attribute `cloud_credentials` ([#247](https://github.com/Scalr/terraform-provider-scalr/pull/247))
-- `data.scalr_enviroment`: removed attribute `cloud_credentials` ([#247](https://github.com/Scalr/terraform-provider-scalr/pull/247))
-
 ### Fixed
 
 - `scalr_provider_configuration_default`: fixed a bug where unnecessary policy groups updates were occurring for the environment ([#248](https://github.com/Scalr/terraform-provider-scalr/pull/248))
+
+### Removed
+
+- `scar_enviroment`: removed attribute `cloud_credentials` ([#247](https://github.com/Scalr/terraform-provider-scalr/pull/247))
+- `data.scalr_enviroment`: removed attribute `cloud_credentials` ([#247](https://github.com/Scalr/terraform-provider-scalr/pull/247))
 
 ### Required
 
@@ -118,15 +136,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **New data source:** `scalr_environments` ([#225](https://github.com/Scalr/terraform-provider-scalr/pull/225))
 - **New data source:** `scalr_workspaces` ([#225](https://github.com/Scalr/terraform-provider-scalr/pull/225))
 
-### Changed
+### Added
 
-- `scalr_agent_pool`: added new attribute `vcs_enabled` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/233))
-- `scalr_vcs_provider`: added new attribute `agent_pool_id` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/233))
-- `scalr_vcs_provider`: added new attribute `environments` ([#243](https://github.com/Scalr/terraform-provider-scalr/pull/243))
-- `scalr_workspace`: added new attribute `deletion_protection_enabled` ([#242](https://github.com/Scalr/terraform-provider-scalr/pull/242))
-- `data.scalr_agent_pool`: added new attribute `vcs_enabled` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/232))
-- `data.scalr_vcs_provider`: added new attribute `agent_pool_id` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/233))
-- `data.scalr_workspace`: added new attribute `deletion_protection_enabled` ([#242](https://github.com/Scalr/terraform-provider-scalr/pull/242))
+- `scalr_agent_pool`: new attribute `vcs_enabled` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/233))
+- `scalr_vcs_provider`: new attribute `agent_pool_id` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/233))
+- `scalr_vcs_provider`: new attribute `environments` ([#243](https://github.com/Scalr/terraform-provider-scalr/pull/243))
+- `scalr_workspace`: new attribute `deletion_protection_enabled` ([#242](https://github.com/Scalr/terraform-provider-scalr/pull/242))
+- `data.scalr_agent_pool`: new attribute `vcs_enabled` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/232))
+- `data.scalr_vcs_provider`: new attribute `agent_pool_id` ([#233](https://github.com/Scalr/terraform-provider-scalr/pull/233))
+- `data.scalr_workspace`: new attribute `deletion_protection_enabled` ([#242](https://github.com/Scalr/terraform-provider-scalr/pull/242))
 
 ### Fixed
 
