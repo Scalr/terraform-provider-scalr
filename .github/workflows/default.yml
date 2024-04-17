@@ -162,7 +162,7 @@ jobs:
           -v $GITHUB_OUTPUT:/fatmouse/output \
           -v ~/.scalr-labs:/etc/scalr-labs \
           fatmouse/python-builder:master python -u clickfile.py te up \
-          --branch ${{ env.API_BRANCH }} \
+          --branch ${{ steps.check-branch.outputs.branch }} \
           --run-url ${{ steps.get-job-id.outputs.html_url }} \
           --skip-ui-build \
           --agent-pool-id="${{vars.TACO_APOOL_ID}}" \
