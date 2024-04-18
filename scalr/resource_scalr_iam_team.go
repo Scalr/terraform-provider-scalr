@@ -52,6 +52,7 @@ func resourceScalrIamTeam() *schema.Resource {
 				Description: "A list of the user identifiers to add to the team.",
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
