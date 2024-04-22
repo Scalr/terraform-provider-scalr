@@ -227,7 +227,7 @@ jobs:
           fetch-depth: 0
       - name: Create Development Tag
         run: |
-          BRANCH=$(git rev-parse --abbrev-ref HEAD | sed 's|\(.*\)|\L\1|g;s|/|-|g')
+          BRANCH=${{ github.head_ref || github.ref_name }}
           git tag v1.0.0-rc-$BRANCH
       - name: Set up Go
         uses: actions/setup-go@v5
