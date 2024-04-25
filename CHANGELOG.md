@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `scalr_iam_team`: fixed `users` attribute behaviour when not set in configuration ([#309](https://github.com/Scalr/terraform-provider-scalr/pull/309))
 
+### Added
+
+- `scalr_provider_configuration`: new attribute `owners` ([#312](https://github.com/Scalr/terraform-provider-scalr/pull/312))
+- `data.scalr_provider_configuration`: new attribute `owners` ([#312](https://github.com/Scalr/terraform-provider-scalr/pull/312))
+
 ## [1.9.0] - 2024-02-23
 
 ### Added

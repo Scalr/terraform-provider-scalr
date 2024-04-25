@@ -3,6 +3,7 @@ package scalr
 import (
 	"context"
 	"errors"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -48,6 +49,12 @@ func dataSourceScalrProviderConfiguration() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"owners": {
+				Description: "The teams, the provider configuration belongs to.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -85,6 +92,12 @@ func dataSourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Res
 	providerConfiguration := providerConfigurations.Items[0]
 	d.SetId(providerConfiguration.ID)
 	_ = d.Set("provider_name", providerConfiguration.ProviderName)
+
+	owners := make([]string, 0)
+	for _, owner := range providerConfiguration.Owners {
+		owners = append(owners, owner.ID)
+	}
+	_ = d.Set("owners", owners)
 
 	if providerConfiguration.IsShared {
 		_ = d.Set("environments", []string{"*"})

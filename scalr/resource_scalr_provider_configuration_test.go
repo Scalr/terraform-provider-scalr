@@ -89,6 +89,9 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 							"value":       "~/.kube/config",
 						},
 					),
+					resource.TestCheckResourceAttr(
+						"scalr_provider_configuration.kubernetes", "owners.#", "1",
+					),
 				),
 			},
 			{
@@ -133,6 +136,9 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 							"description": "",
 							"value":       "my-username",
 						},
+					),
+					resource.TestCheckResourceAttr(
+						"scalr_provider_configuration.kubernetes", "owners.#", "0",
 					),
 				),
 			},
@@ -765,6 +771,7 @@ resource "scalr_provider_configuration" "kubernetes" {
   name                   = "%s"
   account_id             = "%s"
   environments           = ["*"]
+  owners      = [scalr_iam_team.test.id]
   custom {
     provider_name = "kubernetes"
     argument {
@@ -784,7 +791,11 @@ resource "scalr_provider_configuration" "kubernetes" {
     }
   }
 }
-`, name, defaultAccount)
+resource "scalr_iam_team" "test" {
+	name        = "test-k8s-owner"
+	description = "Test team"
+	users       = []
+}`, name, defaultAccount)
 }
 
 func testAccScalrProviderConfigurationCustomImportConfig(name string) string {
