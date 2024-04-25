@@ -2,6 +2,7 @@ name: default
 
 on:
   push:
+    branches: [ master ]
     paths-ignore:
       - CHANGELOG.md
       - CONTRIBUTING.md
