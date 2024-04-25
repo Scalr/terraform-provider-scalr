@@ -2,7 +2,6 @@ name: default
 
 on:
   push:
-    branches: [ master ]
     paths-ignore:
       - CHANGELOG.md
       - CONTRIBUTING.md
@@ -82,8 +81,6 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "1.19"
-      - name: Set API_BRANCH
-        run: echo "API_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
       - name: Check if Same Branch Exists in Fatmouse Repo
         id: check-branch
         uses: actions/github-script@v7
@@ -92,7 +89,7 @@ jobs:
           script: |
             const owner = "Scalr";
             const repo = "fatmouse";
-            const targetBranch = "${{ env.API_BRANCH }}";
+            const targetBranch = "${{ github.head_ref || github.ref_name }}";
             const default_branch = "master";
   
             try {
@@ -162,7 +159,7 @@ jobs:
           -v $GITHUB_OUTPUT:/fatmouse/output \
           -v ~/.scalr-labs:/etc/scalr-labs \
           fatmouse/python-builder:master python -u clickfile.py te up \
-          --branch ${{ steps.check-branch.outputs.branch }} \
+          --branch ${{ github.head_ref || github.ref_name }} \
           --run-url ${{ steps.get-job-id.outputs.html_url }} \
           --skip-ui-build \
           --agent-pool-id="${{vars.TACO_APOOL_ID}}" \
