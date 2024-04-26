@@ -35,12 +35,12 @@ func resourceScalrAgentPool() *schema.Resource {
 				DefaultFunc: scalrAccountIDDefaultFunc,
 				ForceNew:    true,
 			},
-
 			"environment_id": {
 				Description: "ID of the environment.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
+				Deprecated:  "The attribute `environment_id` is deprecated.",
 			},
 			"vcs_enabled": {
 				Description: "Indicates whether the VCS support is enabled for agents in the pool.",
