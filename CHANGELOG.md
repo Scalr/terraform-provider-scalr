@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scalr_provider_configuration`: new attribute `owners` ([#312](https://github.com/Scalr/terraform-provider-scalr/pull/312))
 - `data.scalr_provider_configuration`: new attribute `owners` ([#312](https://github.com/Scalr/terraform-provider-scalr/pull/312))
 
+### Changed
+
+- `scalr_agent_pool`: attribute `environment_id` is deprecated ([#311](https://github.com/Scalr/terraform-provider-scalr/pull/311))
+
+
 ## [1.9.0] - 2024-02-23
 
 ### Added
