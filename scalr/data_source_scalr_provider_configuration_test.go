@@ -2,9 +2,10 @@ package scalr
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"regexp"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -33,6 +34,10 @@ func TestAccScalrProviderConfigurationDataSource(t *testing.T) {
 					testAccCheckEqualID("data.scalr_provider_configuration.kubernetes", "scalr_provider_configuration.kubernetes"),
 					testAccCheckEqualID("data.scalr_provider_configuration.consul", "scalr_provider_configuration.consul"),
 					testAccCheckEqualID("data.scalr_provider_configuration.consul_id", "scalr_provider_configuration.consul"),
+					resource.TestCheckResourceAttrPair(
+						"data.scalr_provider_configuration.kubernetes", "owners",
+						"scalr_provider_configuration.kubernetes", "owners",
+					),
 				),
 			},
 			{
@@ -62,6 +67,7 @@ var testAccScalrProviderConfigurationDataSourceInitConfig = fmt.Sprintf(`
 resource "scalr_provider_configuration" "kubernetes" {
   name       = "kubernetes1"
   account_id = "%[1]s"
+  owners      = [scalr_iam_team.test.id]
   custom {
     provider_name = "kubernetes"
     argument {
@@ -74,6 +80,13 @@ resource "scalr_provider_configuration" "kubernetes" {
     }
   }
 }
+
+resource "scalr_iam_team" "test" {
+	name        = "test-pcfg-data-source-owner"
+	description = "Test team"
+	users       = []
+  }
+
 resource "scalr_provider_configuration" "consul" {
   name       = "consul"
   account_id = "%[1]s"

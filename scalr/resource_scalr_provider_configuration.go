@@ -281,6 +281,12 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 					},
 				},
 			},
+			"owners": {
+				Description: "The teams, the provider configuration belongs to.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -295,6 +301,14 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 		Name:                 scalr.String(name),
 		Account:              &scalr.Account{ID: accountID},
 		ExportShellVariables: scalr.Bool(d.Get("export_shell_variables").(bool)),
+	}
+
+	if owners, ok := d.GetOk("owners"); ok {
+		ownerResources := make([]*scalr.Team, 0)
+		for _, ownerId := range owners.(*schema.Set).List() {
+			ownerResources = append(ownerResources, &scalr.Team{ID: ownerId.(string)})
+		}
+		configurationOptions.Owners = ownerResources
 	}
 
 	if environmentsI, ok := d.GetOk("environments"); ok {
@@ -503,6 +517,12 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 		_ = d.Set("environments", environmentIDs)
 	}
 
+	owners := make([]string, 0)
+	for _, owner := range providerConfiguration.Owners {
+		owners = append(owners, owner.ID)
+	}
+	_ = d.Set("owners", owners)
+
 	if providerConfiguration.IsCustom {
 		var currentArguments []map[string]interface{}
 
@@ -662,7 +682,8 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 		d.HasChange("azurerm") ||
 		d.HasChange("scalr") ||
 		d.HasChange("custom") ||
-		d.HasChange("environments") {
+		d.HasChange("environments") ||
+		d.HasChange("owners") {
 		configurationOptions := scalr.ProviderConfigurationUpdateOptions{
 			Name:                 scalr.String(d.Get("name").(string)),
 			ExportShellVariables: scalr.Bool(d.Get("export_shell_variables").(bool)),
@@ -794,6 +815,15 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 			}
 
 		}
+
+		ownerResources := make([]*scalr.Team, 0)
+		if owners, ok := d.GetOk("owners"); ok {
+			for _, ownerId := range owners.(*schema.Set).List() {
+				ownerResources = append(ownerResources, &scalr.Team{ID: ownerId.(string)})
+			}
+		}
+		configurationOptions.Owners = ownerResources
+
 		_, err := scalrClient.ProviderConfigurations.Update(ctx, id, configurationOptions)
 		if err != nil {
 			return diag.Errorf(

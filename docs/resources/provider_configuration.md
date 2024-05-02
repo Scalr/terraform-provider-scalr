@@ -156,6 +156,7 @@ resource "scalr_provider_configuration" "kubernetes" {
 - `environments` (Set of String) The list of environment identifiers that the provider configuration is shared to. Use `["*"]` to share with all environments.
 - `export_shell_variables` (Boolean) Export provider variables into the run environment. This option is available for built-in (Scalr, AWS, AzureRM, Google) providers only.
 - `google` (Block List, Max: 1) Settings for the google provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`. (see [below for nested schema](#nestedblock--google))
+- `owners` (Set of String) The teams, the provider configuration belongs to.
 - `scalr` (Block List, Max: 1) Settings for the Scalr provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`. (see [below for nested schema](#nestedblock--scalr))
 
 ### Read-Only
