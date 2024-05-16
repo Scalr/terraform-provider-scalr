@@ -433,7 +433,6 @@ func readNewWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *sc
 	_ = d.Set("enabled", webhook.Enabled)
 	_ = d.Set("last_triggered_at", webhook.LastTriggeredAt)
 	_ = d.Set("url", webhook.Url)
-	_ = d.Set("secret_key", webhook.SecretKey)
 	_ = d.Set("timeout", webhook.Timeout)
 	_ = d.Set("max_attempts", webhook.MaxAttempts)
 
