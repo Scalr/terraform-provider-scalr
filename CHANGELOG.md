@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.0] - 2024-05-17
+
 ### Fixed
 
 - `scalr_iam_team`: fixed `users` attribute behaviour when not set in configuration ([#309](https://github.com/Scalr/terraform-provider-scalr/pull/309))
@@ -19,7 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `scalr_agent_pool`: attribute `environment_id` is deprecated ([#311](https://github.com/Scalr/terraform-provider-scalr/pull/311))
-
 
 ## [1.9.0] - 2024-02-23
 
@@ -808,7 +809,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.9.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.10.0...HEAD
+[1.10.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.10.0
 [1.9.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.9.0
 [1.8.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.8.0
 [1.7.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.7.0
