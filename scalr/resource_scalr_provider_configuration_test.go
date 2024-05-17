@@ -90,7 +90,7 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 						},
 					),
 					resource.TestCheckResourceAttr(
-						"scalr_provider_configuration.kubernetes", "owners.#", "1",
+						"scalr_provider_configuration.kubernetes", "owners.#", "0",
 					),
 				),
 			},
@@ -138,7 +138,7 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 						},
 					),
 					resource.TestCheckResourceAttr(
-						"scalr_provider_configuration.kubernetes", "owners.#", "0",
+						"scalr_provider_configuration.kubernetes", "owners.#", "1",
 					),
 				),
 			},
@@ -771,7 +771,6 @@ resource "scalr_provider_configuration" "kubernetes" {
   name                   = "%s"
   account_id             = "%s"
   environments           = ["*"]
-  owners      = [scalr_iam_team.test.id]
   custom {
     provider_name = "kubernetes"
     argument {
@@ -838,6 +837,7 @@ resource "scalr_provider_configuration" "kubernetes" {
   name         = "%s"
   account_id   = "%s"
   environments = ["${scalr_environment.test.id}"]
+  owners      = [scalr_iam_team.test.id]
   custom {
     provider_name = "kubernetes"
     argument {
