@@ -789,11 +789,6 @@ resource "scalr_provider_configuration" "kubernetes" {
       value = "my-host"
     }
   }
-}
-resource "scalr_iam_team" "test" {
-	name        = "test-k8s-owner"
-	description = "Test team"
-	users       = []
 }`, name, defaultAccount)
 }
 
@@ -832,7 +827,11 @@ resource "scalr_environment" "test" {
   account_id              = "%s"
   cost_estimation_enabled = false
 }
-
+resource "scalr_iam_team" "test" {
+	name        = "test-k8s-owner"
+	description = "Test team"
+	users       = []
+}
 resource "scalr_provider_configuration" "kubernetes" {
   name         = "%s"
   account_id   = "%s"
