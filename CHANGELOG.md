@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Removed
-
-- `data.scalr_webhook`: drop attribute `secret_key` ([#313](https://github.com/Scalr/terraform-provider-scalr/pull/313))
-
 ### Added
 
 - `scalr_slack_integration`: new attribute `run_mode` ([#300](https://github.com/Scalr/terraform-provider-scalr/pull/300))

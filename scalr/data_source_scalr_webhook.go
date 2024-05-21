@@ -91,6 +91,13 @@ func dataSourceScalrWebhook() *schema.Resource {
 				Computed:    true,
 			},
 
+			"secret_key": {
+				Description: "Secret key to sign the webhook payload.",
+				Type:        schema.TypeString,
+				Computed:    true,
+				Sensitive:   true,
+			},
+
 			"timeout": {
 				Description: "Endpoint timeout (in seconds).",
 				Type:        schema.TypeInt,
