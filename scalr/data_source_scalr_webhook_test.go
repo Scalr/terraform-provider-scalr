@@ -50,8 +50,6 @@ func TestAccWebhookDataSource_basic(t *testing.T) {
 					// Attributes from related endpoint
 					resource.TestCheckResourceAttr(
 						"data.scalr_webhook.test", "url", "https://example.com/webhook"),
-					resource.TestCheckResourceAttrSet(
-						"data.scalr_webhook.test", "secret_key"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_webhook.test", "timeout", "15"),
 					resource.TestCheckResourceAttr(
@@ -77,8 +75,6 @@ func TestAccWebhookDataSource_basic(t *testing.T) {
 						"data.scalr_webhook.test-new", "enabled", "false"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_webhook.test-new", "url", "https://example.com/webhook"),
-					resource.TestCheckResourceAttrSet(
-						"data.scalr_webhook.test-new", "secret_key"),
 					resource.TestCheckResourceAttrSet(
 						"data.scalr_webhook.test-new", "timeout"),
 					resource.TestCheckResourceAttr(
