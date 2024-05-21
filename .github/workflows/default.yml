@@ -163,6 +163,7 @@ jobs:
           --branch ${{ github.head_ref || github.ref_name }} \
           --run-url ${{ steps.get-job-id.outputs.html_url }} \
           --skip-ui-build \
+          --ignore-missing-branches \
           --agent-pool-id="${{vars.TACO_APOOL_ID}}" \
           ${{ env.RUN_TAG }}
       - name: Get Scalr Hostname
