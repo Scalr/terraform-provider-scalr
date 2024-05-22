@@ -88,8 +88,8 @@ jobs:
       - name: Pull Python Builder
         run: |
           echo "::group::Pull python builder image"
-          docker pull eu.gcr.io/development-156220/fatmouse/python-builder:master
-          docker tag eu.gcr.io/development-156220/fatmouse/python-builder:master fatmouse/python-builder:master
+          docker pull eu.gcr.io/development-156220/fatmouse/python-builder:scalrcore-30909
+          docker tag eu.gcr.io/development-156220/fatmouse/python-builder:scalrcore-30909 fatmouse/python-builder:scalrcore-30909
           echo "::endgroup::"
       - name: Get Current Job Log URL
         uses: Tiryoh/gha-jobid-action@v0
@@ -115,7 +115,7 @@ jobs:
           -v $PWD/fatmouse:/fatmouse \
           -v $GITHUB_OUTPUT:/fatmouse/output \
           -v ~/.scalr-labs:/etc/scalr-labs \
-          fatmouse/python-builder:master python -u clickfile.py te up \
+          fatmouse/python-builder:scalrcore-30909 python -u clickfile.py te up \
           --branch ${{ env.API_BRANCH }} \
           --run-url ${{ steps.get-job-id.outputs.html_url }} \
           --skip-ui-build \
@@ -146,7 +146,7 @@ jobs:
           -w /fatmouse \
           -v $PWD/fatmouse:/fatmouse \
           -v ~/.scalr-labs:/etc/scalr-labs \
-          fatmouse/python-builder:master \
+          fatmouse/python-builder:scalrcore-30909 \
           python -u clickfile.py te rm \
           --no-wait ${{ env.RUN_TAG }}
       - name: Notify Upstream about Success
