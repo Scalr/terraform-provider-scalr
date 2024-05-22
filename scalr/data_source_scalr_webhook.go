@@ -96,6 +96,8 @@ func dataSourceScalrWebhook() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Sensitive:   true,
+				Deprecated: "Attribute `secret_key` is deprecated, the secret-key has sensitive data" +
+					" and is not returned by the API.",
 			},
 
 			"timeout": {
