@@ -87,7 +87,7 @@ func TestAccScalrAccountAllowedIps_empty(t *testing.T) {
 }
 
 func TestAccScalrAccountAllowedIps_invalid_CIDR(t *testing.T) {
-	rg, _ := regexp.Compile(`value is not a valid IPv4 network`)
+	rg, _ := regexp.Compile(`Input is not a valid IPv4 network`)
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviderFactories,
