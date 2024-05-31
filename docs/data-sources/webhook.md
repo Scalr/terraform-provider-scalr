@@ -43,7 +43,7 @@ data "scalr_webhook" "example2" {
 - `header` (Set of Object) Additional headers to set in the webhook request. (see [below for nested schema](#nestedatt--header))
 - `last_triggered_at` (String) Date/time when webhook was last triggered.
 - `max_attempts` (Number) Max delivery attempts of the payload.
-- `secret_key` (String, Sensitive) Secret key to sign the webhook payload.
+- `secret_key` (String, Sensitive, Deprecated) Secret key to sign the webhook payload.
 - `timeout` (Number) Endpoint timeout (in seconds).
 - `url` (String) Endpoint URL.
 - `workspace_id` (String, Deprecated) ID of the workspace, in the format `ws-<RANDOM STRING>`.
