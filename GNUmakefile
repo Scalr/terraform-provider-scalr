@@ -28,7 +28,7 @@ testacc:
 notify-upstream:
 	curl -X POST \
 	-H "Accept: application/vnd.github.v3+json" \
-	-H "Authorization: token $(ORG_ADMIN_TOKEN)" \
+	-H "Authorization: token $(org_admin_token)" \
 	https://api.github.com/repos/Scalr/fatmouse/statuses/$(upstream_sha) \
 	-d '{"context":"downstream/provider", "state":"$(state)", "description": $(UPSTREAM_COMMIT_DESCRIPTION), "target_url": $(UPSTREAM_COMMIT_TARGET_URL)}'
 
