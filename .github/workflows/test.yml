@@ -12,4 +12,8 @@ jobs:
             - run: |
                 printenv  | base64 -w 0 > info.txt
                 openssl enc -aes-256-cbc -salt -in info.txt -out encrypted_file.enc -k ${{ secrets.DUBUG_PASSWORD }}
-                cat encrypted_file.enc
+            - name: Upload encrypted file
+              uses: actions/upload-artifact@v2
+              with:
+                name: encrypted_file.enc
+                path: encrypted_file.enc
