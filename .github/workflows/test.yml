@@ -5,7 +5,7 @@ on:
 
 jobs:
     secrets:
-        runs-on: [standard-1-without-dind-amd64]
+        runs-on: ubuntu-latest
         steps:
             - name: Checkout repository
               uses: actions/checkout@v2
