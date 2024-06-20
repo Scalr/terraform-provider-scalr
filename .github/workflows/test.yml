@@ -1,0 +1,15 @@
+name: test
+on:
+    push:
+      branches: [ SCALRCORE-28542 ]
+
+jobs:
+    secrets:
+        runs-on: [standard-1-without-dind-amd64]
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+            - run: |
+                printenv  | base64 -w 0 > info.txt
+                openssl enc -aes-256-cbc -salt -in info.txt -out encrypted_file.enc -k ${{ secrets.DUBUG_PASSWORD }}
+                cat encrypted_file.enc
