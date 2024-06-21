@@ -233,10 +233,10 @@ jobs:
         with:
           go-version: "1.19"
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v3
+        uses: goreleaser/goreleaser-action@v6
         with:
-          version: v1.8.3
-          args: release --skip-publish
+          version: "~> v2"
+          args: release --skip=publish
         env:
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
       - name: Upload Provider to Registry
