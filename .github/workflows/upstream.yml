@@ -33,7 +33,6 @@ jobs:
       group: ${{ github.workflow }}-${{ inputs.pr-id }}
       cancel-in-progress: true
     env:
-      ORG_ADMIN_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
       SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
       API_BRANCH: ${{ github.event.inputs.api-branch }}
       PY_REQ: ${{ github.event.inputs.py-req }}
@@ -49,7 +48,7 @@ jobs:
           private_key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
       - uses: actions/checkout@v4
       - name: Notify Upstream about Pending
-        run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=pending run_id=${{ github.run_id }}
+        run: make notify-upstream org_admin_token=${{steps.generate_token.outputs.token}} upstream_sha=${{ github.event.inputs.upstream-sha }} state=pending run_id=${{ github.run_id }}
       - uses: actions/setup-go@v5
         with:
           go-version: "1.19"
