@@ -110,7 +110,7 @@ func resourceScalrRunScheduleRuleUpdate(ctx context.Context, d *schema.ResourceD
 		log.Printf("[DEBUG] Update run schedule rule %s", id)
 		_, err := scalrClient.RunScheduleRules.Update(ctx, id, opts)
 		if err != nil {
-			return diag.Errorf("error updating run schedule rule %s: %v", id, err)
+			return diag.Errorf("Error updating run schedule rule %s: %v", id, err)
 		}
 	}
 
