@@ -84,7 +84,7 @@ func resourceScalrRunScheduleRuleCreate(ctx context.Context, d *schema.ResourceD
 	rule, err := scalrClient.RunScheduleRules.Create(ctx, options)
 	if err != nil {
 		return diag.Errorf(
-			"Error creating run schedule rule %s %s for workspace %s", options.ScheduleMode, options.Schedule, options.Workspace.ID)
+			"Error creating run schedule rule %s %s for workspace %s: %v", options.ScheduleMode, options.Schedule, options.Workspace.ID, err)
 	}
 	d.SetId(rule.ID)
 
