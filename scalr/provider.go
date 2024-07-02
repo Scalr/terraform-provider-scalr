@@ -113,6 +113,7 @@ func Provider() *schema.Provider {
 			"scalr_webhook":                        resourceScalrWebhook(),
 			"scalr_workspace":                      resourceScalrWorkspace(),
 			"scalr_workspace_run_schedule":         resourceScalrWorkspaceRunSchedule(),
+			"scalr_run_schedule_rule":              resourceScalrRunScheduleRule(),
 		},
 
 		ConfigureContextFunc: providerConfigure,

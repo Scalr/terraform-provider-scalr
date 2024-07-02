@@ -95,7 +95,7 @@ go mod edit -dropreplace github.com/scalr/go-scalr
 
 To update the go-scalr version:
 ```sh
-go get github.com/scalr/go-scalr@develop
+go get github.com/scalr/go-scalr@master
 ```
 
 ### Testing

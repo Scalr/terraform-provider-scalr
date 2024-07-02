@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **New resource:**  `scalr_run_schedule_rule` ([#323](https://github.com/Scalr/terraform-provider-scalr/pull/323))
+
+### Required
+
+- scalr-server >= `8.124.0`
+
 ## [1.11.0] - 2024-06-21
 
 ### Deprecated
