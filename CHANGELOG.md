@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Required
 
-- scalr-server >= `8.124.0`
+- scalr-server >= `8.125.0`
 
 ## [1.11.0] - 2024-06-21
 
