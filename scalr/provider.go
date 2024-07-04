@@ -87,6 +87,7 @@ func Provider() *schema.Provider {
 			"scalr_workspace":               dataSourceScalrWorkspace(),
 			"scalr_workspace_ids":           dataSourceScalrWorkspaceIDs(),
 			"scalr_workspaces":              dataSourceScalrWorkspaces(),
+			"scalr_event_bridge":            dataSourceScalrEventBridge(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -114,6 +115,7 @@ func Provider() *schema.Provider {
 			"scalr_workspace":                      resourceScalrWorkspace(),
 			"scalr_workspace_run_schedule":         resourceScalrWorkspaceRunSchedule(),
 			"scalr_run_schedule_rule":              resourceScalrRunScheduleRule(),
+			"scalr_event_bridge_integration":       resourceScalrEventBridgeIntegration(),
 		},
 
 		ConfigureContextFunc: providerConfigure,
