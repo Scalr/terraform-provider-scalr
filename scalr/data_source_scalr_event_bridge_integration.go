@@ -11,7 +11,7 @@ import (
 	"github.com/scalr/go-scalr"
 )
 
-func dataSourceScalrEventBridge() *schema.Resource {
+func dataSourceScalrEventBridgeIntegration() *schema.Resource {
 	return &schema.Resource{
 		Description: "This data source is used to retrieve details of a single EventBridge.",
 		ReadContext: dataSourceScalrEventBridgeRead,

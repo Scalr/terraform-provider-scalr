@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAccScalrEventBridgeDataSource_basic(t *testing.T) {
+func TestAccScalrEventBridgeIntegrationDataSource_basic(t *testing.T) {
 	AWSAccountId := os.Getenv("AWS_EVENT_BRIDGE_ACCOUNT_ID")
 	region := os.Getenv("AWS_EVENT_BRIDGE_REGION")
 	if len(AWSAccountId) == 0 || len(region) == 0 {
@@ -37,28 +37,28 @@ func TestAccScalrEventBridgeDataSource_basic(t *testing.T) {
 			{
 				Config: testAccScalrEventBridgeDataSourceByIDConfig(AWSAccountId, region),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.scalr_event_bridge.test", "id"),
+					resource.TestCheckResourceAttrSet("data.scalr_event_bridge_integration.test", "id"),
 					resource.TestCheckResourceAttr(
-						"scalr_event_bridge_integration.test",
+						"data.scalr_event_bridge_integration.test",
 						"name",
 						"test-create",
 					),
 					resource.TestCheckResourceAttr(
-						"scalr_event_bridge_integration.test",
+						"data.scalr_event_bridge_integration.test",
 						"aws_account_id",
 						AWSAccountId,
 					),
 					resource.TestCheckResourceAttr(
-						"scalr_event_bridge_integration.test",
+						"data.scalr_event_bridge_integration.test",
 						"region",
 						region,
 					),
 					resource.TestCheckResourceAttrSet(
-						"scalr_event_bridge_integration.test",
+						"data.scalr_event_bridge_integration.test",
 						"event_source_name",
 					),
 					resource.TestCheckResourceAttrSet(
-						"scalr_event_bridge_integration.test",
+						"data.scalr_event_bridge_integration.test",
 						"event_source_arn",
 					),
 				),
@@ -66,28 +66,28 @@ func TestAccScalrEventBridgeDataSource_basic(t *testing.T) {
 			{
 				Config: testAccScalrEventBridgeDataSourceByNameConfig(AWSAccountId, region),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.scalr_event_bridge.test", "id"),
+					resource.TestCheckResourceAttrSet("data.scalr_event_bridge_integration.test", "id"),
 					resource.TestCheckResourceAttr(
-						"scalr_event_bridge_integration.test",
+						"data.scalr_event_bridge_integration.test",
 						"name",
 						"test-create",
 					),
 					resource.TestCheckResourceAttr(
-						"scalr_event_bridge_integration.test",
+						"data.scalr_event_bridge_integration.test",
 						"aws_account_id",
 						AWSAccountId,
 					),
 					resource.TestCheckResourceAttr(
-						"scalr_event_bridge_integration.test",
+						"data.scalr_event_bridge_integration.test",
 						"region",
 						region,
 					),
 					resource.TestCheckResourceAttrSet(
-						"scalr_event_bridge_integration.test",
+						"data.scalr_event_bridge_integration.test",
 						"event_source_name",
 					),
 					resource.TestCheckResourceAttrSet(
-						"scalr_event_bridge_integration.test",
+						"data.scalr_event_bridge_integration.test",
 						"event_source_arn",
 					),
 				),
@@ -104,7 +104,7 @@ resource "scalr_event_bridge_integration" "test" {
   region       = "%s"
 }
 
-data "scalr_event_bridge" "test" {
+data "scalr_event_bridge_integration" "test" {
   id       = scalr_event_bridge_integration.test.id
 }
 `, awsAccountID, region)
@@ -118,7 +118,7 @@ resource "scalr_event_bridge_integration" "test" {
   region       = "%s"
 }
 
-data "scalr_event_bridge" "test" {
+data "scalr_event_bridge_integration" "test" {
   name       = scalr_event_bridge_integration.test.name
 }
 `, awsAccountID, region)

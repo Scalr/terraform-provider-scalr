@@ -78,5 +78,3 @@ require (
 )
 
 go 1.19
-
-replace github.com/scalr/go-scalr => /home/soltysss/GolandProjects/go-scalr
