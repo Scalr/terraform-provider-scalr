@@ -130,11 +130,11 @@ jobs:
           gsutil cp gs://tacobell_development-156220/.secrets.yaml fatmouse/tacobell/.secrets.yaml
           gsutil cp gs://tacobell_development-156220/github.json ~/.scalr-labs/github.json
       - name: Configure Docker
-        run: gcloud auth configure-docker eu.gcr.io
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
       - name: Pull Python Builder
         run: |
-          docker pull eu.gcr.io/development-156220/fatmouse/python-builder:master
-          docker tag eu.gcr.io/development-156220/fatmouse/python-builder:master fatmouse/python-builder:master
+          docker pull us-central1-docker.pkg.dev/scalr-dev/main-docker/fatmouse/python-builder:master
+          docker tag us-central1-docker.pkg.dev/scalr-dev/main-docker/fatmouse/python-builder:master fatmouse/python-builder:master
       - name: Get Current Job Log URL
         uses: Tiryoh/gha-jobid-action@v0
         id: get-job-id

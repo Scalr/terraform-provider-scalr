@@ -83,12 +83,12 @@ jobs:
           gsutil cp gs://tacobell_development-156220/.secrets.yaml fatmouse/tacobell/.secrets.yaml
           gsutil cp gs://tacobell_development-156220/github.json ~/.scalr-labs/github.json
       - name: Configure Docker
-        run: gcloud auth configure-docker eu.gcr.io
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
       - name: Pull Python Builder
         run: |
           echo "::group::Pull python builder image"
-          docker pull eu.gcr.io/development-156220/fatmouse/python-builder:master
-          docker tag eu.gcr.io/development-156220/fatmouse/python-builder:master fatmouse/python-builder:master
+          docker pull us-central1-docker.pkg.dev/scalr-dev/main-docker/fatmouse/python-builder:master
+          docker tag us-central1-docker.pkg.dev/scalr-dev/main-docker/fatmouse/python-builder:master fatmouse/python-builder:master
           echo "::endgroup::"
       - name: Get Current Job Log URL
         uses: Tiryoh/gha-jobid-action@v0
@@ -150,7 +150,7 @@ jobs:
           --no-wait ${{ env.RUN_TAG }}
       - name: Notify Upstream about Success
         if: ${{ success() }}
-        run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=success run_id=${{ github.run_id }}
+        run: make notify-upstream org_admin_token=${{steps.generate_token.outputs.token}} upstream_sha=${{ github.event.inputs.upstream-sha }} state=success run_id=${{ github.run_id }}
       - name: Notify Upstream about Failure
         if: ${{ failure() }}
-        run: make notify-upstream upstream_sha=${{ github.event.inputs.upstream-sha }} state=failure run_id=${{ github.run_id }}
+        run: make notify-upstream org_admin_token=${{steps.generate_token.outputs.token}} upstream_sha=${{ github.event.inputs.upstream-sha }} state=failure run_id=${{ github.run_id }}
