@@ -13,12 +13,12 @@ import (
 
 func dataSourceScalrEventBridgeIntegration() *schema.Resource {
 	return &schema.Resource{
-		Description: "This data source is used to retrieve details of a single EventBridge.",
+		Description: "This data source is used to retrieve details of a single EventBridge integration.",
 		ReadContext: dataSourceScalrEventBridgeRead,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Description:  "ID of the EventBridge.",
+				Description:  "ID of the EventBridge integration.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -26,7 +26,7 @@ func dataSourceScalrEventBridgeIntegration() *schema.Resource {
 				AtLeastOneOf: []string{"name"},
 			},
 			"name": {
-				Description:  "Name of the EventBridge.",
+				Description:  "Name of the EventBridge integration.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,

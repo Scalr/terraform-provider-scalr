@@ -59,7 +59,7 @@ func resourceScalrEventBridgeIntegration() *schema.Resource {
 
 func resourceScalrEventBridgeIntegrationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
-	// Get attributes.чи щось піде не так
+	// Get attributes.
 	name := d.Get("name").(string)
 	awsAccountID := d.Get("aws_account_id").(string)
 	region := d.Get("region").(string)
@@ -87,31 +87,18 @@ func resourceScalrEventBridgeIntegrationRead(ctx context.Context, d *schema.Reso
 	log.Printf("[DEBUG] Read EventBridge integration with ID: %s", integrationID)
 	EventBridgeIntegration, err := scalrClient.EventBridgeIntegrations.Read(ctx, integrationID)
 	if err != nil {
-		log.Printf("[DEBUG] EventBridge integration %s no longer exists", integrationID)
-		d.SetId("")
-		return nil
+		if errors.Is(err, scalr.ErrResourceNotFound) {
+			log.Printf("[DEBUG] EventBridge integration %s no longer exists", integrationID)
+			d.SetId("")
+			return nil
+		}
+		return diag.Errorf("Error reading EventBridge integration %s: %v", integrationID, err)
 	}
 	_ = d.Set("name", EventBridgeIntegration.Name)
 	_ = d.Set("aws_account_id", EventBridgeIntegration.AWSAccountId)
 	_ = d.Set("region", EventBridgeIntegration.Region)
 	_ = d.Set("event_source_name", EventBridgeIntegration.EventSource)
 	_ = d.Set("event_source_arn", EventBridgeIntegration.EventSourceARN)
-
-	return nil
-}
-
-func resourceScalrEventBridgeIntegrationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	if d.HasChange("name") {
-		return diag.Errorf("Error updating EventBridge integration %s, name cannot be changed.", d.Id())
-	}
-
-	if d.HasChange("aws_account_id") {
-		return diag.Errorf("Error updating EventBridge integration %s, AWS account ID cannot be changed.", d.Id())
-	}
-
-	if d.HasChange("region") {
-		return diag.Errorf("Error updating EventBridge integration %s, AWS account ID cannot be changed.", d.Id())
-	}
 
 	return nil
 }
