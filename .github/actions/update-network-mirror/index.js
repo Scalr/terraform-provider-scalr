@@ -62,14 +62,10 @@ async function main() {
 
         const bucketPath = GCSBucket + '/providers';
         if (!dryRun) {
-            try {
-                await exec.exec(
-                    'gsutil -m -h "Cache-Control:private, max-age=0, no-transform"'
-                    + ` rsync -d -r ${MIRROR_DIR}/ ${bucketPath}/`
-                );
-            } catch (err) {
-                console.warn(`Failed to upload file: ${err.message}`)
-            }
+            await exec.exec(
+                'gsutil -m -h "Cache-Control:private, max-age=0, no-transform"'
+                + ` rsync -d -r ${MIRROR_DIR}/ ${bucketPath}/`
+            );
         }
 
         console.log('Mirror operation completed successfully.');
