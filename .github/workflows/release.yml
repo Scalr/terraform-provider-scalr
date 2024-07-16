@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
-    branches: [ network-mirror-updater ]
 
 env:
   RDME_VERSION: 0.0.4
@@ -13,7 +12,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    # environment: release
+    environment: release
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,25 +30,25 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
-      # - name: Set Up Go
-      #   uses: actions/setup-go@v5
-      #   with:
-      #     go-version: "1.19"
-      # - name: Run GoReleaser
-      #   uses: goreleaser/goreleaser-action@v6
-      #   with:
-      #     version: "~> v2"
-      #     args: release --clean
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
-      # - name: Upload Provider to Registry
-      #   uses: ./.github/actions/upload-provider
-      #   with:
-      #     gcs-bucket: ${{ secrets.BUCKET_NAME }}
-      #     registry-domain: ${{ secrets.DOMAIN }}
-      #     gpg-key-id: ${{ steps.import_gpg.outputs.fingerprint }}
-      #     gpg-pub-key: ${{ steps.import_gpg.outputs.pubkey }}
+      - name: Set Up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.19"
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
+      - name: Upload Provider to Registry
+        uses: ./.github/actions/upload-provider
+        with:
+          gcs-bucket: ${{ secrets.BUCKET_NAME }}
+          registry-domain: ${{ secrets.DOMAIN }}
+          gpg-key-id: ${{ steps.import_gpg.outputs.fingerprint }}
+          gpg-pub-key: ${{ steps.import_gpg.outputs.pubkey }}
       - name: Update network mirror
         uses: ./.github/actions/update-network-mirror
         with:
@@ -57,13 +56,13 @@ jobs:
           registry-domain: ${{ secrets.DOMAIN }}
           dry-run: false
 
-  # docs-publish:
-  #   name: Publish Docs
-  #   needs: [ release ]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Publish
-  #       uses: readmeio/rdme@v8
-  #       with:
-  #         rdme: docs ./docs --key=${{ secrets.README_API_KEY }} --version=${{ env.RDME_VERSION }}
+  docs-publish:
+    name: Publish Docs
+    needs: [ release ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish
+        uses: readmeio/rdme@v8
+        with:
+          rdme: docs ./docs --key=${{ secrets.README_API_KEY }} --version=${{ env.RDME_VERSION }}
