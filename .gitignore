@@ -17,3 +17,6 @@
 terraform-provider-scalr
 *.code-workspace
 .DS_Store
+
+# CI generated
+gha-creds-*.json
