@@ -13,7 +13,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    environment: release
+    # environment: release
     steps:
       - name: Import GPG Key
         id: import_gpg
