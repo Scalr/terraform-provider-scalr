@@ -4,7 +4,7 @@ categorySlug: "scalr-terraform-provider"
 slug: "provider_datasource_scalr_iam_user"
 parentDocSlug: "provider_datasources"
 hidden: false
-order: 9
+order: 8
 ---
 ## Data Source: scalr_iam_user
 

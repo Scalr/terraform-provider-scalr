@@ -4,7 +4,7 @@ categorySlug: "scalr-terraform-provider"
 slug: "provider_datasource_scalr_webhook"
 parentDocSlug: "provider_datasources"
 hidden: false
-order: 20
+order: 19
 ---
 ## Data Source: scalr_webhook
 
@@ -36,8 +36,6 @@ data "scalr_webhook" "example2" {
 ### Read-Only
 
 - `enabled` (Boolean) Boolean indicates if the webhook is enabled.
-- `endpoint_id` (String, Deprecated) ID of the endpoint, in the format `ep-<RANDOM STRING>`.
-- `environment_id` (String, Deprecated) ID of the environment, in the format `env-<RANDOM STRING>`.
 - `environments` (Set of String) The list of environment identifiers that the webhook is shared to, or `["*"]` if shared with all environments.
 - `events` (List of String) List of event IDs.
 - `header` (Set of Object) Additional headers to set in the webhook request. (see [below for nested schema](#nestedatt--header))
@@ -46,7 +44,6 @@ data "scalr_webhook" "example2" {
 - `secret_key` (String, Sensitive, Deprecated) Secret key to sign the webhook payload.
 - `timeout` (Number) Endpoint timeout (in seconds).
 - `url` (String) Endpoint URL.
-- `workspace_id` (String, Deprecated) ID of the workspace, in the format `ws-<RANDOM STRING>`.
 
 <a id="nestedatt--header"></a>
 ### Nested Schema for `header`
