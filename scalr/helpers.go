@@ -49,47 +49,6 @@ func GetEnvironmentByName(ctx context.Context, options GetEnvironmentByNameOptio
 	return envl.Items[0], nil
 }
 
-type GetEndpointByNameOptions struct {
-	Name    *string
-	Account *string
-}
-
-func GetEndpointByName(ctx context.Context, options GetEndpointByNameOptions, scalrClient *scalr.Client) (*scalr.Endpoint, error) {
-	listOptions := scalr.EndpointListOptions{
-		Name:    options.Name,
-		Account: options.Account,
-	}
-	endpl, err := scalrClient.Endpoints.List(ctx, listOptions)
-	if err != nil {
-		return nil, fmt.Errorf("Error retrieving endpoints: %v", err)
-	}
-
-	if len(endpl.Items) == 0 {
-		return nil, fmt.Errorf("Endpoint with name '%s' not found or user unauthorized", *options.Name)
-	}
-
-	var matchedEndpoints []*scalr.Endpoint
-
-	// filter in endpoint search endpoints that contains query string, this is why we need to do exact match on our side.
-	for _, endp := range endpl.Items {
-		if endp.Name == *options.Name {
-			matchedEndpoints = append(matchedEndpoints, endp)
-		}
-	}
-
-	switch numberOfMatch := len(matchedEndpoints); {
-	case numberOfMatch == 0:
-		return nil, fmt.Errorf("Endpoint with name '%s' not found", *options.Name)
-
-	case numberOfMatch > 1:
-		return nil, fmt.Errorf("Found more than one endpoint with name: %s, specify 'account_id' to search only for endpoints in specific account", *options.Name)
-
-	default:
-		return matchedEndpoints[0], nil
-
-	}
-}
-
 type GetWebhookByNameOptions struct {
 	Name    *string
 	Account *string

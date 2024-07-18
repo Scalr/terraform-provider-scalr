@@ -150,18 +150,18 @@ func dataSourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, met
 	webhookName := d.Get("name").(string)
 	accountID := d.Get("account_id").(string)
 
-	var newWebhook *scalr.WebhookIntegration
+	var Webhook *scalr.WebhookIntegration
 	var err error
 
 	log.Printf("[DEBUG] Read configuration of webhook with ID '%s' and name '%s'", webhookID, webhookName)
 	// First read from new API by ID or search by name, as the new API
 	// works both with old-style and new-style webhooks
 	if webhookID != "" {
-		newWebhook, err = scalrClient.WebhookIntegrations.Read(ctx, webhookID)
+		Webhook, err = scalrClient.WebhookIntegrations.Read(ctx, webhookID)
 		if err != nil {
 			return diag.Errorf("Error retrieving webhook: %v", err)
 		}
-		if webhookName != "" && webhookName != newWebhook.Name {
+		if webhookName != "" && webhookName != Webhook.Name {
 			return diag.Errorf("Could not find webhook with ID '%s' and name '%s'", webhookID, webhookName)
 		}
 	} else {
@@ -169,42 +169,36 @@ func dataSourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, met
 			Name:    &webhookName,
 			Account: &accountID,
 		}
-		newWebhook, err = GetWebhookByName(ctx, options, scalrClient)
+		Webhook, err = GetWebhookByName(ctx, options, scalrClient)
 		if err != nil {
 			return diag.Errorf("Error retrieving webhook: %v", err)
 		}
-		if webhookID != "" && webhookID != newWebhook.ID {
+		if webhookID != "" && webhookID != Webhook.ID {
 			return diag.Errorf("Could not find webhook with ID '%s' and name '%s'", webhookID, webhookName)
 		}
 	}
-	// Having the webhook found, read from old API then
-	// to populate deprecated fields available only in old API
-	oldWebhook, err := scalrClient.Webhooks.Read(ctx, newWebhook.ID)
-	if err != nil {
-		return diag.Errorf("Error retrieving webhook: %v", err)
-	}
 
 	// Update the config.
-	_ = d.Set("name", newWebhook.Name)
-	_ = d.Set("account_id", newWebhook.Account.ID)
-	_ = d.Set("enabled", newWebhook.Enabled)
-	_ = d.Set("last_triggered_at", newWebhook.LastTriggeredAt)
-	_ = d.Set("url", newWebhook.Url)
-	_ = d.Set("secret_key", newWebhook.SecretKey)
-	_ = d.Set("timeout", newWebhook.Timeout)
-	_ = d.Set("max_attempts", newWebhook.MaxAttempts)
+	_ = d.Set("name", Webhook.Name)
+	_ = d.Set("account_id", Webhook.Account.ID)
+	_ = d.Set("enabled", Webhook.Enabled)
+	_ = d.Set("last_triggered_at", Webhook.LastTriggeredAt)
+	_ = d.Set("url", Webhook.Url)
+	_ = d.Set("secret_key", Webhook.SecretKey)
+	_ = d.Set("timeout", Webhook.Timeout)
+	_ = d.Set("max_attempts", Webhook.MaxAttempts)
 
 	events := make([]string, 0)
-	if newWebhook.Events != nil {
-		for _, event := range newWebhook.Events {
+	if Webhook.Events != nil {
+		for _, event := range Webhook.Events {
 			events = append(events, event.ID)
 		}
 	}
 	_ = d.Set("events", events)
 
 	headers := make([]map[string]interface{}, 0)
-	if newWebhook.Headers != nil {
-		for _, header := range newWebhook.Headers {
+	if Webhook.Headers != nil {
+		for _, header := range Webhook.Headers {
 			headers = append(headers, map[string]interface{}{
 				"name":  header.Name,
 				"value": header.Value,
@@ -213,28 +207,17 @@ func dataSourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, met
 	}
 	_ = d.Set("header", headers)
 
-	if newWebhook.IsShared {
+	if Webhook.IsShared {
 		_ = d.Set("environments", []string{"*"})
 	} else {
 		environmentIDs := make([]string, 0)
-		for _, environment := range newWebhook.Environments {
+		for _, environment := range Webhook.Environments {
 			environmentIDs = append(environmentIDs, environment.ID)
 		}
 		_ = d.Set("environments", environmentIDs)
 	}
 
-	// Add deprecated attributes from old-style webhook
-	if oldWebhook.Workspace != nil {
-		_ = d.Set("workspace_id", oldWebhook.Workspace.ID)
-	}
-	if oldWebhook.Environment != nil {
-		_ = d.Set("environment_id", oldWebhook.Environment.ID)
-	}
-	if oldWebhook.Endpoint != nil {
-		_ = d.Set("endpoint_id", oldWebhook.Endpoint.ID)
-	}
-
-	d.SetId(newWebhook.ID)
+	d.SetId(Webhook.ID)
 
 	return nil
 }
