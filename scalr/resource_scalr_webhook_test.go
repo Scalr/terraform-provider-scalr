@@ -68,6 +68,7 @@ resource scalr_webhook test {
   enabled               = false
   name                  = "webhook-test-%[1]d"
   events                = ["run:completed", "run:errored"]
+  url                   = "https://example.com/webhook"
   account_id            = "%s"
 }
 
@@ -82,6 +83,7 @@ resource scalr_webhook test {
   enabled               = true
   name                  = "webhook-test-%[1]d-renamed"
   events                = ["run:completed", "run:errored"]
+  url                   = "https://example.com/webhook"
   account_id            = "%s"
 }
 
@@ -97,6 +99,7 @@ resource scalr_webhook test {
   name                  = "webhook-test-%[1]d-renamed"
   events                = [""]
   account_id            = "%s"
+  url                   = "https://example.com/webhook"
 }
 
 data scalr_webhook test {

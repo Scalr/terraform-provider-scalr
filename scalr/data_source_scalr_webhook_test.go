@@ -96,6 +96,11 @@ func TestAccWebhookDataSource_basic(t *testing.T) {
 
 func testAccWebhookDataSourceConfig(rInt int) string {
 	return fmt.Sprintf(`
+resource scalr_environment test-new {
+  name       = "test-env-new-%[1]d"
+  account_id = "%s"
+}
+
 resource scalr_webhook test-new {
   account_id   = "%[2]s"
   enabled      = false
@@ -125,6 +130,7 @@ resource scalr_webhook test {
   enabled      = false
   name         = "webhook-test-%[1]d"
   events       = ["run:completed", "run:errored"]
+  url          = "https://example.com/webhook"
   account_id   = "%s"
 }
 
@@ -136,10 +142,16 @@ data scalr_webhook test {
 
 func testAccWebhookDataSourceAccessByIDAndNameConfig(rInt int) string {
 	return fmt.Sprintf(`
+resource scalr_environment test {
+  name       = "test-env-%[1]d"
+  account_id = "%s"
+}
+
 resource scalr_webhook test {
   enabled      = false
   name         = "webhook-test-%[1]d"
   events       = ["run:completed", "run:errored"]
+  url          = "https://example.com/webhook"
   account_id   = "%s"
 }
 
@@ -160,10 +172,16 @@ data scalr_webhook test {
 
 func testAccWebhookDataSourceNotFoundAlmostTheSameNameConfig(rInt int, cutRInt string) string {
 	return fmt.Sprintf(`
+resource scalr_environment test {
+  name       = "test-env-%[1]d"
+  account_id = "%s"
+}
+
 resource scalr_webhook test {
   enabled      = false
   name         = "test webhook-%[1]d"
   events       = ["run:completed", "run:errored"]
+  url          = "https://example.com/webhook"	
   account_id   = "%s"
 }
 
