@@ -136,17 +136,12 @@ resource scalr_webhook test {
 
 data scalr_webhook test {
   name       = scalr_webhook.test.name
-  account_id = scalr_environment.test.account_id
-}`, rInt, defaultAccount)
+  account_id = "%s"
+}`, rInt, defaultAccount, defaultAccount)
 }
 
 func testAccWebhookDataSourceAccessByIDAndNameConfig(rInt int) string {
 	return fmt.Sprintf(`
-resource scalr_environment test {
-  name       = "test-env-%[1]d"
-  account_id = "%s"
-}
-
 resource scalr_webhook test {
   enabled      = false
   name         = "webhook-test-%[1]d"
@@ -158,8 +153,8 @@ resource scalr_webhook test {
 data scalr_webhook test {
   id         = scalr_webhook.test.id
   name       = scalr_webhook.test.name
-  account_id = scalr_environment.test.account_id
-}`, rInt, defaultAccount)
+  account_id = "%s"
+}`, rInt, defaultAccount, defaultAccount)
 }
 
 func testAccWebhookDataSourceNotFoundByNameConfig() string {
@@ -172,11 +167,6 @@ data scalr_webhook test {
 
 func testAccWebhookDataSourceNotFoundAlmostTheSameNameConfig(rInt int, cutRInt string) string {
 	return fmt.Sprintf(`
-resource scalr_environment test {
-  name       = "test-env-%[1]d"
-  account_id = "%s"
-}
-
 resource scalr_webhook test {
   enabled      = false
   name         = "test webhook-%[1]d"
@@ -187,6 +177,6 @@ resource scalr_webhook test {
 
 data scalr_webhook test {
   name       = "test webhook-%[3]s"
-  account_id = scalr_environment.test.account_id
-}`, rInt, defaultAccount, cutRInt)
+  account_id = "%s"
+}`, rInt, defaultAccount, cutRInt, defaultAccount)
 }
