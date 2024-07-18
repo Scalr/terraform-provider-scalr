@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+- `data.scalr_endpoint`: removed data source
+- `scalr_endpoint`: removed resource
+
 ## [1.12.0] - 2024-07-12
 
 ### Added
