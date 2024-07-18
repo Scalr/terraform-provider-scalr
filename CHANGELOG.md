@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - `data.scalr_endpoint`: removed data source ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
 - `scalr_endpoint`: removed resource ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
+- `scalr.webhook`: removed attribute `endpoint_id` ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
+- `scalr.webhook`: removed attribute `environment_id` ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
+- `scalr.webhook`: removed attribute `workspace_id` ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
+
 
 ## [1.12.0] - 2024-07-12
 
