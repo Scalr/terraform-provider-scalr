@@ -234,8 +234,8 @@ func createWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *sca
 
 func resourceScalrWebhookCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
-	var err error
-	err = createWebhook(ctx, d, scalrClient)
+
+	err := createWebhook(ctx, d, scalrClient)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -378,8 +378,7 @@ func updateWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *sca
 func resourceScalrWebhookUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
-	var err error
-	err = updateWebhook(ctx, d, scalrClient)
+	err := updateWebhook(ctx, d, scalrClient)
 	if err != nil {
 		return diag.FromErr(err)
 	}
