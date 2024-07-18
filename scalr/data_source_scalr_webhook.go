@@ -53,36 +53,12 @@ func dataSourceScalrWebhook() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 
-			"endpoint_id": {
-				Description: "ID of the endpoint, in the format `ep-<RANDOM STRING>`.",
-				Type:        schema.TypeString,
-				Computed:    true,
-				Deprecated: "Attribute `endpoint_id` is deprecated, the endpoint information" +
-					" is included in the `scalr_webhook` resource.",
-			},
-
 			"account_id": {
 				Description: "ID of the account, in the format `acc-<RANDOM STRING>`.",
 				Type:        schema.TypeString,
 				Computed:    true,
 				Optional:    true,
 				DefaultFunc: scalrAccountIDDefaultFunc,
-			},
-
-			"environment_id": {
-				Description: "ID of the environment, in the format `env-<RANDOM STRING>`.",
-				Type:        schema.TypeString,
-				Computed:    true,
-				Deprecated: "The attribute `environment_id` is deprecated. The webhook is created on the" +
-					" account level and the environments to which it is exposed" +
-					" are controlled by the `environments` attribute.",
-			},
-
-			"workspace_id": {
-				Description: "ID of the workspace, in the format `ws-<RANDOM STRING>`.",
-				Type:        schema.TypeString,
-				Computed:    true,
-				Deprecated:  "The attribute `workspace_id` is deprecated.",
 			},
 
 			"url": {

@@ -73,7 +73,6 @@ func resourceScalrWebhook() *schema.Resource {
 				Optional:         true,
 				Computed:         true,
 				ValidateDiagFunc: validation.ToDiagFunc(validation.StringIsNotWhiteSpace),
-				ConflictsWith:    []string{"endpoint_id", "workspace_id", "environment_id"},
 			},
 
 			"secret_key": {
