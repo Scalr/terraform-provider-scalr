@@ -1,0 +1,1 @@
+terraform import scalr_run_schedule_rule.example sr-xxxxxxxxxx

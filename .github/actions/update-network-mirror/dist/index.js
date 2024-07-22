@@ -8184,7 +8184,6 @@ async function main() {
             );
         }
 
-
         console.log('Mirror operation completed successfully.');
     } catch (err) {
         return core.setFailed(`Failed to update network mirror: ${err.message}.`)
