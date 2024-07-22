@@ -126,18 +126,18 @@ func dataSourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, met
 	webhookName := d.Get("name").(string)
 	accountID := d.Get("account_id").(string)
 
-	var Webhook *scalr.WebhookIntegration
+	var webhook *scalr.WebhookIntegration
 	var err error
 
 	log.Printf("[DEBUG] Read configuration of webhook with ID '%s' and name '%s'", webhookID, webhookName)
 	// First read from new API by ID or search by name, as the new API
 	// works both with old-style and new-style webhooks
 	if webhookID != "" {
-		Webhook, err = scalrClient.WebhookIntegrations.Read(ctx, webhookID)
+		webhook, err = scalrClient.WebhookIntegrations.Read(ctx, webhookID)
 		if err != nil {
 			return diag.Errorf("Error retrieving webhook: %v", err)
 		}
-		if webhookName != "" && webhookName != Webhook.Name {
+		if webhookName != "" && webhookName != webhook.Name {
 			return diag.Errorf("Could not find webhook with ID '%s' and name '%s'", webhookID, webhookName)
 		}
 	} else {
@@ -145,36 +145,36 @@ func dataSourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, met
 			Name:    &webhookName,
 			Account: &accountID,
 		}
-		Webhook, err = GetWebhookByName(ctx, options, scalrClient)
+		webhook, err = GetWebhookByName(ctx, options, scalrClient)
 		if err != nil {
 			return diag.Errorf("Error retrieving webhook: %v", err)
 		}
-		if webhookID != "" && webhookID != Webhook.ID {
+		if webhookID != "" && webhookID != webhook.ID {
 			return diag.Errorf("Could not find webhook with ID '%s' and name '%s'", webhookID, webhookName)
 		}
 	}
 
 	// Update the config.
-	_ = d.Set("name", Webhook.Name)
-	_ = d.Set("account_id", Webhook.Account.ID)
-	_ = d.Set("enabled", Webhook.Enabled)
-	_ = d.Set("last_triggered_at", Webhook.LastTriggeredAt)
-	_ = d.Set("url", Webhook.Url)
-	_ = d.Set("secret_key", Webhook.SecretKey)
-	_ = d.Set("timeout", Webhook.Timeout)
-	_ = d.Set("max_attempts", Webhook.MaxAttempts)
+	_ = d.Set("name", webhook.Name)
+	_ = d.Set("account_id", webhook.Account.ID)
+	_ = d.Set("enabled", webhook.Enabled)
+	_ = d.Set("last_triggered_at", webhook.LastTriggeredAt)
+	_ = d.Set("url", webhook.Url)
+	_ = d.Set("secret_key", webhook.SecretKey)
+	_ = d.Set("timeout", webhook.Timeout)
+	_ = d.Set("max_attempts", webhook.MaxAttempts)
 
 	events := make([]string, 0)
-	if Webhook.Events != nil {
-		for _, event := range Webhook.Events {
+	if webhook.Events != nil {
+		for _, event := range webhook.Events {
 			events = append(events, event.ID)
 		}
 	}
 	_ = d.Set("events", events)
 
 	headers := make([]map[string]interface{}, 0)
-	if Webhook.Headers != nil {
-		for _, header := range Webhook.Headers {
+	if webhook.Headers != nil {
+		for _, header := range webhook.Headers {
 			headers = append(headers, map[string]interface{}{
 				"name":  header.Name,
 				"value": header.Value,
@@ -183,17 +183,17 @@ func dataSourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, met
 	}
 	_ = d.Set("header", headers)
 
-	if Webhook.IsShared {
+	if webhook.IsShared {
 		_ = d.Set("environments", []string{"*"})
 	} else {
 		environmentIDs := make([]string, 0)
-		for _, environment := range Webhook.Environments {
+		for _, environment := range webhook.Environments {
 			environmentIDs = append(environmentIDs, environment.ID)
 		}
 		_ = d.Set("environments", environmentIDs)
 	}
 
-	d.SetId(Webhook.ID)
+	d.SetId(webhook.ID)
 
 	return nil
 }
