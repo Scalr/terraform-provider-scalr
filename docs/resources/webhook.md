@@ -51,6 +51,7 @@ resource "scalr_webhook" "example2" {
 - `account_id` (String) ID of the account, in the format `acc-<RANDOM STRING>`.
 - `events` (List of String) List of event IDs.
 - `name` (String) Name of the webhook.
+- `url` (String) Endpoint URL. Required if `endpoint_id` is not set.
 
 ### Optional
 
@@ -60,7 +61,6 @@ resource "scalr_webhook" "example2" {
 - `max_attempts` (Number) Max delivery attempts of the payload.
 - `secret_key` (String, Sensitive) Secret key to sign the webhook payload.
 - `timeout` (Number) Endpoint timeout (in seconds).
-- `url` (String) Endpoint URL. Required if `endpoint_id` is not set.
 
 ### Read-Only
 

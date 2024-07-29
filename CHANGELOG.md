@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `scalr_webhook`: `account_id` attribute became required ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
+- `scalr_webhook`: `url` attribute became required ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
 
 ## [1.12.0] - 2024-07-12
 

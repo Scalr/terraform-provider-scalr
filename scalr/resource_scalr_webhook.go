@@ -70,8 +70,7 @@ func resourceScalrWebhook() *schema.Resource {
 			"url": {
 				Description:      "Endpoint URL. Required if `endpoint_id` is not set.",
 				Type:             schema.TypeString,
-				Optional:         true,
-				Computed:         true,
+				Required:         true,
 				ValidateDiagFunc: validation.ToDiagFunc(validation.StringIsNotWhiteSpace),
 			},
 
