@@ -100,10 +100,6 @@ func (m *mockWorkspaces) SetSchedule(_ context.Context, _ string, _ scalr.Worksp
 	panic("not implemented")
 }
 
-func (m *mockWorkspaces) ReadOutputs(_ context.Context, _ string) ([]*scalr.Output, error) {
-	return []*scalr.Output{}, nil
-}
-
 func (m *mockVariables) Update(_ context.Context, _ string, _ scalr.VariableUpdateOptions) (*scalr.Variable, error) {
 	panic("not implemented")
 }
