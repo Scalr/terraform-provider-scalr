@@ -124,9 +124,7 @@ func resourceScalrWebhook() *schema.Resource {
 			"account_id": {
 				Description: "ID of the account, in the format `acc-<RANDOM STRING>`.",
 				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				DefaultFunc: scalrAccountIDOptionalDefaultFunc,
+				Required:    true,
 				ForceNew:    true,
 			},
 

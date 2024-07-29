@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `data.scalr_webhook`: removed attribute `environment_id` ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
 - `data.scalr_webhook`: removed attribute `workspace_id` ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
 
+### Changed
+- `scalr_webhook`: `account_id` attribute became required ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
 
 ## [1.12.0] - 2024-07-12
 
