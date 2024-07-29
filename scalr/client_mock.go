@@ -92,6 +92,9 @@ func (m *mockWorkspaces) Update(_ context.Context, _ string, _ scalr.WorkspaceUp
 func (m *mockWorkspaces) Delete(_ context.Context, _ string) error {
 	panic("not implemented")
 }
+func (m *mockWorkspaces) ReadOutputs(_ context.Context, _ string) ([]*scalr.Output, error) {
+	panic("not implemented")
+}
 
 func (m *mockWorkspaces) SetSchedule(_ context.Context, _ string, _ scalr.WorkspaceRunScheduleOptions) (*scalr.Workspace, error) {
 	panic("not implemented")

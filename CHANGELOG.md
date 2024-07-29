@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **New resource:**  `scalr_run_schedule_rule` ([#323](https://github.com/Scalr/terraform-provider-scalr/pull/323))
+- **New resource:**  `scalr_event_bridge_integration` ([#327](https://github.com/Scalr/terraform-provider-scalr/pull/327))
+- **New data source:** `scalr_event_bridge_integration` ([#327](https://github.com/Scalr/terraform-provider-scalr/pull/327))
 
 ### Required
 

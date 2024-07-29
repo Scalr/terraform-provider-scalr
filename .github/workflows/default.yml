@@ -127,8 +127,8 @@ jobs:
       - name: Copy Secrets
         run: |
           mkdir ~/.scalr-labs
-          gsutil cp gs://tacobell_development-156220/.secrets.yaml fatmouse/tacobell/.secrets.yaml
-          gsutil cp gs://tacobell_development-156220/github.json ~/.scalr-labs/github.json
+          gsutil cp gs://tacobell-secrets/.secrets.yaml fatmouse/tacobell/.secrets.yaml
+          gsutil cp gs://tacobell-secrets/github.json ~/.scalr-labs/github.json
       - name: Configure Docker
         run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
       - name: Pull Python Builder
