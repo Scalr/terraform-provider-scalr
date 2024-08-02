@@ -7,13 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.12.0] - 2024-07-12
+## [1.13.0] - 2024-08-02
+
+### Added
+
+- **New resource:**  `scalr_event_bridge_integration` ([#327](https://github.com/Scalr/terraform-provider-scalr/pull/327))
+- **New data source:** `scalr_event_bridge_integration` ([#327](https://github.com/Scalr/terraform-provider-scalr/pull/327))
+
+### Required
+
+- scalr-server >= `8.128.0`
+
+## [1.12.1] - 2024-07-12
 
 ### Added
 
 - **New resource:**  `scalr_run_schedule_rule` ([#323](https://github.com/Scalr/terraform-provider-scalr/pull/323))
-- **New resource:**  `scalr_event_bridge_integration` ([#327](https://github.com/Scalr/terraform-provider-scalr/pull/327))
-- **New data source:** `scalr_event_bridge_integration` ([#327](https://github.com/Scalr/terraform-provider-scalr/pull/327))
 
 ### Required
 
