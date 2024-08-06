@@ -2,13 +2,17 @@ name: default
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
+      - release/**
     paths-ignore:
       - CHANGELOG.md
       - CONTRIBUTING.md
       - README.md
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
+      - release/**
     paths-ignore:
       - CHANGELOG.md
       - CONTRIBUTING.md
