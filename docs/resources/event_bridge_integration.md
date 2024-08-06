@@ -14,9 +14,9 @@ Manage the state of EventBridge integrations in Scalr. Create, update and destro
 
 ```terraform
 resource "scalr_event_bridge_integration" "example" {
-  name = "via-provider-aws-bridge"
+  name           = "via-provider-aws-bridge"
   aws_account_id = "111267354555"
-  region = "us-east-1"
+  region         = "us-east-1"
 }
 ```
 
@@ -34,3 +34,11 @@ resource "scalr_event_bridge_integration" "example" {
 - `event_source_arn` (String) ARN of the event source.
 - `event_source_name` (String) Event source name.
 - `id` (String) The ID of this resource.
+
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+terraform import scalr_event_bridge_integration.example in-xxxxxxxxxx
+```

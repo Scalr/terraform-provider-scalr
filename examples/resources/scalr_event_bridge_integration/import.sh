@@ -1,0 +1,1 @@
+terraform import scalr_event_bridge_integration.example in-xxxxxxxxxx
