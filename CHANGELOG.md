@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+- `data.scalr_endpoint`: removed data source ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
+- `scalr_endpoint`: removed resource ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
+- `scalr_webhook`: removed attribute `endpoint_id` ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
+- `scalr_webhook`: removed attribute `environment_id` ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
+- `scalr_webhook`: removed attribute `workspace_id` ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
+- `data.scalr_webhook`: removed attribute `endpoint_id` ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
+- `data.scalr_webhook`: removed attribute `environment_id` ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
+- `data.scalr_webhook`: removed attribute `workspace_id` ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
+
+### Changed
+- `scalr_webhook`: `account_id` attribute became required ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
+- `scalr_webhook`: `url` attribute became required ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
+
 ## [1.13.0] - 2024-08-02
 
 ### Added

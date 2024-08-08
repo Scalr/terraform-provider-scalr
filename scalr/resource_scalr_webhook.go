@@ -22,7 +22,6 @@ func resourceScalrWebhook() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
-		CustomizeDiff: forceRecreateIf(),
 		SchemaVersion: 1,
 		StateUpgraders: []schema.StateUpgrader{
 			{
@@ -68,30 +67,11 @@ func resourceScalrWebhook() *schema.Resource {
 				MinItems: 1,
 			},
 
-			"endpoint_id": {
-				Description: "ID of the endpoint, in the format `ep-<RANDOM STRING>`.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				Deprecated: "Attribute `endpoint_id` is deprecated, please set the endpoint information" +
-					" in the webhook itself.",
-				// If `endpoint_id` is set in configuration, we consider this an old-style webhook,
-				// therefore using old API to create it.
-				// That's why it conflicts with the fields that are only in new-style webhooks, so
-				// user has two distinct sets of arguments for old and new webhooks.
-				// One of `endpoint_id` or `url` must be set, and this defines which style will be chosen.
-				ConflictsWith: []string{
-					"url", "secret_key", "timeout", "max_attempts", "header", "environments", "account_id",
-				},
-				AtLeastOneOf: []string{"url"},
-			},
-
 			"url": {
 				Description:      "Endpoint URL. Required if `endpoint_id` is not set.",
 				Type:             schema.TypeString,
-				Optional:         true,
-				Computed:         true,
+				Required:         true,
 				ValidateDiagFunc: validation.ToDiagFunc(validation.StringIsNotWhiteSpace),
-				ConflictsWith:    []string{"endpoint_id", "workspace_id", "environment_id"},
 			},
 
 			"secret_key": {
@@ -143,28 +123,8 @@ func resourceScalrWebhook() *schema.Resource {
 			"account_id": {
 				Description: "ID of the account, in the format `acc-<RANDOM STRING>`.",
 				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				DefaultFunc: scalrAccountIDOptionalDefaultFunc,
+				Required:    true,
 				ForceNew:    true,
-			},
-
-			"workspace_id": {
-				Description: "ID of the workspace, in the format `ws-<RANDOM STRING>`.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				Deprecated:  "The attribute `workspace_id` is deprecated.",
-			},
-
-			"environment_id": {
-				Description: "ID of the environment, in the format `env-<RANDOM STRING>`.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Deprecated: "The attribute `environment_id` is deprecated. The webhook is created on the" +
-					" account level and the environments to which it is exposed" +
-					" are controlled by the `environments` attribute.",
-				ConflictsWith: []string{"environments"},
 			},
 
 			"environments": {
@@ -176,57 +136,6 @@ func resourceScalrWebhook() *schema.Resource {
 			},
 		},
 	}
-}
-
-func forceRecreateIf() schema.CustomizeDiffFunc {
-	// Destroy and recreate a webhook when `endpoint_id` has changed from having a value to unset,
-	// which means switching from old-style to new-style webhook - and vice versa,
-	// so we don't mix both style.
-	return func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
-		oldId, newId := d.GetChange("endpoint_id")
-		if (oldId.(string) == "") != (newId.(string) == "") {
-			return d.ForceNew("endpoint_id")
-		}
-		return nil
-	}
-}
-
-// remove after https://scalr-labs.atlassian.net/browse/SCALRCORE-16234
-func getResourceScope(ctx context.Context, scalrClient *scalr.Client, workspaceID string, environmentID string) (*scalr.Workspace, *scalr.Environment, *scalr.Account, error) {
-
-	// Resource scope
-	var workspace *scalr.Workspace
-	var environment *scalr.Environment
-	var account *scalr.Account
-
-	// Get the workspace.
-	if workspaceID != "" {
-		var err error
-		workspace, err = scalrClient.Workspaces.ReadByID(ctx, workspaceID)
-		if err != nil {
-			return nil, nil, nil, fmt.Errorf("Error retrieving workspace %s: %v", workspaceID, err)
-		}
-
-		if environmentID != "" && environmentID != workspace.Environment.ID {
-			return nil, nil, nil, fmt.Errorf("Workspace %s does not belong to an environment %s", workspaceID, environmentID)
-		}
-
-		environmentID = workspace.Environment.ID
-	}
-
-	// Get the environment.
-	if environmentID != "" {
-		var err error
-		environment, err = scalrClient.Environments.Read(ctx, environmentID)
-		if err != nil {
-			return nil, nil, nil, fmt.Errorf("Error retrieving environment %s: %v", environmentID, err)
-		}
-		account = environment.Account
-	} else {
-		return nil, nil, nil, fmt.Errorf("Missing workspace_id or environment_id")
-	}
-
-	return workspace, environment, account, nil
 }
 
 func parseEventDefinitions(d *schema.ResourceData) ([]*scalr.EventDefinition, error) {
@@ -259,55 +168,7 @@ func parseHeaders(d *schema.ResourceData) []*scalr.WebhookHeader {
 	return headerValues
 }
 
-func createOldWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *scalr.Client) error {
-	// Get attributes.
-	name := d.Get("name").(string)
-	endpointID := d.Get("endpoint_id").(string)
-	workspaceID := d.Get("workspace_id").(string)
-	environmentID := d.Get("environment_id").(string)
-
-	workspace, environment, account, err := getResourceScope(ctx, scalrClient, workspaceID, environmentID)
-	if err != nil {
-		return err
-	}
-
-	eventDefinitions, err := parseEventDefinitions(d)
-	if err != nil {
-		return err
-	}
-
-	// Create a new options struct.
-	options := scalr.WebhookCreateOptions{
-		Name:        scalr.String(name),
-		Enabled:     scalr.Bool(d.Get("enabled").(bool)),
-		Events:      eventDefinitions,
-		Endpoint:    &scalr.Endpoint{ID: endpointID},
-		Workspace:   workspace,
-		Environment: environment,
-		Account:     account,
-	}
-
-	if workspaceID != "" {
-		options.Workspace = &scalr.Workspace{ID: workspaceID}
-	}
-	if environmentID != "" {
-		options.Environment = &scalr.Environment{ID: environmentID}
-	}
-	if environmentID != "" {
-		options.Environment = &scalr.Environment{ID: environmentID}
-	}
-
-	log.Printf("[DEBUG] Create webhook: %s", name)
-	webhook, err := scalrClient.Webhooks.Create(ctx, options)
-	if err != nil {
-		return fmt.Errorf("Error creating webhook %s: %v", name, err)
-	}
-
-	d.SetId(webhook.ID)
-	return nil
-}
-
-func createNewWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *scalr.Client) error {
+func createWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *scalr.Client) error {
 	name := d.Get("name").(string)
 	accountId := d.Get("account_id").(string)
 
@@ -370,17 +231,8 @@ func createNewWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *
 
 func resourceScalrWebhookCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
-	endpointID := d.Get("endpoint_id").(string)
 
-	var err error
-	// Here the old method is kept and is used to create old-style webhooks (with `endpoint_id` attribute set).
-	// After deprecation period it should be easy to remove it completely.
-	// Same for updating a webhook.
-	if endpointID != "" {
-		err = createOldWebhook(ctx, d, scalrClient)
-	} else {
-		err = createNewWebhook(ctx, d, scalrClient)
-	}
+	err := createWebhook(ctx, d, scalrClient)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -388,37 +240,7 @@ func resourceScalrWebhookCreate(ctx context.Context, d *schema.ResourceData, met
 	return resourceScalrWebhookRead(ctx, d, meta)
 }
 
-func readOldWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *scalr.Client) error {
-	webhookID := d.Id()
-
-	webhook, err := scalrClient.Webhooks.Read(ctx, webhookID)
-	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return fmt.Errorf("Could not find webhook %s: %v", webhookID, err)
-		}
-		return fmt.Errorf("Error retrieving webhook: %v", err)
-	}
-
-	if webhook.Workspace != nil {
-		_ = d.Set("workspace_id", webhook.Workspace.ID)
-	} else {
-		_ = d.Set("workspace_id", nil)
-	}
-	if webhook.Environment != nil {
-		_ = d.Set("environment_id", webhook.Environment.ID)
-	} else {
-		_ = d.Set("environment_id", nil)
-	}
-	if webhook.Endpoint != nil {
-		_ = d.Set("endpoint_id", webhook.Endpoint.ID)
-	} else {
-		_ = d.Set("endpoint_id", nil)
-	}
-
-	return nil
-}
-
-func readNewWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *scalr.Client) error {
+func readWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *scalr.Client) error {
 	webhookID := d.Id()
 
 	webhook, err := scalrClient.WebhookIntegrations.Read(ctx, webhookID)
@@ -473,43 +295,14 @@ func readNewWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *sc
 func resourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
-	// Reading the webhook differs from create or update methods.
-	// We read from both old and new API and basically merge the fields from both resources,
-	// therefore keeping deprecated attributes in place for now and extending with the new ones.
-	if err := readOldWebhook(ctx, d, scalrClient); err != nil {
-		return diag.FromErr(err)
-	}
-	if err := readNewWebhook(ctx, d, scalrClient); err != nil {
+	if err := readWebhook(ctx, d, scalrClient); err != nil {
 		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func updateOldWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *scalr.Client) error {
-	eventDefinitions, err := parseEventDefinitions(d)
-	if err != nil {
-		return err
-	}
-
-	// Create a new options struct.
-	options := scalr.WebhookUpdateOptions{
-		Name:     scalr.String(d.Get("name").(string)),
-		Enabled:  scalr.Bool(d.Get("enabled").(bool)),
-		Events:   eventDefinitions,
-		Endpoint: &scalr.Endpoint{ID: d.Get("endpoint_id").(string)},
-	}
-
-	log.Printf("[DEBUG] Update webhook: %s", d.Id())
-	_, err = scalrClient.Webhooks.Update(ctx, d.Id(), options)
-	if err != nil {
-		return fmt.Errorf("Error updating webhook %s: %v", d.Id(), err)
-	}
-
-	return nil
-}
-
-func updateNewWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *scalr.Client) error {
+func updateWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *scalr.Client) error {
 
 	options := scalr.WebhookIntegrationUpdateOptions{}
 
@@ -581,14 +374,8 @@ func updateNewWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *
 
 func resourceScalrWebhookUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
-	endpointID := d.Get("endpoint_id").(string)
 
-	var err error
-	if endpointID != "" {
-		err = updateOldWebhook(ctx, d, scalrClient)
-	} else {
-		err = updateNewWebhook(ctx, d, scalrClient)
-	}
+	err := updateWebhook(ctx, d, scalrClient)
 	if err != nil {
 		return diag.FromErr(err)
 	}
