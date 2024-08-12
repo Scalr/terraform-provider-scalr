@@ -4,7 +4,7 @@ categorySlug: "scalr-terraform-provider"
 slug: "provider_resource_scalr_webhook"
 parentDocSlug: "provider_resources"
 hidden: false
-order: 23
+order: 22
 ---
 ## Resource: scalr_webhook
 
@@ -48,22 +48,19 @@ resource "scalr_webhook" "example2" {
 
 ### Required
 
+- `account_id` (String) ID of the account, in the format `acc-<RANDOM STRING>`.
 - `events` (List of String) List of event IDs.
 - `name` (String) Name of the webhook.
+- `url` (String) Endpoint URL. Required if `endpoint_id` is not set.
 
 ### Optional
 
-- `account_id` (String) ID of the account, in the format `acc-<RANDOM STRING>`.
 - `enabled` (Boolean) Set (true/false) to enable/disable the webhook.
-- `endpoint_id` (String, Deprecated) ID of the endpoint, in the format `ep-<RANDOM STRING>`.
-- `environment_id` (String, Deprecated) ID of the environment, in the format `env-<RANDOM STRING>`.
 - `environments` (Set of String) The list of environment identifiers that the webhook is shared to. Use `["*"]` to share with all environments.
 - `header` (Block Set) Additional headers to set in the webhook request. (see [below for nested schema](#nestedblock--header))
 - `max_attempts` (Number) Max delivery attempts of the payload.
 - `secret_key` (String, Sensitive) Secret key to sign the webhook payload.
 - `timeout` (Number) Endpoint timeout (in seconds).
-- `url` (String) Endpoint URL. Required if `endpoint_id` is not set.
-- `workspace_id` (String, Deprecated) ID of the workspace, in the format `ws-<RANDOM STRING>`.
 
 ### Read-Only
 
