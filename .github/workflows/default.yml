@@ -217,7 +217,7 @@ jobs:
       SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Get last commit user email
       id: get_email
