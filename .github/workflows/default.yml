@@ -216,26 +216,36 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
     steps:
-    - name: Notification
-      uses: slackapi/slack-github-action@v1.25.0
-      with:
-        payload: |
-          {
-            "channel" : "@v.skliar",
-            "text": "Notification",
-            "attachments": [
-              {
-                "color": "b52c2a",
-                "fields": [
-                  {
-                    "title": "Job URL",
-                    "value": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-                    "short": false
-                  }
-                ]
-              }
-            ]
-          }
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Get last commit user email
+      id: get_email
+      run: |
+        LAST_COMMIT_EMAIL=$(git log -1 --pretty=format:'%ae')
+        echo "Last commit email: $LAST_COMMIT_EMAIL"
+        echo "commit_email=$LAST_COMMIT_EMAIL" | tee -a $GITHUB_ENV
+
+    # - name: Notification
+    #   uses: slackapi/slack-github-action@v1.25.0
+    #   with:
+    #     payload: |
+    #       {
+    #         "channel" : "@${{steps.get_email.outputs.commit_email}}",
+    #         "text": "Notification",
+    #         "attachments": [
+    #           {
+    #             "color": "b52c2a",
+    #             "fields": [
+    #               {
+    #                 "title": "Job URL",
+    #                 "value": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+    #                 "short": false
+    #               }
+    #             ]
+    #           }
+    #         ]
+    #       }
 
   # upload-dev:
   #   name: upload-dev
