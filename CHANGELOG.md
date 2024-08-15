@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2024-08-15
+
 ### Removed
 - `data.scalr_endpoint`: removed data source ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
 - `scalr_endpoint`: removed resource ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
@@ -20,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `scalr_webhook`: `account_id` attribute became required ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
 - `scalr_webhook`: `url` attribute became required ([#332](https://github.com/Scalr/terraform-provider-scalr/pull/332))
+
+### Required
+
+- scalr-server >= 8.130.0
 
 ## [1.13.0] - 2024-08-02
 
