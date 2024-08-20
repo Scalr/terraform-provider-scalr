@@ -207,6 +207,46 @@ jobs:
           python -u clickfile.py te rm \
           --no-wait ${{ env.RUN_TAG }}
 
+  notify:
+    name: Notify About Tests Failure
+    needs: [lint, unit-tests, acc-tests]
+    runs-on: ubuntu-latest
+    if: contains(needs.*.result, 'failure') && startsWith(github.ref, 'refs/heads/master/')
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Get Last Commit User Email
+      id: get_email
+      run: |
+        LAST_COMMIT_EMAIL=$(git log -1 --pretty=format:'%ae')
+        echo "Last commit email: $LAST_COMMIT_EMAIL"
+        echo "commit_email=$LAST_COMMIT_EMAIL" | tee -a $GITHUB_ENV
+
+    - name: Notification
+      uses: slackapi/slack-github-action@v1.25.0
+      with:
+        payload: |
+          {
+            "channel" : "#area-backend",
+            "text": "The Provider Tests on the Master Branch has been Failed. Last Comitter: ${{steps.get_email.outputs.commit_email}}",
+            "attachments": [
+              {
+                "color": "b52c2a",
+                "fields": [
+                  {
+                    "title": "Job URL",
+                    "value": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                    "short": false
+                  }
+                ]
+              }
+            ]
+          }
+
   upload-dev:
     name: upload-dev
     needs: [lint, unit-tests, acc-tests]
