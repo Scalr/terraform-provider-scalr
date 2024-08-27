@@ -89,6 +89,7 @@ func resourceScalrEnvironment() *schema.Resource {
 				Description: "List of tag IDs associated with the environment.",
 				Type:        schema.TypeSet,
 				Optional:    true,
+				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},

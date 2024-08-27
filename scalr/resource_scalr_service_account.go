@@ -88,6 +88,7 @@ func resourceScalrServiceAccount() *schema.Resource {
 				Description: "The teams, the service account belongs to.",
 				Type:        schema.TypeSet,
 				Optional:    true,
+				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
