@@ -122,6 +122,7 @@ resource scalr_service_account test {
   name        = "test-sa-%d"
   description = "desc-updated-%[1]d"
   status      = "%[2]s"
+  owners      = []
 }`, rInt, scalr.ServiceAccountStatusInactive)
 }
 
