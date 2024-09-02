@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/scalr/go-scalr"
 	"log"
+
+	"github.com/scalr/go-scalr"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
@@ -322,6 +323,22 @@ func resourceScalrWorkspace() *schema.Resource {
 				Type:        schema.TypeInt,
 				Optional:    true,
 			},
+			"type": {
+				Description: "The type of the Scalr Workspace environment, available options: `production`, `staging`, `testing`, `development`, `unmapped`.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ValidateFunc: validation.StringInSlice(
+					[]string{
+						string(scalr.WorkspaceEnvironmentTypeProduction),
+						string(scalr.WorkspaceEnvironmentTypeStaging),
+						string(scalr.WorkspaceEnvironmentTypeTesting),
+						string(scalr.WorkspaceEnvironmentTypeDevelopment),
+						string(scalr.WorkspaceEnvironmentTypeUnmapped),
+					},
+					false,
+				),
+			},
 			"provider_configuration": {
 				Description: "Provider configurations used in workspace runs.",
 				Type:        schema.TypeSet,
@@ -398,6 +415,12 @@ func resourceScalrWorkspaceCreate(ctx context.Context, d *schema.ResourceData, m
 	if autoQueueRunsI, ok := d.GetOk("auto_queue_runs"); ok {
 		options.AutoQueueRuns = scalr.AutoQueueRunsModePtr(
 			scalr.WorkspaceAutoQueueRuns(autoQueueRunsI.(string)),
+		)
+	}
+
+	if workspaceEnvironmentTypeI, ok := d.GetOk("type"); ok {
+		options.EnvironmentType = scalr.WorkspaceEnvironmentTypePtr(
+			scalr.WorkspaceEnvironmentType(workspaceEnvironmentTypeI.(string)),
 		)
 	}
 
@@ -545,6 +568,7 @@ func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, met
 	_ = d.Set("environment_id", workspace.Environment.ID)
 	_ = d.Set("has_resources", workspace.HasResources)
 	_ = d.Set("auto_queue_runs", workspace.AutoQueueRuns)
+	_ = d.Set("type", workspace.EnvironmentType)
 	_ = d.Set("var_files", workspace.VarFiles)
 
 	if workspace.RunOperationTimeout != nil {
@@ -645,7 +669,8 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 		d.HasChange("vcs_repo") || d.HasChange("operations") || d.HasChange("execution_mode") ||
 		d.HasChange("vcs_provider_id") || d.HasChange("agent_pool_id") || d.HasChange("deletion_protection_enabled") ||
 		d.HasChange("hooks") || d.HasChange("module_version_id") || d.HasChange("var_files") ||
-		d.HasChange("run_operation_timeout") || d.HasChange("iac_platform") {
+		d.HasChange("run_operation_timeout") || d.HasChange("iac_platform") ||
+		d.HasChange("type") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
 			Name:                      scalr.String(d.Get("name").(string)),
@@ -675,6 +700,12 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 		if autoQueueRunsI, ok := d.GetOk("auto_queue_runs"); ok {
 			options.AutoQueueRuns = scalr.AutoQueueRunsModePtr(
 				scalr.WorkspaceAutoQueueRuns(autoQueueRunsI.(string)),
+			)
+		}
+
+		if workspaceEnvironmentTypeI, ok := d.GetOk("type"); ok {
+			options.EnvironmentType = scalr.WorkspaceEnvironmentTypePtr(
+				scalr.WorkspaceEnvironmentType(workspaceEnvironmentTypeI.(string)),
 			)
 		}
 

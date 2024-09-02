@@ -3,9 +3,10 @@ package scalr
 import (
 	"context"
 	"errors"
+	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/scalr/go-scalr"
@@ -96,6 +97,12 @@ func dataSourceScalrWorkspace() *schema.Resource {
 
 			"iac_platform": {
 				Description: "The IaC platform used for this workspace.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
+
+			"type": {
+				Description: "The type of the Scalr Workspace environment.",
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
@@ -269,6 +276,7 @@ func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, m
 	_ = d.Set("execution_mode", workspace.ExecutionMode)
 	_ = d.Set("terraform_version", workspace.TerraformVersion)
 	_ = d.Set("iac_platform", workspace.IaCPlatform)
+	_ = d.Set("type", workspace.EnvironmentType)
 	_ = d.Set("working_directory", workspace.WorkingDirectory)
 	_ = d.Set("has_resources", workspace.HasResources)
 	_ = d.Set("auto_queue_runs", workspace.AutoQueueRuns)
