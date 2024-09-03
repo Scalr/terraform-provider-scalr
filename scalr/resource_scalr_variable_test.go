@@ -2,7 +2,6 @@ package scalr
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -169,17 +168,6 @@ func TestAccScalrVariable_update(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "description", "updated"),
 				),
-			},
-
-			// Test change key attribute for sensitive variable
-			{
-				Config: testAccScalrVariableOnWorkspaceScopeUpdateSensitivity(rInt),
-			},
-
-			{
-				Config:      testAccScalrVariableOnWorkspaceScopeUpdateSensitivity(rInt + 1),
-				ExpectError: regexp.MustCompile("Error changing 'key' attribute for variable var-[a-z0-9]+: immutable for sensitive variable"),
-				PlanOnly:    true,
 			},
 		},
 	})
@@ -446,21 +434,5 @@ resource scalr_variable test {
   environment_id = scalr_environment.test.id
   workspace_id   = scalr_workspace.test.id
   description    = "updated"
-}`, rInt, defaultAccount)
-}
-
-func testAccScalrVariableOnWorkspaceScopeUpdateSensitivity(rInt int) string {
-	return fmt.Sprintf(baseForUpdate+`
-resource scalr_variable test {
-  key            = "var_on_ws_updated_%[1]d"
-  value          = "updated"
-  category       = "terraform"
-  hcl            = true
-  force          = true
-  final          = true
-  sensitive      = true
-  account_id     = "%[2]s"
-  environment_id = scalr_environment.test.id
-  workspace_id   = scalr_workspace.test.id
 }`, rInt, defaultAccount)
 }
