@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `scalr_workspace`: new attribute `type` ([#345](https://github.com/Scalr/terraform-provider-scalr/pull/345))
+
 ## [2.0.0] - 2024-08-15
 
 ### Removed
