@@ -3,14 +3,14 @@ package scalr
 import (
 	"context"
 	"errors"
-	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/scalr/go-scalr"
+
+	"log"
 )
 
 func resourceScalrVariable() *schema.Resource {
@@ -21,16 +21,23 @@ func resourceScalrVariable() *schema.Resource {
 		UpdateContext: resourceScalrVariableUpdate,
 		DeleteContext: resourceScalrVariableDelete,
 		CustomizeDiff: customdiff.All(
-			func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
-				// Reject change for key if variable is sensitive
-				oldValue, newValue := d.GetChange("key")
-				sensitive := d.Get("sensitive")
-
-				if sensitive.(bool) && (oldValue.(string) != "" && oldValue.(string) != newValue.(string)) {
-					return fmt.Errorf("Error changing 'key' attribute for variable %s: immutable for sensitive variable", d.Id())
-				}
-				return nil
-			},
+			customdiff.ForceNewIf(
+				"key",
+				func(ctx context.Context, d *schema.ResourceDiff, meta any) bool {
+					// Force new when updating the `key` value of a sensitive variable.
+					// To do this we check the `sensitive` value before the change,
+					// as it might be changed in new configuration as well.
+					oldSens, _ := d.GetChange("sensitive")
+					return oldSens.(bool)
+				},
+			),
+			customdiff.ForceNewIfChange(
+				"sensitive",
+				func(ctx context.Context, old, new, meta any) bool {
+					// Force new when updating the `sensitive` value from true to false.
+					return old.(bool)
+				},
+			),
 		),
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,

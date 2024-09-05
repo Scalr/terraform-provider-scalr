@@ -166,6 +166,7 @@ resource "scalr_workspace" "example-b" {
 - `run_operation_timeout` (Number) The number of minutes run operation can be executed before termination. Defaults to `0` (not set, backend default is used).
 - `tag_ids` (Set of String) List of tag IDs associated with the workspace.
 - `terraform_version` (String) The version of Terraform to use for this workspace. Defaults to the latest available version.
+- `type` (String) The type of the Scalr Workspace environment, available options: `production`, `staging`, `testing`, `development`, `unmapped`.
 - `var_files` (List of String) A list of paths to the `.tfvars` file(s) to be used as part of the workspace configuration.
 - `vcs_provider_id` (String) ID of VCS provider - required if vcs-repo present and vice versa, in the format `vcs-<RANDOM STRING>`.
 - `vcs_repo` (Block List, Max: 1) Settings for the workspace's VCS repository. (see [below for nested schema](#nestedblock--vcs_repo))
