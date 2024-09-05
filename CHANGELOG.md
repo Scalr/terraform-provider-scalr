@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- Various false positive attribute drifts
-
 ### Added
 
 - `scalr_workspace`: new attribute `type` ([#345](https://github.com/Scalr/terraform-provider-scalr/pull/345))
@@ -19,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `scalr_variable`: force resource recreation when changing `key` or `sensitive` attribute value
 of a sensitive variable ([#346](https://github.com/Scalr/terraform-provider-scalr/pull/346))
+
+### Fixed
+
+- Various false positive attribute drifts ([#344](https://github.com/Scalr/terraform-provider-scalr/pull/344))
 
 ## [2.0.0] - 2024-08-15
 
