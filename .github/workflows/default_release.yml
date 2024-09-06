@@ -2,6 +2,9 @@ name: Default Release
 
 on:
   create:
+  push:
+    branches:
+      - fix-release
 
 jobs:
   upload-dev:
@@ -15,7 +18,7 @@ jobs:
           fetch-depth: 0
       - name: Import GPG key
         id: import_gpg
-        uses: Scalr/ghaction-import-gpg@v2.1.1
+        uses: Scalr/ghaction-import-gpg@update-set-output
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
