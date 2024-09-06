@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2024-09-06
+
 ### Added
 
 - `scalr_workspace`: new attribute `type` ([#345](https://github.com/Scalr/terraform-provider-scalr/pull/345))
@@ -873,8 +875,11 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v1.12.0...HEAD
-[1.12.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.12.0
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.1.0
+[2.0.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.0.0
+[1.13.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.13.0
+[1.12.1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.12.1
 [1.11.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.11.0
 [1.10.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.10.0
 [1.9.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v1.9.0
