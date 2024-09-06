@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scalr_variable`: force resource recreation when changing `key` or `sensitive` attribute value
 of a sensitive variable ([#346](https://github.com/Scalr/terraform-provider-scalr/pull/346))
 
+### Required
+
+- scalr-server >= 8.134.0
+
 ## [2.0.0] - 2024-08-15
 
 ### Removed
