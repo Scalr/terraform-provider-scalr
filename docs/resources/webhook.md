@@ -48,13 +48,13 @@ resource "scalr_webhook" "example2" {
 
 ### Required
 
-- `account_id` (String) ID of the account, in the format `acc-<RANDOM STRING>`.
 - `events` (List of String) List of event IDs.
 - `name` (String) Name of the webhook.
 - `url` (String) Endpoint URL. Required if `endpoint_id` is not set.
 
 ### Optional
 
+- `account_id` (String) ID of the account, in the format `acc-<RANDOM STRING>`.
 - `enabled` (Boolean) Set (true/false) to enable/disable the webhook.
 - `environments` (Set of String) The list of environment identifiers that the webhook is shared to. Use `["*"]` to share with all environments.
 - `header` (Block Set) Additional headers to set in the webhook request. (see [below for nested schema](#nestedblock--header))

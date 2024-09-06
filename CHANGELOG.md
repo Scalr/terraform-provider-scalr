@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Various false positive attribute drifts ([#344](https://github.com/Scalr/terraform-provider-scalr/pull/344))
+
 ## [2.1.0] - 2024-09-06
 
 ### Added

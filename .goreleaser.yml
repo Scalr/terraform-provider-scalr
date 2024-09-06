@@ -46,4 +46,4 @@ signs:
       - "${artifact}"
 
 snapshot:
-  name_template: "devel"
+  version_template: "devel"

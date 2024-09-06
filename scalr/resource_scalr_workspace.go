@@ -107,6 +107,7 @@ func resourceScalrWorkspace() *schema.Resource {
 				Description: "A list of paths to the `.tfvars` file(s) to be used as part of the workspace configuration.",
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validation.NoZeroValues,
@@ -362,6 +363,7 @@ func resourceScalrWorkspace() *schema.Resource {
 				Description: "List of tag IDs associated with the workspace.",
 				Type:        schema.TypeSet,
 				Optional:    true,
+				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
@@ -494,9 +496,10 @@ func resourceScalrWorkspaceCreate(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	if v, ok := d.Get("var_files").([]interface{}); ok {
+	if v, ok := d.GetOk("var_files"); ok {
+		vfiles := v.([]interface{})
 		varFiles := make([]string, 0)
-		for _, varFile := range v {
+		for _, varFile := range vfiles {
 			varFiles = append(varFiles, varFile.(string))
 		}
 		options.VarFiles = varFiles

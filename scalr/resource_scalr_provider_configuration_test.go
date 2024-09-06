@@ -771,6 +771,7 @@ resource "scalr_provider_configuration" "kubernetes" {
   name                   = "%s"
   account_id             = "%s"
   environments           = ["*"]
+  owners                 = []
   custom {
     provider_name = "kubernetes"
     argument {
