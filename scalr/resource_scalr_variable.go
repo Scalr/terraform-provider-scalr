@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -155,11 +156,14 @@ func resourceScalrVariable() *schema.Resource {
 }
 
 func resourceScalrVariableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	scalrClient := meta.(*scalr.Client)
 
 	// Get key and category.
 	key := d.Get("key").(string)
 	category := scalr.CategoryType(d.Get("category").(string))
+	hcl := d.Get("hcl").(bool)
+	diags = append(diags, validateCategoryHCL(category, hcl)...)
 
 	// Create a new options struct.
 	options := scalr.VariableCreateOptions{
@@ -167,7 +171,7 @@ func resourceScalrVariableCreate(ctx context.Context, d *schema.ResourceData, me
 		Value:        scalr.String(d.Get("value").(string)),
 		Description:  scalr.String(d.Get("description").(string)),
 		Category:     scalr.Category(category),
-		HCL:          scalr.Bool(d.Get("hcl").(bool)),
+		HCL:          scalr.Bool(hcl),
 		Sensitive:    scalr.Bool(d.Get("sensitive").(bool)),
 		Final:        scalr.Bool(d.Get("final").(bool)),
 		QueryOptions: &scalr.VariableWriteQueryOptions{Force: scalr.Bool(d.Get("force").(bool))},
@@ -203,7 +207,7 @@ func resourceScalrVariableCreate(ctx context.Context, d *schema.ResourceData, me
 
 	d.SetId(variable.ID)
 
-	return resourceScalrVariableRead(ctx, d, meta)
+	return append(diags, resourceScalrVariableRead(ctx, d, meta)...)
 }
 
 func resourceScalrVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -253,13 +257,18 @@ func resourceScalrVariableRead(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceScalrVariableUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	scalrClient := meta.(*scalr.Client)
+
+	category := scalr.CategoryType(d.Get("category").(string))
+	hcl := d.Get("hcl").(bool)
+	diags = append(diags, validateCategoryHCL(category, hcl)...)
 
 	// Create a new options struct.
 	options := scalr.VariableUpdateOptions{
 		Key:          scalr.String(d.Get("key").(string)),
 		Value:        scalr.String(d.Get("value").(string)),
-		HCL:          scalr.Bool(d.Get("hcl").(bool)),
+		HCL:          scalr.Bool(hcl),
 		Sensitive:    scalr.Bool(d.Get("sensitive").(bool)),
 		Description:  scalr.String(d.Get("description").(string)),
 		Final:        scalr.Bool(d.Get("final").(bool)),
@@ -272,7 +281,7 @@ func resourceScalrVariableUpdate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("Error updating variable %s: %v", d.Id(), err)
 	}
 
-	return resourceScalrVariableRead(ctx, d, meta)
+	return append(diags, resourceScalrVariableRead(ctx, d, meta)...)
 }
 
 func resourceScalrVariableDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -288,4 +297,18 @@ func resourceScalrVariableDelete(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	return nil
+}
+
+// validateCategoryHCL checks if HCL is set to true for a category that is not 'terraform'
+// and issues a warning if it is.
+func validateCategoryHCL(c scalr.CategoryType, hcl bool) (diags diag.Diagnostics) {
+	if c != scalr.CategoryTerraform && hcl {
+		diags = append(diags, diag.Diagnostic{
+			Severity:      diag.Warning,
+			Summary:       "HCL is not supported for shell variables",
+			Detail:        "Setting 'hcl' attribute to 'true' for shell variable is now deprecated.",
+			AttributePath: cty.GetAttrPath("hcl"),
+		})
+	}
+	return
 }

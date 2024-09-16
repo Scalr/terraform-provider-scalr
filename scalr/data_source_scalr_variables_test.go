@@ -47,7 +47,7 @@ func TestAccScalrVariablesDataSource(t *testing.T) {
 					),
 					testCheckResourceVarsInDatasource(
 						"data.scalr_variables.shell",
-						[]string{"scalr_variable.workspace2_host", "scalr_variable.address", "scalr_variable.secret"},
+						[]string{"scalr_variable.workspace2_host", "scalr_variable.secret"},
 					),
 				),
 			},
@@ -158,7 +158,7 @@ resource "scalr_variable" "workspace_host" {
 resource "scalr_variable" "address" {
 	key = "address"
 	value = "scalr.com"
-	category = "shell"
+	category = "terraform"
 	hcl = true
 	sensitive = false
 	description = "The address of scalr."
