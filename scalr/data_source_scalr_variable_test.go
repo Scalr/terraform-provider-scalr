@@ -62,6 +62,12 @@ func TestAccScalrVariableDataSource(t *testing.T) {
 					resource.TestCheckResourceAttr("data.scalr_variable.secret", "sensitive", "true"),
 					resource.TestCheckResourceAttr("data.scalr_variable.secret", "description", "The secret key."),
 					resource.TestCheckResourceAttr("data.scalr_variable.secret", "final", "true"),
+					resource.TestCheckResourceAttrSet("data.scalr_variable.workspace_hostname", "updated_at"),
+					resource.TestCheckResourceAttrSet("data.scalr_variable.workspace_hostname", "updated_by_email"),
+					resource.TestCheckResourceAttr("data.scalr_variable.workspace_hostname", "updated_by.#", "1"),
+					resource.TestCheckResourceAttrSet("data.scalr_variable.workspace_hostname", "updated_by.0.username"),
+					resource.TestCheckResourceAttrSet("data.scalr_variable.workspace_hostname", "updated_by.0.email"),
+					resource.TestCheckResourceAttrSet("data.scalr_variable.workspace_hostname", "updated_by.0.full_name"),
 				),
 			},
 			{

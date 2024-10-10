@@ -45,4 +45,16 @@ data "scalr_variable" "example2" {
 - `final` (Boolean) If the variable is configured as final. Indicates whether the variable can be overridden on a lower scope down the Scalr organizational model.
 - `hcl` (Boolean) If the variable is configured as a string of HCL code.
 - `sensitive` (Boolean) If the variable is configured as sensitive.
+- `updated_at` (String) Date/time the variable was updated.
+- `updated_by` (List of Object) Details of the user that updated the variable last time. (see [below for nested schema](#nestedatt--updated_by))
+- `updated_by_email` (String) Email of the user who updated the variable last time.
 - `value` (String) Variable value.
+
+<a id="nestedatt--updated_by"></a>
+### Nested Schema for `updated_by`
+
+Read-Only:
+
+- `email` (String)
+- `full_name` (String)
+- `username` (String)

@@ -63,6 +63,18 @@ func TestAccScalrVariable_basic(t *testing.T) {
 						"scalr_variable.test", "sensitive", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test", "description", "Test on account scope sensitive"),
+					resource.TestCheckResourceAttrSet(
+						"scalr_variable.test", "updated_at"),
+					resource.TestCheckResourceAttrSet(
+						"scalr_variable.test", "updated_by_email"),
+					resource.TestCheckResourceAttr(
+						"scalr_variable.test", "updated_by.#", "1"),
+					resource.TestCheckResourceAttrSet(
+						"scalr_variable.test", "updated_by.0.username"),
+					resource.TestCheckResourceAttrSet(
+						"scalr_variable.test", "updated_by.0.email"),
+					resource.TestCheckResourceAttrSet(
+						"scalr_variable.test", "updated_by.0.full_name"),
 				),
 			},
 		},
@@ -284,6 +296,11 @@ func testAccCheckScalrVariableAttributes(
 		if variable.Sensitive != false {
 			return fmt.Errorf("Bad sensitive: %t", variable.Sensitive)
 		}
+
+		if variable.UpdatedBy == nil || variable.UpdatedBy.Email != variable.UpdatedByEmail {
+			return fmt.Errorf("Bad updated by")
+		}
+
 		return nil
 	}
 }

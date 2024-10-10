@@ -3,6 +3,7 @@ package scalr
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -151,6 +152,43 @@ func resourceScalrVariable() *schema.Resource {
 				DefaultFunc: scalrAccountIDDefaultFunc,
 				ForceNew:    true,
 			},
+
+			"updated_at": {
+				Description: "Date/time the variable was updated.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
+
+			"updated_by_email": {
+				Description: "Email of the user who updated the variable last time.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
+
+			"updated_by": {
+				Description: "Details of the user that updated the variable last time.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"username": {
+							Description: "Username of editor.",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+						"email": {
+							Description: "Email address of editor.",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+						"full_name": {
+							Description: "Full name of editor.",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -231,6 +269,22 @@ func resourceScalrVariableRead(ctx context.Context, d *schema.ResourceData, meta
 	_ = d.Set("sensitive", variable.Sensitive)
 	_ = d.Set("description", variable.Description)
 	_ = d.Set("final", variable.Final)
+	_ = d.Set("updated_by_email", variable.UpdatedByEmail)
+
+	if variable.UpdatedAt != nil {
+		_ = d.Set("updated_at", variable.UpdatedAt.Format(time.RFC3339))
+	}
+
+	var updatedBy []interface{}
+	if variable.UpdatedBy != nil {
+		updatedBy = append(updatedBy, map[string]interface{}{
+			"username":  variable.UpdatedBy.Username,
+			"email":     variable.UpdatedBy.Email,
+			"full_name": variable.UpdatedBy.FullName,
+		})
+	}
+	_ = d.Set("updated_by", updatedBy)
+
 	_, exists := d.GetOk("force")
 	if !exists {
 		_ = d.Set("force", false)

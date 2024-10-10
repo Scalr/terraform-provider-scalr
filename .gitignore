@@ -15,8 +15,11 @@
 *.out
 
 terraform-provider-scalr
+terraform-provider-scalr_*
 *.code-workspace
 .DS_Store
 
 # CI generated
 gha-creds-*.json
+
+covprofile

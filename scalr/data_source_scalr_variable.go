@@ -2,6 +2,8 @@ package scalr
 
 import (
 	"context"
+	"time"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -79,13 +81,47 @@ func dataSourceScalrVariable() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
+			"updated_at": {
+				Description: "Date/time the variable was updated.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
+			"updated_by_email": {
+				Description: "Email of the user who updated the variable last time.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
+			"updated_by": {
+				Description: "Details of the user that updated the variable last time.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"username": {
+							Description: "Username of editor.",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+						"email": {
+							Description: "Email address of editor.",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+						"full_name": {
+							Description: "Full name of editor.",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+					},
+				},
+			},
 		}}
 }
 
 func dataSourceScalrVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	filters := scalr.VariableFilter{}
-	options := scalr.VariableListOptions{Filter: &filters}
+	options := scalr.VariableListOptions{Filter: &filters, Include: scalr.String("updated-by")}
 
 	variableID := d.Get("id").(string)
 	key := d.Get("key").(string)
@@ -139,6 +175,21 @@ func dataSourceScalrVariableRead(ctx context.Context, d *schema.ResourceData, me
 	_ = d.Set("final", variable.Final)
 	_ = d.Set("value", variable.Value)
 	_ = d.Set("description", variable.Description)
+	_ = d.Set("updated_by_email", variable.UpdatedByEmail)
+
+	if variable.UpdatedAt != nil {
+		_ = d.Set("updated_at", variable.UpdatedAt.Format(time.RFC3339))
+	}
+
+	var updatedBy []interface{}
+	if variable.UpdatedBy != nil {
+		updatedBy = append(updatedBy, map[string]interface{}{
+			"username":  variable.UpdatedBy.Username,
+			"email":     variable.UpdatedBy.Email,
+			"full_name": variable.UpdatedBy.FullName,
+		})
+	}
+	_ = d.Set("updated_by", updatedBy)
 
 	return nil
 }

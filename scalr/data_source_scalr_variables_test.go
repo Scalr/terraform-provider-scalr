@@ -49,6 +49,12 @@ func TestAccScalrVariablesDataSource(t *testing.T) {
 						"data.scalr_variables.shell",
 						[]string{"scalr_variable.workspace2_host", "scalr_variable.secret"},
 					),
+					resource.TestCheckResourceAttrSet("data.scalr_variables.workspace", "variables.0.updated_at"),
+					resource.TestCheckResourceAttrSet("data.scalr_variables.workspace", "variables.0.updated_by_email"),
+					resource.TestCheckResourceAttr("data.scalr_variables.workspace", "variables.0.updated_by.#", "1"),
+					resource.TestCheckResourceAttrSet("data.scalr_variables.workspace", "variables.0.updated_by.0.username"),
+					resource.TestCheckResourceAttrSet("data.scalr_variables.workspace", "variables.0.updated_by.0.email"),
+					resource.TestCheckResourceAttrSet("data.scalr_variables.workspace", "variables.0.updated_by.0.full_name"),
 				),
 			},
 			{
