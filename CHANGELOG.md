@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `data.scalr_variable`: new attributes `updated_at`, `updated_by` and `updated_by_email` ([354](https://github.com/Scalr/terraform-provider-scalr/pull/354))
+- `scalr_variable`: new attributes `updated_at`, `updated_by` and `updated_by_email` ([354](https://github.com/Scalr/terraform-provider-scalr/pull/354))
+
 ### Fixed
 
 - Various false positive attribute drifts ([#344](https://github.com/Scalr/terraform-provider-scalr/pull/344))
@@ -14,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `scalr_variable`: added deprecation warning when `hcl` attribute is set to `true` for shell variable
+
+### Required
+
+- scalr-server >= 8.143.0
 
 ## [2.1.0] - 2024-09-06
 
