@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -76,6 +77,40 @@ func dataSourceScalrVariables() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 						},
+						"updated_at": {
+							Description: "Date/time the variable was updated.",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+						"updated_by_email": {
+							Description: "Email of the user who updated the variable last time.",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+						"updated_by": {
+							Description: "Details of the user that updated the variable last time.",
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"username": {
+										Description: "Username of editor.",
+										Type:        schema.TypeString,
+										Computed:    true,
+									},
+									"email": {
+										Description: "Email address of editor.",
+										Type:        schema.TypeString,
+										Computed:    true,
+									},
+									"full_name": {
+										Description: "Full name of editor.",
+										Type:        schema.TypeString,
+										Computed:    true,
+									},
+								},
+							},
+						},
 					},
 				},
 				Set: func(value interface{}) int {
@@ -120,7 +155,7 @@ func dataSourceScalrVariables() *schema.Resource {
 func dataSourceScalrVariablesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	filters := scalr.VariableFilter{}
-	options := scalr.VariableListOptions{Filter: &filters}
+	options := scalr.VariableListOptions{Filter: &filters, Include: scalr.String("updated-by")}
 
 	filters.Account = scalr.String(d.Get("account_id").(string))
 
@@ -166,15 +201,30 @@ func dataSourceScalrVariablesRead(ctx context.Context, d *schema.ResourceData, m
 
 		for _, variable := range page.Items {
 			variableI := map[string]interface{}{
-				"id":          variable.ID,
-				"category":    string(variable.Category),
-				"hcl":         variable.HCL,
-				"key":         variable.Key,
-				"sensitive":   variable.Sensitive,
-				"final":       variable.Final,
-				"value":       variable.Value,
-				"description": variable.Description,
+				"id":               variable.ID,
+				"category":         string(variable.Category),
+				"hcl":              variable.HCL,
+				"key":              variable.Key,
+				"sensitive":        variable.Sensitive,
+				"final":            variable.Final,
+				"value":            variable.Value,
+				"description":      variable.Description,
+				"updated_by_email": variable.UpdatedByEmail,
 			}
+			if variable.UpdatedAt != nil {
+				variableI["updated_at"] = variable.UpdatedAt.Format(time.RFC3339)
+			}
+
+			var updatedBy []interface{}
+			if variable.UpdatedBy != nil {
+				updatedBy = append(updatedBy, map[string]interface{}{
+					"username":  variable.UpdatedBy.Username,
+					"email":     variable.UpdatedBy.Email,
+					"full_name": variable.UpdatedBy.FullName,
+				})
+			}
+			variableI["updated_by"] = updatedBy
+
 			if variable.Workspace != nil {
 				variableI["workspace_id"] = variable.Workspace.ID
 			}
