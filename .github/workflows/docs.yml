@@ -7,7 +7,7 @@ on:
         description: 'Readme documentation version'
         required: true
         type: string
-        default: '0.0.4'
+        default: '0.0.5'
       dry:
         description: 'Perform a dry run (preview the changes without publishing)'
         required: true
