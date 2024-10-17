@@ -19,7 +19,7 @@ on:
       - README.md
 
 env:
-  RDME_VERSION: 0.0.4
+  RDME_VERSION: 0.0.5
 
 jobs:
   lint:
