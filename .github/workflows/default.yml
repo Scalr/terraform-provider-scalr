@@ -140,7 +140,7 @@ jobs:
           docker pull us-central1-docker.pkg.dev/scalr-dev/main-docker/fatmouse/python-builder:master
           docker tag us-central1-docker.pkg.dev/scalr-dev/main-docker/fatmouse/python-builder:master fatmouse/python-builder:master
       - name: Get Current Job Log URL
-        uses: Tiryoh/gha-jobid-action@v0
+        uses: Tiryoh/gha-jobid-action@v1
         id: get-job-id
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
