@@ -34,7 +34,7 @@ resource "scalr_environment" "test" {
 - `account_id` (String) ID of the environment account, in the format `acc-<RANDOM STRING>`.
 - `cost_estimation_enabled` (Boolean) Set (true/false) to enable/disable cost estimation for the environment. Default `true`.
 - `default_provider_configurations` (Set of String) List of IDs of provider configurations, used in the environment workspaces by default.
-- `policy_groups` (List of String) List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.
+- `policy_groups` (List of String, Deprecated) List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.
 - `tag_ids` (Set of String) List of tag IDs associated with the environment.
 
 ### Read-Only

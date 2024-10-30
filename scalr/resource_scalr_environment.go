@@ -77,6 +77,8 @@ func resourceScalrEnvironment() *schema.Resource {
 				Computed:    true,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
+				Deprecated: "Managing policy groups linkage is deprecated. Use either `scalr_policy_group_linkage`" +
+					" or `environments` attribute of `scalr_policy_group` resource.",
 			},
 			"default_provider_configurations": {
 				Description: "List of IDs of provider configurations, used in the environment workspaces by default.",
