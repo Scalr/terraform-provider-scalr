@@ -95,7 +95,7 @@ jobs:
         id: get-job-id
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          job_name: ${{ github.job }}
+          job_name: acc-tests
       - name: Generate Run Tag
         run: |
           if [ ${{ github.run_attempt }} = 1 ]; then
