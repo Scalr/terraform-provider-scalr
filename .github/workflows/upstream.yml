@@ -110,9 +110,11 @@ jobs:
           docker run --rm \
           -e GITHUB_WORKSPACE=true \
           -e GITHUB_OUTPUT=/fatmouse/output \
+          -e GITHUB_STEP_SUMMARY=/fatmouse/step_summary \
           -w /fatmouse \
           -v $PWD/fatmouse:/fatmouse \
           -v $GITHUB_OUTPUT:/fatmouse/output \
+          -v $GITHUB_STEP_SUMMARY:/fatmouse/step_summary \
           -v ~/.scalr-labs:/etc/scalr-labs \
           fatmouse/python-builder:master python -u clickfile.py te up \
           --branch ${{ env.API_BRANCH }} \
