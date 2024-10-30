@@ -133,7 +133,6 @@ jobs:
           deployment_type: saas
           no_segment: true
           prepare_runner: true
-          dependency_path_prefix: fatmouse/
           wait_for_env: true
           agent_pool_id: ${{ vars.TACO_APOOL_ID }}
       - name: Get Scalr Hostname
