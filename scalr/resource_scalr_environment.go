@@ -33,6 +33,7 @@ func resourceScalrEnvironment() *schema.Resource {
 				Type:        schema.TypeBool,
 				Computed:    true,
 				Optional:    true,
+				Deprecated:  "Managing cost estimation is deprecated. Use Infracost integration instead.",
 			},
 			"status": {
 				Description: "The status of the environment.",
