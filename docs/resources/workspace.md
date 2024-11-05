@@ -164,6 +164,7 @@ resource "scalr_workspace" "example-b" {
 - `operations` (Boolean, Deprecated) Set (true/false) to configure workspace remote execution. When `false` workspace is only used to store state. Defaults to `true`.
 - `provider_configuration` (Block Set) Provider configurations used in workspace runs. (see [below for nested schema](#nestedblock--provider_configuration))
 - `run_operation_timeout` (Number) The number of minutes run operation can be executed before termination. Defaults to `0` (not set, backend default is used).
+- `ssh_key_id` (String) The identifier of the SSH key to use for the workspace.
 - `tag_ids` (Set of String) List of tag IDs associated with the workspace.
 - `terraform_version` (String) The version of Terraform to use for this workspace. Defaults to the latest available version.
 - `type` (String) The type of the Scalr Workspace environment, available options: `production`, `staging`, `testing`, `development`, `unmapped`.

@@ -260,10 +260,8 @@ github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFR
 github.com/rogpeppe/go-internal v1.6.1 h1:/FiVV8dS/e+YqF2JvO3yXRFbBLTIuSDkuC7aBOAvL+k=
 github.com/russross/blackfriday v1.6.0 h1:KqfZb0pUVN2lYqZUYRddxF4OR8ZMURnJIG5Y3VRLtww=
 github.com/russross/blackfriday v1.6.0/go.mod h1:ti0ldHuxg49ri4ksnFxlkCfN+hvslNlmVHqNRXXJNAY=
-github.com/scalr/go-scalr v0.0.0-20240929210950-4e55784195ad h1:G+GZ3pm22r748k05/FBnBPKBmjG8xf7UMq1cEOkPG5Y=
-github.com/scalr/go-scalr v0.0.0-20240929210950-4e55784195ad/go.mod h1:p34SHb25YRvbgft7SUjSDYESeoQhWzAlxGXId/BbaSE=
-github.com/scalr/go-scalr v0.0.0-20241105075807-cd0e1b011407 h1:/PKPne2UyaT+VxvezQu3han7S0OXd6EjWTywu88xX3U=
-github.com/scalr/go-scalr v0.0.0-20241105075807-cd0e1b011407/go.mod h1:p34SHb25YRvbgft7SUjSDYESeoQhWzAlxGXId/BbaSE=
+github.com/scalr/go-scalr v0.0.0-20241105133707-43cef5ab6d21 h1:qyCF/2zZ6TRgf0YH1eJZT9aeyNrZ1aX1oLZaa7FJDbs=
+github.com/scalr/go-scalr v0.0.0-20241105133707-43cef5ab6d21/go.mod h1:p34SHb25YRvbgft7SUjSDYESeoQhWzAlxGXId/BbaSE=
 github.com/sergi/go-diff v1.2.0 h1:XU+rvMAioB0UC3q1MFrIQy4Vo5/4VsRDQQXHsEya6xQ=
 github.com/shopspring/decimal v1.2.0/go.mod h1:DKyhrW/HYNuLGql+MJL6WCR6knT2jwCFRcu2hWCYk4o=
 github.com/shopspring/decimal v1.3.1 h1:2Usl1nmF/WZucqkFZhnfFYxxxu8LG21F6nPQBE5gKV8=
