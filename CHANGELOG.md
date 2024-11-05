@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `data.scalr_variable`: new attributes `updated_at`, `updated_by` and `updated_by_email` ([354](https://github.com/Scalr/terraform-provider-scalr/pull/354))
 - `scalr_variable`: new attributes `updated_at`, `updated_by` and `updated_by_email` ([354](https://github.com/Scalr/terraform-provider-scalr/pull/354))
+- - **New resource:**  `scalr_ssh_key`
 
 ### Fixed
 
