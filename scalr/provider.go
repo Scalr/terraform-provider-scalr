@@ -87,6 +87,7 @@ func Provider() *schema.Provider {
 			"scalr_workspace_ids":            dataSourceScalrWorkspaceIDs(),
 			"scalr_workspaces":               dataSourceScalrWorkspaces(),
 			"scalr_event_bridge_integration": dataSourceScalrEventBridgeIntegration(),
+			"scalr_ssh_key":                  dataSourceScalrSSHKey(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
