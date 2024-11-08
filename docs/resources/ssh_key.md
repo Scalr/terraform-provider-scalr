@@ -37,7 +37,7 @@ EOF
 ### Optional
 
 - `account_id` (String) The account ID to which the SSH key belongs.
-- `environments` (Set of String) The environments where the SSH key can be used.
+- `environments` (Set of String) The environments where the SSH key can be used. Use `["*"]` to share with all environments.
 
 ### Read-Only
 

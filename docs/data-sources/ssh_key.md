@@ -35,4 +35,4 @@ data "scalr_ssh_key" "example2" {
 
 ### Read-Only
 
-- `environments` (List of String) List of environment IDs where the SSH key is available, or ``["*"]` if shared.
+- `environments` (List of String) List of environment IDs where the SSH key is available, or `["*"]` if shared with all environments.

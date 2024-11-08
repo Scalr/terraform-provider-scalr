@@ -39,7 +39,7 @@ func resourceScalrSSHKey() *schema.Resource {
 				ForceNew:    true,
 			},
 			"environments": {
-				Description: "The environments where the SSH key can be used. Use `["*"]` to share with all environments.",
+				Description: "The environments where the SSH key can be used. Use `[\"*\"]` to share with all environments.",
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Computed:    true,
