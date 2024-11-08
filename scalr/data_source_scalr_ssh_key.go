@@ -44,7 +44,7 @@ func dataSourceScalrSSHKey() *schema.Resource {
 			},
 
 			"environments": {
-				Description: "List of environment IDs where the SSH key is available, or ``[\"*\"]` if shared.",
+				Description: "List of environment IDs where the SSH key is available, or `[\"*\"]` if shared with all environments.",
 				Type:        schema.TypeList,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
