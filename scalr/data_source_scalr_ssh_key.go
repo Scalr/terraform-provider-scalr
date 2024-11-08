@@ -69,6 +69,11 @@ func dataSourceScalrSSHKeyRead(ctx context.Context, d *schema.ResourceData, meta
 		if err != nil {
 			return diag.FromErr(fmt.Errorf("error retrieving SSH key by ID: %v", err))
 		}
+
+		// If both ID and Name are specified, check if they match
+		if name != "" && sshKey.Name != name {
+			return diag.FromErr(fmt.Errorf("SSH key name mismatch: the provided SSH key name '%s' does not match the expected name '%s'", sshKey.Name, name))
+		}
 	} else {
 		// Search by name
 		options := scalr.SSHKeysListOptions{Filter: &scalr.SSHKeyFilter{Name: name, AccountID: accountID}}
