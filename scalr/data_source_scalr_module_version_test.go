@@ -15,8 +15,6 @@ func TestAccModuleVersionDataSource_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			//TODO:ape delete skip after SCALRCORE-19891
-			t.Skip("Working on personal token but not working with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
 		ProviderFactories: testAccProviderFactories,

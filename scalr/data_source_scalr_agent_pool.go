@@ -22,7 +22,7 @@ func dataSourceScalrAgentPool() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringIsNotWhiteSpace,
-				AtLeastOneOf: []string{"name"},
+				AtLeastOneOf: []string{"id", "name"},
 			},
 			"name": {
 				Description:  "A name of the agent pool.",

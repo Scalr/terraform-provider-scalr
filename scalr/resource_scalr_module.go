@@ -143,7 +143,7 @@ func resourceScalrModuleRead(ctx context.Context, d *schema.ResourceData, meta i
 
 	// Update the config.
 	_ = d.Set("name", m.Name)
-	_ = d.Set("provider", m.Provider)
+	_ = d.Set("module_provider", m.Provider)
 	_ = d.Set("status", m.Status)
 	_ = d.Set("source", m.Source)
 	_ = d.Set("vcs_repo", []map[string]interface{}{{
