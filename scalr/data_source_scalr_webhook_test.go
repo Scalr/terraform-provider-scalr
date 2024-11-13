@@ -45,8 +45,8 @@ func TestAccWebhookDataSource_basic(t *testing.T) {
 						"data.scalr_webhook.test-new", "enabled", "false"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_webhook.test-new", "url", "https://example.com/webhook"),
-					resource.TestCheckResourceAttr(
-						"data.scalr_webhook.test-new", "secret_key", ""),
+					resource.TestCheckResourceAttrSet(
+						"data.scalr_webhook.test-new", "secret_key"),
 					resource.TestCheckResourceAttrSet(
 						"data.scalr_webhook.test-new", "timeout"),
 					resource.TestCheckResourceAttr(
