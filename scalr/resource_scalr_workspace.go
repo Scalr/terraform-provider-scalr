@@ -359,6 +359,11 @@ func resourceScalrWorkspace() *schema.Resource {
 					},
 				},
 			},
+			"ssh_key_id": {
+				Description: "The identifier of the SSH key to use for the workspace.",
+				Type:        schema.TypeString,
+				Optional:    true,
+			},
 			"tag_ids": {
 				Description: "List of tag IDs associated with the workspace.",
 				Type:        schema.TypeSet,
@@ -541,6 +546,13 @@ func resourceScalrWorkspaceCreate(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
+	if sshKeyID, ok := d.GetOk("ssh_key_id"); ok {
+		_, err := scalrClient.SSHKeysLinks.Create(ctx, workspace.ID, sshKeyID.(string))
+		if err != nil {
+			return diag.Errorf("Error creating SSH key link for workspace %s: %v", name, err)
+		}
+	}
+
 	return resourceScalrWorkspaceRead(ctx, d, meta)
 }
 
@@ -580,6 +592,10 @@ func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, met
 
 	if workspace.VcsProvider != nil {
 		_ = d.Set("vcs_provider_id", workspace.VcsProvider.ID)
+	}
+
+	if workspace.SSHKey != nil {
+		_ = d.Set("ssh_key_id", workspace.SSHKey.ID)
 	}
 
 	if workspace.AgentPool != nil {
@@ -793,6 +809,24 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 				"Error updating workspace %s: %v", id, err)
 		}
 	}
+	if d.HasChange("ssh_key_id") {
+		oldSSHKeyID, newSSHKeyID := d.GetChange("ssh_key_id")
+
+		if oldSSHKeyID != "" && newSSHKeyID == "" {
+			err := scalrClient.SSHKeysLinks.Delete(ctx, id)
+			if err != nil {
+				return diag.Errorf("Error removing SSH key link for workspace %s: %v", id, err)
+			}
+		}
+
+		if newSSHKeyID != "" {
+			_, err := scalrClient.SSHKeysLinks.Create(ctx, id, newSSHKeyID.(string))
+			if err != nil {
+				return diag.Errorf("Error creating SSH key link for workspace %s: %v", id, err)
+			}
+		}
+	}
+
 	if d.HasChange("provider_configuration") {
 
 		expectedLinks := make(map[string]scalr.ProviderConfigurationLinkCreateOptions)
