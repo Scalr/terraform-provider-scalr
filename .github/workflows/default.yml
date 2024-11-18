@@ -32,9 +32,9 @@ jobs:
           go-version: "1.23"
           cache: false
       - name: Lint
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.56.1
+          version: v1.62.0
           args: --timeout 2m
       - name: Validate Generated Code
         run: |
