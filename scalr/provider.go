@@ -3,41 +3,13 @@ package scalr
 import (
 	"context"
 	"fmt"
-	"log"
-	"net/http"
-	"net/url"
-	"os"
-	"sort"
-	"strings"
 
-	"github.com/hashicorp/go-version"
-	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	svchost "github.com/hashicorp/terraform-svchost"
-	"github.com/hashicorp/terraform-svchost/auth"
-	"github.com/hashicorp/terraform-svchost/disco"
-	"github.com/scalr/go-scalr"
-	providerVersion "github.com/scalr/terraform-provider-scalr/version"
+
+	"github.com/scalr/terraform-provider-scalr/internal/client"
+	"github.com/scalr/terraform-provider-scalr/version"
 )
-
-const defaultHostname = "scalr.io"
-
-var scalrServiceIDs = []string{"iacp.v3"}
-
-// Config is the structure of the configuration for the Terraform CLI.
-type Config struct {
-	Hosts       map[string]*ConfigHost            `hcl:"host"`
-	Credentials map[string]map[string]interface{} `hcl:"credentials"`
-}
-
-// ConfigHost is the structure of the "host" nested block within the CLI
-// configuration, which can be used to override the default service host
-// discovery behavior for a particular hostname.
-type ConfigHost struct {
-	Services map[string]interface{} `hcl:"services"`
-}
 
 // Provider returns a terraform.ResourceProvider.
 func Provider() *schema.Provider {
@@ -46,20 +18,21 @@ func Provider() *schema.Provider {
 			"hostname": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Description: fmt.Sprintf("The Scalr hostname to connect to. Defaults to `%s`."+
-					" Can be overridden by setting the `SCALR_HOSTNAME` environment variable.",
-					defaultHostname),
-				DefaultFunc: schema.EnvDefaultFunc("SCALR_HOSTNAME", defaultHostname),
+				Description: fmt.Sprintf("The Scalr hostname to connect to. Defaults to %q."+
+					" Can be overridden by setting the `%s` environment variable.",
+					client.DefaultHostname, client.HostnameEnvVar),
+				DefaultFunc: schema.EnvDefaultFunc(client.HostnameEnvVar, client.DefaultHostname),
 			},
 
 			"token": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Description: "The token used to authenticate with Scalr." +
-					" Can be overridden by setting the `SCALR_TOKEN` environment variable." +
-					" See [Scalr provider configuration](https://docs.scalr.io/docs/scalr)" +
+				Description: fmt.Sprintf("The token used to authenticate with Scalr."+
+					" Can be overridden by setting the `%s` environment variable."+
+					" See [Scalr provider configuration](https://docs.scalr.io/docs/scalr)"+
 					" for information on generating a token.",
-				DefaultFunc: schema.EnvDefaultFunc("SCALR_TOKEN", nil),
+					client.TokenEnvVar),
+				DefaultFunc: schema.EnvDefaultFunc(client.TokenEnvVar, nil),
 			},
 		},
 
@@ -122,321 +95,13 @@ func Provider() *schema.Provider {
 }
 
 func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	// Parse the hostname for comparison,
-	hostname, err := svchost.ForComparison(d.Get("hostname").(string))
+	h := d.Get("hostname").(string)
+	t := d.Get("token").(string)
+
+	scalrClient, err := client.Configure(h, t, version.ProviderVersion)
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
 
-	providerUaString := fmt.Sprintf("terraform-provider-scalr/%s", providerVersion.ProviderVersion)
-
-	// Get the Terraform CLI configuration.
-	config := cliConfig()
-
-	// Create a new credential source and service discovery object.
-	credsSrc := credentialsSource(config)
-	services := disco.NewWithCredentialsSource(credsSrc)
-	services.SetUserAgent(providerUaString)
-	services.Transport = logging.NewLoggingHTTPTransport(services.Transport)
-
-	// Add any static host configurations service discovery object.
-	for userHost, hostConfig := range config.Hosts {
-		host, err := svchost.ForComparison(userHost)
-		if err != nil {
-			// ignore invalid hostnames.
-			continue
-		}
-		services.ForceHostServices(host, hostConfig.Services)
-	}
-
-	// Discover the address.
-	host, err := services.Discover(hostname)
-	if err != nil {
-		return nil, diag.FromErr(err)
-	}
-
-	// Get the full service address.
-	var address *url.URL
-	var discoErr error
-	for _, scalrServiceID := range scalrServiceIDs {
-		service, err := host.ServiceURL(scalrServiceID)
-		if _, ok := err.(*disco.ErrVersionNotSupported); !ok && err != nil {
-			return nil, diag.FromErr(err)
-		}
-		// If discoErr is nil we save the first error. When multiple services
-		// are checked, and we found one that didn't give an error we need to
-		// reset the discoErr. So if err is nil, we assign it as well.
-		if discoErr == nil || err == nil {
-			discoErr = err
-		}
-		if service != nil {
-			address = service
-			break
-		}
-	}
-
-	// When we don't have any constraints errors, also check for discovery
-	// errors before we continue.
-	if discoErr != nil {
-		return nil, diag.FromErr(discoErr)
-	}
-
-	// Get the token from the config.
-	token := d.Get("token").(string)
-
-	// Only try to get to the token from the credentials source if no token
-	// was explicitly set in the provider configuration.
-	if token == "" {
-		creds, err := services.CredentialsForHost(hostname)
-		if err != nil {
-			log.Printf("[DEBUG] Failed to get credentials for %s: %s (ignoring)", hostname, err)
-		}
-		if creds != nil {
-			token = creds.Token()
-		}
-	}
-
-	// If we still don't have a token at this point, we return an error.
-	if token == "" {
-		return nil, diag.Errorf("required token could not be found")
-	}
-
-	httpClient := scalr.DefaultConfig().HTTPClient
-	httpClient.Transport = logging.NewLoggingHTTPTransport(httpClient.Transport)
-
-	headers := make(http.Header)
-	headers.Add("User-Agent", providerUaString)
-
-	// Create a new Scalr client config
-	cfg := &scalr.Config{
-		Address:    address.String(),
-		Token:      token,
-		HTTPClient: httpClient,
-		Headers:    headers,
-	}
-
-	// Create a new Scalr client.
-	client, err := scalr.NewClient(cfg)
-	if err != nil {
-		return nil, diag.FromErr(err)
-	}
-
-	client.RetryServerErrors(true)
-	return client, nil
-}
-
-// cliConfig tries to find and parse the configuration of the Terraform CLI.
-// This is an optional step, so any errors are ignored.
-func cliConfig() *Config {
-	combinedConfig := &Config{}
-
-	// Main CLI config file; might contain manually-entered credentials, and/or
-	// some host service discovery objects. Location is configurable via
-	// environment variables.
-	mainConfig := readCliConfigFile(locateConfigFile())
-
-	// Credentials file; might contain credentials auto-configured by terraform
-	// login. Location isn't configurable.
-	var credentialsConfig *Config
-	credentialsFilePath, err := credentialsFile()
-	if err != nil {
-		log.Printf("[ERROR] Error detecting default credentials file path: %s", err)
-		credentialsConfig = &Config{}
-	} else {
-		credentialsConfig = readCliConfigFile(credentialsFilePath)
-	}
-
-	// Use host service discovery configs from main config file.
-	combinedConfig.Hosts = mainConfig.Hosts
-
-	// Combine both sets of credentials. Per Terraform's own behavior, the main
-	// config file overrides the credentials file if they have any overlapping
-	// hostnames.
-	combinedConfig.Credentials = credentialsConfig.Credentials
-	if combinedConfig.Credentials == nil {
-		combinedConfig.Credentials = make(map[string]map[string]interface{})
-	}
-	for host, creds := range mainConfig.Credentials {
-		combinedConfig.Credentials[host] = creds
-	}
-
-	return combinedConfig
-}
-
-func locateConfigFile() string {
-	// To find the main CLI config file, follow Terraform's own logic: try
-	// TF_CLI_CONFIG_FILE, then try TERRAFORM_CONFIG, then try the default
-	// location.
-
-	if os.Getenv("TF_CLI_CONFIG_FILE") != "" {
-		return os.Getenv("TF_CLI_CONFIG_FILE")
-	}
-
-	if os.Getenv("TERRAFORM_CONFIG") != "" {
-		return os.Getenv("TERRAFORM_CONFIG")
-	}
-	filePath, err := configFile()
-	if err != nil {
-		log.Printf("[ERROR] Error detecting default CLI config file path: %s", err)
-		return ""
-	}
-
-	return filePath
-}
-
-func readCliConfigFile(configFilePath string) *Config {
-	config := &Config{}
-
-	if configFilePath == "" {
-		return config
-	}
-
-	// Read the CLI config file content.
-	content, err := os.ReadFile(configFilePath)
-	if err != nil {
-		log.Printf("[ERROR] Error reading CLI config or credentials file %s: %v", configFilePath, err)
-		return config
-	}
-
-	// Parse the CLI config file content.
-	obj, err := hcl.Parse(string(content))
-	if err != nil {
-		log.Printf("[ERROR] Error parsing CLI config or credentials file %s: %v", configFilePath, err)
-		return config
-	}
-
-	// Decode the CLI config file content.
-	if err := hcl.DecodeObject(config, obj); err != nil {
-		log.Printf("[ERROR] Error decoding CLI config or credentials file %s: %v", configFilePath, err)
-	}
-
-	return config
-}
-
-func credentialsSource(config *Config) auth.CredentialsSource {
-	creds := auth.NoCredentials
-
-	// Add all configured credentials to the credentials source.
-	if len(config.Credentials) > 0 {
-		staticTable := map[svchost.Hostname]map[string]interface{}{}
-		for userHost, creds := range config.Credentials {
-			host, err := svchost.ForComparison(userHost)
-			if err != nil {
-				// We expect the config was already validated by the time we get
-				// here, so we'll just ignore invalid hostnames.
-				continue
-			}
-			staticTable[host] = creds
-		}
-		creds = auth.StaticCredentialsSource(staticTable)
-	}
-
-	return creds
-}
-
-// checkConstraints checks service version constrains against our own
-// version and returns rich and informational diagnostics in case any
-// incompatibilities are detected.
-// nolint:deadcode,unused
-func checkConstraints(c *disco.Constraints) error {
-	if c == nil || c.Minimum == "" || c.Maximum == "" {
-		return nil
-	}
-
-	// Generate a parsable constraints string.
-	excluding := ""
-	if len(c.Excluding) > 0 {
-		excluding = fmt.Sprintf(", != %s", strings.Join(c.Excluding, ", != "))
-	}
-	constStr := fmt.Sprintf(">= %s%s, <= %s", c.Minimum, excluding, c.Maximum)
-
-	// Create the constraints to check against.
-	constraints, err := version.NewConstraint(constStr)
-	if err != nil {
-		return checkConstraintsWarning(err)
-	}
-
-	// Create the version to check.
-	v, err := version.NewVersion(providerVersion.ProviderVersion)
-	if err != nil {
-		return checkConstraintsWarning(err)
-	}
-
-	// Return if we satisfy all constraints.
-	if constraints.Check(v) {
-		return nil
-	}
-
-	// Find out what action (upgrade/downgrade) we should advise.
-	minimum, err := version.NewVersion(c.Minimum)
-	if err != nil {
-		return checkConstraintsWarning(err)
-	}
-
-	maximum, err := version.NewVersion(c.Maximum)
-	if err != nil {
-		return checkConstraintsWarning(err)
-	}
-
-	var excludes []*version.Version
-	for _, exclude := range c.Excluding {
-		v, err := version.NewVersion(exclude)
-		if err != nil {
-			return checkConstraintsWarning(err)
-		}
-		excludes = append(excludes, v)
-	}
-
-	// Sort all the excludes.
-	sort.Sort(version.Collection(excludes))
-
-	var action, toVersion string
-	switch {
-	case minimum.GreaterThan(v):
-		action = "upgrade"
-		toVersion = ">= " + minimum.String()
-	case maximum.LessThan(v):
-		action = "downgrade"
-		toVersion = "<= " + maximum.String()
-	case len(excludes) > 0:
-		// Get the latest excluded version.
-		action = "upgrade"
-		toVersion = "> " + excludes[len(excludes)-1].String()
-	}
-
-	switch {
-	case len(excludes) == 1:
-		excluding = fmt.Sprintf(", excluding version %s", excludes[0].String())
-	case len(excludes) > 1:
-		var vs []string
-		for _, v := range excludes {
-			vs = append(vs, v.String())
-		}
-		excluding = fmt.Sprintf(", excluding versions %s", strings.Join(vs, ", "))
-	default:
-		excluding = ""
-	}
-
-	summary := fmt.Sprintf("Incompatible Scalr provider version v%s", v.String())
-	details := fmt.Sprintf(
-		"The configured Scalr installation is compatible with Scalr provider\n"+
-			"versions >= %s, <= %s%s.", c.Minimum, c.Maximum, excluding,
-	)
-
-	if action != "" && toVersion != "" {
-		summary = fmt.Sprintf("Please %s the Scalr provider to %s", action, toVersion)
-	}
-
-	// Return the customized and informational error message.
-	return fmt.Errorf("%s\n\n%s", summary, details)
-}
-
-// nolint:unused
-func checkConstraintsWarning(err error) error {
-	return fmt.Errorf(
-		"Failed to check version constraints: %v\n\n"+
-			"Checking version constraints is considered optional, but this is an\n"+
-			"unexpected error which should be reported.",
-		err,
-	)
+	return scalrClient, nil
 }

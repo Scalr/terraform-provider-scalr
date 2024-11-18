@@ -1,13 +1,19 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov5/tf5server"
+	"github.com/hashicorp/terraform-plugin-mux/tf5muxserver"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 
+	"github.com/scalr/terraform-provider-scalr/internal/provider"
 	"github.com/scalr/terraform-provider-scalr/scalr"
+	"github.com/scalr/terraform-provider-scalr/version"
 )
 
 // Commands to prepare auto-generated documentation.
@@ -24,6 +30,8 @@ const (
 )
 
 func main() {
+	ctx := context.Background()
+
 	var isDebug bool
 	flag.BoolVar(&isDebug, "debug", false, "Start provider in debug mode.")
 	flag.Parse()
@@ -34,9 +42,31 @@ func main() {
 
 	schema.DescriptionKind = schema.StringMarkdown
 
-	plugin.Serve(&plugin.ServeOpts{
-		ProviderFunc: scalr.Provider,
-		ProviderAddr: scalrProviderAddr,
-		Debug:        isDebug,
-	})
+	providers := []func() tfprotov5.ProviderServer{
+		// New provider implementation with Terraform Plugin Framework
+		providerserver.NewProtocol5(provider.New(version.ProviderVersion)()),
+		// Classic provider implementation with Terraform Plugin SDK
+		scalr.Provider().GRPCProvider,
+	}
+
+	muxServer, err := tf5muxserver.NewMuxServer(ctx, providers...)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var serveOpts []tf5server.ServeOpt
+	if isDebug {
+		serveOpts = append(serveOpts, tf5server.WithManagedDebug())
+	}
+
+	// Serve both the classic and the new provider
+	err = tf5server.Serve(
+		scalrProviderAddr,
+		muxServer.ProviderServer,
+		serveOpts...,
+	)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }

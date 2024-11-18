@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/scalr/go-scalr"
+
+	"github.com/scalr/terraform-provider-scalr/internal/client"
 )
 
 const defaultAccount = "acc-svrcncgh453bi8g"
@@ -20,15 +22,15 @@ func testScalrClient(t *testing.T) *scalr.Client {
 		Token: "not-a-token",
 	}
 
-	client, err := scalr.NewClient(config)
+	scalrClient, err := scalr.NewClient(config)
 	if err != nil {
 		t.Fatalf("error creating Scalr client: %v", err)
 	}
 
-	client.Workspaces = newMockWorkspaces()
-	client.Variables = newMockVariables()
+	scalrClient.Workspaces = client.NewMockWorkspaces()
+	scalrClient.Variables = client.NewMockVariables()
 
-	return client
+	return scalrClient
 }
 
 func assertCorrectState(t *testing.T, err error, actual, expected map[string]interface{}) {
@@ -49,7 +51,7 @@ func isAccTest() bool {
 
 func createScalrClient() (*scalr.Client, error) {
 	config := scalr.DefaultConfig()
-	config.Address = fmt.Sprintf("https://%s", os.Getenv("SCALR_HOSTNAME"))
+	config.Address = fmt.Sprintf("https://%s", os.Getenv(client.HostnameEnvVar))
 	scalrClient, err := scalr.NewClient(config)
 	return scalrClient, err
 }
