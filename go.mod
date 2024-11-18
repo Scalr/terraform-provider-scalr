@@ -12,7 +12,7 @@ require (
 	github.com/hashicorp/terraform-plugin-mux v0.17.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.35.0
 	github.com/hashicorp/terraform-svchost v0.1.1
-	github.com/scalr/go-scalr v0.0.0-20240929210950-4e55784195ad
+	github.com/scalr/go-scalr v0.0.0-20241111151759-2c33e05ca45e
 )
 
 require (
