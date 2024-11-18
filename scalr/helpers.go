@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	"time"
 
 	"github.com/scalr/go-scalr"
 )
@@ -15,10 +14,6 @@ const (
 	currentAccountIDEnvVar = "SCALR_ACCOUNT_ID"
 	dummyIdentifier        = "-"
 )
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
 
 type GetEnvironmentByNameOptions struct {
 	Name    *string
