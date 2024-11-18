@@ -370,6 +370,54 @@ func TestAccScalrWorkspace_providerConfiguration(t *testing.T) {
 	})
 }
 
+func TestAccScalrWorkspaceSSHKey(t *testing.T) {
+	workspace := &scalr.Workspace{}
+	sshKey := &scalr.SSHKey{}
+	rInt := GetRandomInteger()
+	sshKeyName := fmt.Sprintf("ssh-key-test-%d", rInt)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrWorkspaceWithSSHKeyConfig(rInt, sshKeyName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrWorkspaceExists("scalr_workspace.test", workspace),
+					testAccCheckScalrSSHKeyExists("scalr_ssh_key.test", sshKey),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "name", "workspace-with-ssh-key"),
+					resource.TestCheckResourceAttr("scalr_ssh_key.test", "name", sshKeyName),
+					resource.TestCheckResourceAttrSet("scalr_workspace.test", "ssh_key_id"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckScalrSSHKeyExists(n string, sshKey *scalr.SSHKey) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
+
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No SSH key ID is set")
+		}
+
+		k, err := scalrClient.SSHKeys.Read(context.Background(), rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+
+		*sshKey = *k
+		return nil
+	}
+}
+
 func TestAccScalrWorkspace_emptyHooks(t *testing.T) {
 	rInt := GetRandomInteger()
 
@@ -914,4 +962,32 @@ resource "scalr_workspace" "test" {
   }
 }`, scalr.WorkspaceExecutionModeLocal),
 	)
+}
+
+func testAccScalrWorkspaceWithSSHKeyConfig(rInt int, sshKeyName string) string {
+	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name       = "test-env-%d"
+  account_id = "%s"
+}
+
+resource "scalr_ssh_key" "test" {
+  name        = "%s"
+  private_key = <<EOF
+-----BEGIN PRIVATE KEY-----
+MC4CAQAwBQYDK2VwBCIEIBvMDyNaYtWK2TmJIfFhmPZeGxK0bWnNDhjlTZ+V6e4x
+-----END PRIVATE KEY-----
+EOF
+  account_id  = scalr_environment.test.account_id
+  environments = [scalr_environment.test.id]
+}
+
+resource "scalr_workspace" "test" {
+  name                   = "workspace-with-ssh-key"
+  environment_id         = scalr_environment.test.id
+  ssh_key_id             = scalr_ssh_key.test.id
+  auto_apply             = true
+  execution_mode         = "remote"
+  working_directory      = ""
+}`, rInt, defaultAccount, sshKeyName)
 }
