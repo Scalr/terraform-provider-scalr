@@ -24,6 +24,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `scalr_variable`: added deprecation warning when `hcl` attribute is set to `true` for shell variable
 
+### Deprecated
+
+- `scalr_environment`: attribute `policy_groups` is deprecated and will be removed in the next major version ([#356](https://github.com/Scalr/terraform-provider-scalr/pull/356))
+- `scalr_environment`: attribute `cost_estimation_enabled` is deprecated and will be removed in the next major version ([#356](https://github.com/Scalr/terraform-provider-scalr/pull/356))
+
 ### Required
 
 - scalr-server >= 8.143.0
