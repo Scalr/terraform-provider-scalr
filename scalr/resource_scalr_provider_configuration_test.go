@@ -10,8 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-
 	"github.com/scalr/go-scalr"
+
+	"github.com/scalr/terraform-provider-scalr/internal/client"
 )
 
 func TestAccProviderConfiguration_import(t *testing.T) {
@@ -228,7 +229,7 @@ func TestAccProviderConfiguration_aws(t *testing.T) {
 
 func TestAccProviderConfiguration_scalr(t *testing.T) {
 	var providerConfiguration scalr.ProviderConfiguration
-	scalrHostname := os.Getenv("SCALR_HOSTNAME")
+	scalrHostname := os.Getenv(client.HostnameEnvVar)
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
@@ -1070,7 +1071,7 @@ resource "scalr_provider_configuration" "scalr" {
     token    = "%s"
   }
 }
-`, name, defaultAccount, os.Getenv("SCALR_HOSTNAME"), os.Getenv("SCALR_TOKEN"))
+`, name, defaultAccount, os.Getenv(client.HostnameEnvVar), os.Getenv(client.TokenEnvVar))
 }
 
 func testAccScalrProviderConfigurationScalrUpdatedConfig(name string) string {
@@ -1084,5 +1085,5 @@ resource "scalr_provider_configuration" "scalr" {
     token    = "%s"
   }
 }
-`, name, defaultAccount, os.Getenv("SCALR_HOSTNAME")+"/", os.Getenv("SCALR_TOKEN"))
+`, name, defaultAccount, os.Getenv(client.HostnameEnvVar)+"/", os.Getenv(client.TokenEnvVar))
 }
