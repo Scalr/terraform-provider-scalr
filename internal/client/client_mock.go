@@ -1,4 +1,4 @@
-package scalr
+package client
 
 import (
 	"context"

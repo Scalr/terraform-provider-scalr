@@ -1,6 +1,6 @@
 //go:build !windows
 
-package scalr
+package client
 
 import (
 	"errors"
