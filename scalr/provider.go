@@ -18,7 +18,7 @@ func Provider() *schema.Provider {
 			"hostname": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Description: fmt.Sprintf("The Scalr hostname to connect to. Defaults to %q."+
+				Description: fmt.Sprintf("The Scalr hostname to connect to. Defaults to `%s`."+
 					" Can be overridden by setting the `%s` environment variable.",
 					client.DefaultHostname, client.HostnameEnvVar),
 				DefaultFunc: schema.EnvDefaultFunc(client.HostnameEnvVar, client.DefaultHostname),

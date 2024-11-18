@@ -51,7 +51,7 @@ func (p *scalrProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp
 				Description: fmt.Sprintf("The Scalr hostname to connect to. Defaults to %q."+
 					" Can be overridden by setting the %s environment variable.",
 					client.DefaultHostname, client.HostnameEnvVar),
-				MarkdownDescription: fmt.Sprintf("The Scalr hostname to connect to. Defaults to %q."+
+				MarkdownDescription: fmt.Sprintf("The Scalr hostname to connect to. Defaults to `%s`."+
 					" Can be overridden by setting the `%s` environment variable.",
 					client.DefaultHostname, client.HostnameEnvVar),
 				Optional: true,
