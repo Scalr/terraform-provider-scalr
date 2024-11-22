@@ -45,7 +45,7 @@ func main() {
 		// New provider implementation with Terraform Plugin Framework
 		providerserver.NewProtocol5(provider.New(version.ProviderVersion)()),
 		// Classic provider implementation with Terraform Plugin SDK
-		provider.Provider().GRPCProvider,
+		provider.Provider(version.ProviderVersion).GRPCProvider,
 	}
 
 	muxServer, err := tf5muxserver.NewMuxServer(ctx, providers...)

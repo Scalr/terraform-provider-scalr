@@ -20,7 +20,7 @@ var githubToken = os.Getenv("githubToken")
 var ctx = context.Background()
 
 func init() {
-	testAccProvider = Provider()
+	testAccProvider = Provider(testProviderVersion)
 	testAccProviderFactories = map[string]func() (*schema.Provider, error){
 		"scalr": func() (*schema.Provider, error) {
 			return testAccProvider, nil
@@ -29,18 +29,18 @@ func init() {
 }
 
 func TestProvider(t *testing.T) {
-	if err := Provider().InternalValidate(); err != nil {
+	if err := Provider(testProviderVersion).InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 }
 
 func TestProvider_impl(t *testing.T) {
-	var _ = Provider()
+	var _ = Provider(testProviderVersion)
 }
 
 func testAccPreCheck(t *testing.T) {
 	// The credentials must be provided by the CLI config file for testing.
-	if diags := Provider().Configure(context.Background(), &terraform.ResourceConfig{}); diags.HasError() {
+	if diags := Provider(testProviderVersion).Configure(context.Background(), &terraform.ResourceConfig{}); diags.HasError() {
 		for _, d := range diags {
 			if d.Severity == diag.Error {
 				t.Fatalf("err: %s", d.Summary)

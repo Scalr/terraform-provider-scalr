@@ -8,11 +8,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/scalr/terraform-provider-scalr/internal/client"
-	"github.com/scalr/terraform-provider-scalr/version"
 )
 
-// Provider returns a terraform.ResourceProvider.
-func Provider() *schema.Provider {
+// Provider returns a terraform.ResourceProvider with version v.
+func Provider(v string) *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"hostname": {
@@ -92,18 +91,20 @@ func Provider() *schema.Provider {
 			"scalr_ssh_key":                        resourceScalrSSHKey(),
 		},
 
-		ConfigureContextFunc: providerConfigure,
+		ConfigureContextFunc: providerConfigure(v),
 	}
 }
 
-func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	h := d.Get("hostname").(string)
-	t := d.Get("token").(string)
+func providerConfigure(v string) func(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+	return func(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+		h := d.Get("hostname").(string)
+		t := d.Get("token").(string)
 
-	scalrClient, err := client.Configure(h, t, version.ProviderVersion)
-	if err != nil {
-		return nil, diag.FromErr(err)
+		scalrClient, err := client.Configure(h, t, v)
+		if err != nil {
+			return nil, diag.FromErr(err)
+		}
+
+		return scalrClient, nil
 	}
-
-	return scalrClient, nil
 }
