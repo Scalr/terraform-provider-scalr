@@ -95,7 +95,7 @@ func Provider(v string) *schema.Provider {
 	}
 }
 
-func providerConfigure(v string) func(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+func providerConfigure(v string) func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	return func(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		h := d.Get("hostname").(string)
 		t := d.Get("token").(string)
