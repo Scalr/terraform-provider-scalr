@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/scalr/go-scalr"
@@ -126,10 +127,12 @@ func resourceScalrEnvironmentCreate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	options := scalr.EnvironmentCreateOptions{
-		Name:                  scalr.String(name),
-		CostEstimationEnabled: scalr.Bool(d.Get("cost_estimation_enabled").(bool)),
-		Account:               &scalr.Account{ID: accountID},
-		PolicyGroups:          policyGroups,
+		Name:         scalr.String(name),
+		Account:      &scalr.Account{ID: accountID},
+		PolicyGroups: policyGroups,
+	}
+	if costEstimationEnabled, ok := d.GetOk("cost_estimation_enabled"); ok {
+		options.CostEstimationEnabled = scalr.Bool(costEstimationEnabled.(bool))
 	}
 	if defaultProviderConfigurationsI, ok := d.GetOk("default_provider_configurations"); ok {
 		defaultProviderConfigurations := defaultProviderConfigurationsI.(*schema.Set).List()
@@ -228,9 +231,11 @@ func resourceScalrEnvironmentUpdate(ctx context.Context, d *schema.ResourceData,
 
 	// Create a new options struct.
 	options := scalr.EnvironmentUpdateOptions{
-		Name:                  scalr.String(d.Get("name").(string)),
-		CostEstimationEnabled: scalr.Bool(d.Get("cost_estimation_enabled").(bool)),
-		PolicyGroups:          policyGroups,
+		Name:         scalr.String(d.Get("name").(string)),
+		PolicyGroups: policyGroups,
+	}
+	if costEstimationEnabled, ok := d.GetOk("cost_estimation_enabled"); ok {
+		options.CostEstimationEnabled = scalr.Bool(costEstimationEnabled.(bool))
 	}
 
 	if defaultProviderConfigurationsI, ok := d.GetOk("default_provider_configurations"); ok {
