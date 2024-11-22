@@ -30,7 +30,7 @@ func resourceScalrEnvironment() *schema.Resource {
 				Required:    true,
 			},
 			"cost_estimation_enabled": {
-				Description: "Set (true/false) to enable/disable cost estimation for the environment. Default `true`.",
+				Description: "Set (true/false) to enable/disable cost estimation for the environment.",
 				Type:        schema.TypeBool,
 				Computed:    true,
 				Optional:    true,
