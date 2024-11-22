@@ -6,15 +6,13 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrVariableDataSource(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      `data scalr_variable test {}`,
@@ -58,7 +56,7 @@ func TestAccScalrVariableDataSource(t *testing.T) {
 					resource.TestCheckResourceAttr("data.scalr_variable.workspace_hostname", "sensitive", "false"),
 					resource.TestCheckResourceAttr("data.scalr_variable.workspace_hostname", "description", "The hostname of scalr workspace."),
 					resource.TestCheckResourceAttr("data.scalr_variable.workspace_hostname", "final", "false"),
-					resource.TestCheckResourceAttr("data.scalr_variable.workspace_hostname", "account_id", scalr.defaultAccount),
+					resource.TestCheckResourceAttr("data.scalr_variable.workspace_hostname", "account_id", defaultAccount),
 					testAccCheckEqualID("data.scalr_variable.secret", "scalr_variable.secret"),
 					resource.TestCheckResourceAttr("data.scalr_variable.secret", "hcl", "false"),
 					resource.TestCheckResourceAttr("data.scalr_variable.secret", "sensitive", "true"),
@@ -92,7 +90,7 @@ resource scalr_workspace test {
   
 resource "scalr_variable" "workspace_hostname" {
   key          = "hostname"
-  value        = "workspace.scalr.com"
+  value        = "workspace.com"
   category     = "shell"
   hcl          = false
   sensitive    = false
@@ -103,11 +101,11 @@ resource "scalr_variable" "workspace_hostname" {
 
 resource "scalr_variable" "hostname" {
   key         = "hostname"
-  value       = "scalr.com"
+  value       = "com"
   category    = "shell"
   hcl         = false
   sensitive   = false
-  description = "The hostname of scalr."
+  description = "The hostname of "
   final       = false
   account_id  = "%[1]s"
 }
@@ -122,14 +120,14 @@ resource "scalr_variable" "secret" {
   final       = true
   account_id  = "%[1]s"
 }
-`, scalr.defaultAccount)
+`, defaultAccount)
 
 var testAccScalrVariableDataSourceByIDConfig = testAccScalrVariableDataSourceInitConfig + fmt.Sprintf(`
 data "scalr_variable" "secret" {
   id         = scalr_variable.secret.id
   account_id = "%s"
 }
-`, scalr.defaultAccount)
+`, defaultAccount)
 
 var testAccScalrVariableDataSourceByKeyConfig = testAccScalrVariableDataSourceInitConfig + fmt.Sprintf(`
 data "scalr_variable" "secret" {
@@ -143,7 +141,7 @@ data "scalr_variable" "workspace_hostname" {
   category = "shell"
   account_id = "%[1]s"
   workspace_id = scalr_workspace.test.id
-}`, scalr.defaultAccount)
+}`, defaultAccount)
 
 var testAccScalrVariableDataSourceByIDAndKeyConfig = testAccScalrVariableDataSourceInitConfig + fmt.Sprintf(`
 data "scalr_variable" "secret" {
@@ -151,4 +149,4 @@ data "scalr_variable" "secret" {
   key        = "secret"
   account_id = "%s"
 }
-`, scalr.defaultAccount)
+`, defaultAccount)

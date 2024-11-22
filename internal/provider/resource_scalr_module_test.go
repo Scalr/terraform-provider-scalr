@@ -8,8 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrModule_basic(t *testing.T) {
@@ -17,9 +15,9 @@ func TestAccScalrModule_basic(t *testing.T) {
 		PreCheck: func() {
 			//TODO:ape delete skip after SCALRCORE-19891
 			t.Skip("Working on personal token but not working with github action token.")
-			scalr2.testVcsAccGithubTokenPreCheck(t)
+			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: scalr2.testAccProviderFactories,
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrModuleDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -68,9 +66,9 @@ func TestAccScalrModule_basic(t *testing.T) {
 func TestAccScalrModule_import(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			scalr2.testVcsAccGithubTokenPreCheck(t)
+			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: scalr2.testAccProviderFactories,
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrModuleDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -87,7 +85,7 @@ func TestAccScalrModule_import(t *testing.T) {
 
 func testAccCheckScalrModuleExists(moduleId string, module *scalr.Module) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[moduleId]
 		if !ok {
@@ -99,7 +97,7 @@ func testAccCheckScalrModuleExists(moduleId string, module *scalr.Module) resour
 		}
 
 		// Get the module
-		m, err := scalrClient.Modules.Read(scalr2.ctx, rs.Primary.ID)
+		m, err := scalrClient.Modules.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -111,7 +109,7 @@ func testAccCheckScalrModuleExists(moduleId string, module *scalr.Module) resour
 }
 
 func testAccCheckScalrModuleDestroy(s *terraform.State) error {
-	scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_module" {
@@ -122,7 +120,7 @@ func testAccCheckScalrModuleDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := scalrClient.Modules.Read(scalr2.ctx, rs.Primary.ID)
+		_, err := scalrClient.Modules.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Module %s still exists", rs.Primary.ID)
 		}
@@ -145,7 +143,7 @@ func testAccScalrModule() string {
 	  }
 	  vcs_provider_id = scalr_vcs_provider.test.id
 }
-`, string(scalr.Github), scalr2.githubToken)
+`, string(scalr.Github), githubToken)
 }
 
 func testAccScalrModulesOnAllScopes() string {
@@ -190,5 +188,5 @@ func testAccScalrModulesOnAllScopes() string {
 		  }
 		  vcs_provider_id = scalr_vcs_provider.test.id
 		}
-`, rInd, string(scalr.Github), scalr2.githubToken, defaultAccount)
+`, rInd, string(scalr.Github), githubToken, defaultAccount)
 }

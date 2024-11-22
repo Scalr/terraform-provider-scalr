@@ -5,8 +5,6 @@ import (
 	"testing"
 
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func testResourceScalrVariableStateDataV0() map[string]interface{} {
@@ -31,7 +29,7 @@ func TestResourceScalrVariableStateUpgradeV0(t *testing.T) {
 	})
 
 	expected := testResourceScalrVariableStateDataV1()
-	actual, err := resourceScalrVariableStateUpgradeV0(scalr2.ctx, testResourceScalrVariableStateDataV0(), client)
+	actual, err := resourceScalrVariableStateUpgradeV0(ctx, testResourceScalrVariableStateDataV0(), client)
 	assertCorrectState(t, err, actual, expected)
 }
 
@@ -49,7 +47,7 @@ func testResourceScalrVariableStateDataCategoryV1() map[string]interface{} {
 
 func TestResourceScalrVariableStateUpgradeV1(t *testing.T) {
 	expected := testResourceScalrVariableStateDataCategoryV1()
-	actual, err := resourceScalrVariableStateUpgradeV1(scalr2.ctx, testResourceScalrVariableStateDataCategoryV0(), nil)
+	actual, err := resourceScalrVariableStateUpgradeV1(ctx, testResourceScalrVariableStateDataCategoryV0(), nil)
 	assertCorrectState(t, err, actual, expected)
 }
 
@@ -70,7 +68,7 @@ func TestResourceScalrVariableStateUpgradeV2(t *testing.T) {
 	client := testScalrClient(t)
 	variable, _ := client.Variables.Create(context.Background(), scalr.VariableCreateOptions{ID: "var-123"})
 	expected := testResourceScalrVariableStateDataDescriptionV2(variable.ID)
-	actual, err := resourceScalrVariableStateUpgradeV2(scalr2.ctx, testResourceScalrVariableStateDataDescriptionV1(variable.ID), client)
+	actual, err := resourceScalrVariableStateUpgradeV2(ctx, testResourceScalrVariableStateDataDescriptionV1(variable.ID), client)
 	assertCorrectState(t, err, actual, expected)
 
 }

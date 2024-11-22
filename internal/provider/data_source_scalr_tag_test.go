@@ -6,16 +6,14 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrTagDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      `data scalr_tag test {}`,
@@ -37,7 +35,7 @@ func TestAccScalrTagDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.scalr_tag.test", "id"),
 					resource.TestCheckResourceAttr("data.scalr_tag.test", "name", fmt.Sprintf("test-tag-%d", rInt)),
-					resource.TestCheckResourceAttr("data.scalr_tag.test", "account_id", scalr.defaultAccount),
+					resource.TestCheckResourceAttr("data.scalr_tag.test", "account_id", defaultAccount),
 				),
 			},
 			{
@@ -45,7 +43,7 @@ func TestAccScalrTagDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.scalr_tag.test", "id"),
 					resource.TestCheckResourceAttr("data.scalr_tag.test", "name", fmt.Sprintf("test-tag-%d", rInt)),
-					resource.TestCheckResourceAttr("data.scalr_tag.test", "account_id", scalr.defaultAccount),
+					resource.TestCheckResourceAttr("data.scalr_tag.test", "account_id", defaultAccount),
 				),
 			},
 			{
@@ -53,7 +51,7 @@ func TestAccScalrTagDataSource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.scalr_tag.test", "id"),
 					resource.TestCheckResourceAttr("data.scalr_tag.test", "name", fmt.Sprintf("test-tag-%d", rInt)),
-					resource.TestCheckResourceAttr("data.scalr_tag.test", "account_id", scalr.defaultAccount),
+					resource.TestCheckResourceAttr("data.scalr_tag.test", "account_id", defaultAccount),
 				),
 			},
 		},
@@ -70,7 +68,7 @@ resource scalr_tag test {
 data scalr_tag test {
   id         = scalr_tag.test.id
   account_id = "%[2]s"
-}`, rInt, scalr.defaultAccount)
+}`, rInt, defaultAccount)
 }
 
 func testAccScalrTagDataSourceByNameConfig(rInt int) string {
@@ -83,7 +81,7 @@ resource scalr_tag test {
 data scalr_tag test {
   name       = scalr_tag.test.name
   account_id = "%[2]s"
-}`, rInt, scalr.defaultAccount)
+}`, rInt, defaultAccount)
 }
 
 func testAccScalrTagDataSourceByIDAndNameConfig(rInt int) string {
@@ -97,5 +95,5 @@ data scalr_tag test {
   id         = scalr_tag.test.id
   name       = scalr_tag.test.name
   account_id = "%[2]s"
-}`, rInt, scalr.defaultAccount)
+}`, rInt, defaultAccount)
 }

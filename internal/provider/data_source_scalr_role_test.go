@@ -7,14 +7,12 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrRoleDataSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      `data scalr_role test_role {}`,
@@ -39,7 +37,7 @@ func TestAccScalrRoleDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.scalr_role.test", "name", "role-test"),
 					resource.TestCheckResourceAttr("data.scalr_role.test", "description", ""),
 					resource.TestCheckResourceAttr("data.scalr_role.test", "is_system", "false"),
-					resource.TestCheckResourceAttr("data.scalr_role.test", "account_id", scalr.defaultAccount),
+					resource.TestCheckResourceAttr("data.scalr_role.test", "account_id", defaultAccount),
 					resource.TestCheckResourceAttr("data.scalr_role.test", "permissions.0", "*:read"),
 					resource.TestCheckResourceAttr("data.scalr_role.test", "permissions.1", "roles:update"),
 				),
@@ -63,7 +61,7 @@ func TestAccScalrRoleDataSource_basic(t *testing.T) {
 			{
 				Config: testAccScalrRoleDataSourceUserConfig(),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.scalr_role.user", "id", scalr.userRole),
+					resource.TestCheckResourceAttr("data.scalr_role.user", "id", userRole),
 					resource.TestCheckResourceAttr("data.scalr_role.user", "name", "user"),
 					resource.TestCheckResourceAttrSet("data.scalr_role.user", "description"),
 					resource.TestCheckResourceAttr("data.scalr_role.user", "is_system", "true"),
@@ -108,7 +106,7 @@ data "scalr_role" "test" {
   id       = scalr_role.test.id
   account_id = scalr_role.test.account_id
 }
-`, scalr.defaultAccount)
+`, defaultAccount)
 
 var testAccScalrRoleDataSourceByNameConfig = fmt.Sprintf(`
 resource "scalr_role" "test" {
@@ -124,7 +122,7 @@ data "scalr_role" "test" {
   name       = scalr_role.test.name
   account_id = scalr_role.test.account_id
 }
-`, scalr.defaultAccount)
+`, defaultAccount)
 
 var testAccScalrRoleDataSourceByIDAndNameConfig = fmt.Sprintf(`
 resource "scalr_role" "test" {
@@ -141,7 +139,7 @@ data "scalr_role" "test" {
   name       = scalr_role.test.name
   account_id = scalr_role.test.account_id
 }
-`, scalr.defaultAccount)
+`, defaultAccount)
 
 func testAccScalrRoleDataSourceUserConfig() string {
 	return `

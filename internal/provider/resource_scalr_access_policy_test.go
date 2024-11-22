@@ -12,8 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrAccessPolicy_basic(t *testing.T) {
@@ -21,8 +19,8 @@ func TestAccScalrAccessPolicy_basic(t *testing.T) {
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrAccessPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -46,8 +44,8 @@ func TestAccScalrAccessPolicy_bad_scope(t *testing.T) {
 	rg, _ := regexp.Compile(`scope.0.type must be one of \[workspace, environment, account], got: universe`)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrAccessPolicyBadScope(),
@@ -61,8 +59,8 @@ func TestAccScalrAccessPolicy_bad_subject(t *testing.T) {
 	rg, _ := regexp.Compile(`subject.0.type must be one of \[user, team, service_account], got: grandpa`)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrAccessPolicyBadSubject(),
@@ -77,8 +75,8 @@ func TestAccScalrAccessPolicy_changed_outside(t *testing.T) {
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrAccessPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -116,8 +114,8 @@ func TestAccScalrAccessPolicy_update(t *testing.T) {
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrAccessPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -160,8 +158,8 @@ func TestAccScalrAccessPolicy_import(t *testing.T) {
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrAccessPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -179,7 +177,7 @@ func TestAccScalrAccessPolicy_import(t *testing.T) {
 
 func testAccCheckScalrAccessPolicyExists(resId string, ap *scalr.AccessPolicy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[resId]
 		if !ok {
@@ -191,7 +189,7 @@ func testAccCheckScalrAccessPolicyExists(resId string, ap *scalr.AccessPolicy) r
 		}
 
 		// Get the ap
-		r, err := scalrClient.AccessPolicies.Read(scalr2.ctx, rs.Primary.ID)
+		r, err := scalrClient.AccessPolicies.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -204,9 +202,9 @@ func testAccCheckScalrAccessPolicyExists(resId string, ap *scalr.AccessPolicy) r
 
 func testAccCheckScalrAccessPolicyChangedOutside(ap *scalr.AccessPolicy) func() {
 	return func() {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
-		r, err := scalrClient.AccessPolicies.Read(scalr2.ctx, ap.ID)
+		r, err := scalrClient.AccessPolicies.Read(ctx, ap.ID)
 
 		if err != nil {
 			log.Fatalf("Error retrieving access policy: %v", err)
@@ -228,7 +226,7 @@ func testAccCheckScalrAccessPolicyChangedOutside(ap *scalr.AccessPolicy) func() 
 }
 
 func testAccCheckScalrAccessPolicyDestroy(s *terraform.State) error {
-	scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_access_policy" {
@@ -239,7 +237,7 @@ func testAccCheckScalrAccessPolicyDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := scalrClient.AccessPolicies.Read(scalr2.ctx, rs.Primary.ID)
+		_, err := scalrClient.AccessPolicies.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("AccessPolicy %s still exists", rs.Primary.ID)
 		}

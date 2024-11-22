@@ -9,8 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 const (
@@ -25,9 +23,9 @@ func TestAccPolicyGroup_basic(t *testing.T) {
 		PreCheck: func() {
 			// TODO: delete skip after SCALRCORE-19891
 			t.Skip("Works with personal token but does not work with github action token.")
-			scalr2.testVcsAccGithubTokenPreCheck(t)
+			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: scalr2.testAccProviderFactories,
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckPolicyGroupDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -78,9 +76,9 @@ func TestAccPolicyGroup_update(t *testing.T) {
 		PreCheck: func() {
 			// TODO: delete skip after SCALRCORE-19891
 			t.Skip("Works with personal token but does not work with github action token.")
-			scalr2.testVcsAccGithubTokenPreCheck(t)
+			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: scalr2.testAccProviderFactories,
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckPolicyGroupDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -169,9 +167,9 @@ func TestAccPolicyGroup_renamed(t *testing.T) {
 		PreCheck: func() {
 			// TODO: delete skip after SCALRCORE-19891
 			t.Skip("Works with personal token but does not work with github action token.")
-			scalr2.testVcsAccGithubTokenPreCheck(t)
+			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: scalr2.testAccProviderFactories,
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckPolicyGroupDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -260,9 +258,9 @@ func TestAccPolicyGroup_import(t *testing.T) {
 		PreCheck: func() {
 			// TODO: delete skip after SCALRCORE-19891
 			t.Skip("Works with personal token but does not work with github action token.")
-			scalr2.testVcsAccGithubTokenPreCheck(t)
+			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: scalr2.testAccProviderFactories,
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckPolicyGroupDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -279,7 +277,7 @@ func TestAccPolicyGroup_import(t *testing.T) {
 
 func testAccCheckPolicyGroupExists(resID string, policyGroup *scalr.PolicyGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[resID]
 		if !ok {
@@ -290,7 +288,7 @@ func testAccCheckPolicyGroupExists(resID string, policyGroup *scalr.PolicyGroup)
 			return fmt.Errorf("no instance ID is set")
 		}
 
-		pg, err := scalrClient.PolicyGroups.Read(scalr2.ctx, rs.Primary.ID)
+		pg, err := scalrClient.PolicyGroups.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -301,7 +299,7 @@ func testAccCheckPolicyGroupExists(resID string, policyGroup *scalr.PolicyGroup)
 }
 
 func testAccCheckPolicyGroupDestroy(s *terraform.State) error {
-	scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_policy_group" {
@@ -312,7 +310,7 @@ func testAccCheckPolicyGroupDestroy(s *terraform.State) error {
 			return fmt.Errorf("no instance ID is set")
 		}
 
-		_, err := scalrClient.PolicyGroups.Read(scalr2.ctx, rs.Primary.ID)
+		_, err := scalrClient.PolicyGroups.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("policy group %s still exists", rs.Primary.ID)
 		}
@@ -323,7 +321,7 @@ func testAccCheckPolicyGroupDestroy(s *terraform.State) error {
 
 func testAccCheckPolicyGroupRename(policyGroup *scalr.PolicyGroup) func() {
 	return func() {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		_, err := scalrClient.PolicyGroups.Update(
 			context.Background(),
@@ -353,7 +351,7 @@ resource "scalr_policy_group" "test" {
     path       = "%s"
   }
 }
-`, rInt, string(scalr.Github), scalr2.githubToken, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
+`, rInt, string(scalr.Github), githubToken, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
 }
 
 func testAccPolicyGroupUpdateConfig(rInt int) string {
@@ -373,7 +371,7 @@ resource "scalr_policy_group" "test" {
     path       = "%s"
   }
 }
-`, rInt, string(scalr.Github), scalr2.githubToken, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
+`, rInt, string(scalr.Github), githubToken, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
 }
 
 func testAccPolicyGroupRenamedConfig(rInt int) string {
@@ -393,5 +391,5 @@ resource "scalr_policy_group" "test" {
     path       = "%s"
   }
 }
-`, rInt, string(scalr.Github), scalr2.githubToken, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
+`, rInt, string(scalr.Github), githubToken, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
 }

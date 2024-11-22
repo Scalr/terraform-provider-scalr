@@ -7,8 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccPolicyGroupLinkage_basic(t *testing.T) {
@@ -20,9 +18,9 @@ func TestAccPolicyGroupLinkage_basic(t *testing.T) {
 		PreCheck: func() {
 			// TODO: delete skip after SCALRCORE-19891
 			t.Skip("Works with personal token but does not work with github action token.")
-			scalr2.testVcsAccGithubTokenPreCheck(t)
+			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: scalr2.testAccProviderFactories,
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckPolicyGroupLinkageDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -56,9 +54,9 @@ func TestAccPolicyGroupLinkage_import(t *testing.T) {
 		PreCheck: func() {
 			// TODO: delete skip after SCALRCORE-19891
 			t.Skip("Works with personal token but does not work with github action token.")
-			scalr2.testVcsAccGithubTokenPreCheck(t)
+			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: scalr2.testAccProviderFactories,
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckPolicyGroupLinkageDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -79,7 +77,7 @@ func testAccCheckPolicyGroupLinkageExists(
 	environment *scalr.Environment,
 ) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[resID]
 		if !ok {
@@ -90,7 +88,7 @@ func testAccCheckPolicyGroupLinkageExists(
 			return fmt.Errorf("no instance ID is set")
 		}
 
-		pg, env, err := getLinkedResources(scalr2.ctx, rs.Primary.ID, scalrClient)
+		pg, env, err := getLinkedResources(ctx, rs.Primary.ID, scalrClient)
 		if err != nil {
 			return err
 		}
@@ -103,7 +101,7 @@ func testAccCheckPolicyGroupLinkageExists(
 }
 
 func testAccCheckPolicyGroupLinkageDestroy(s *terraform.State) error {
-	scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_policy_group_linkage" {
@@ -114,7 +112,7 @@ func testAccCheckPolicyGroupLinkageDestroy(s *terraform.State) error {
 			return fmt.Errorf("no instance ID is set")
 		}
 
-		_, _, err := getLinkedResources(scalr2.ctx, rs.Primary.ID, scalrClient)
+		_, _, err := getLinkedResources(ctx, rs.Primary.ID, scalrClient)
 		if err == nil {
 			return fmt.Errorf("policy group linkage %s still exists", rs.Primary.ID)
 		}
@@ -154,5 +152,5 @@ resource "scalr_policy_group_linkage" "test" {
   policy_group_id = scalr_policy_group.test.id
   environment_id  = scalr_environment.test.id
 }
-`, defaultAccount, rInt, string(scalr.Github), scalr2.githubToken, policyGroupVcsRepoID, policyGroupVcsRepoPath)
+`, defaultAccount, rInt, string(scalr.Github), githubToken, policyGroupVcsRepoID, policyGroupVcsRepoPath)
 }

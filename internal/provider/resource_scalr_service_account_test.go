@@ -7,16 +7,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrServiceAccount_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrServiceAccountDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -52,8 +50,8 @@ func TestAccScalrServiceAccount_import(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrServiceAccountDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -72,8 +70,8 @@ func TestAccScalrServiceAccount_update(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrServiceAccountDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -129,7 +127,7 @@ resource scalr_service_account test {
 }
 
 func testAccCheckScalrServiceAccountDestroy(s *terraform.State) error {
-	scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_service_account" {
@@ -140,7 +138,7 @@ func testAccCheckScalrServiceAccountDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := scalrClient.ServiceAccounts.Read(scalr2.ctx, rs.Primary.ID)
+		_, err := scalrClient.ServiceAccounts.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Service account %s still exists", rs.Primary.ID)
 		}

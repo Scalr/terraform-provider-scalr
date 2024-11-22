@@ -7,16 +7,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrRunScheduleRule_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrRunScheduleRuleDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -39,8 +37,8 @@ func TestAccScalrRunScheduleRule_update(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrRunScheduleRuleDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -71,8 +69,8 @@ func TestAccScalrRunScheduleRule_import(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrRunScheduleRuleDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -98,8 +96,8 @@ func testAccCheckScalrRunScheduleRuleExists(resId string, rule *scalr.RunSchedul
 			return fmt.Errorf("No Run Schedule Rule ID is set")
 		}
 
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
-		r, err := scalrClient.RunScheduleRules.Read(scalr2.ctx, rs.Primary.ID)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		r, err := scalrClient.RunScheduleRules.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return fmt.Errorf("Error reading run schedule rule: %v", err)
 		}
@@ -111,7 +109,7 @@ func testAccCheckScalrRunScheduleRuleExists(resId string, rule *scalr.RunSchedul
 }
 
 func testAccCheckScalrRunScheduleRuleDestroy(s *terraform.State) error {
-	scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_run_schedule_rule" {
@@ -122,7 +120,7 @@ func testAccCheckScalrRunScheduleRuleDestroy(s *terraform.State) error {
 			return fmt.Errorf("No Run Schedule Rule ID is set")
 		}
 
-		_, err := scalrClient.RunScheduleRules.Read(scalr2.ctx, rs.Primary.ID)
+		_, err := scalrClient.RunScheduleRules.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Run Schedule Rule %s still exists", rs.Primary.ID)
 		}

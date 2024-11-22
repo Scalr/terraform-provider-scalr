@@ -7,8 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 const baseForUpdate = `
@@ -28,8 +26,8 @@ func TestAccScalrVariable_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -86,8 +84,8 @@ func TestAccScalrVariable_basic(t *testing.T) {
 func TestAccScalrVariable_defaults(t *testing.T) {
 	rInt := GetRandomInteger()
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -113,8 +111,8 @@ func TestAccScalrVariable_scopes(t *testing.T) {
 	variable := &scalr.Variable{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -130,8 +128,8 @@ func TestAccScalrVariable_update(t *testing.T) {
 	variable := &scalr.Variable{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -190,8 +188,8 @@ func TestAccScalrVariable_update(t *testing.T) {
 func TestAccScalrVariable_import(t *testing.T) {
 	rInt := GetRandomInteger()
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -207,7 +205,7 @@ func TestAccScalrVariable_import(t *testing.T) {
 }
 
 func variableFromState(s *terraform.State, n string, v *scalr.Variable) error {
-	scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	rs, ok := s.RootModule().Resources[n]
 	if !ok {
@@ -218,7 +216,7 @@ func variableFromState(s *terraform.State, n string, v *scalr.Variable) error {
 		return fmt.Errorf("No instance ID is set")
 	}
 
-	variable, err := scalrClient.Variables.Read(scalr2.ctx, rs.Primary.ID)
+	variable, err := scalrClient.Variables.Read(ctx, rs.Primary.ID)
 	if err != nil {
 		return err
 	}
@@ -335,7 +333,7 @@ func testAccCheckScalrVariableAttributesUpdate(
 }
 
 func testAccCheckScalrVariableDestroy(s *terraform.State) error {
-	scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_variable" {
@@ -346,7 +344,7 @@ func testAccCheckScalrVariableDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := scalrClient.Variables.Read(scalr2.ctx, rs.Primary.ID)
+		_, err := scalrClient.Variables.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Variable %s still exists", rs.Primary.ID)
 		}

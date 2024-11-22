@@ -7,8 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccModuleVersionsDataSource_basic(t *testing.T) {
@@ -16,9 +14,9 @@ func TestAccModuleVersionsDataSource_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			scalr2.testVcsAccGithubTokenPreCheck(t)
+			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: scalr2.testAccProviderFactories,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      `data scalr_module_versions all_by_none {}`,
@@ -127,7 +125,7 @@ func testAccModuleVersionsReourceConfig(rInt int) string {
 		  }
 		  vcs_provider_id = scalr_vcs_provider.test.id
 		}
-`, scalr2.defaultAccount, rInt, string(scalr.Github), scalr2.githubToken)
+`, defaultAccount, rInt, string(scalr.Github), githubToken)
 }
 
 func testAccModuleVersionsDataSourceConfig(rInt int) string {

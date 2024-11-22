@@ -6,19 +6,17 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testVcsAccGithubTokenPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testVcsAccGithubTokenPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrVcsProviderDataSourceConfigAllFilters(rInt, scalr.githubToken),
+				Config: testAccScalrVcsProviderDataSourceConfigAllFilters(rInt, githubToken),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.scalr_vcs_provider.test", "id"),
 					resource.TestCheckResourceAttr(
@@ -28,13 +26,13 @@ func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"data.scalr_vcs_provider.test", "url", "https://github.com"),
 					resource.TestCheckResourceAttr(
-						"data.scalr_vcs_provider.test", "account_id", scalr.defaultAccount),
+						"data.scalr_vcs_provider.test", "account_id", defaultAccount),
 					resource.TestCheckResourceAttr(
 						"data.scalr_vcs_provider.test", "draft_pr_runs_enabled", "false"),
 				),
 			},
 			{
-				Config: testAccScalrVcsProviderDataSourceConfigFilterByName(rInt, scalr.githubToken),
+				Config: testAccScalrVcsProviderDataSourceConfigFilterByName(rInt, githubToken),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.scalr_vcs_provider.test", "id"),
 					resource.TestCheckResourceAttr(
@@ -44,7 +42,7 @@ func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"data.scalr_vcs_provider.test", "url", "https://github.com"),
 					resource.TestCheckResourceAttr(
-						"data.scalr_vcs_provider.test", "account_id", scalr.defaultAccount),
+						"data.scalr_vcs_provider.test", "account_id", defaultAccount),
 				),
 			},
 			{
@@ -91,7 +89,7 @@ data scalr_vcs_provider test {
   name       = scalr_vcs_provider.test.name
   vcs_type   = scalr_vcs_provider.test.vcs_type
   account_id = scalr_vcs_provider.test.account_id
-}`, rInt, token, scalr.defaultAccount)
+}`, rInt, token, defaultAccount)
 }
 
 func testAccScalrVcsProviderDataSourceConfigFilterByName(rInt int, token string) string {
@@ -105,5 +103,5 @@ resource scalr_vcs_provider test {
 
 data scalr_vcs_provider test {
   name = scalr_vcs_provider.test.name
-}`, rInt, token, scalr.defaultAccount)
+}`, rInt, token, defaultAccount)
 }

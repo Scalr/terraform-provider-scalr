@@ -7,14 +7,12 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrAccountAllowedIps_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAccountAllowedIps([]string{"192.168.0.12", "0.0.0.0/0", "192.168.0.0/32"}),
@@ -32,8 +30,8 @@ func TestAccScalrAccountAllowedIps_basic(t *testing.T) {
 
 func TestAccScalrAccountAllowedIps_update(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAccountAllowedIps([]string{"192.168.0.12", "0.0.0.0/0"}),
@@ -58,8 +56,8 @@ func TestAccScalrAccountAllowedIps_update(t *testing.T) {
 
 func TestAccScalrAccountAllowedIps_import(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAccountAllowedIps([]string{"192.168.0.12", "0.0.0.0/0"}),
@@ -77,8 +75,8 @@ func TestAccScalrAccountAllowedIps_import(t *testing.T) {
 func TestAccScalrAccountAllowedIps_empty(t *testing.T) {
 	rg, _ := regexp.Compile(`Attribute allowed_ips requires 1 item minimum, but config has only 0`)
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrAccountAllowedIps([]string{}),
@@ -91,8 +89,8 @@ func TestAccScalrAccountAllowedIps_empty(t *testing.T) {
 func TestAccScalrAccountAllowedIps_invalid_CIDR(t *testing.T) {
 	rg, _ := regexp.Compile(`value is not a valid IPv4 network`)
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrAccountAllowedIps([]string{"192.168.0.12/24"}),

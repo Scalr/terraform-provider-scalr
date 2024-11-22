@@ -9,8 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrAgentPool_basic(t *testing.T) {
@@ -18,8 +16,8 @@ func TestAccScalrAgentPool_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrAgentPoolDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -41,8 +39,8 @@ func TestAccScalrAgentPool_renamed(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrAgentPoolDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -73,8 +71,8 @@ func TestAccScalrAgentPool_update(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrAgentPoolDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -102,8 +100,8 @@ func TestAccScalrAgentPool_import(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrAgentPoolDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -121,7 +119,7 @@ func TestAccScalrAgentPool_import(t *testing.T) {
 
 func testAccCheckScalrAgentPoolExists(resId string, pool *scalr.AgentPool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[resId]
 		if !ok {
@@ -133,7 +131,7 @@ func testAccCheckScalrAgentPoolExists(resId string, pool *scalr.AgentPool) resou
 		}
 
 		// Get the agent_pool
-		r, err := scalrClient.AgentPools.Read(scalr2.ctx, rs.Primary.ID)
+		r, err := scalrClient.AgentPools.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -146,9 +144,9 @@ func testAccCheckScalrAgentPoolExists(resId string, pool *scalr.AgentPool) resou
 
 func testAccCheckScalrAgentPoolRename(pool *scalr.AgentPool) func() {
 	return func() {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
-		r, err := scalrClient.AgentPools.Read(scalr2.ctx, pool.ID)
+		r, err := scalrClient.AgentPools.Read(ctx, pool.ID)
 
 		if err != nil {
 			log.Fatalf("Error retrieving agent pool: %v", err)
@@ -170,7 +168,7 @@ func testAccCheckScalrAgentPoolRename(pool *scalr.AgentPool) func() {
 }
 
 func testAccCheckScalrAgentPoolDestroy(s *terraform.State) error {
-	scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_agent_pool" {
@@ -181,7 +179,7 @@ func testAccCheckScalrAgentPoolDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := scalrClient.AgentPools.Read(scalr2.ctx, rs.Primary.ID)
+		_, err := scalrClient.AgentPools.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("AgentPool %s still exists", rs.Primary.ID)
 		}

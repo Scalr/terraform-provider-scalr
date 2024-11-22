@@ -8,16 +8,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccVcsProvider_basic(t *testing.T) {
 	provider := &scalr.VcsProvider{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testVcsAccGithubTokenPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testVcsAccGithubTokenPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVcsProviderConfig(),
@@ -32,7 +30,7 @@ func TestAccVcsProvider_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccScalrVcsProviderUpdate(scalr2.githubToken, scalr.Github),
+				Config: testAccScalrVcsProviderUpdate(githubToken, scalr.Github),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrVcsProviderExists("scalr_vcs_provider.test", provider),
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "name", "updated-github-vcs-provider"),
@@ -47,7 +45,7 @@ func TestAccVcsProvider_basic(t *testing.T) {
 				ExpectError: regexp.MustCompile("Invalid access token"),
 			},
 			{
-				Config:      testAccScalrVcsProviderUpdate(scalr2.githubToken, scalr.Gitlab),
+				Config:      testAccScalrVcsProviderUpdate(githubToken, scalr.Gitlab),
 				ExpectError: regexp.MustCompile("Invalid access token"),
 			},
 		},
@@ -57,8 +55,8 @@ func TestAccVcsProvider_basic(t *testing.T) {
 func TestAccVcsProvider_globalScope(t *testing.T) {
 	provider := &scalr.VcsProvider{}
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testVcsAccGithubTokenPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testVcsAccGithubTokenPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrVcsProviderDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -68,7 +66,7 @@ func TestAccVcsProvider_globalScope(t *testing.T) {
 						vcs_type="github"
                         token="%s"
 					}
-				`, scalr2.githubToken),
+				`, githubToken),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrVcsProviderExists("scalr_vcs_provider.test", provider),
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "name", "global-github-vcs-provider"),
@@ -82,8 +80,8 @@ func TestAccVcsProvider_globalScope(t *testing.T) {
 
 func TestAccScalrVcsProvider_import(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testVcsAccGithubTokenPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testVcsAccGithubTokenPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrVcsProviderDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -101,7 +99,7 @@ func TestAccScalrVcsProvider_import(t *testing.T) {
 
 func testAccCheckScalrVcsProviderExists(resId string, vcsProvider *scalr.VcsProvider) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[resId]
 		if !ok {
@@ -109,11 +107,11 @@ func testAccCheckScalrVcsProviderExists(resId string, vcsProvider *scalr.VcsProv
 		}
 
 		if rs.Primary.ID == "" {
-			return scalr2.noInstanceIdErr
+			return noInstanceIdErr
 		}
 
 		// Get the role
-		p, err := scalrClient.VcsProviders.Read(scalr2.ctx, rs.Primary.ID)
+		p, err := scalrClient.VcsProviders.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -125,7 +123,7 @@ func testAccCheckScalrVcsProviderExists(resId string, vcsProvider *scalr.VcsProv
 }
 
 func testAccCheckScalrVcsProviderDestroy(s *terraform.State) error {
-	scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_vcs_provider" {
@@ -133,10 +131,10 @@ func testAccCheckScalrVcsProviderDestroy(s *terraform.State) error {
 		}
 
 		if rs.Primary.ID == "" {
-			return scalr2.noInstanceIdErr
+			return noInstanceIdErr
 		}
 
-		_, err := scalrClient.VcsProviders.Read(scalr2.ctx, rs.Primary.ID)
+		_, err := scalrClient.VcsProviders.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Role %s still exists", rs.Primary.ID)
 		}
@@ -152,7 +150,7 @@ resource "scalr_vcs_provider" "test" {
   account_id     = "%s"
   vcs_type="github"
   token = "%s"
-}`, defaultAccount, scalr2.githubToken)
+}`, defaultAccount, githubToken)
 }
 
 func testAccScalrVcsProviderUpdate(token string, vcsType scalr.VcsType) string {

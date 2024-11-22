@@ -6,14 +6,12 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrAgentPoolDataSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      `data scalr_agent_pool test {}`,
@@ -36,7 +34,7 @@ func TestAccScalrAgentPoolDataSource_basic(t *testing.T) {
 					testAccCheckEqualID("data.scalr_agent_pool.test", "scalr_agent_pool.test"),
 					resource.TestCheckResourceAttrSet("data.scalr_agent_pool.test", "id"),
 					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "name", "ds-agent_pool-test-acc"),
-					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "account_id", scalr.defaultAccount),
+					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "account_id", defaultAccount),
 				),
 			},
 			{
@@ -45,7 +43,7 @@ func TestAccScalrAgentPoolDataSource_basic(t *testing.T) {
 					testAccCheckEqualID("data.scalr_agent_pool.test", "scalr_agent_pool.test"),
 					resource.TestCheckResourceAttrSet("data.scalr_agent_pool.test", "id"),
 					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "name", "ds-agent_pool-test-acc"),
-					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "account_id", scalr.defaultAccount),
+					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "account_id", defaultAccount),
 				),
 			},
 			{
@@ -54,7 +52,7 @@ func TestAccScalrAgentPoolDataSource_basic(t *testing.T) {
 					testAccCheckEqualID("data.scalr_agent_pool.test", "scalr_agent_pool.test"),
 					resource.TestCheckResourceAttrSet("data.scalr_agent_pool.test", "id"),
 					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "name", "ds-agent_pool-test-acc"),
-					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "account_id", scalr.defaultAccount),
+					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "account_id", defaultAccount),
 				),
 			},
 		},
@@ -62,8 +60,8 @@ func TestAccScalrAgentPoolDataSource_basic(t *testing.T) {
 }
 func TestAccScalrAgentPoolDataSource_basic_env(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAgentPoolEnvDataSourceConfig(),
@@ -71,7 +69,7 @@ func TestAccScalrAgentPoolDataSource_basic_env(t *testing.T) {
 					testAccCheckEqualID("data.scalr_agent_pool.test", "scalr_agent_pool.test"),
 					resource.TestCheckResourceAttrSet("data.scalr_agent_pool.test", "id"),
 					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "name", "agent_pool-test-env-ds"),
-					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "account_id", scalr.defaultAccount),
+					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "account_id", defaultAccount),
 				),
 			},
 		},
@@ -87,7 +85,7 @@ resource "scalr_agent_pool" "test" {
 data "scalr_agent_pool" "test" {
   id         = scalr_agent_pool.test.id
   account_id = scalr_agent_pool.test.account_id
-}`, scalr.defaultAccount)
+}`, defaultAccount)
 
 var testAccScalrAgentPoolAccountDataSourceByNameConfig = fmt.Sprintf(`
 resource "scalr_agent_pool" "test" {
@@ -98,7 +96,7 @@ resource "scalr_agent_pool" "test" {
 data "scalr_agent_pool" "test" {
   name       = scalr_agent_pool.test.name
   account_id = scalr_agent_pool.test.account_id
-}`, scalr.defaultAccount)
+}`, defaultAccount)
 
 var testAccScalrAgentPoolAccountDataSourceByIDAndNameConfig = fmt.Sprintf(`
 resource "scalr_agent_pool" "test" {
@@ -110,7 +108,7 @@ data "scalr_agent_pool" "test" {
   id         = scalr_agent_pool.test.id
   name       = scalr_agent_pool.test.name
   account_id = scalr_agent_pool.test.account_id
-}`, scalr.defaultAccount)
+}`, defaultAccount)
 
 func testAccScalrAgentPoolEnvDataSourceConfig() string {
 	return fmt.Sprintf(`
@@ -129,5 +127,5 @@ data "scalr_agent_pool" "test" {
   name           = scalr_agent_pool.test.name
   account_id     = scalr_agent_pool.test.account_id
   environment_id = scalr_environment.test.id
-}`, scalr.defaultAccount, scalr.defaultAccount)
+}`, defaultAccount, defaultAccount)
 }

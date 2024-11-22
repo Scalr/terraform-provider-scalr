@@ -6,14 +6,12 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrProviderConfigurationsDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationsDataSourceInitConfig, // depends_on works improperly with data sources
@@ -154,7 +152,7 @@ resource "scalr_provider_configuration" "consul" {
       value = "nyc1"
     }
   }
-}`, scalr.defaultAccount)
+}`, defaultAccount)
 
 var testAccScalrProviderConfigurationsDataSourceConfig = testAccScalrProviderConfigurationsDataSourceInitConfig + `
 data "scalr_provider_configurations" "kubernetes2consul" {

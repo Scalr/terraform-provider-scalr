@@ -7,8 +7,6 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccEnvironmentDataSource_basic(t *testing.T) {
@@ -23,8 +21,8 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 	cuttedRInt := strconv.Itoa(rInt)[:len(strconv.Itoa(rInt))-1]
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      `data scalr_environment test {}`,
@@ -47,7 +45,7 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "name", fmt.Sprintf("test-env-%d", rInt)),
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "status", "Active"),
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "cost_estimation_enabled", "false"),
-					resource.TestCheckResourceAttr("data.scalr_environment.test", "account_id", scalr.defaultAccount),
+					resource.TestCheckResourceAttr("data.scalr_environment.test", "account_id", defaultAccount),
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "tags.#", "0"),
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.email"),
@@ -61,7 +59,7 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "name", fmt.Sprintf("test-env-%d", rInt)),
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "status", "Active"),
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "cost_estimation_enabled", "false"),
-					resource.TestCheckResourceAttr("data.scalr_environment.test", "account_id", scalr.defaultAccount),
+					resource.TestCheckResourceAttr("data.scalr_environment.test", "account_id", defaultAccount),
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.email"),
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.username"),
@@ -73,7 +71,7 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "name", fmt.Sprintf("test-env-%d", rInt)),
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "status", "Active"),
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "cost_estimation_enabled", "false"),
-					resource.TestCheckResourceAttr("data.scalr_environment.test", "account_id", scalr.defaultAccount),
+					resource.TestCheckResourceAttr("data.scalr_environment.test", "account_id", defaultAccount),
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.email"),
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.username"),
@@ -107,7 +105,7 @@ resource "scalr_environment" "test" {
 
 data "scalr_environment" "test" {
   id = scalr_environment.test.id
-}`, rInt, scalr.defaultAccount)
+}`, rInt, defaultAccount)
 }
 
 func testAccEnvironmentDataSourceAccessByNameConfig(rInt int) string {
@@ -120,7 +118,7 @@ resource "scalr_environment" "test" {
 data "scalr_environment" "test" {
   name       = scalr_environment.test.name
   account_id = "%s"
-}`, rInt, scalr.defaultAccount, scalr.defaultAccount)
+}`, rInt, defaultAccount, defaultAccount)
 }
 
 func testAccEnvironmentDataSourceAccessByIDAndNameConfig(rInt int) string {
@@ -134,7 +132,7 @@ data "scalr_environment" "test" {
   id         = scalr_environment.test.id
   name       = scalr_environment.test.name
   account_id = "%s"
-}`, rInt, scalr.defaultAccount, scalr.defaultAccount)
+}`, rInt, defaultAccount, defaultAccount)
 }
 
 func testAccEnvironmentDataSourceNotFoundConfig() string {
@@ -160,5 +158,5 @@ resource "scalr_environment" "test" {
 
 data "scalr_environment" "test" {
   name = "test-env-%s"
-}`, rInt, scalr.defaultAccount, cuttedRInt)
+}`, rInt, defaultAccount, cuttedRInt)
 }

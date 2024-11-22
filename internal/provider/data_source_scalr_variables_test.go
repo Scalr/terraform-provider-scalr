@@ -9,15 +9,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrVariablesDataSource(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:    testAccScalrVariablesDataSourceInitConfig, // depends_on works improperly with data sources
@@ -67,18 +65,18 @@ func TestAccScalrVariablesDataSource(t *testing.T) {
 }
 
 func deleteAllVariables() {
-	scalrClient, err := scalr2.createScalrClient()
+	scalrClient, err := createScalrClient()
 	if err != nil {
 		log.Fatalf("Cant remove default variables before test: %s", err)
 		return
 	}
-	variables, err := scalrClient.Variables.List(scalr2.ctx, scalr.VariableListOptions{})
+	variables, err := scalrClient.Variables.List(ctx, scalr.VariableListOptions{})
 	if err != nil {
 		log.Fatalf("Cant remove default variables before test: %s", err)
 		return
 	}
 	for _, variable := range variables.Items {
-		err = scalrClient.Variables.Delete(scalr2.ctx, variable.ID)
+		err = scalrClient.Variables.Delete(ctx, variable.ID)
 		if err != nil {
 			log.Fatalf("Cant remove default variables before test: %s", err)
 			return
@@ -183,7 +181,7 @@ resource "scalr_variable" "secret" {
 	final = true
 	account_id = "%[1]s"
 }
-`, scalr2.defaultAccount)
+`, defaultAccount)
 
 var testAccScalrVariablesDataSourceConfig = testAccScalrVariablesDataSourceInitConfig + fmt.Sprintf(`
 data "scalr_variables" "shell" {
@@ -205,4 +203,4 @@ data "scalr_variables" "workspace_and_null" {
 data "scalr_variables" "account" {
   account_id = "%[1]s"
 }
-`, scalr2.defaultAccount)
+`, defaultAccount)

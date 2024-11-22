@@ -6,14 +6,12 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccCurrentAccount_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:                  func() { scalr.testAccPreCheck(t) },
-		ProviderFactories:         scalr.testAccProviderFactories,
+		PreCheck:                  func() { testAccPreCheck(t) },
+		ProviderFactories:         testAccProviderFactories,
 		PreventPostDestroyRefresh: true,
 		Steps: []resource.TestStep{
 			{
@@ -26,13 +24,13 @@ func TestAccCurrentAccount_basic(t *testing.T) {
 			},
 			{
 				PreConfig: func() {
-					_ = os.Setenv(currentAccountIDEnvVar, scalr.defaultAccount)
+					_ = os.Setenv(currentAccountIDEnvVar, defaultAccount)
 				},
 				Config:   testAccCurrentAccountDataSourceConfig(),
 				PlanOnly: true,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"data.scalr_current_account.test", "id", scalr.defaultAccount),
+						"data.scalr_current_account.test", "id", defaultAccount),
 					resource.TestCheckResourceAttr(
 						"data.scalr_current_account.test", "name", "mainiacp"),
 				),

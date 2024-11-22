@@ -6,8 +6,6 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccEventBridgeIntegration_basic(t *testing.T) {
@@ -17,8 +15,8 @@ func TestAccEventBridgeIntegration_basic(t *testing.T) {
 		t.Skip("Please set AWS_EVENT_BRIDGE_ACCOUNT_ID, AWS_EVENT_BRIDGE_REGION env variables to run this test.")
 	}
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrEventBridgeIntegrationConfig(AWSAccountId, region),

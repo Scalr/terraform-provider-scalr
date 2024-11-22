@@ -9,8 +9,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccPolicyGroupDataSource_basic(t *testing.T) {
@@ -20,9 +18,9 @@ func TestAccPolicyGroupDataSource_basic(t *testing.T) {
 		PreCheck: func() {
 			// TODO: delete skip after SCALRCORE-19891
 			t.Skip("Works with personal token but does not work with github action token.")
-			scalr2.testVcsAccGithubTokenPreCheck(t)
+			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: scalr2.testAccProviderFactories,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupConfig(rInt),
@@ -69,18 +67,18 @@ func TestAccPolicyGroupDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"data.scalr_policy_group.test",
 						"account_id",
-						scalr2.defaultAccount,
+						defaultAccount,
 					),
 					resource.TestCheckResourceAttrSet("data.scalr_policy_group.test", "vcs_provider_id"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_policy_group.test",
 						"vcs_repo.0.identifier",
-						scalr2.policyGroupVcsRepoID,
+						policyGroupVcsRepoID,
 					),
 					resource.TestCheckResourceAttr(
 						"data.scalr_policy_group.test",
 						"vcs_repo.0.path",
-						scalr2.policyGroupVcsRepoPath,
+						policyGroupVcsRepoPath,
 					),
 					resource.TestCheckResourceAttrSet("data.scalr_policy_group.test", "vcs_repo.0.branch"),
 					resource.TestCheckResourceAttrSet("data.scalr_policy_group.test", "policies.#"),
@@ -93,9 +91,9 @@ func TestAccPolicyGroupDataSource_basic(t *testing.T) {
 					  name       = "not-exists"
 					  account_id = "%s"
 					}
-				`, scalr2.defaultAccount),
+				`, defaultAccount),
 				ExpectError: regexp.MustCompile(fmt.Sprintf(
-					"policy group %s/%s not found", scalr2.defaultAccount, "not-exists",
+					"policy group %s/%s not found", defaultAccount, "not-exists",
 				)),
 				PlanOnly: true,
 			},
@@ -105,20 +103,20 @@ func TestAccPolicyGroupDataSource_basic(t *testing.T) {
 
 func waitForPolicyGroupFetch(name string) func() {
 	return func() {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
-		pgl, err := scalrClient.PolicyGroups.List(scalr2.ctx, scalr.PolicyGroupListOptions{
-			Account: scalr2.defaultAccount,
+		pgl, err := scalrClient.PolicyGroups.List(ctx, scalr.PolicyGroupListOptions{
+			Account: defaultAccount,
 			Name:    name,
 		})
 		if err != nil || len(pgl.Items) == 0 {
-			log.Fatalf("The test policy group on account %s was not created: %v", scalr2.defaultAccount, err)
+			log.Fatalf("The test policy group on account %s was not created: %v", defaultAccount, err)
 		}
 
 		var pgID = pgl.Items[0].ID
 
 		for i := 0; i < 60; i++ {
-			pg, err := scalrClient.PolicyGroups.Read(scalr2.ctx, pgID)
+			pg, err := scalrClient.PolicyGroups.Read(ctx, pgID)
 			if err != nil {
 				log.Fatalf("Error polling policy group %s: %v", pgID, err)
 			}
@@ -151,7 +149,7 @@ resource "scalr_policy_group" "test" {
     path       = "%s"
   }
 }
-`, rInt, string(scalr.Github), scalr2.githubToken, scalr2.defaultAccount, scalr2.policyGroupVcsRepoID, scalr2.policyGroupVcsRepoPath)
+`, rInt, string(scalr.Github), githubToken, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
 }
 
 func testAccPolicyGroupDataSourceConfig(rInt int) string {
@@ -163,5 +161,5 @@ data "scalr_policy_group" "test" {
   name       = scalr_policy_group.test.name
   account_id = "%s"
 }
-`, testAccPolicyGroupConfig(rInt), scalr2.defaultAccount)
+`, testAccPolicyGroupConfig(rInt), defaultAccount)
 }

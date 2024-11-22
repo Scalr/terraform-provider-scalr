@@ -5,18 +5,16 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccSlackIntegration_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			scalr.testAccPreCheck(t)
+			testAccPreCheck(t)
 
 			scalrClient, _ := createScalrClient()
-			slackConnection, err := scalrClient.SlackIntegrations.GetConnection(scalr.ctx, defaultAccount)
+			slackConnection, err := scalrClient.SlackIntegrations.GetConnection(ctx, defaultAccount)
 			if err != nil {
 				t.Fatalf("Error fetching Slack connection: %v", err)
 				return
@@ -25,7 +23,7 @@ func TestAccSlackIntegration_basic(t *testing.T) {
 				t.Skip("Scalr instance doesn't have working slack connection.")
 			}
 		},
-		ProviderFactories: scalr.testAccProviderFactories,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrSlackIntegrationConfig(),

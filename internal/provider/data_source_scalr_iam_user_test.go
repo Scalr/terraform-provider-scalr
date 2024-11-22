@@ -7,14 +7,12 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrIamUserDataSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      `data scalr_iam_user test {}`,
@@ -34,14 +32,14 @@ func TestAccScalrIamUserDataSource_basic(t *testing.T) {
 			{
 				Config: testAccScalrIamUserDataSourceByIDConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "id", scalr2.testUser),
+					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "id", testUser),
 					resource.TestCheckResourceAttr(
 						"data.scalr_iam_user.test",
 						"status",
 						string(scalr.UserStatusActive),
 					),
-					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "email", scalr2.testUserEmail),
-					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "username", scalr2.testUserEmail),
+					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "email", testUserEmail),
+					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "username", testUserEmail),
 					resource.TestCheckResourceAttrSet("data.scalr_iam_user.test", "full_name"),
 					resource.TestCheckResourceAttrSet("data.scalr_iam_user.test", "teams.0"),
 				),
@@ -49,15 +47,15 @@ func TestAccScalrIamUserDataSource_basic(t *testing.T) {
 			{
 				Config: testAccScalrIamUserDataSourceByEmailConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "id", scalr2.testUser),
-					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "email", scalr2.testUserEmail),
+					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "id", testUser),
+					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "email", testUserEmail),
 				),
 			},
 			{
 				Config: testAccScalrIamUserDataSourceByIDAndEmailConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "id", scalr2.testUser),
-					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "email", scalr2.testUserEmail),
+					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "id", testUser),
+					resource.TestCheckResourceAttr("data.scalr_iam_user.test", "email", testUserEmail),
 				),
 			},
 		},
@@ -67,15 +65,15 @@ func TestAccScalrIamUserDataSource_basic(t *testing.T) {
 var testAccScalrIamUserDataSourceByIDConfig = fmt.Sprintf(`
 data "scalr_iam_user" "test" {
   id = "%s"
-}`, scalr2.testUser)
+}`, testUser)
 
 var testAccScalrIamUserDataSourceByEmailConfig = fmt.Sprintf(`
 data "scalr_iam_user" "test" {
   email = "%s"
-}`, scalr2.testUserEmail)
+}`, testUserEmail)
 
 var testAccScalrIamUserDataSourceByIDAndEmailConfig = fmt.Sprintf(`
 data "scalr_iam_user" "test" {
   id    = "%s"
   email = "%s"
-}`, scalr2.testUser, scalr2.testUserEmail)
+}`, testUser, testUserEmail)

@@ -6,18 +6,15 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrSSHKeyDataSource_basic(t *testing.T) {
 	rInt := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      `data scalr_ssh_key test {}`,
@@ -42,7 +39,7 @@ func TestAccScalrSSHKeyDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(
 						"data.scalr_ssh_key.test", "environments.#"),
 					resource.TestCheckResourceAttr(
-						"data.scalr_ssh_key.test", "account_id", scalr.defaultAccount),
+						"data.scalr_ssh_key.test", "account_id", defaultAccount),
 				),
 			},
 			{
@@ -51,7 +48,7 @@ func TestAccScalrSSHKeyDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"data.scalr_ssh_key.test_by_name", "name", fmt.Sprintf("ssh-key-test-%s", rInt)),
 					resource.TestCheckResourceAttr(
-						"data.scalr_ssh_key.test_by_name", "account_id", scalr.defaultAccount),
+						"data.scalr_ssh_key.test_by_name", "account_id", defaultAccount),
 				),
 			},
 			{
@@ -86,7 +83,7 @@ EOF
 data "scalr_ssh_key" "test" {
   id         = scalr_ssh_key.test.id
   account_id = scalr_ssh_key.test.account_id
-}`, rInt, scalr.defaultAccount)
+}`, rInt, defaultAccount)
 }
 
 func testAccScalrSSHKeyDataSourceAccessByNameConfig(rInt string) string {
@@ -105,7 +102,7 @@ EOF
 data "scalr_ssh_key" "test_by_name" {
   name       = scalr_ssh_key.test.name
   account_id = scalr_ssh_key.test.account_id
-}`, rInt, scalr.defaultAccount)
+}`, rInt, defaultAccount)
 }
 
 func testAccScalrSSHKeyDataSourceNotFoundByNameConfig() string {
@@ -133,5 +130,5 @@ data "scalr_ssh_key" "test_mismatch" {
   id         = scalr_ssh_key.test.id
   name       = "incorrect-name"
   account_id = scalr_ssh_key.test.account_id
-}`, rInt, scalr.defaultAccount)
+}`, rInt, defaultAccount)
 }

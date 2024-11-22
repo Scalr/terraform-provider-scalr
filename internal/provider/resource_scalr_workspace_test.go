@@ -10,8 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrWorkspace_basic(t *testing.T) {
@@ -19,8 +17,8 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -74,8 +72,8 @@ func TestAccScalrWorkspace_create_missed_vcs_attr(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrWorkspaceMissedVcsProvider(rInt),
@@ -94,8 +92,8 @@ func TestAccScalrWorkspace_monorepo(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -126,8 +124,8 @@ func TestAccScalrWorkspace_renamed(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -201,8 +199,8 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -322,8 +320,8 @@ func TestAccScalrWorkspace_import(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -344,8 +342,8 @@ func TestAccScalrWorkspace_providerConfiguration(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -379,8 +377,8 @@ func TestAccScalrWorkspaceSSHKey(t *testing.T) {
 	sshKeyName := fmt.Sprintf("ssh-key-test-%d", rInt)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -399,7 +397,7 @@ func TestAccScalrWorkspaceSSHKey(t *testing.T) {
 
 func testAccCheckScalrSSHKeyExists(n string, sshKey *scalr.SSHKey) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -424,8 +422,8 @@ func TestAccScalrWorkspace_emptyHooks(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -438,7 +436,7 @@ func TestAccScalrWorkspace_emptyHooks(t *testing.T) {
 func testAccCheckScalrWorkspaceExists(
 	n string, workspace *scalr.Workspace) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -450,7 +448,7 @@ func testAccCheckScalrWorkspaceExists(
 		}
 
 		// Get the workspace
-		w, err := scalrClient.Workspaces.ReadByID(scalr2.ctx, rs.Primary.ID)
+		w, err := scalrClient.Workspaces.ReadByID(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -502,10 +500,10 @@ func testAccCheckScalrWorkspaceMonorepoAttributes(
 func testAccCheckScalrWorkspaceRename(environmentName, workspaceName string) func() {
 	return func() {
 		var environmentID *string
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		listOptions := scalr.EnvironmentListOptions{}
-		envl, err := scalrClient.Environments.List(scalr2.ctx, listOptions)
+		envl, err := scalrClient.Environments.List(ctx, listOptions)
 		if err != nil {
 			log.Fatalf("Error retrieving environments: %v", err)
 		}
@@ -521,7 +519,7 @@ func testAccCheckScalrWorkspaceRename(environmentName, workspaceName string) fun
 			return
 		}
 
-		ws, err := scalrClient.Workspaces.Read(scalr2.ctx, *environmentID, workspaceName)
+		ws, err := scalrClient.Workspaces.Read(ctx, *environmentID, workspaceName)
 
 		if err != nil {
 			log.Fatalf("Error retrieving workspace: %v", err)
@@ -572,9 +570,9 @@ func testAccCheckScalrWorkspaceAttributesUpdated(
 func testAccCheckScalrWorkspaceProviderConfigurations(
 	workspace *scalr.Workspace) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
-		links, err := getProviderConfigurationWorkspaceLinks(scalr2.ctx, scalrClient, workspace.ID)
+		links, err := getProviderConfigurationWorkspaceLinks(ctx, scalrClient, workspace.ID)
 		if err != nil {
 			return fmt.Errorf("Error retrieving provider configuration links: %v", err)
 		}
@@ -626,9 +624,9 @@ func testAccCheckScalrWorkspaceProviderConfigurations(
 func testAccCheckScalrWorkspaceProviderConfigurationsUpdated(
 	workspace *scalr.Workspace) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
-		links, err := getProviderConfigurationWorkspaceLinks(scalr2.ctx, scalrClient, workspace.ID)
+		links, err := getProviderConfigurationWorkspaceLinks(ctx, scalrClient, workspace.ID)
 		if err != nil {
 			return fmt.Errorf("Error retrieving provider configuration links: %v", err)
 		}
@@ -679,7 +677,7 @@ func testAccCheckScalrWorkspaceProviderConfigurationsUpdated(
 }
 
 func testAccCheckScalrWorkspaceDestroy(s *terraform.State) error {
-	scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_workspace" {
@@ -690,7 +688,7 @@ func testAccCheckScalrWorkspaceDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := scalrClient.Workspaces.ReadByID(scalr2.ctx, rs.Primary.ID)
+		_, err := scalrClient.Workspaces.ReadByID(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Workspace %s still exists", rs.Primary.ID)
 		}

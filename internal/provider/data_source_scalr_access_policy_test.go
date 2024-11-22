@@ -6,24 +6,22 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrAccessPolicyDataSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAccessPolicyDataSourceConfig(),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.scalr_access_policy.test", "id"),
 					resource.TestCheckResourceAttr("data.scalr_access_policy.test", "subject.0.type", "user"),
-					resource.TestCheckResourceAttr("data.scalr_access_policy.test", "subject.0.id", scalr.testUser),
+					resource.TestCheckResourceAttr("data.scalr_access_policy.test", "subject.0.id", testUser),
 					resource.TestCheckResourceAttr("data.scalr_access_policy.test", "is_system", "false"),
 					resource.TestCheckResourceAttr("data.scalr_access_policy.test", "scope.0.type", "environment"),
-					resource.TestCheckResourceAttr("data.scalr_access_policy.test", "role_ids.0", scalr.readOnlyRole),
+					resource.TestCheckResourceAttr("data.scalr_access_policy.test", "role_ids.0", readOnlyRole),
 					resource.TestCheckResourceAttr("data.scalr_access_policy.test", "role_ids.#", "1"),
 				),
 			},
@@ -59,7 +57,7 @@ resource "scalr_access_policy" "test" {
 
 data "scalr_access_policy" "test" {
    id = scalr_access_policy.test.id
-}`, scalr.defaultAccount, scalr.testUser, scalr.readOnlyRole)
+}`, defaultAccount, testUser, readOnlyRole)
 }
 
 func testAccAccessPolicyDataSourceNotFoundConfig() string {

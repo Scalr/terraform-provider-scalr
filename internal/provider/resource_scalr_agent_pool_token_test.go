@@ -9,8 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrAgentPoolToken_basic(t *testing.T) {
@@ -23,8 +21,8 @@ func TestAccScalrAgentPoolToken_basic(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrAgentPoolTokenDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -49,8 +47,8 @@ func TestAccScalrAgentPoolToken_changed_outside(t *testing.T) {
 	token := &scalr.AccessToken{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrAgentPoolTokenDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -83,8 +81,8 @@ func TestAccScalrAgentPoolToken_update(t *testing.T) {
 	token := &scalr.AccessToken{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrAgentPoolTokenDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -108,7 +106,7 @@ func TestAccScalrAgentPoolToken_update(t *testing.T) {
 
 func testAccCheckScalrAgentPoolTokenExists(resId string, pool scalr.AgentPool, token *scalr.AccessToken) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[resId]
 		if !ok {
@@ -120,7 +118,7 @@ func testAccCheckScalrAgentPoolTokenExists(resId string, pool scalr.AgentPool, t
 		}
 
 		// Get the token
-		l, err := scalrClient.AgentPoolTokens.List(scalr2.ctx, pool.ID, scalr.AccessTokenListOptions{})
+		l, err := scalrClient.AgentPoolTokens.List(ctx, pool.ID, scalr.AccessTokenListOptions{})
 		if err != nil {
 			return err
 		}
@@ -140,7 +138,7 @@ func testAccCheckScalrAgentPoolTokenExists(resId string, pool scalr.AgentPool, t
 
 func testAccCheckScalrAgentPoolTokenChangedOutside(token *scalr.AccessToken) func() {
 	return func() {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		r, err := scalrClient.AccessTokens.Update(
 			context.Background(),
@@ -163,7 +161,7 @@ func deletePool(t *testing.T, pool scalr.AgentPool) {
 		t.Fatalf("Unable to create a Scalr client: %s", err)
 	}
 
-	err = scalrClient.AgentPools.Delete(scalr2.ctx, pool.ID)
+	err = scalrClient.AgentPools.Delete(ctx, pool.ID)
 	if err != nil {
 		t.Fatalf("Unable to delete an agent pool: %s", err)
 	}
@@ -177,7 +175,7 @@ func createPool(t *testing.T) scalr.AgentPool {
 		t.Fatalf("Unable to create a Scalr client: %s", err)
 	}
 
-	r, err := scalrClient.AgentPools.Create(scalr2.ctx, scalr.AgentPoolCreateOptions{
+	r, err := scalrClient.AgentPools.Create(ctx, scalr.AgentPoolCreateOptions{
 		Name:    scalr.String(name),
 		Account: &scalr.Account{ID: defaultAccount},
 	})
@@ -189,7 +187,7 @@ func createPool(t *testing.T) scalr.AgentPool {
 }
 
 func testAccCheckScalrAgentPoolTokenDestroy(s *terraform.State) error {
-	scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_agent_pool_token" {
@@ -199,7 +197,7 @@ func testAccCheckScalrAgentPoolTokenDestroy(s *terraform.State) error {
 		poolID := rs.Primary.Attributes["agent_pool_id"]
 
 		// the agent pool must be deleted along with token
-		l, _ := scalrClient.AgentPoolTokens.List(scalr2.ctx, poolID, scalr.AccessTokenListOptions{})
+		l, _ := scalrClient.AgentPoolTokens.List(ctx, poolID, scalr.AccessTokenListOptions{})
 		if len(l.Items) > 0 {
 			return fmt.Errorf("AgentPoolToken %s still exists", rs.Primary.ID)
 		}

@@ -5,16 +5,14 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrWorkspaceIDsDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceIDsDataSourceConfigBasic(rInt),
@@ -45,8 +43,8 @@ func TestAccScalrWorkspaceIDsDataSource_wildcard(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceIDsDataSourceConfigWildcard(rInt),
@@ -96,7 +94,7 @@ resource scalr_workspace dummy {
 data scalr_workspace_ids foobar {
   names          = [scalr_workspace.foo.name, scalr_workspace.bar.name]
   environment_id = scalr_environment.test.id
-}`, rInt, scalr.defaultAccount)
+}`, rInt, defaultAccount)
 }
 
 // nolint:unused
@@ -125,5 +123,5 @@ resource scalr_workspace dummy {
 data scalr_workspace_ids foobar {
   names          = ["*"]
   environment_id = scalr_environment.test.id
-}`, rInt, scalr.defaultAccount)
+}`, rInt, defaultAccount)
 }

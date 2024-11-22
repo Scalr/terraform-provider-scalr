@@ -9,16 +9,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrTag_basic(t *testing.T) {
 	tag := &scalr.Tag{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrTagDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -36,8 +34,8 @@ func TestAccScalrTag_basic(t *testing.T) {
 func TestAccScalrTag_import(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrTagDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -57,8 +55,8 @@ func TestAccScalrTag_update(t *testing.T) {
 	tag := &scalr.Tag{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrTagDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -86,8 +84,8 @@ func TestAccScalrTag_renamed(t *testing.T) {
 	tag := &scalr.Tag{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckScalrTagDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -138,9 +136,9 @@ resource scalr_tag test {
 
 func testAccCheckScalrTagRename(tag *scalr.Tag) func() {
 	return func() {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
-		t, err := scalrClient.Tags.Read(scalr2.ctx, tag.ID)
+		t, err := scalrClient.Tags.Read(ctx, tag.ID)
 
 		if err != nil {
 			log.Fatalf("Error retrieving tag: %v", err)
@@ -164,7 +162,7 @@ func testAccCheckScalrTagRename(tag *scalr.Tag) func() {
 
 func testAccCheckScalrTagExists(resId string, tag *scalr.Tag) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[resId]
 		if !ok {
@@ -176,7 +174,7 @@ func testAccCheckScalrTagExists(resId string, tag *scalr.Tag) resource.TestCheck
 		}
 
 		// Get the tag
-		t, err := scalrClient.Tags.Read(scalr2.ctx, rs.Primary.ID)
+		t, err := scalrClient.Tags.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -188,7 +186,7 @@ func testAccCheckScalrTagExists(resId string, tag *scalr.Tag) resource.TestCheck
 }
 
 func testAccCheckScalrTagDestroy(s *terraform.State) error {
-	scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_tag" {
@@ -199,7 +197,7 @@ func testAccCheckScalrTagDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := scalrClient.Tags.Read(scalr2.ctx, rs.Primary.ID)
+		_, err := scalrClient.Tags.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Tag %s still exists", rs.Primary.ID)
 		}

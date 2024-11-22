@@ -8,8 +8,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccModuleVersionDataSource_basic(t *testing.T) {
@@ -17,9 +15,9 @@ func TestAccModuleVersionDataSource_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			scalr2.testVcsAccGithubTokenPreCheck(t)
+			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: scalr2.testAccProviderFactories,
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAccountModule(rInt),
@@ -57,19 +55,19 @@ func TestAccModuleVersionDataSource_basic(t *testing.T) {
 
 func waitForModuleVersions(environmentName string) func() {
 	return func() {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		options := GetEnvironmentByNameOptions{
 			Name: &environmentName,
 		}
 
-		env, err := GetEnvironmentByName(scalr2.ctx, options, scalrClient)
+		env, err := GetEnvironmentByName(ctx, options, scalrClient)
 		if err != nil {
 			log.Fatalf("Got error during environment fetching: %v", err)
 			return
 		}
 
-		ml, err := scalrClient.Modules.List(scalr2.ctx, scalr.ModuleListOptions{Environment: &env.ID})
+		ml, err := scalrClient.Modules.List(ctx, scalr.ModuleListOptions{Environment: &env.ID})
 
 		if len(ml.Items) == 0 {
 			log.Fatalf("The test module for environment with name %s was not created: %v", environmentName, err)
@@ -77,7 +75,7 @@ func waitForModuleVersions(environmentName string) func() {
 		var mID = ml.Items[0].ID
 
 		for i := 0; i < 60; i++ {
-			m, err := scalrClient.Modules.Read(scalr2.ctx, mID)
+			m, err := scalrClient.Modules.Read(ctx, mID)
 			if err != nil {
 				log.Fatalf("Error polling module  %s: %v", mID, err)
 			}
@@ -118,7 +116,7 @@ func testAccScalrAccountModule(rInt int) string {
 		  }
 		  vcs_provider_id = scalr_vcs_provider.test.id
 		}
-`, scalr2.defaultAccount, rInt, string(scalr.Github), scalr2.githubToken)
+`, defaultAccount, rInt, string(scalr.Github), githubToken)
 }
 
 func testAccModuleVersionDataSourceConfig(rInt int) string {

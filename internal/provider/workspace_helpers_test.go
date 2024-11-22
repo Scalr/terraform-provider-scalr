@@ -5,8 +5,6 @@ import (
 	"testing"
 
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestFetchWorkspaceID(t *testing.T) {
@@ -42,7 +40,7 @@ func TestFetchWorkspaceID(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, err := fetchWorkspaceID(scalr2.ctx, test.def, client)
+			got, err := fetchWorkspaceID(ctx, test.def, client)
 
 			if (err != nil) != test.err {
 				t.Fatalf("expected error is %t, got %v", test.err, err)

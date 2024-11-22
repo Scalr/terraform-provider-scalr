@@ -13,7 +13,6 @@ import (
 	"github.com/scalr/go-scalr"
 
 	"github.com/scalr/terraform-provider-scalr/internal/client"
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccProviderConfiguration_import(t *testing.T) {
@@ -21,9 +20,9 @@ func TestAccProviderConfiguration_import(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			scalr2.testAccPreCheck(t)
+			testAccPreCheck(t)
 		},
-		ProviderFactories: scalr2.testAccProviderFactories,
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -44,8 +43,8 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -166,8 +165,8 @@ func TestAccProviderConfiguration_aws_custom(t *testing.T) {
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -188,8 +187,8 @@ func TestAccProviderConfiguration_aws(t *testing.T) {
 	accessKeyId, secretAccessKey, roleArn, externalId := getAwsTestingCreds(t)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -235,8 +234,8 @@ func TestAccProviderConfiguration_scalr(t *testing.T) {
 	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -280,8 +279,8 @@ func TestAccProviderConfiguration_google(t *testing.T) {
 	credentials, project := getGoogleTestingCreds(t)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -326,8 +325,8 @@ func TestAccProviderConfiguration_google_oidc(t *testing.T) {
 	_, project := getGoogleTestingCreds(t)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -373,8 +372,8 @@ func TestAccProviderConfiguration_aws_oidc(t *testing.T) {
 	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -415,8 +414,8 @@ func TestAccProviderConfiguration_azurerm(t *testing.T) {
 	armClientId, armClientSecret, armSubscription, armTenantId := getAzureTestingCreds(t)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -695,9 +694,9 @@ func testAccCheckProviderConfigurationExists(n string, providerConfiguration *sc
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
-		providerConfigurationResource, err := scalrClient.ProviderConfigurations.Read(scalr2.ctx, rs.Primary.ID)
+		providerConfigurationResource, err := scalrClient.ProviderConfigurations.Read(ctx, rs.Primary.ID)
 
 		if err != nil {
 			return err
@@ -710,14 +709,14 @@ func testAccCheckProviderConfigurationExists(n string, providerConfiguration *sc
 }
 
 func testAccCheckProviderConfigurationResourceDestroy(s *terraform.State) error {
-	scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_provider_configuration" {
 			continue
 		}
 
-		_, err := scalrClient.ProviderConfigurations.Read(scalr2.ctx, rs.Primary.ID)
+		_, err := scalrClient.ProviderConfigurations.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Provider configuraiton (%s) still exists.", rs.Primary.ID)
 		}

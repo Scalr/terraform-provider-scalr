@@ -7,16 +7,14 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrServiceAccountDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      `data scalr_service_account test {}`,
@@ -48,7 +46,7 @@ func TestAccScalrServiceAccountDataSource_basic(t *testing.T) {
 						"data.scalr_service_account.test", "description", fmt.Sprintf("desc-%d", rInt),
 					),
 					resource.TestCheckResourceAttr(
-						"data.scalr_service_account.test", "account_id", scalr2.defaultAccount,
+						"data.scalr_service_account.test", "account_id", defaultAccount,
 					),
 					resource.TestCheckResourceAttr(
 						"data.scalr_service_account.test", "created_by.#", "1",
@@ -77,7 +75,7 @@ func TestAccScalrServiceAccountDataSource_basic(t *testing.T) {
 						"data.scalr_service_account.test", "description", fmt.Sprintf("desc-%d", rInt),
 					),
 					resource.TestCheckResourceAttr(
-						"data.scalr_service_account.test", "account_id", scalr2.defaultAccount,
+						"data.scalr_service_account.test", "account_id", defaultAccount,
 					),
 					resource.TestCheckResourceAttr(
 						"data.scalr_service_account.test", "created_by.#", "1",
@@ -102,7 +100,7 @@ func TestAccScalrServiceAccountDataSource_basic(t *testing.T) {
 						"data.scalr_service_account.test", "description", fmt.Sprintf("desc-%d", rInt),
 					),
 					resource.TestCheckResourceAttr(
-						"data.scalr_service_account.test", "account_id", scalr2.defaultAccount,
+						"data.scalr_service_account.test", "account_id", defaultAccount,
 					),
 					resource.TestCheckResourceAttr(
 						"data.scalr_service_account.test", "created_by.#", "1",

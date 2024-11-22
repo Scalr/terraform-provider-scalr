@@ -6,16 +6,14 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrWorkspaceDataSourceMissingRequiredConfig,
@@ -136,7 +134,7 @@ resource scalr_workspace test {
 data scalr_workspace test {
   id             = scalr_workspace.test.id
   environment_id = scalr_environment.test.id
-}`, rInt, scalr.defaultAccount)
+}`, rInt, defaultAccount)
 }
 
 func testAccScalrWorkspaceDataSourceByNameConfig(rInt int) string {
@@ -154,7 +152,7 @@ resource scalr_workspace test {
 data scalr_workspace test {
   name           = scalr_workspace.test.name
   environment_id = scalr_environment.test.id
-}`, rInt, scalr.defaultAccount)
+}`, rInt, defaultAccount)
 }
 
 func testAccScalrWorkspaceDataSourceByIDAndNameConfig(rInt int) string {
@@ -173,5 +171,5 @@ data scalr_workspace test {
   id             = scalr_workspace.test.id
   name           = scalr_workspace.test.name
   environment_id = scalr_environment.test.id
-}`, rInt, scalr.defaultAccount)
+}`, rInt, defaultAccount)
 }

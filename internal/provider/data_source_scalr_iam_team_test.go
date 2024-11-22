@@ -6,16 +6,14 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrIamTeamDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      `data scalr_iam_team test {}`,
@@ -42,9 +40,9 @@ func TestAccScalrIamTeamDataSource_basic(t *testing.T) {
 						fmt.Sprintf("test-team-%d", rInt),
 					),
 					resource.TestCheckResourceAttr("data.scalr_iam_team.test", "description", ""),
-					resource.TestCheckResourceAttr("data.scalr_iam_team.test", "account_id", scalr.defaultAccount),
+					resource.TestCheckResourceAttr("data.scalr_iam_team.test", "account_id", defaultAccount),
 					resource.TestCheckResourceAttrSet("data.scalr_iam_team.test", "identity_provider_id"),
-					resource.TestCheckResourceAttr("data.scalr_iam_team.test", "users.0", scalr.testUser),
+					resource.TestCheckResourceAttr("data.scalr_iam_team.test", "users.0", testUser),
 				),
 			},
 			{
@@ -84,7 +82,7 @@ resource "scalr_iam_team" "test" {
 data "scalr_iam_team" "test" {
   id         = scalr_iam_team.test.id
   account_id = scalr_iam_team.test.account_id
-}`, rInt, scalr.defaultAccount, scalr.testUser)
+}`, rInt, defaultAccount, testUser)
 }
 
 func testAccScalrIamTeamDataSourceByNameConfig(rInt int) string {
@@ -98,7 +96,7 @@ resource "scalr_iam_team" "test" {
 data "scalr_iam_team" "test" {
   name       = scalr_iam_team.test.name
   account_id = scalr_iam_team.test.account_id
-}`, rInt, scalr.defaultAccount, scalr.testUser)
+}`, rInt, defaultAccount, testUser)
 }
 
 func testAccScalrIamTeamDataSourceByIDAndNameConfig(rInt int) string {
@@ -113,5 +111,5 @@ data "scalr_iam_team" "test" {
   id         = scalr_iam_team.test.id
   name       = scalr_iam_team.test.name
   account_id = scalr_iam_team.test.account_id
-}`, rInt, scalr.defaultAccount, scalr.testUser)
+}`, rInt, defaultAccount, testUser)
 }

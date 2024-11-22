@@ -8,8 +8,6 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccWebhookDataSource_basic(t *testing.T) {
@@ -18,8 +16,8 @@ func TestAccWebhookDataSource_basic(t *testing.T) {
 	cutRInt := strconv.Itoa(rInt)[:len(strconv.Itoa(rInt))-1]
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      `data scalr_webhook test {}`,
@@ -121,7 +119,7 @@ resource scalr_webhook test-new {
 
 data scalr_webhook test-new {
   id = scalr_webhook.test-new.id
-}`, rInt, scalr.defaultAccount)
+}`, rInt, defaultAccount)
 }
 
 func testAccWebhookDataSourceAccessByNameConfig(rInt int) string {
@@ -137,7 +135,7 @@ resource scalr_webhook test {
 data scalr_webhook test {
   name       = scalr_webhook.test.name
   account_id = "%s"
-}`, rInt, scalr.defaultAccount, scalr.defaultAccount)
+}`, rInt, defaultAccount, defaultAccount)
 }
 
 func testAccWebhookDataSourceAccessByIDAndNameConfig(rInt int) string {
@@ -154,7 +152,7 @@ data scalr_webhook test {
   id         = scalr_webhook.test.id
   name       = scalr_webhook.test.name
   account_id = "%s"
-}`, rInt, scalr.defaultAccount, scalr.defaultAccount)
+}`, rInt, defaultAccount, defaultAccount)
 }
 
 func testAccWebhookDataSourceNotFoundByNameConfig() string {
@@ -178,5 +176,5 @@ resource scalr_webhook test {
 data scalr_webhook test {
   name       = "test webhook-%[3]s"
   account_id = "%s"
-}`, rInt, scalr.defaultAccount, cutRInt, scalr.defaultAccount)
+}`, rInt, defaultAccount, cutRInt, defaultAccount)
 }

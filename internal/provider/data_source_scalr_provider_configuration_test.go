@@ -6,16 +6,13 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrProviderConfigurationDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr.testAccPreCheck(t) },
-		ProviderFactories: scalr.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationDataSourceInitConfig, // depends_on works improperly with data sources
@@ -47,7 +44,7 @@ func TestAccScalrProviderConfigurationDataSource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckEqualID("data.scalr_provider_configuration.scalr", "scalr_provider_configuration.scalr"),
 					resource.TestCheckResourceAttr("data.scalr_provider_configuration.scalr", "name", rName),
-					resource.TestCheckResourceAttr("data.scalr_provider_configuration.scalr", "account_id", scalr.defaultAccount),
+					resource.TestCheckResourceAttr("data.scalr_provider_configuration.scalr", "account_id", defaultAccount),
 					resource.TestCheckResourceAttr("data.scalr_provider_configuration.scalr", "provider_name", "scalr"),
 				),
 			},
@@ -60,7 +57,7 @@ func TestAccScalrProviderConfigurationDataSource(t *testing.T) {
 
 var rName = acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
-var testAccScalrProviderConfigurationDataSourceScalrConfig = scalr.testAccScalrProviderConfigurationScalrConfig(rName) + `
+var testAccScalrProviderConfigurationDataSourceScalrConfig = testAccScalrProviderConfigurationScalrConfig(rName) + `
 data "scalr_provider_configuration" "scalr" {
 	  name = scalr_provider_configuration.scalr.name
 }`
@@ -104,7 +101,7 @@ resource "scalr_provider_configuration" "consul" {
     }
   }
 }
-`, scalr.defaultAccount)
+`, defaultAccount)
 
 var testAccScalrProviderConfigurationDataSourceConfig = testAccScalrProviderConfigurationDataSourceInitConfig + `
 data "scalr_provider_configuration" "kubernetes" {

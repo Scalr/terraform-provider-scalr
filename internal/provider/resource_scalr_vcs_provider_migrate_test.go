@@ -2,8 +2,6 @@ package provider
 
 import (
 	"testing"
-
-	"github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func testResourceScalrVcsProviderStateDataV0() map[string]interface{} {
@@ -24,6 +22,6 @@ func testResourceScalrVcsProviderStateDataV1() map[string]interface{} {
 
 func TestResourceScalrVcsProviderStateUpgradeV0(t *testing.T) {
 	expected := testResourceScalrVcsProviderStateDataV1()
-	actual, err := resourceScalrVcsProviderStateUpgradeV0(scalr.ctx, testResourceScalrVcsProviderStateDataV0(), nil)
+	actual, err := resourceScalrVcsProviderStateUpgradeV0(ctx, testResourceScalrVcsProviderStateDataV0(), nil)
 	assertCorrectState(t, err, actual, expected)
 }

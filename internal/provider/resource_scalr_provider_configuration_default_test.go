@@ -7,8 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccProviderConfigurationDefault_basic(t *testing.T) {
@@ -16,9 +14,9 @@ func TestAccProviderConfigurationDefault_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			scalr2.testAccPreCheck(t)
+			testAccPreCheck(t)
 		},
-		ProviderFactories: scalr2.testAccProviderFactories,
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckProviderConfigurationDefaultDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -38,9 +36,9 @@ func TestAccProviderConfigurationDefault_import(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			scalr2.testAccPreCheck(t)
+			testAccPreCheck(t)
 		},
-		ProviderFactories: scalr2.testAccProviderFactories,
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckProviderConfigurationDefaultDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -64,12 +62,12 @@ func testAccCheckProviderConfigurationDefaultExists(
 			return fmt.Errorf("Not found: %s", rn)
 		}
 
-		client := scalr2.testAccProvider.Meta().(*scalr.Client)
+		client := testAccProvider.Meta().(*scalr.Client)
 
 		providerConfigurationID := rs.Primary.Attributes["provider_configuration_id"]
 		environmentID := rs.Primary.Attributes["environment_id"]
 
-		environment, err := client.Environments.Read(scalr2.ctx, environmentID)
+		environment, err := client.Environments.Read(ctx, environmentID)
 		if err != nil {
 			return err
 		}
@@ -85,7 +83,7 @@ func testAccCheckProviderConfigurationDefaultExists(
 }
 
 func testAccCheckProviderConfigurationDefaultDestroy(s *terraform.State) error {
-	scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_provider_configuration_default" {
@@ -96,7 +94,7 @@ func testAccCheckProviderConfigurationDefaultDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		environment, err := scalrClient.Environments.Read(scalr2.ctx, rs.Primary.Attributes["environment_id"])
+		environment, err := scalrClient.Environments.Read(ctx, rs.Primary.Attributes["environment_id"])
 		if err == nil {
 			for _, defaultProviderConfiguration := range environment.DefaultProviderConfigurations {
 				if defaultProviderConfiguration.ID == rs.Primary.Attributes["provider_configuration_id"] {

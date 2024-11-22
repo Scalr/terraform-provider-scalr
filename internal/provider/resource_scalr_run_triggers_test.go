@@ -7,8 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccScalrRunTriggersDataSource_basic(t *testing.T) {
@@ -16,8 +14,8 @@ func TestAccScalrRunTriggersDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories: scalr2.testAccProviderFactories,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckRunTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -32,7 +30,7 @@ func TestAccScalrRunTriggersDataSource_basic(t *testing.T) {
 }
 
 func testAccCheckRunTriggerDestroy(s *terraform.State) error {
-	scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_run_trigger" {
@@ -43,7 +41,7 @@ func testAccCheckRunTriggerDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := scalrClient.RunTriggers.Read(scalr2.ctx, rs.Primary.ID)
+		_, err := scalrClient.RunTriggers.Read(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("RunTrigger %s still exists", rs.Primary.ID)
 		}
@@ -79,7 +77,7 @@ resource "scalr_run_trigger" "foobar" {
 
 func testAccCheckRunTriggerExists(n string, runTrigger *scalr.RunTrigger) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -90,7 +88,7 @@ func testAccCheckRunTriggerExists(n string, runTrigger *scalr.RunTrigger) resour
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		rt, err := scalrClient.RunTriggers.Read(scalr2.ctx, rs.Primary.ID)
+		rt, err := scalrClient.RunTriggers.Read(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -103,7 +101,7 @@ func testAccCheckRunTriggerExists(n string, runTrigger *scalr.RunTrigger) resour
 
 func testAccCheckRunTriggerAttributes(runTrigger *scalr.RunTrigger, environmentName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		environment, ok := s.RootModule().Resources[environmentName]
 		if !ok {
@@ -111,7 +109,7 @@ func testAccCheckRunTriggerAttributes(runTrigger *scalr.RunTrigger, environmentN
 		}
 
 		downstreamID := runTrigger.Downstream.ID
-		downstream, err := scalrClient.Workspaces.Read(scalr2.ctx, environment.Primary.ID, "downstream-test")
+		downstream, err := scalrClient.Workspaces.Read(ctx, environment.Primary.ID, "downstream-test")
 		if err != nil {
 			return fmt.Errorf("Error retreiving workspace downstream-test for environment %s, %v", environmentName, err)
 		}
@@ -121,7 +119,7 @@ func testAccCheckRunTriggerAttributes(runTrigger *scalr.RunTrigger, environmentN
 		}
 
 		upstreamID := runTrigger.Upstream.ID
-		upstream, err := scalrClient.Workspaces.Read(scalr2.ctx, environment.Primary.ID, "upstream-test")
+		upstream, err := scalrClient.Workspaces.Read(ctx, environment.Primary.ID, "upstream-test")
 		if err != nil {
 			return fmt.Errorf("Error retreiving workspace upstream-test for environment %s, %v", environmentName, err)
 		}

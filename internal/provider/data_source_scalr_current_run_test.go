@@ -8,16 +8,14 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/scalr/go-scalr"
-
-	scalr2 "github.com/scalr/terraform-provider-scalr/scalr"
 )
 
 func TestAccCurrentRun_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                  func() { scalr2.testAccPreCheck(t) },
-		ProviderFactories:         scalr2.testAccProviderFactories,
+		PreCheck:                  func() { testAccPreCheck(t) },
+		ProviderFactories:         testAccProviderFactories,
 		PreventPostDestroyRefresh: true,
 		Steps: []resource.TestStep{
 			{
@@ -48,23 +46,23 @@ func TestAccCurrentRun_basic(t *testing.T) {
 
 func launchRun(environmentName, workspaceName string) func() {
 	return func() {
-		scalrClient := scalr2.testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProvider.Meta().(*scalr.Client)
 
 		options := GetEnvironmentByNameOptions{
 			Name: &environmentName,
 		}
-		env, err := GetEnvironmentByName(scalr2.ctx, options, scalrClient)
+		env, err := GetEnvironmentByName(ctx, options, scalrClient)
 		if err != nil {
 			log.Fatalf("Got error during environment fetching: %v", err)
 			return
 		}
 
-		ws, err := scalrClient.Workspaces.Read(scalr2.ctx, env.ID, workspaceName)
+		ws, err := scalrClient.Workspaces.Read(ctx, env.ID, workspaceName)
 		if err != nil {
 			log.Fatalf("Error retrieving workspace: %v", err)
 		}
 
-		cv, err := scalrClient.ConfigurationVersions.Create(scalr2.ctx, scalr.ConfigurationVersionCreateOptions{
+		cv, err := scalrClient.ConfigurationVersions.Create(ctx, scalr.ConfigurationVersionCreateOptions{
 			Workspace: &scalr.Workspace{
 				ID: ws.ID,
 			},
@@ -74,7 +72,7 @@ func launchRun(environmentName, workspaceName string) func() {
 			log.Fatalf("Error creating cv: %v", cv)
 		}
 
-		run, err := scalrClient.Runs.Create(scalr2.ctx, scalr.RunCreateOptions{
+		run, err := scalrClient.Runs.Create(ctx, scalr.RunCreateOptions{
 			Workspace: &scalr.Workspace{
 				ID: ws.ID,
 			},
@@ -102,7 +100,7 @@ resource scalr_workspace test {
   name       = "test-ws-%[1]d"
   environment_id = scalr_environment.test.id
 }
-`, rInt, scalr2.defaultAccount)
+`, rInt, defaultAccount)
 }
 
 func testAccCurrentRunDataSourceConfig(rInt int) string {
