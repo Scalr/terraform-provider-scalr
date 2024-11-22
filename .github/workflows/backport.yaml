@@ -13,7 +13,7 @@ on:
 jobs:
   backport:
     name: Backport
-    runs-on: [standard-1-without-dind-amd64]
+    runs-on: ubuntu-latest
     steps:
     - name: Sudo GitHub Token
       id: sudo_github_token
