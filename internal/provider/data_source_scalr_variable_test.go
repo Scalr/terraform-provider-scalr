@@ -90,7 +90,7 @@ resource scalr_workspace test {
   
 resource "scalr_variable" "workspace_hostname" {
   key          = "hostname"
-  value        = "workspace.com"
+  value        = "workspace.scalr.com"
   category     = "shell"
   hcl          = false
   sensitive    = false
@@ -101,11 +101,11 @@ resource "scalr_variable" "workspace_hostname" {
 
 resource "scalr_variable" "hostname" {
   key         = "hostname"
-  value       = "com"
+  value       = "scalr.com"
   category    = "shell"
   hcl         = false
   sensitive   = false
-  description = "The hostname of "
+  description = "The hostname of scalr."
   final       = false
   account_id  = "%[1]s"
 }
