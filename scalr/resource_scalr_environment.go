@@ -131,7 +131,7 @@ func resourceScalrEnvironmentCreate(ctx context.Context, d *schema.ResourceData,
 		Account:      &scalr.Account{ID: accountID},
 		PolicyGroups: policyGroups,
 	}
-	if costEstimationEnabled, ok := d.GetOk("cost_estimation_enabled"); ok {
+	if costEstimationEnabled, ok := d.GetOkExists("cost_estimation_enabled"); ok {
 		options.CostEstimationEnabled = scalr.Bool(costEstimationEnabled.(bool))
 	}
 	if defaultProviderConfigurationsI, ok := d.GetOk("default_provider_configurations"); ok {
@@ -234,7 +234,7 @@ func resourceScalrEnvironmentUpdate(ctx context.Context, d *schema.ResourceData,
 		Name:         scalr.String(d.Get("name").(string)),
 		PolicyGroups: policyGroups,
 	}
-	if costEstimationEnabled, ok := d.GetOk("cost_estimation_enabled"); ok {
+	if costEstimationEnabled, ok := d.GetOkExists("cost_estimation_enabled"); ok {
 		options.CostEstimationEnabled = scalr.Bool(costEstimationEnabled.(bool))
 	}
 
