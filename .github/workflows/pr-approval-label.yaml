@@ -9,14 +9,24 @@ jobs:
     runs-on: ubuntu-latest
     name: Approval Label
     steps:
+      - name: Sudo GitHub Token
+        id: sudo_github_token
+        uses: tibdex/github-app-token@v1.8.2
+        with:
+          app_id: ${{vars.SUDO_GHA_APP_ID}}
+          installation_id: ${{vars.SUDO_GHA_APP_INSTALLATION_ID}}
+          private_key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
+
       - name: Set label
         if: github.event.review.state == 'approved'
         uses: actions-ecosystem/action-add-labels@v1
         with:
           labels: approved
+          github_token: ${{steps.sudo_github_token.outputs.token}}
 
       - name: Remove label
         if: github.event.review.state == 'changes_requested'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           labels: approved
+          github_token: ${{steps.sudo_github_token.outputs.token}}
