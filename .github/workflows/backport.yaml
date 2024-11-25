@@ -7,22 +7,19 @@ on:
       - ready_for_review
       - reopened
       - synchronize
+      - labeled
     branches:
       - 'release/*'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
 
 jobs:
   backport:
     name: Backport
     runs-on: ubuntu-latest
     steps:
-    - name: Sudo GitHub Token
-      id: sudo_github_token
-      uses: tibdex/github-app-token@v1.8.2
-      with:
-        app_id: ${{vars.SUDO_GHA_APP_ID}}
-        installation_id: ${{vars.SUDO_GHA_APP_INSTALLATION_ID}}
-        private_key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
-
     - name: Checkout
       uses: actions/checkout@v4
       with:
@@ -31,11 +28,12 @@ jobs:
         show-progress: false
 
     - name: Backport
-      uses: Scalr/actions/2-pr-backport@master
+      uses: Scalr/actions/2-pr-backport@SCALRCORE-33146
       with:
-        token: ${{steps.sudo_github_token.outputs.token}}
+        approval_bot_token: ${{secrets.SCALR_BUILDBOT_TOKEN}}
+        token: ${{github.token}}
         branches_ordering_rule: >-
           release/*.*.*
           master
-        base_branch: ${{github.base_ref}}
-        head_branch: ${{github.head_ref}}
+        base_branch: ${{github.event.pull_request.base.ref}}
+        head_branch: ${{github.event.pull_request.head.ref}}

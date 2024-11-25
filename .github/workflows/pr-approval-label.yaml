@@ -1,0 +1,22 @@
+name: Manage Approved Label
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  approval-label:
+    runs-on: ubuntu-latest
+    name: Approval Label
+    steps:
+      - name: Set label
+        if: github.event.review.state == 'approved'
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: approved
+
+      - name: Remove label
+        if: github.event.review.state == 'changes_requested'
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          labels: approved
