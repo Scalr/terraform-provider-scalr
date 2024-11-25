@@ -37,7 +37,7 @@ jobs:
         show-progress: false
 
     - name: Backport
-      uses: Scalr/actions/2-pr-backport@SCALRCORE-33146
+      uses: Scalr/actions/2-pr-backport@master
       with:
         approval_bot_token: ${{secrets.SCALR_BUILDBOT_TOKEN}}
         token: ${{steps.sudo_github_token.outputs.token}}
