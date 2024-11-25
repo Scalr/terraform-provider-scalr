@@ -17,15 +17,41 @@ jobs:
           installation_id: ${{vars.SUDO_GHA_APP_INSTALLATION_ID}}
           private_key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
 
+      - name: Get pr info
+        uses: octokit/graphql-action@v2.x
+        id: get_pr_info
+        with:
+          variables: |
+            owner: "Scalr"
+            repo: ${{github.event.repository.name}}
+            pr: ${{github.event.pull_request.number}}
+          query: |
+            query ($owner: String!, $repo: String!, $pr: Int!) {
+              repository(owner: $owner, name: $repo) {
+                pullRequest(number: $pr) {
+                  reviewDecision
+                  timelineItems(last: 250) {
+                    edges {
+                      node {
+                        __typename
+                      }
+                    }
+                  }
+                }
+              }
+            }
+        env:
+          GITHUB_TOKEN: ${{steps.sudo_github_token.outputs.token}}
+
       - name: Set label
-        if: github.event.review.state == 'approved'
+        if: github.event.review.state == 'approved' && fromJson(steps.get_pr_info.outputs.data).repository.pullRequest.reviewDecision == 'APPROVED'
         uses: actions-ecosystem/action-add-labels@v1
         with:
           labels: approved
           github_token: ${{steps.sudo_github_token.outputs.token}}
 
       - name: Remove label
-        if: github.event.review.state == 'changes_requested'
+        if: github.event.review.state != 'approved' || fromJson(steps.get_pr_info.outputs.data).repository.pullRequest.reviewDecision != 'APPROVED'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           labels: approved
