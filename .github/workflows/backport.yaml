@@ -41,7 +41,7 @@ jobs:
         ref: master
         sparse-checkout: |
           2-pr-backport
-        path: .actions/2-pr-backport
+        path: .actions
         token: ${{steps.sudo_github_token.outputs.token}}
 
     - name: Backport
