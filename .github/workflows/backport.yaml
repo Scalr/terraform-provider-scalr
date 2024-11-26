@@ -45,8 +45,6 @@ jobs:
         repository: Scalr/actions
         token: ${{steps.sudo_github_token.outputs.token}}
 
-    - run: ls .actions
-
     - name: Backport
       uses: ./.actions/2-pr-backport
       with:
