@@ -7,8 +7,14 @@ on:
       - ready_for_review
       - reopened
       - synchronize
+      - labeled
+      - unlabeled
     branches:
       - 'release/*'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
 
 jobs:
   backport:
@@ -30,12 +36,22 @@ jobs:
         filter: blob:none
         show-progress: false
 
-    - name: Backport
-      uses: Scalr/actions/2-pr-backport@master
+    - uses: actions/checkout@v4
       with:
+        ref: master
+        sparse-checkout: |
+          2-pr-backport
+        path: .actions
+        repository: Scalr/actions
+        token: ${{steps.sudo_github_token.outputs.token}}
+
+    - name: Backport
+      uses: ./.actions/2-pr-backport
+      with:
+        approval_bot_token: ${{secrets.SCALR_BUILDBOT_TOKEN}}
         token: ${{steps.sudo_github_token.outputs.token}}
         branches_ordering_rule: >-
           release/*.*.*
           master
-        base_branch: ${{github.base_ref}}
-        head_branch: ${{github.head_ref}}
+        base_branch: ${{github.event.pull_request.base.ref}}
+        head_branch: ${{github.event.pull_request.head.ref}}
