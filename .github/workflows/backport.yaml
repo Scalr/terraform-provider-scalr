@@ -36,8 +36,16 @@ jobs:
         filter: blob:none
         show-progress: false
 
+    - uses: actions/checkout@v4
+      with:
+        ref: master
+        sparse-checkout: |
+          2-pr-backport
+        path: .github/2-pr-backport
+        token: ${{steps.sudo_github_token.outputs.token}}
+
     - name: Backport
-      uses: Scalr/actions/2-pr-backport@master
+      uses: ./actions/2-pr-backport
       with:
         approval_bot_token: ${{secrets.SCALR_BUILDBOT_TOKEN}}
         token: ${{steps.sudo_github_token.outputs.token}}
