@@ -39,8 +39,6 @@ jobs:
     - uses: actions/checkout@v4
       with:
         ref: master
-        sparse-checkout: |
-          2-pr-backport
         path: .actions
         token: ${{steps.sudo_github_token.outputs.token}}
 
