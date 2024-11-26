@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Various false positive attribute drifts ([#344](https://github.com/Scalr/terraform-provider-scalr/pull/344))
+- `cost_estimation_enabled` attribute is forced to `false` in the `scalr_environment` resource if this attrute is ommited in the configuration ([#366](https://github.com/Scalr/terraform-provider-scalr/pull/366))
 
 ### Changed
 
