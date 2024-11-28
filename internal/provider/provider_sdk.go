@@ -51,7 +51,6 @@ func Provider(v string) *schema.Provider {
 			"scalr_provider_configurations":  dataSourceScalrProviderConfigurations(),
 			"scalr_role":                     dataSourceScalrRole(),
 			"scalr_service_account":          dataSourceScalrServiceAccount(),
-			"scalr_tag":                      dataSourceScalrTag(),
 			"scalr_variable":                 dataSourceScalrVariable(),
 			"scalr_variables":                dataSourceScalrVariables(),
 			"scalr_vcs_provider":             dataSourceScalrVcsProvider(),

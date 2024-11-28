@@ -132,3 +132,8 @@ func scalrAccountIDOptionalDefaultFunc() (interface{}, error) {
 	accID, _ := getDefaultScalrAccountID()
 	return accID, nil
 }
+
+// ptr returns a pointer to the value passed.
+func ptr[T any](v T) *T {
+	return &v
+}

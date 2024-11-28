@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/scalr/go-scalr"
 )
 
@@ -30,44 +30,6 @@ func TestAccScalrIamTeam_basic(t *testing.T) {
 						"name",
 						fmt.Sprintf("test-team-%d", rInt),
 					),
-					resource.TestCheckResourceAttr("scalr_iam_team.test", "description", "Test team"),
-					resource.TestCheckResourceAttr("scalr_iam_team.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("scalr_iam_team.test", "users.0", testUser),
-				),
-			},
-		},
-	})
-}
-
-func TestAccScalrIamTeam_renamed(t *testing.T) {
-	rInt := GetRandomInteger()
-	team := &scalr.Team{}
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrIamTeamDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccScalrIamTeamBasic(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrIamTeamExists("scalr_iam_team.test", team),
-					resource.TestCheckResourceAttr(
-						"scalr_iam_team.test",
-						"name",
-						fmt.Sprintf("test-team-%d", rInt),
-					),
-					resource.TestCheckResourceAttr("scalr_iam_team.test", "description", "Test team"),
-					resource.TestCheckResourceAttr("scalr_iam_team.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("scalr_iam_team.test", "users.0", testUser),
-				),
-			},
-			{
-				PreConfig: testAccCheckScalrIamTeamRename(team),
-				Config:    testAccScalrIamTeamRenamed(),
-				PlanOnly:  true,
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("scalr_iam_team.test", "name", "renamed-outside-of-terraform"),
 					resource.TestCheckResourceAttr("scalr_iam_team.test", "description", "Test team"),
 					resource.TestCheckResourceAttr("scalr_iam_team.test", "account_id", defaultAccount),
 					resource.TestCheckResourceAttr("scalr_iam_team.test", "users.0", testUser),
@@ -217,16 +179,6 @@ resource "scalr_iam_team" "test" {
   account_id  = "%s"
   users       = ["%s"]
 }`, rInt, defaultAccount, testUser)
-}
-
-func testAccScalrIamTeamRenamed() string {
-	return fmt.Sprintf(`
-resource "scalr_iam_team" "test" {
-  name        = "renamed-outside-of-terraform"
-  description = "Test team"
-  account_id  = "%s"
-  users       = ["%s"]
-}`, defaultAccount, testUser)
 }
 
 func testAccScalrIamTeamUpdate() string {

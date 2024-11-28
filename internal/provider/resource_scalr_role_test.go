@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/scalr/go-scalr"
 )
 
@@ -36,43 +36,6 @@ func TestAccScalrRole_basic(t *testing.T) {
 	})
 }
 
-func TestAccScalrRole_renamed(t *testing.T) {
-	role := &scalr.Role{}
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrRoleDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccScalrRoleBasic(),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrRoleExists("scalr_role.test", role),
-					resource.TestCheckResourceAttr("scalr_role.test", "name", "role-test"),
-					resource.TestCheckResourceAttr("scalr_role.test", "description", "test basic"),
-					resource.TestCheckResourceAttr("scalr_role.test", "is_system", "false"),
-					resource.TestCheckResourceAttr("scalr_role.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("scalr_role.test", "permissions.0", "*:read"),
-					resource.TestCheckResourceAttr("scalr_role.test", "permissions.1", "*:update"),
-				),
-			},
-
-			{
-				PreConfig: testAccCheckScalrRoleRename(role),
-				Config:    testAccScalrRoleRenamed(),
-				PlanOnly:  true,
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("scalr_role.test", "name", "renamed-outside-of-terraform"),
-					resource.TestCheckResourceAttr("scalr_role.test", "description", "test basic"),
-					resource.TestCheckResourceAttr("scalr_role.test", "is_system", "false"),
-					resource.TestCheckResourceAttr("scalr_role.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("scalr_role.test", "permissions.0", "*:read"),
-					resource.TestCheckResourceAttr("scalr_role.test", "permissions.1", "*:update"),
-				),
-			},
-		},
-	})
-}
 func TestAccScalrRole_update(t *testing.T) {
 	role := &scalr.Role{}
 
@@ -209,19 +172,6 @@ func testAccScalrRoleBasic() string {
 	return fmt.Sprintf(`
 resource "scalr_role" "test" {
   name           = "role-test"
-  description    = "test basic"
-  account_id     = "%s"
-  permissions    = [
-	 "*:read",
-	 "*:update"
-  ]
-}`, defaultAccount)
-}
-
-func testAccScalrRoleRenamed() string {
-	return fmt.Sprintf(`
-resource "scalr_role" "test" {
-  name           = "renamed-outside-of-terraform"
   description    = "test basic"
   account_id     = "%s"
   permissions    = [

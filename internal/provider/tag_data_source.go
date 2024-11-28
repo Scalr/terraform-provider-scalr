@@ -2,83 +2,131 @@ package provider
 
 import (
 	"context"
-	"log"
+	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
+	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/scalr/go-scalr"
+
+	"github.com/scalr/terraform-provider-scalr/internal/framework"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
 )
 
-func dataSourceScalrTag() *schema.Resource {
-	return &schema.Resource{
-		Description: "Retrieves information about a tag.",
-		ReadContext: dataSourceScalrTagRead,
-		Schema: map[string]*schema.Schema{
-			"id": {
-				Description:  "The identifier of the tag in the format `tag-<RANDOM STRING>`.",
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.StringIsNotWhiteSpace,
-				AtLeastOneOf: []string{"name"},
+// Ensure provider defined types fully satisfy framework interfaces.
+var (
+	_ datasource.DataSource                     = &tagDataSource{}
+	_ datasource.DataSourceWithConfigure        = &tagDataSource{}
+	_ datasource.DataSourceWithConfigValidators = &tagDataSource{}
+)
+
+func newTagDataSource() datasource.DataSource {
+	return &tagDataSource{}
+}
+
+// tagDataSource defines the data source implementation.
+type tagDataSource struct {
+	framework.DataSourceWithScalrClient
+}
+
+// TagDataSourceModel describes the data source data model.
+type TagDataSourceModel struct {
+	Id        types.String `tfsdk:"id"`
+	Name      types.String `tfsdk:"name"`
+	AccountID types.String `tfsdk:"account_id"`
+}
+
+func (d *tagDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_tag"
+}
+
+func (d *tagDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{
+		MarkdownDescription: "Retrieves information about a tag.",
+
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				MarkdownDescription: "The identifier of the tag in the format `tag-<RANDOM STRING>`.",
+				Optional:            true,
+				Computed:            true,
+				Validators: []validator.String{
+					validation.StringIsNotWhiteSpace(),
+				},
 			},
-			"name": {
-				Description:  "The name of the tag.",
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.StringIsNotWhiteSpace,
+			"name": schema.StringAttribute{
+				MarkdownDescription: "The name of the tag.",
+				Optional:            true,
+				Computed:            true,
+				Validators: []validator.String{
+					validation.StringIsNotWhiteSpace(),
+				},
 			},
-			"account_id": {
-				Description: "The ID of the Scalr account, in the format `acc-<RANDOM STRING>`.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				DefaultFunc: scalrAccountIDDefaultFunc,
+			"account_id": schema.StringAttribute{
+				MarkdownDescription: "The ID of the Scalr account, in the format `acc-<RANDOM STRING>`.",
+				Optional:            true,
+				Computed:            true,
 			},
 		},
 	}
 }
 
-func dataSourceScalrTagRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	scalrClient := meta.(*scalr.Client)
+func (d *tagDataSource) ConfigValidators(_ context.Context) []datasource.ConfigValidator {
+	return []datasource.ConfigValidator{
+		datasourcevalidator.AtLeastOneOf(
+			path.MatchRoot("id"),
+			path.MatchRoot("name"),
+		),
+	}
+}
 
-	tagID := d.Get("id").(string)
-	name := d.Get("name").(string)
-	accountID := d.Get("account_id").(string)
+func (d *tagDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var cfg TagDataSourceModel
 
-	options := scalr.TagListOptions{
-		Account: scalr.String(accountID),
+	// Read Terraform configuration data into the model
+	resp.Diagnostics.Append(req.Config.Get(ctx, &cfg)...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
-	if tagID != "" {
-		options.Tag = scalr.String(tagID)
+	opts := scalr.TagListOptions{}
+	if !cfg.Id.IsNull() {
+		opts.Tag = ptr(cfg.Id.ValueString())
+	}
+	if !cfg.Name.IsNull() {
+		opts.Name = ptr(cfg.Name.ValueString())
 	}
 
-	if name != "" {
-		options.Name = scalr.String(name)
-	}
-
-	log.Printf("[DEBUG] Read tag with ID '%s', name '%s', and account_id '%s'", tagID, name, accountID)
-	tags, err := scalrClient.Tags.List(ctx, options)
+	tags, err := d.Client.Tags.List(ctx, opts)
 	if err != nil {
-		return diag.Errorf("Error retrieving tag: %v", err)
+		resp.Diagnostics.AddError("Error retrieving tag", err.Error())
+		return
 	}
 
 	// Unlikely
 	if tags.TotalCount > 1 {
-		return diag.Errorf("Your query returned more than one result. Please try a more specific search criteria.")
+		resp.Diagnostics.AddError(
+			"Error retrieving tag",
+			"Your query returned more than one result. Please try a more specific search criteria.",
+		)
+		return
 	}
 
 	if tags.TotalCount == 0 {
-		return diag.Errorf("Could not find tag with ID '%s', name '%s', and account_id '%s'", tagID, name, accountID)
+		resp.Diagnostics.AddError(
+			"Error retrieving tag",
+			fmt.Sprintf("Could not find tag with ID '%s', name '%s'.", cfg.Id.ValueString(), cfg.Name.ValueString()),
+		)
+		return
 	}
 
 	tag := tags.Items[0]
 
-	_ = d.Set("name", tag.Name)
-	d.SetId(tag.ID)
+	cfg.Id = types.StringValue(tag.ID)
+	cfg.Name = types.StringValue(tag.Name)
+	cfg.AccountID = types.StringValue(tag.Account.ID)
 
-	return nil
+	resp.Diagnostics.Append(resp.State.Set(ctx, &cfg)...)
 }

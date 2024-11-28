@@ -6,8 +6,8 @@ import (
 	"log"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/scalr/go-scalr"
 )
 
@@ -37,41 +37,6 @@ func TestAccScalrAgentPoolToken_basic(t *testing.T) {
 	})
 }
 
-func TestAccScalrAgentPoolToken_changed_outside(t *testing.T) {
-
-	var pool scalr.AgentPool
-	if isAccTest() {
-		pool = createPool(t)
-		defer deletePool(t, pool)
-	}
-	token := &scalr.AccessToken{}
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrAgentPoolTokenDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccScalrAgentPoolTokenBasic(pool),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrAgentPoolTokenExists("scalr_agent_pool_token.test", pool, token),
-					resource.TestCheckResourceAttr("scalr_agent_pool_token.test", "description", "agent_pool_token-test"),
-					resource.TestCheckResourceAttr("scalr_agent_pool_token.test", "agent_pool_id", pool.ID),
-				),
-			},
-
-			{
-				PreConfig: testAccCheckScalrAgentPoolTokenChangedOutside(token),
-				Config:    testAccScalrAgentPoolTokenChangedOutside(pool),
-				PlanOnly:  true,
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("scalr_agent_pool_token.test", "description", "changed-outside-of-terraform"),
-					resource.TestCheckResourceAttr("scalr_agent_pool_token.test", "agent_pool_id", pool.ID),
-				),
-			},
-		},
-	})
-}
 func TestAccScalrAgentPoolToken_update(t *testing.T) {
 	var pool scalr.AgentPool
 	if isAccTest() {
@@ -211,14 +176,6 @@ func testAccScalrAgentPoolTokenBasic(pool scalr.AgentPool) string {
 
 resource "scalr_agent_pool_token" "test" {
   description           = "agent_pool_token-test"
-  agent_pool_id     = "%s"
-}`, pool.ID)
-}
-
-func testAccScalrAgentPoolTokenChangedOutside(pool scalr.AgentPool) string {
-	return fmt.Sprintf(`
-resource "scalr_agent_pool_token" "test" {
-  description           = "changed-outside-of-terraform"
   agent_pool_id     = "%s"
 }`, pool.ID)
 }

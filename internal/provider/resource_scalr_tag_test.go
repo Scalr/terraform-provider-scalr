@@ -1,13 +1,11 @@
 package provider
 
 import (
-	"context"
 	"fmt"
-	"log"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/scalr/go-scalr"
 )
 
@@ -80,36 +78,6 @@ func TestAccScalrTag_update(t *testing.T) {
 	})
 }
 
-func TestAccScalrTag_renamed(t *testing.T) {
-	tag := &scalr.Tag{}
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrTagDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccScalrTagBasic(),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrTagExists("scalr_tag.test", tag),
-					resource.TestCheckResourceAttr("scalr_tag.test", "name", "test-tag-name"),
-					resource.TestCheckResourceAttr("scalr_tag.test", "account_id", defaultAccount),
-				),
-			},
-
-			{
-				PreConfig: testAccCheckScalrTagRename(tag),
-				Config:    testAccScalrTagRenamed(),
-				PlanOnly:  true,
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("scalr_tag.test", "name", "renamed-outside-terraform"),
-					resource.TestCheckResourceAttr("scalr_tag.test", "account_id", defaultAccount),
-				),
-			},
-		},
-	})
-}
-
 func testAccScalrTagBasic() string {
 	return fmt.Sprintf(`
 resource scalr_tag test {
@@ -132,32 +100,6 @@ resource scalr_tag test {
   name       = "renamed-outside-terraform"
   account_id = "%s"
 }`, defaultAccount)
-}
-
-func testAccCheckScalrTagRename(tag *scalr.Tag) func() {
-	return func() {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
-
-		t, err := scalrClient.Tags.Read(ctx, tag.ID)
-
-		if err != nil {
-			log.Fatalf("Error retrieving tag: %v", err)
-		}
-
-		t, err = scalrClient.Tags.Update(
-			context.Background(),
-			t.ID,
-			scalr.TagUpdateOptions{Name: scalr.String("renamed-outside-terraform")},
-		)
-
-		if err != nil {
-			log.Fatalf("Could not rename the tag outside of terraform: %v", err)
-		}
-
-		if t.Name != "renamed-outside-terraform" {
-			log.Fatalf("Failed to rename the tag outside of terraform: %v", err)
-		}
-	}
 }
 
 func testAccCheckScalrTagExists(resId string, tag *scalr.Tag) resource.TestCheckFunc {

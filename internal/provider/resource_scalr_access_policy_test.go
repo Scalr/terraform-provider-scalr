@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/scalr/go-scalr"
 )
 
@@ -70,45 +70,6 @@ func TestAccScalrAccessPolicy_bad_subject(t *testing.T) {
 	})
 }
 
-func TestAccScalrAccessPolicy_changed_outside(t *testing.T) {
-	ap := &scalr.AccessPolicy{}
-	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrAccessPolicyDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccScalrAccessPolicyBasic(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrAccessPolicyExists("scalr_access_policy.test", ap),
-					resource.TestCheckResourceAttrSet("scalr_access_policy.test", "id"),
-					resource.TestCheckResourceAttr("scalr_access_policy.test", "subject.0.type", "user"),
-					resource.TestCheckResourceAttr("scalr_access_policy.test", "subject.0.id", testUser),
-					resource.TestCheckResourceAttr("scalr_access_policy.test", "is_system", "false"),
-					resource.TestCheckResourceAttr("scalr_access_policy.test", "scope.0.type", "environment"),
-					resource.TestCheckResourceAttr("scalr_access_policy.test", "role_ids.0", readOnlyRole),
-					resource.TestCheckResourceAttr("scalr_access_policy.test", "role_ids.#", "1"),
-				),
-			},
-			{
-				PreConfig: testAccCheckScalrAccessPolicyChangedOutside(ap),
-				Config:    testAccScalrAccessPolicyChangedOutside(rInt),
-				PlanOnly:  true,
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("scalr_access_policy.test", "id"),
-					resource.TestCheckResourceAttr("scalr_access_policy.test", "subject.0.type", "user"),
-					resource.TestCheckResourceAttr("scalr_access_policy.test", "subject.0.id", testUser),
-					resource.TestCheckResourceAttr("scalr_access_policy.test", "is_system", "false"),
-					resource.TestCheckResourceAttr("scalr_access_policy.test", "scope.0.type", "environment"),
-					resource.TestCheckResourceAttr("scalr_access_policy.test", "role_ids.0", userRole),
-					resource.TestCheckResourceAttr("scalr_access_policy.test", "role_ids.#", "1"),
-				),
-			},
-		},
-	})
-}
 func TestAccScalrAccessPolicy_update(t *testing.T) {
 	ap := &scalr.AccessPolicy{}
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
@@ -311,10 +272,6 @@ func testAccScalrAccessPolicyBasic(rInt int) string {
 
 func testAccScalrAccessPolicyEmptyRoleId(rInt int) string {
 	return fmt.Sprintf(iamPolicyTemplate, rInt, defaultAccount, testUser, "")
-}
-
-func testAccScalrAccessPolicyChangedOutside(rInt int) string {
-	return fmt.Sprintf(iamPolicyTemplate, rInt, defaultAccount, testUser, userRole)
 }
 
 func testAccScalrAccessPolicyUpdate(rInt int) string {

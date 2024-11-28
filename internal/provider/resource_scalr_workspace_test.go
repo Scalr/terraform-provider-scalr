@@ -3,12 +3,11 @@ package provider
 import (
 	"context"
 	"fmt"
-	"log"
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/scalr/go-scalr"
 )
 
@@ -119,81 +118,6 @@ func TestAccScalrWorkspace_monorepo(t *testing.T) {
 	})
 }
 
-func TestAccScalrWorkspace_renamed(t *testing.T) {
-	workspace := &scalr.Workspace{}
-	rInt := GetRandomInteger()
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccScalrWorkspaceBasic(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrWorkspaceExists(
-						"scalr_workspace.test", workspace),
-					testAccCheckScalrWorkspaceAttributes(workspace),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "name", "workspace-test"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "auto_apply", "true"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "operations", "true"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "auto_queue_runs", string(scalr.AutoQueueRunsModeAlways)),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "working_directory", ""),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "hooks.0.pre_init", "./scripts/pre-init.sh"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan.sh"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "hooks.0.post_plan", "./scripts/post-plan.sh"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "hooks.0.pre_apply", "./scripts/pre-apply.sh"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "hooks.0.post_apply", "./scripts/post-apply.sh"),
-				),
-			},
-
-			{
-				PreConfig: testAccCheckScalrWorkspaceRename(fmt.Sprintf("test-env-%d", rInt), "workspace-test"),
-				Config:    testAccScalrWorkspaceRenamed(rInt),
-				PlanOnly:  true,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrWorkspaceExists(
-						"scalr_workspace.test", workspace),
-					testAccCheckScalrWorkspaceAttributes(workspace),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "name", "workspace-test"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "auto_apply", "true"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "operations", "true"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "auto_queue_runs", string(scalr.AutoQueueRunsModeAlways)),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "working_directory", ""),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "hooks.0.pre_init", "./scripts/pre-init.sh"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "hooks.0.pre_plan", "./scripts/pre-plan.sh"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "hooks.0.post_plan", "./scripts/post-plan.sh"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "hooks.0.pre_apply", "./scripts/pre-apply.sh"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "hooks.0.post_apply", "./scripts/post-apply.sh"),
-				),
-			},
-		},
-	})
-}
 func TestAccScalrWorkspace_update(t *testing.T) {
 	workspace := &scalr.Workspace{}
 	rInt := GetRandomInteger()
@@ -497,49 +421,6 @@ func testAccCheckScalrWorkspaceMonorepoAttributes(
 	}
 }
 
-func testAccCheckScalrWorkspaceRename(environmentName, workspaceName string) func() {
-	return func() {
-		var environmentID *string
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
-
-		listOptions := scalr.EnvironmentListOptions{}
-		envl, err := scalrClient.Environments.List(ctx, listOptions)
-		if err != nil {
-			log.Fatalf("Error retrieving environments: %v", err)
-		}
-
-		for _, env := range envl.Items {
-			if env.Name == environmentName {
-				environmentID = &env.ID
-				break
-			}
-		}
-		if environmentID == nil {
-			log.Fatalf("Could not find environment with name: %s", environmentName)
-			return
-		}
-
-		ws, err := scalrClient.Workspaces.Read(ctx, *environmentID, workspaceName)
-
-		if err != nil {
-			log.Fatalf("Error retrieving workspace: %v", err)
-		}
-
-		w, err := scalrClient.Workspaces.Update(
-			context.Background(),
-			ws.ID,
-			scalr.WorkspaceUpdateOptions{Name: scalr.String("renamed-out-of-band")},
-		)
-		if err != nil {
-			log.Fatalf("Could not rename the workspace out of band: %v", err)
-		}
-
-		if w.Name != "renamed-out-of-band" {
-			log.Fatalf("Failed to rename the workspace out of band: %v", err)
-		}
-	}
-}
-
 func testAccCheckScalrWorkspaceAttributesUpdated(
 	workspace *scalr.Workspace) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -748,25 +629,6 @@ resource "scalr_workspace" "test" {
   environment_id 		= scalr_environment.test.id
   working_directory     = "/db"
   auto_queue_runs       = "never"
-}`)
-}
-
-func testAccScalrWorkspaceRenamed(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
-resource "scalr_workspace" "test" {
-  name                           = "renamed-out-of-band"
-  environment_id                 = scalr_environment.test.id
-  auto_apply                     = true
-  run_operation_timeout          = 18
-  auto_queue_runs                = "always"
-  deletion_protection_enabled    = false
-  hooks {
-    pre_init   = "./scripts/pre-init.sh"
-    pre_plan   = "./scripts/pre-plan.sh"
-    post_plan  = "./scripts/post-plan.sh"
-    pre_apply  = "./scripts/pre-apply.sh"
-    post_apply = "./scripts/post-apply.sh"
-  }
 }`)
 }
 

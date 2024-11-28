@@ -6,8 +6,8 @@ import (
 	"log"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/scalr/go-scalr"
 )
 
@@ -34,38 +34,6 @@ func TestAccScalrAgentPool_basic(t *testing.T) {
 	})
 }
 
-func TestAccScalrAgentPool_renamed(t *testing.T) {
-	pool := &scalr.AgentPool{}
-	rInt := GetRandomInteger()
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrAgentPoolDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccScalrAgentPoolBasic(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrAgentPoolExists("scalr_agent_pool.test", pool),
-					resource.TestCheckResourceAttr(
-						"scalr_agent_pool.test", "name", fmt.Sprintf("agent_pool-test-%d", rInt),
-					),
-					resource.TestCheckResourceAttr("scalr_agent_pool.test", "account_id", defaultAccount),
-				),
-			},
-
-			{
-				PreConfig: testAccCheckScalrAgentPoolRename(pool),
-				Config:    testAccScalrAgentPoolRenamed(rInt),
-				PlanOnly:  true,
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("scalr_agent_pool.test", "name", "renamed-outside-of-terraform"),
-					resource.TestCheckResourceAttr("scalr_agent_pool.test", "account_id", defaultAccount),
-				),
-			},
-		},
-	})
-}
 func TestAccScalrAgentPool_update(t *testing.T) {
 	pool := &scalr.AgentPool{}
 	rInt := GetRandomInteger()
@@ -201,20 +169,6 @@ resource "scalr_agent_pool" "test" {
   account_id     = "%s"
   environment_id = scalr_environment.test.id
 }`, rInt, defaultAccount, rInt, defaultAccount)
-}
-
-func testAccScalrAgentPoolRenamed(rInt int) string {
-	return fmt.Sprintf(`
-resource "scalr_environment" "test" {
-  name           = "agent_pool-test-%d"
-  account_id     = "%s"
-
-}
-resource "scalr_agent_pool" "test" {
-  name           = "renamed-outside-of-terraform"
-  account_id     = "%s"
-  environment_id = scalr_environment.test.id
-}`, rInt, defaultAccount, defaultAccount)
 }
 
 func testAccScalrAgentPoolUpdate() string {

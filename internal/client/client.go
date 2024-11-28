@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
-	svchost "github.com/hashicorp/terraform-svchost"
+	"github.com/hashicorp/terraform-svchost"
 	"github.com/hashicorp/terraform-svchost/disco"
 	"github.com/scalr/go-scalr"
 
@@ -16,8 +16,9 @@ import (
 
 var scalrServiceIDs = []string{"iacp.v3"}
 
+// Configure configures and returns a new Scalr client.
 func Configure(h, t, v string) (*scalr.Client, error) {
-	// Parse the hostname for comparison,
+	// Parse the hostname for comparison
 	hostname, err := svchost.ForComparison(h)
 	if err != nil {
 		return nil, err
