@@ -1,4 +1,4 @@
-package scalr
+package provider
 
 import (
 	"context"
