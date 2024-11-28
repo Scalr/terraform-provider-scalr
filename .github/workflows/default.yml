@@ -122,59 +122,24 @@ jobs:
           path: fatmouse
           ref: ${{ steps.check-branch.outputs.branch }}
           token: ${{steps.generate_token.outputs.token}}
-      - id: Auth
-        uses: google-github-actions/auth@v2
+      - uses: ./fatmouse/.github/actions/preview-env
+        name: Create preview environment
+        id: create-preview-env
         with:
-          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-      - name: Set Up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-      - name: Copy Secrets
-        run: |
-          mkdir ~/.scalr-labs
-          gsutil cp gs://tacobell-secrets/.secrets.yaml fatmouse/tacobell/.secrets.yaml
-          gsutil cp gs://tacobell-secrets/github.json ~/.scalr-labs/github.json
-      - name: Configure Docker
-        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
-      - name: Pull Python Builder
-        run: |
-          docker pull us-central1-docker.pkg.dev/scalr-dev/main-docker/fatmouse/python-builder:master
-          docker tag us-central1-docker.pkg.dev/scalr-dev/main-docker/fatmouse/python-builder:master fatmouse/python-builder:master
-      - name: Get Current Job Log URL
-        uses: Tiryoh/gha-jobid-action@v1
-        id: get-job-id
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          job_name: acc-tests
-      - name: Generate Run Tag
-        run: |
-          if [ ${{ github.run_attempt }} = 1 ]; then
-            RERUN_SUFFIX=""
-          else
-            RERUN_SUFFIX=$(echo -${{ github.run_attempt }})
-          fi
-          echo "RUN_TAG=e2e-${{ github.workflow }}-${{ github.job }}-${{ github.run_number }}${RERUN_SUFFIX}" >> $GITHUB_ENV
-      - name: Create Container
-        id: create
-        run: |
-          docker run --rm \
-          -e GITHUB_WORKSPACE=true \
-          -e GITHUB_OUTPUT=/fatmouse/output \
-          -e GITHUB_STEP_SUMMARY=/fatmouse/step_summary \
-          -w /fatmouse \
-          -v $PWD/fatmouse:/fatmouse \
-          -v $GITHUB_OUTPUT:/fatmouse/output \
-          -v $GITHUB_STEP_SUMMARY:/fatmouse/step_summary \
-          -v ~/.scalr-labs:/etc/scalr-labs \
-          fatmouse/python-builder:master python -u clickfile.py te up \
-          --branch ${{ github.head_ref || github.ref_name }} \
-          --run-url ${{ steps.get-job-id.outputs.html_url }} \
-          --skip-ui-build \
-          --ignore-missing-branches \
-          --agent-pool-id="${{vars.TACO_APOOL_ID}}" \
-          ${{ env.RUN_TAG }}
+          ref: ${{ github.head_ref || github.ref_name }}
+          github_token: ${{ steps.generate_token.outputs.token }}
+          google_cloud_credentials: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          run_prefix: e2e-provider-default
+          deployment_type: saas
+          prepare_runner: true
+          wait_for_env: true
+          no_segment: true
+          agent_pool_id: ${{ vars.TACO_APOOL_ID }}
+          working_directory: fatmouse
+          secrets_bucket: tacobell-secrets
       - name: Get Scalr Hostname
         run: |
-          SCALR_HOST=${{ steps.create.outputs.host }}
+          SCALR_HOST=${{ steps.create-preview-env.outputs.host }}
           echo "SCALR_HOSTNAME=mainiacp.${SCALR_HOST/https:\/\//}" >> $GITHUB_ENV
       - name: Run Acceptance Tests
         env:
@@ -197,15 +162,10 @@ jobs:
         run: goveralls -coverprofile=covprofile -service=github
       - name: Delete Container
         id: delete
+        working-directory: fatmouse
         if: ${{ always() }}
         run: |
-          docker run --rm \
-          -w /fatmouse \
-          -v $PWD/fatmouse:/fatmouse \
-          -v ~/.scalr-labs:/etc/scalr-labs \
-          fatmouse/python-builder:master \
-          python -u clickfile.py te rm \
-          --no-wait ${{ env.RUN_TAG }}
+          python -u clickfile.py te rm --no-wait ${{ steps.create-preview-env.outputs.env_name }}
 
   notify:
     name: Notify About Tests Failure
