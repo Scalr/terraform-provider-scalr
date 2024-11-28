@@ -135,7 +135,7 @@ func testAccCheckScalrRoleRename(role *scalr.Role) func() {
 		r, err = scalrClient.Roles.Update(
 			context.Background(),
 			r.ID,
-			scalr.RoleUpdateOptions{Name: scalr.String("renamed-outside-of-terraform")},
+			scalr.RoleUpdateOptions{Name: ptr("renamed-outside-of-terraform")},
 		)
 		if err != nil {
 			log.Fatalf("Could not rename the role outside of terraform: %v", err)

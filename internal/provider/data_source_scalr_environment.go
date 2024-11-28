@@ -116,7 +116,7 @@ func dataSourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta
 		options := GetEnvironmentByNameOptions{
 			Name:    &envName,
 			Account: &accountID,
-			Include: scalr.String("created-by"),
+			Include: ptr("created-by"),
 		}
 		environment, err = GetEnvironmentByName(ctx, options, scalrClient)
 		if err != nil {

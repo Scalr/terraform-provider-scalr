@@ -127,8 +127,8 @@ func resourceScalrEnvironmentCreate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	options := scalr.EnvironmentCreateOptions{
-		Name:                  scalr.String(name),
-		CostEstimationEnabled: scalr.Bool(d.Get("cost_estimation_enabled").(bool)),
+		Name:                  ptr(name),
+		CostEstimationEnabled: ptr(d.Get("cost_estimation_enabled").(bool)),
 		Account:               &scalr.Account{ID: accountID},
 		PolicyGroups:          policyGroups,
 	}
@@ -229,8 +229,8 @@ func resourceScalrEnvironmentUpdate(ctx context.Context, d *schema.ResourceData,
 
 	// Create a new options struct.
 	options := scalr.EnvironmentUpdateOptions{
-		Name:                  scalr.String(d.Get("name").(string)),
-		CostEstimationEnabled: scalr.Bool(d.Get("cost_estimation_enabled").(bool)),
+		Name:                  ptr(d.Get("name").(string)),
+		CostEstimationEnabled: ptr(d.Get("cost_estimation_enabled").(bool)),
 		PolicyGroups:          policyGroups,
 	}
 

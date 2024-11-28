@@ -326,7 +326,7 @@ func testAccCheckPolicyGroupRename(policyGroup *scalr.PolicyGroup) func() {
 		_, err := scalrClient.PolicyGroups.Update(
 			context.Background(),
 			policyGroup.ID,
-			scalr.PolicyGroupUpdateOptions{Name: scalr.String("renamed-outside-of-terraform")},
+			scalr.PolicyGroupUpdateOptions{Name: ptr("renamed-outside-of-terraform")},
 		)
 		if err != nil {
 			log.Fatalf("Could not rename policy group outside of terraform: %v", err)

@@ -64,12 +64,12 @@ func dataSourceScalrWorkspacesRead(ctx context.Context, d *schema.ResourceData, 
 
 	if env, ok := d.GetOk("environment_id"); ok {
 		id.WriteString(env.(string))
-		options.Filter.Environment = scalr.String(env.(string))
+		options.Filter.Environment = ptr(env.(string))
 	}
 
 	if name, ok := d.GetOk("name"); ok {
 		id.WriteString(name.(string))
-		options.Filter.Name = scalr.String(name.(string))
+		options.Filter.Name = ptr(name.(string))
 	}
 
 	if tagIDsI, ok := d.GetOk("tag_ids"); ok {
@@ -79,7 +79,7 @@ func dataSourceScalrWorkspacesRead(ctx context.Context, d *schema.ResourceData, 
 			tagIDs = append(tagIDs, t.(string))
 		}
 		if len(tagIDs) > 0 {
-			options.Filter.Tag = scalr.String("in:" + strings.Join(tagIDs, ","))
+			options.Filter.Tag = ptr("in:" + strings.Join(tagIDs, ","))
 		}
 	}
 

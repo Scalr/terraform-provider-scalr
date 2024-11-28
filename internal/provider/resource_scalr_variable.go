@@ -204,14 +204,14 @@ func resourceScalrVariableCreate(ctx context.Context, d *schema.ResourceData, me
 
 	// Create a new options struct.
 	options := scalr.VariableCreateOptions{
-		Key:          scalr.String(key),
-		Value:        scalr.String(d.Get("value").(string)),
-		Description:  scalr.String(d.Get("description").(string)),
-		Category:     scalr.Category(category),
-		HCL:          scalr.Bool(hcl),
-		Sensitive:    scalr.Bool(d.Get("sensitive").(bool)),
-		Final:        scalr.Bool(d.Get("final").(bool)),
-		QueryOptions: &scalr.VariableWriteQueryOptions{Force: scalr.Bool(d.Get("force").(bool))},
+		Key:          ptr(key),
+		Value:        ptr(d.Get("value").(string)),
+		Description:  ptr(d.Get("description").(string)),
+		Category:     ptr(category),
+		HCL:          ptr(hcl),
+		Sensitive:    ptr(d.Get("sensitive").(bool)),
+		Final:        ptr(d.Get("final").(bool)),
+		QueryOptions: &scalr.VariableWriteQueryOptions{Force: ptr(d.Get("force").(bool))},
 		Account:      &scalr.Account{ID: d.Get("account_id").(string)},
 	}
 
@@ -319,13 +319,13 @@ func resourceScalrVariableUpdate(ctx context.Context, d *schema.ResourceData, me
 
 	// Create a new options struct.
 	options := scalr.VariableUpdateOptions{
-		Key:          scalr.String(d.Get("key").(string)),
-		Value:        scalr.String(d.Get("value").(string)),
-		HCL:          scalr.Bool(hcl),
-		Sensitive:    scalr.Bool(d.Get("sensitive").(bool)),
-		Description:  scalr.String(d.Get("description").(string)),
-		Final:        scalr.Bool(d.Get("final").(bool)),
-		QueryOptions: &scalr.VariableWriteQueryOptions{Force: scalr.Bool(d.Get("force").(bool))},
+		Key:          ptr(d.Get("key").(string)),
+		Value:        ptr(d.Get("value").(string)),
+		HCL:          ptr(hcl),
+		Sensitive:    ptr(d.Get("sensitive").(bool)),
+		Description:  ptr(d.Get("description").(string)),
+		Final:        ptr(d.Get("final").(bool)),
+		QueryOptions: &scalr.VariableWriteQueryOptions{Force: ptr(d.Get("force").(bool))},
 	}
 
 	log.Printf("[DEBUG] Update variable: %s", d.Id())

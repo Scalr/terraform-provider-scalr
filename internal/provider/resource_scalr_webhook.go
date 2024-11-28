@@ -185,22 +185,22 @@ func createWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *sca
 
 	options := scalr.WebhookIntegrationCreateOptions{
 		Name:        &name,
-		Url:         scalr.String(d.Get("url").(string)),
+		Url:         ptr(d.Get("url").(string)),
 		Account:     &scalr.Account{ID: accountId},
 		Events:      eventDefinitions,
-		Enabled:     scalr.Bool(d.Get("enabled").(bool)),
-		Timeout:     scalr.Int(d.Get("timeout").(int)),
-		MaxAttempts: scalr.Int(d.Get("max_attempts").(int)),
+		Enabled:     ptr(d.Get("enabled").(bool)),
+		Timeout:     ptr(d.Get("timeout").(int)),
+		MaxAttempts: ptr(d.Get("max_attempts").(int)),
 	}
 
 	if secretKey, ok := d.GetOk("secret_key"); ok {
-		options.SecretKey = scalr.String(secretKey.(string))
+		options.SecretKey = ptr(secretKey.(string))
 	}
 
 	if environmentsI, ok := d.GetOk("environments"); ok {
 		environments := environmentsI.(*schema.Set).List()
 		if (len(environments) == 1) && (environments[0].(string) == "*") {
-			options.IsShared = scalr.Bool(true)
+			options.IsShared = ptr(true)
 		} else if len(environments) > 0 {
 			environmentValues := make([]*scalr.Environment, 0)
 			for _, env := range environments {
@@ -309,27 +309,27 @@ func updateWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *sca
 	options := scalr.WebhookIntegrationUpdateOptions{}
 
 	if d.HasChange("name") {
-		options.Name = scalr.String(d.Get("name").(string))
+		options.Name = ptr(d.Get("name").(string))
 	}
 
 	if d.HasChange("url") {
-		options.Url = scalr.String(d.Get("url").(string))
+		options.Url = ptr(d.Get("url").(string))
 	}
 
 	if d.HasChange("enabled") {
-		options.Enabled = scalr.Bool(d.Get("enabled").(bool))
+		options.Enabled = ptr(d.Get("enabled").(bool))
 	}
 
 	if d.HasChange("secret_key") {
-		options.SecretKey = scalr.String(d.Get("secret_key").(string))
+		options.SecretKey = ptr(d.Get("secret_key").(string))
 	}
 
 	if d.HasChange("timeout") {
-		options.Timeout = scalr.Int(d.Get("timeout").(int))
+		options.Timeout = ptr(d.Get("timeout").(int))
 	}
 
 	if d.HasChange("max_attempts") {
-		options.MaxAttempts = scalr.Int(d.Get("max_attempts").(int))
+		options.MaxAttempts = ptr(d.Get("max_attempts").(int))
 	}
 
 	if d.HasChange("header") {
@@ -345,10 +345,10 @@ func updateWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *sca
 	if environmentsI, ok := d.GetOk("environments"); ok {
 		environments := environmentsI.(*schema.Set).List()
 		if (len(environments) == 1) && (environments[0].(string) == "*") {
-			options.IsShared = scalr.Bool(true)
+			options.IsShared = ptr(true)
 			options.Environments = make([]*scalr.Environment, 0)
 		} else {
-			options.IsShared = scalr.Bool(false)
+			options.IsShared = ptr(false)
 			environmentValues := make([]*scalr.Environment, 0)
 			for _, env := range environments {
 				if env.(string) == "*" {
@@ -361,7 +361,7 @@ func updateWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *sca
 			options.Environments = environmentValues
 		}
 	} else {
-		options.IsShared = scalr.Bool(false)
+		options.IsShared = ptr(false)
 		options.Environments = make([]*scalr.Environment, 0)
 	}
 

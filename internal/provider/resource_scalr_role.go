@@ -103,9 +103,9 @@ func resourceScalrRoleCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	// Create a new options struct
 	options := scalr.RoleCreateOptions{
-		Name:        scalr.String(name),
+		Name:        ptr(name),
 		Account:     &scalr.Account{ID: accountID},
-		Description: scalr.String(description),
+		Description: ptr(description),
 		Permissions: permissions,
 	}
 
@@ -182,8 +182,8 @@ func resourceScalrRoleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 		// Create a new options struct
 		options := scalr.RoleUpdateOptions{
-			Name:        scalr.String(d.Get("name").(string)),
-			Description: scalr.String(d.Get("description").(string)),
+			Name:        ptr(d.Get("name").(string)),
+			Description: ptr(d.Get("description").(string)),
 			Permissions: permissions,
 		}
 

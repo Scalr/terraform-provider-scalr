@@ -137,7 +137,7 @@ func testAccCheckScalrIamTeamRename(team *scalr.Team) func() {
 			context.Background(),
 			team.ID,
 			scalr.TeamUpdateOptions{
-				Name:  scalr.String("renamed-outside-of-terraform"),
+				Name:  ptr("renamed-outside-of-terraform"),
 				Users: t.Users,
 			},
 		)

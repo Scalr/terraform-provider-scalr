@@ -47,7 +47,7 @@ func resourceScalrServiceAccountTokenCreate(ctx context.Context, d *schema.Resou
 
 	options := scalr.AccessTokenCreateOptions{}
 	if desc, ok := d.GetOk("description"); ok {
-		options.Description = scalr.String(desc.(string))
+		options.Description = ptr(desc.(string))
 	}
 
 	log.Printf("[DEBUG] Create access token for service account: %s", saID)
@@ -119,7 +119,7 @@ func resourceScalrServiceAccountTokenUpdate(ctx context.Context, d *schema.Resou
 		desc := d.Get("description").(string)
 
 		options := scalr.AccessTokenUpdateOptions{
-			Description: scalr.String(desc),
+			Description: ptr(desc),
 		}
 
 		log.Printf("[DEBUG] Update service account access token %s", id)

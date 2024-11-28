@@ -95,7 +95,7 @@ func resourceScalrIamTeamCreate(ctx context.Context, d *schema.ResourceData, met
 
 	// Optional attributes
 	if desc, ok := d.GetOk("description"); ok {
-		opts.Description = scalr.String(desc.(string))
+		opts.Description = ptr(desc.(string))
 	}
 	if idpID, ok := d.GetOk("identity_provider_id"); ok {
 		opts.IdentityProvider = &scalr.IdentityProvider{ID: idpID.(string)}
@@ -159,8 +159,8 @@ func resourceScalrIamTeamUpdate(ctx context.Context, d *schema.ResourceData, met
 		}
 
 		opts := scalr.TeamUpdateOptions{
-			Name:        scalr.String(name),
-			Description: scalr.String(desc),
+			Name:        ptr(name),
+			Description: ptr(desc),
 			Users:       users,
 		}
 

@@ -59,7 +59,7 @@ func dataSourceScalrEnvironmentsRead(ctx context.Context, d *schema.ResourceData
 
 	if name, ok := d.GetOk("name"); ok {
 		id.WriteString(name.(string))
-		options.Filter.Name = scalr.String(name.(string))
+		options.Filter.Name = ptr(name.(string))
 	}
 
 	if tagIDsI, ok := d.GetOk("tag_ids"); ok {
@@ -69,7 +69,7 @@ func dataSourceScalrEnvironmentsRead(ctx context.Context, d *schema.ResourceData
 			tagIDs = append(tagIDs, t.(string))
 		}
 		if len(tagIDs) > 0 {
-			options.Filter.Tag = scalr.String("in:" + strings.Join(tagIDs, ","))
+			options.Filter.Tag = ptr("in:" + strings.Join(tagIDs, ","))
 		}
 	}
 

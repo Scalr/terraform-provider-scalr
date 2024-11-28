@@ -400,51 +400,51 @@ func resourceScalrWorkspaceCreate(ctx context.Context, d *schema.ResourceData, m
 
 	// Create a new options struct.
 	options := scalr.WorkspaceCreateOptions{
-		Name:                      scalr.String(name),
-		AutoApply:                 scalr.Bool(d.Get("auto_apply").(bool)),
-		ForceLatestRun:            scalr.Bool(d.Get("force_latest_run").(bool)),
-		DeletionProtectionEnabled: scalr.Bool(d.Get("deletion_protection_enabled").(bool)),
+		Name:                      ptr(name),
+		AutoApply:                 ptr(d.Get("auto_apply").(bool)),
+		ForceLatestRun:            ptr(d.Get("force_latest_run").(bool)),
+		DeletionProtectionEnabled: ptr(d.Get("deletion_protection_enabled").(bool)),
 		Environment:               &scalr.Environment{ID: environmentID},
 		Hooks:                     &scalr.HooksOptions{},
 	}
 
 	// Process all configured options.
 	if operations, ok := d.GetOk("operations"); ok {
-		options.Operations = scalr.Bool(operations.(bool))
+		options.Operations = ptr(operations.(bool))
 	}
 
 	if executionMode, ok := d.GetOk("execution_mode"); ok {
-		options.ExecutionMode = scalr.WorkspaceExecutionModePtr(
+		options.ExecutionMode = ptr(
 			scalr.WorkspaceExecutionMode(executionMode.(string)),
 		)
 	}
 
 	if autoQueueRunsI, ok := d.GetOk("auto_queue_runs"); ok {
-		options.AutoQueueRuns = scalr.AutoQueueRunsModePtr(
+		options.AutoQueueRuns = ptr(
 			scalr.WorkspaceAutoQueueRuns(autoQueueRunsI.(string)),
 		)
 	}
 
 	if workspaceEnvironmentTypeI, ok := d.GetOk("type"); ok {
-		options.EnvironmentType = scalr.WorkspaceEnvironmentTypePtr(
+		options.EnvironmentType = ptr(
 			scalr.WorkspaceEnvironmentType(workspaceEnvironmentTypeI.(string)),
 		)
 	}
 
 	if tfVersion, ok := d.GetOk("terraform_version"); ok {
-		options.TerraformVersion = scalr.String(tfVersion.(string))
+		options.TerraformVersion = ptr(tfVersion.(string))
 	}
 
 	if iacPlatform, ok := d.GetOk("iac_platform"); ok {
-		options.IacPlatform = scalr.WorkspaceIaCPlatformPtr(scalr.WorkspaceIaCPlatform(iacPlatform.(string)))
+		options.IacPlatform = ptr(scalr.WorkspaceIaCPlatform(iacPlatform.(string)))
 	}
 
 	if workingDir, ok := d.GetOk("working_directory"); ok {
-		options.WorkingDirectory = scalr.String(workingDir.(string))
+		options.WorkingDirectory = ptr(workingDir.(string))
 	}
 
 	if runOperationTimeout, ok := d.GetOk("run_operation_timeout"); ok {
-		options.RunOperationTimeout = scalr.Int(runOperationTimeout.(int))
+		options.RunOperationTimeout = ptr(runOperationTimeout.(int))
 	}
 
 	if v, ok := d.GetOk("module_version_id"); ok {
@@ -472,17 +472,17 @@ func resourceScalrWorkspaceCreate(ctx context.Context, d *schema.ResourceData, m
 		}
 
 		options.VCSRepo = &scalr.WorkspaceVCSRepoOptions{
-			Identifier:        scalr.String(vcsRepo["identifier"].(string)),
-			Path:              scalr.String(vcsRepo["path"].(string)),
+			Identifier:        ptr(vcsRepo["identifier"].(string)),
+			Path:              ptr(vcsRepo["path"].(string)),
 			TriggerPrefixes:   &triggerPrefixes,
-			TriggerPatterns:   scalr.String(vcsRepo["trigger_patterns"].(string)),
-			DryRunsEnabled:    scalr.Bool(vcsRepo["dry_runs_enabled"].(bool)),
-			IngressSubmodules: scalr.Bool(vcsRepo["ingress_submodules"].(bool)),
+			TriggerPatterns:   ptr(vcsRepo["trigger_patterns"].(string)),
+			DryRunsEnabled:    ptr(vcsRepo["dry_runs_enabled"].(bool)),
+			IngressSubmodules: ptr(vcsRepo["ingress_submodules"].(bool)),
 		}
 
 		// Only set the branch if one is configured.
 		if branch, ok := vcsRepo["branch"].(string); ok && branch != "" {
-			options.VCSRepo.Branch = scalr.String(branch)
+			options.VCSRepo.Branch = ptr(branch)
 		}
 	}
 
@@ -492,11 +492,11 @@ func resourceScalrWorkspaceCreate(ctx context.Context, d *schema.ResourceData, m
 			hooks := v.([]interface{})[0].(map[string]interface{})
 
 			options.Hooks = &scalr.HooksOptions{
-				PreInit:   scalr.String(hooks["pre_init"].(string)),
-				PrePlan:   scalr.String(hooks["pre_plan"].(string)),
-				PostPlan:  scalr.String(hooks["post_plan"].(string)),
-				PreApply:  scalr.String(hooks["pre_apply"].(string)),
-				PostApply: scalr.String(hooks["post_apply"].(string)),
+				PreInit:   ptr(hooks["pre_init"].(string)),
+				PrePlan:   ptr(hooks["pre_plan"].(string)),
+				PostPlan:  ptr(hooks["post_plan"].(string)),
+				PreApply:  ptr(hooks["pre_apply"].(string)),
+				PostApply: ptr(hooks["post_apply"].(string)),
 			}
 		}
 	}
@@ -534,7 +534,7 @@ func resourceScalrWorkspaceCreate(ctx context.Context, d *schema.ResourceData, m
 				ProviderConfiguration: &scalr.ProviderConfiguration{ID: pcfg["id"].(string)},
 			}
 			if alias, ok := pcfg["alias"]; ok && len(alias.(string)) > 0 {
-				createLinkOption.Alias = scalr.String(alias.(string))
+				createLinkOption.Alias = ptr(alias.(string))
 			}
 			_, err := scalrClient.ProviderConfigurationLinks.Create(
 				ctx, workspace.ID, createLinkOption,
@@ -692,48 +692,48 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 		d.HasChange("type") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
-			Name:                      scalr.String(d.Get("name").(string)),
-			AutoApply:                 scalr.Bool(d.Get("auto_apply").(bool)),
-			ForceLatestRun:            scalr.Bool(d.Get("force_latest_run").(bool)),
-			DeletionProtectionEnabled: scalr.Bool(d.Get("deletion_protection_enabled").(bool)),
+			Name:                      ptr(d.Get("name").(string)),
+			AutoApply:                 ptr(d.Get("auto_apply").(bool)),
+			ForceLatestRun:            ptr(d.Get("force_latest_run").(bool)),
+			DeletionProtectionEnabled: ptr(d.Get("deletion_protection_enabled").(bool)),
 			Hooks: &scalr.HooksOptions{
-				PreInit:   scalr.String(""),
-				PrePlan:   scalr.String(""),
-				PostPlan:  scalr.String(""),
-				PreApply:  scalr.String(""),
-				PostApply: scalr.String(""),
+				PreInit:   ptr(""),
+				PrePlan:   ptr(""),
+				PostPlan:  ptr(""),
+				PreApply:  ptr(""),
+				PostApply: ptr(""),
 			},
 		}
 
 		// Process all configured options.
 		if operations, ok := d.GetOk("operations"); ok {
-			options.Operations = scalr.Bool(operations.(bool))
+			options.Operations = ptr(operations.(bool))
 		}
 
 		if executionMode, ok := d.GetOk("execution_mode"); ok {
-			options.ExecutionMode = scalr.WorkspaceExecutionModePtr(
+			options.ExecutionMode = ptr(
 				scalr.WorkspaceExecutionMode(executionMode.(string)),
 			)
 		}
 
 		if autoQueueRunsI, ok := d.GetOk("auto_queue_runs"); ok {
-			options.AutoQueueRuns = scalr.AutoQueueRunsModePtr(
+			options.AutoQueueRuns = ptr(
 				scalr.WorkspaceAutoQueueRuns(autoQueueRunsI.(string)),
 			)
 		}
 
 		if workspaceEnvironmentTypeI, ok := d.GetOk("type"); ok {
-			options.EnvironmentType = scalr.WorkspaceEnvironmentTypePtr(
+			options.EnvironmentType = ptr(
 				scalr.WorkspaceEnvironmentType(workspaceEnvironmentTypeI.(string)),
 			)
 		}
 
 		if tfVersion, ok := d.GetOk("terraform_version"); ok {
-			options.TerraformVersion = scalr.String(tfVersion.(string))
+			options.TerraformVersion = ptr(tfVersion.(string))
 		}
 
 		if iacPlatform, ok := d.GetOk("iac_platform"); ok {
-			options.IacPlatform = scalr.WorkspaceIaCPlatformPtr(scalr.WorkspaceIaCPlatform(iacPlatform.(string)))
+			options.IacPlatform = ptr(scalr.WorkspaceIaCPlatform(iacPlatform.(string)))
 		}
 
 		if v, ok := d.Get("var_files").([]interface{}); ok {
@@ -744,10 +744,10 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 			options.VarFiles = varFiles
 		}
 
-		options.WorkingDirectory = scalr.String(d.Get("working_directory").(string))
+		options.WorkingDirectory = ptr(d.Get("working_directory").(string))
 
 		if runOperationTimeout, ok := d.GetOk("run_operation_timeout"); ok {
-			options.RunOperationTimeout = scalr.Int(runOperationTimeout.(int))
+			options.RunOperationTimeout = ptr(runOperationTimeout.(int))
 		}
 
 		if vcsProviderId, ok := d.GetOk("vcs_provider_id"); ok {
@@ -771,13 +771,13 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 			}
 
 			options.VCSRepo = &scalr.WorkspaceVCSRepoOptions{
-				Identifier:        scalr.String(vcsRepo["identifier"].(string)),
-				Branch:            scalr.String(vcsRepo["branch"].(string)),
-				Path:              scalr.String(vcsRepo["path"].(string)),
+				Identifier:        ptr(vcsRepo["identifier"].(string)),
+				Branch:            ptr(vcsRepo["branch"].(string)),
+				Path:              ptr(vcsRepo["path"].(string)),
 				TriggerPrefixes:   &triggerPrefixes,
-				TriggerPatterns:   scalr.String(vcsRepo["trigger_patterns"].(string)),
-				DryRunsEnabled:    scalr.Bool(vcsRepo["dry_runs_enabled"].(bool)),
-				IngressSubmodules: scalr.Bool(vcsRepo["ingress_submodules"].(bool)),
+				TriggerPatterns:   ptr(vcsRepo["trigger_patterns"].(string)),
+				DryRunsEnabled:    ptr(vcsRepo["dry_runs_enabled"].(bool)),
+				IngressSubmodules: ptr(vcsRepo["ingress_submodules"].(bool)),
 			}
 		}
 
@@ -787,11 +787,11 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 				hooks := v.([]interface{})[0].(map[string]interface{})
 
 				options.Hooks = &scalr.HooksOptions{
-					PreInit:   scalr.String(hooks["pre_init"].(string)),
-					PrePlan:   scalr.String(hooks["pre_plan"].(string)),
-					PostPlan:  scalr.String(hooks["post_plan"].(string)),
-					PreApply:  scalr.String(hooks["pre_apply"].(string)),
-					PostApply: scalr.String(hooks["post_apply"].(string)),
+					PreInit:   ptr(hooks["pre_init"].(string)),
+					PrePlan:   ptr(hooks["pre_plan"].(string)),
+					PostPlan:  ptr(hooks["post_plan"].(string)),
+					PreApply:  ptr(hooks["pre_apply"].(string)),
+					PostApply: ptr(hooks["post_apply"].(string)),
 				}
 			}
 		}
@@ -838,7 +838,7 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 					ProviderConfiguration: &scalr.ProviderConfiguration{ID: configLink["id"].(string)},
 				}
 				if v, ok := configLink["alias"]; ok && len(v.(string)) > 0 {
-					linkCreateOption.Alias = scalr.String(v.(string))
+					linkCreateOption.Alias = ptr(v.(string))
 					mapID = mapID + v.(string)
 				}
 				expectedLinks[mapID] = linkCreateOption

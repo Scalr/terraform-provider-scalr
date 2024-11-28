@@ -58,10 +58,10 @@ func resourceScalrWorkspaceRunScheduleCreate(ctx context.Context, d *schema.Reso
 	options := scalr.WorkspaceRunScheduleOptions{}
 
 	if applySchedule, ok := d.GetOk("apply_schedule"); ok {
-		options.ApplySchedule = scalr.String(applySchedule.(string))
+		options.ApplySchedule = ptr(applySchedule.(string))
 	}
 	if destroySchedule, ok := d.GetOk("destroy_schedule"); ok {
-		options.DestroySchedule = scalr.String(destroySchedule.(string))
+		options.DestroySchedule = ptr(destroySchedule.(string))
 	}
 
 	applySchedule := ""
@@ -124,10 +124,10 @@ func resourceScalrWorkspaceRunScheduleUpdate(ctx context.Context, d *schema.Reso
 		options := scalr.WorkspaceRunScheduleOptions{}
 
 		if applySchedule, ok := d.GetOk("apply_schedule"); ok {
-			options.ApplySchedule = scalr.String(applySchedule.(string))
+			options.ApplySchedule = ptr(applySchedule.(string))
 		}
 		if destroySchedule, ok := d.GetOk("destroy_schedule"); ok {
-			options.DestroySchedule = scalr.String(destroySchedule.(string))
+			options.DestroySchedule = ptr(destroySchedule.(string))
 		}
 
 		applySchedule := ""

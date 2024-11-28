@@ -108,7 +108,7 @@ func testAccCheckScalrAgentPoolTokenChangedOutside(token *scalr.AccessToken) fun
 		r, err := scalrClient.AccessTokens.Update(
 			context.Background(),
 			token.ID,
-			scalr.AccessTokenUpdateOptions{Description: scalr.String("changed-outside-of-terraform")},
+			scalr.AccessTokenUpdateOptions{Description: ptr("changed-outside-of-terraform")},
 		)
 		if err != nil {
 			log.Fatalf("Could not update the agent pool outside of terraform: %v", err)
@@ -141,7 +141,7 @@ func createPool(t *testing.T) scalr.AgentPool {
 	}
 
 	r, err := scalrClient.AgentPools.Create(ctx, scalr.AgentPoolCreateOptions{
-		Name:    scalr.String(name),
+		Name:    ptr(name),
 		Account: &scalr.Account{ID: defaultAccount},
 	})
 

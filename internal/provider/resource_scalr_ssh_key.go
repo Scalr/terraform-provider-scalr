@@ -59,14 +59,14 @@ func resourceScalrSSHKeyCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	sshKeyOptions := scalr.SSHKeyCreateOptions{
 		Account:    &scalr.Account{ID: accountID},
-		Name:       scalr.String(name),
-		PrivateKey: scalr.String(privateKey),
+		Name:       ptr(name),
+		PrivateKey: ptr(privateKey),
 	}
 
 	if environmentsI, ok := d.GetOk("environments"); ok {
 		environments := environmentsI.(*schema.Set).List()
 		if (len(environments) == 1) && (environments[0].(string) == "*") {
-			sshKeyOptions.IsShared = scalr.Bool(true)
+			sshKeyOptions.IsShared = ptr(true)
 		} else if len(environments) > 0 {
 			environmentValues := make([]*scalr.Environment, 0)
 			for _, env := range environments {
@@ -121,17 +121,17 @@ func resourceScalrSSHKeyUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 	if d.HasChange("name") || d.HasChange("private_key") || d.HasChange("environments") {
 		sshKeyUpdateOptions := scalr.SSHKeyUpdateOptions{
-			Name:       scalr.String(d.Get("name").(string)),
-			PrivateKey: scalr.String(d.Get("private_key").(string)),
+			Name:       ptr(d.Get("name").(string)),
+			PrivateKey: ptr(d.Get("private_key").(string)),
 		}
 
 		if environmentsI, ok := d.GetOk("environments"); ok {
 			environments := environmentsI.(*schema.Set).List()
 			if (len(environments) == 1) && (environments[0].(string) == "*") {
-				sshKeyUpdateOptions.IsShared = scalr.Bool(true)
+				sshKeyUpdateOptions.IsShared = ptr(true)
 				sshKeyUpdateOptions.Environments = make([]*scalr.Environment, 0)
 			} else {
-				sshKeyUpdateOptions.IsShared = scalr.Bool(false)
+				sshKeyUpdateOptions.IsShared = ptr(false)
 				environmentValues := make([]*scalr.Environment, 0)
 				for _, env := range environments {
 					environmentValues = append(environmentValues, &scalr.Environment{ID: env.(string)})
@@ -139,7 +139,7 @@ func resourceScalrSSHKeyUpdate(ctx context.Context, d *schema.ResourceData, meta
 				sshKeyUpdateOptions.Environments = environmentValues
 			}
 		} else {
-			sshKeyUpdateOptions.IsShared = scalr.Bool(false)
+			sshKeyUpdateOptions.IsShared = ptr(false)
 			sshKeyUpdateOptions.Environments = make([]*scalr.Environment, 0)
 		}
 

@@ -143,9 +143,9 @@ func resourceScalrSlackIntegrationCreate(ctx context.Context, d *schema.Resource
 
 	options := scalr.SlackIntegrationCreateOptions{
 		Name:         &name,
-		ChannelId:    scalr.String(d.Get("channel_id").(string)),
+		ChannelId:    ptr(d.Get("channel_id").(string)),
 		Events:       parseEvents(d),
-		RunMode:      scalr.String(d.Get("run_mode").(string)),
+		RunMode:      ptr(d.Get("run_mode").(string)),
 		Account:      &scalr.Account{ID: accountID},
 		Environments: parseEnvironments(d),
 	}
@@ -217,11 +217,11 @@ func resourceScalrSlackIntegrationUpdate(ctx context.Context, d *schema.Resource
 	options := scalr.SlackIntegrationUpdateOptions{}
 
 	if d.HasChange("name") {
-		options.Name = scalr.String(d.Get("name").(string))
+		options.Name = ptr(d.Get("name").(string))
 	}
 
 	if d.HasChange("channel_id") {
-		options.ChannelId = scalr.String(d.Get("channel_id").(string))
+		options.ChannelId = ptr(d.Get("channel_id").(string))
 	}
 
 	if d.HasChange("events") {
@@ -230,7 +230,7 @@ func resourceScalrSlackIntegrationUpdate(ctx context.Context, d *schema.Resource
 	}
 
 	if d.HasChange("run_mode") {
-		options.RunMode = scalr.String(d.Get("run_mode").(string))
+		options.RunMode = ptr(d.Get("run_mode").(string))
 	}
 
 	if d.HasChange("environments") {

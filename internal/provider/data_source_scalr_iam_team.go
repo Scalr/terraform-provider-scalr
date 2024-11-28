@@ -66,15 +66,15 @@ func dataSourceScalrIamTeamRead(ctx context.Context, d *schema.ResourceData, met
 	accountID := d.Get("account_id").(string)
 
 	options := scalr.TeamListOptions{
-		Account: scalr.String("in:null," + accountID),
+		Account: ptr("in:null," + accountID),
 	}
 
 	if teamID != "" {
-		options.Team = scalr.String(teamID)
+		options.Team = ptr(teamID)
 	}
 
 	if name != "" {
-		options.Name = scalr.String(name)
+		options.Name = ptr(name)
 	}
 
 	teams, err := scalrClient.Teams.List(ctx, options)

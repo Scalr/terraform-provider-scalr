@@ -100,7 +100,7 @@ func resourceScalrRunScheduleRuleUpdate(ctx context.Context, d *schema.ResourceD
 		opts := scalr.RunScheduleRuleUpdateOptions{}
 
 		if v, ok := d.GetOk("schedule"); ok {
-			opts.Schedule = scalr.String(v.(string))
+			opts.Schedule = ptr(v.(string))
 		}
 
 		if v, ok := d.GetOk("schedule_mode"); ok {

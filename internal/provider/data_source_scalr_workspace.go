@@ -241,15 +241,15 @@ func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, m
 
 	options := scalr.WorkspaceListOptions{
 		Include: "created-by",
-		Filter:  &scalr.WorkspaceFilter{Environment: scalr.String(environmentID)},
+		Filter:  &scalr.WorkspaceFilter{Environment: ptr(environmentID)},
 	}
 
 	if workspaceID != "" {
-		options.Filter.Id = scalr.String(workspaceID)
+		options.Filter.Id = ptr(workspaceID)
 	}
 
 	if name != "" {
-		options.Filter.Name = scalr.String(name)
+		options.Filter.Name = ptr(name)
 	}
 
 	log.Printf("[DEBUG] Read configuration of workspace with ID '%s', name '%s', and environment_id '%s'", workspaceID, name, environmentID)

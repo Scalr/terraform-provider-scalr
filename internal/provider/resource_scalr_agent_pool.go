@@ -64,9 +64,9 @@ func resourceScalrAgentPoolCreate(ctx context.Context, d *schema.ResourceData, m
 
 	// Create a new options struct
 	options := scalr.AgentPoolCreateOptions{
-		Name:       scalr.String(name),
+		Name:       ptr(name),
 		Account:    &scalr.Account{ID: accountID},
-		VcsEnabled: scalr.Bool(vcsEnabled),
+		VcsEnabled: ptr(vcsEnabled),
 	}
 
 	if envID, ok := d.GetOk("environment_id"); ok {
@@ -124,7 +124,7 @@ func resourceScalrAgentPoolUpdate(ctx context.Context, d *schema.ResourceData, m
 	if d.HasChange("name") {
 		// Create a new options struct
 		options := scalr.AgentPoolUpdateOptions{
-			Name: scalr.String(d.Get("name").(string)),
+			Name: ptr(d.Get("name").(string)),
 		}
 
 		log.Printf("[DEBUG] Update agent pool %s", id)

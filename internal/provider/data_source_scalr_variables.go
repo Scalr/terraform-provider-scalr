@@ -155,9 +155,9 @@ func dataSourceScalrVariables() *schema.Resource {
 func dataSourceScalrVariablesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	filters := scalr.VariableFilter{}
-	options := scalr.VariableListOptions{Filter: &filters, Include: scalr.String("updated-by")}
+	options := scalr.VariableListOptions{Filter: &filters, Include: ptr("updated-by")}
 
-	filters.Account = scalr.String(d.Get("account_id").(string))
+	filters.Account = ptr(d.Get("account_id").(string))
 
 	if keysI, ok := d.GetOk("keys"); ok {
 		keys := make([]string, 0)
@@ -165,11 +165,11 @@ func dataSourceScalrVariablesRead(ctx context.Context, d *schema.ResourceData, m
 			keys = append(keys, keyI.(string))
 		}
 		if len(keys) > 0 {
-			filters.Key = scalr.String("in:" + strings.Join(keys, ","))
+			filters.Key = ptr("in:" + strings.Join(keys, ","))
 		}
 	}
 	if categoryI, ok := d.GetOk("category"); ok {
-		filters.Category = scalr.String(categoryI.(string))
+		filters.Category = ptr(categoryI.(string))
 	}
 	if envIdsI, ok := d.GetOk("environment_ids"); ok {
 		envIds := make([]string, 0)
@@ -177,7 +177,7 @@ func dataSourceScalrVariablesRead(ctx context.Context, d *schema.ResourceData, m
 			envIds = append(envIds, envIdI.(string))
 		}
 		if len(envIds) > 0 {
-			filters.Environment = scalr.String("in:" + strings.Join(envIds, ","))
+			filters.Environment = ptr("in:" + strings.Join(envIds, ","))
 		}
 	}
 	if wsIdsI, ok := d.GetOk("workspace_ids"); ok {
@@ -186,7 +186,7 @@ func dataSourceScalrVariablesRead(ctx context.Context, d *schema.ResourceData, m
 			wsIds = append(wsIds, wsIdI.(string))
 		}
 		if len(wsIds) > 0 {
-			filters.Workspace = scalr.String("in:" + strings.Join(wsIds, ","))
+			filters.Workspace = ptr("in:" + strings.Join(wsIds, ","))
 		}
 	}
 

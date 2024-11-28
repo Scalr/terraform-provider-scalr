@@ -94,16 +94,16 @@ func dataSourceScalrServiceAccountRead(ctx context.Context, d *schema.ResourceDa
 	accountID := d.Get("account_id").(string)
 
 	options := scalr.ServiceAccountListOptions{
-		Account: scalr.String(accountID),
-		Include: scalr.String("created-by"),
+		Account: ptr(accountID),
+		Include: ptr("created-by"),
 	}
 
 	if saID != "" {
-		options.ServiceAccount = scalr.String(saID)
+		options.ServiceAccount = ptr(saID)
 	}
 
 	if email != "" {
-		options.Email = scalr.String(email)
+		options.Email = ptr(email)
 	}
 
 	log.Printf("[DEBUG] Read service account with ID '%s', email '%s', and account_id '%s'", saID, email, accountID)

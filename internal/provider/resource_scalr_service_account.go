@@ -143,17 +143,17 @@ func resourceScalrServiceAccountCreate(ctx context.Context, d *schema.ResourceDa
 	accountID := d.Get("account_id").(string)
 
 	options := scalr.ServiceAccountCreateOptions{
-		Name:    scalr.String(name),
+		Name:    ptr(name),
 		Account: &scalr.Account{ID: accountID},
 	}
 
 	if desc, ok := d.GetOk("description"); ok {
-		options.Description = scalr.String(desc.(string))
+		options.Description = ptr(desc.(string))
 	}
 
 	if status, ok := d.GetOk("status"); ok {
 		saStatus := scalr.ServiceAccountStatus(status.(string))
-		options.Status = scalr.ServiceAccountStatusPtr(saStatus)
+		options.Status = ptr(saStatus)
 	}
 
 	if owners, ok := d.GetOk("owners"); ok {
@@ -184,12 +184,12 @@ func resourceScalrServiceAccountUpdate(ctx context.Context, d *schema.ResourceDa
 
 	if d.HasChange("description") {
 		desc := d.Get("description").(string)
-		options.Description = scalr.String(desc)
+		options.Description = ptr(desc)
 	}
 
 	if d.HasChange("status") {
 		status := scalr.ServiceAccountStatus(d.Get("status").(string))
-		options.Status = scalr.ServiceAccountStatusPtr(status)
+		options.Status = ptr(status)
 	}
 
 	if d.HasChange("owners") {

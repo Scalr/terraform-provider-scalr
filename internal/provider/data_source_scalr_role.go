@@ -71,7 +71,7 @@ func dataSourceScalrRoleRead(ctx context.Context, d *schema.ResourceData, meta i
 	accountID := d.Get("account_id").(string)
 
 	options := scalr.RoleListOptions{
-		Account: scalr.String("in:null," + accountID),
+		Account: ptr("in:null," + accountID),
 	}
 
 	if roleID != "" {

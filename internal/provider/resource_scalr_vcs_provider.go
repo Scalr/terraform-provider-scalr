@@ -117,12 +117,12 @@ func resourceScalrVcsProviderCreate(ctx context.Context, d *schema.ResourceData,
 
 	// Get the url
 	if url, ok := d.GetOk("url"); ok {
-		options.Url = scalr.String(url.(string))
+		options.Url = ptr(url.(string))
 	}
 
 	// Get the username
 	if username, ok := d.GetOk("username"); ok {
-		options.Username = scalr.String(username.(string))
+		options.Username = ptr(username.(string))
 	}
 
 	if agentPoolID, ok := d.GetOk("agent_pool_id"); ok {
@@ -132,15 +132,15 @@ func resourceScalrVcsProviderCreate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if draftPRsRunEnabled, ok := d.GetOk("draft_pr_runs_enabled"); ok {
-		options.DraftPrRunsEnabled = scalr.Bool(draftPRsRunEnabled.(bool))
+		options.DraftPrRunsEnabled = ptr(draftPRsRunEnabled.(bool))
 	}
 
 	if environmentsI, ok := d.GetOk("environments"); ok {
 		environments := environmentsI.(*schema.Set).List()
 		if (len(environments) == 1) && (environments[0].(string) == "*") {
-			options.IsShared = scalr.Bool(true)
+			options.IsShared = ptr(true)
 		} else if len(environments) > 0 {
-			options.IsShared = scalr.Bool(false)
+			options.IsShared = ptr(false)
 			environmentValues := make([]*scalr.Environment, 0)
 			for _, env := range environments {
 				if env.(string) == "*" {
@@ -206,17 +206,17 @@ func resourceScalrVcsProviderUpdate(ctx context.Context, d *schema.ResourceData,
 	scalrClient := meta.(*scalr.Client)
 	// Create a new options' struct.
 	options := scalr.VcsProviderUpdateOptions{
-		Name:  scalr.String(d.Get("name").(string)),
-		Token: scalr.String(d.Get("token").(string)),
+		Name:  ptr(d.Get("name").(string)),
+		Token: ptr(d.Get("token").(string)),
 	}
 
 	if url, ok := d.GetOk("url"); ok {
-		options.Url = scalr.String(url.(string))
+		options.Url = ptr(url.(string))
 	}
 
 	// Get the username
 	if username, ok := d.GetOk("username"); ok {
-		options.Username = scalr.String(username.(string))
+		options.Username = ptr(username.(string))
 	}
 
 	if agentPoolID, ok := d.GetOk("agent_pool_id"); ok {
@@ -226,16 +226,16 @@ func resourceScalrVcsProviderUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if d.HasChange("draft_pr_runs_enabled") {
-		options.DraftPrRunsEnabled = scalr.Bool(d.Get("draft_pr_runs_enabled").(bool))
+		options.DraftPrRunsEnabled = ptr(d.Get("draft_pr_runs_enabled").(bool))
 	}
 
 	if environmentsI, ok := d.GetOk("environments"); ok {
 		environments := environmentsI.(*schema.Set).List()
 		if (len(environments) == 1) && (environments[0].(string) == "*") {
-			options.IsShared = scalr.Bool(true)
+			options.IsShared = ptr(true)
 			options.Environments = make([]*scalr.Environment, 0)
 		} else {
-			options.IsShared = scalr.Bool(false)
+			options.IsShared = ptr(false)
 			environmentValues := make([]*scalr.Environment, 0)
 			for _, env := range environments {
 				if env.(string) == "*" {
@@ -248,7 +248,7 @@ func resourceScalrVcsProviderUpdate(ctx context.Context, d *schema.ResourceData,
 			options.Environments = environmentValues
 		}
 	} else {
-		options.IsShared = scalr.Bool(true)
+		options.IsShared = ptr(true)
 		options.Environments = make([]*scalr.Environment, 0)
 	}
 

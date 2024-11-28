@@ -73,10 +73,10 @@ func dataSourceScalrIamUserRead(ctx context.Context, d *schema.ResourceData, met
 	options := scalr.UserListOptions{}
 
 	if uID != "" {
-		options.User = scalr.String(uID)
+		options.User = ptr(uID)
 	}
 	if email != "" {
-		options.Email = scalr.String(email)
+		options.Email = ptr(email)
 	}
 
 	log.Printf("[DEBUG] Read configuration of iam user: email '%s', ID '%s'", email, uID)

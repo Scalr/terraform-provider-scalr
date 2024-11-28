@@ -69,7 +69,7 @@ func resourceScalrTagCreate(ctx context.Context, d *schema.ResourceData, meta in
 	accountID := d.Get("account_id").(string)
 
 	options := scalr.TagCreateOptions{
-		Name:    scalr.String(name),
+		Name:    ptr(name),
 		Account: &scalr.Account{ID: accountID},
 	}
 
@@ -91,7 +91,7 @@ func resourceScalrTagUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	if d.HasChange("name") {
 		name := d.Get("name").(string)
 		opts := scalr.TagUpdateOptions{
-			Name: scalr.String(name),
+			Name: ptr(name),
 		}
 		log.Printf("[DEBUG] Update tag %s", id)
 		_, err := scalrClient.Tags.Update(ctx, id, opts)

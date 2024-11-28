@@ -100,13 +100,13 @@ func resourceScalrModuleCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	vcsRepo := d.Get("vcs_repo").([]interface{})[0].(map[string]interface{})
 	vcsOpt := &scalr.ModuleVCSRepo{
-		Identifier: *scalr.String(vcsRepo["identifier"].(string)),
+		Identifier: vcsRepo["identifier"].(string),
 	}
 	if path, ok := vcsRepo["path"].(string); ok && path != "" {
-		vcsOpt.Path = scalr.String(path)
+		vcsOpt.Path = ptr(path)
 	}
 	if prefix, ok := vcsRepo["tag_prefix"].(string); ok && prefix != "" {
-		vcsOpt.TagPrefix = scalr.String(prefix)
+		vcsOpt.TagPrefix = ptr(prefix)
 	}
 
 	opt := scalr.ModuleCreateOptions{

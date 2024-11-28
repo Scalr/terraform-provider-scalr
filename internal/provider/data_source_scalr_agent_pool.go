@@ -72,7 +72,7 @@ func dataSourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, m
 	envID := d.Get("environment_id").(string)
 
 	options := scalr.AgentPoolListOptions{
-		Account: scalr.String(accountID),
+		Account: ptr(accountID),
 	}
 
 	if agentPoolID != "" {
@@ -84,11 +84,11 @@ func dataSourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	if envID != "" {
-		options.Environment = scalr.String(envID)
+		options.Environment = ptr(envID)
 	}
 
 	if vcsEnabled, ok := d.GetOkExists("vcs_enabled"); ok { //nolint:staticcheck
-		options.VcsEnabled = scalr.Bool(vcsEnabled.(bool))
+		options.VcsEnabled = ptr(vcsEnabled.(bool))
 	}
 
 	agentPoolsList, err := scalrClient.AgentPools.List(ctx, options)

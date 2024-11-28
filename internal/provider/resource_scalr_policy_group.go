@@ -129,28 +129,28 @@ func resourceScalrPolicyGroupCreate(ctx context.Context, d *schema.ResourceData,
 	vcsRepo := d.Get("vcs_repo").([]interface{})[0].(map[string]interface{})
 
 	vcsOpt := &scalr.PolicyGroupVCSRepoOptions{
-		Identifier: scalr.String(vcsRepo["identifier"].(string)),
+		Identifier: ptr(vcsRepo["identifier"].(string)),
 	}
 	if branch, ok := vcsRepo["branch"].(string); ok && branch != "" {
-		vcsOpt.Branch = scalr.String(branch)
+		vcsOpt.Branch = ptr(branch)
 	}
 	if path, ok := vcsRepo["path"].(string); ok && path != "" {
-		vcsOpt.Path = scalr.String(path)
+		vcsOpt.Path = ptr(path)
 	}
 
 	opts := scalr.PolicyGroupCreateOptions{
-		Name:        scalr.String(name),
+		Name:        ptr(name),
 		VCSRepo:     vcsOpt,
 		Account:     &scalr.Account{ID: accountID},
 		VcsProvider: &scalr.VcsProvider{ID: vcsProviderID},
-		IsEnforced:  scalr.Bool(false),
+		IsEnforced:  ptr(false),
 	}
 
 	environments := make([]*scalr.Environment, 0)
 	if environmentsI, ok := d.GetOk("environments"); ok {
 		environmentsIDs := environmentsI.([]interface{})
 		if (len(environmentsIDs) == 1) && environmentsIDs[0].(string) == "*" {
-			opts.IsEnforced = scalr.Bool(true)
+			opts.IsEnforced = ptr(true)
 		} else if len(environmentsIDs) > 0 {
 			for _, env := range environmentsIDs {
 				if env.(string) == "*" {
@@ -165,7 +165,7 @@ func resourceScalrPolicyGroupCreate(ctx context.Context, d *schema.ResourceData,
 
 	// Optional attributes
 	if opaVersion, ok := d.GetOk("opa_version"); ok {
-		opts.OpaVersion = scalr.String(opaVersion.(string))
+		opts.OpaVersion = ptr(opaVersion.(string))
 	}
 
 	pg, err := scalrClient.PolicyGroups.Create(ctx, opts)
@@ -264,30 +264,30 @@ func resourceScalrPolicyGroupUpdate(ctx context.Context, d *schema.ResourceData,
 		vcsRepo := d.Get("vcs_repo").([]interface{})[0].(map[string]interface{})
 
 		vcsOpt := &scalr.PolicyGroupVCSRepoOptions{
-			Identifier: scalr.String(vcsRepo["identifier"].(string)),
+			Identifier: ptr(vcsRepo["identifier"].(string)),
 		}
 		if branch, ok := vcsRepo["branch"].(string); ok && branch != "" {
-			vcsOpt.Branch = scalr.String(branch)
+			vcsOpt.Branch = ptr(branch)
 		}
 		if path, ok := vcsRepo["path"].(string); ok && path != "" {
-			vcsOpt.Path = scalr.String(path)
+			vcsOpt.Path = ptr(path)
 		}
 
 		opts := scalr.PolicyGroupUpdateOptions{
-			Name:        scalr.String(name),
+			Name:        ptr(name),
 			VCSRepo:     vcsOpt,
 			VcsProvider: &scalr.VcsProvider{ID: vcsProviderID},
-			IsEnforced:  scalr.Bool(false),
+			IsEnforced:  ptr(false),
 		}
 		if opaVersion, ok := d.GetOk("opa_version"); ok {
-			opts.OpaVersion = scalr.String(opaVersion.(string))
+			opts.OpaVersion = ptr(opaVersion.(string))
 		}
 
 		environments := make([]*scalr.Environment, 0)
 		if environmentsI, ok := d.GetOk("environments"); ok {
 			environmentsIDs := environmentsI.([]interface{})
 			if (len(environmentsIDs) == 1) && environmentsIDs[0].(string) == "*" {
-				opts.IsEnforced = scalr.Bool(true)
+				opts.IsEnforced = ptr(true)
 			} else if len(environmentsIDs) > 0 {
 				for _, env := range environmentsIDs {
 					if env.(string) == "*" {

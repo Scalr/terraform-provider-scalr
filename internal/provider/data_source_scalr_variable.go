@@ -121,27 +121,27 @@ func dataSourceScalrVariable() *schema.Resource {
 func dataSourceScalrVariableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	filters := scalr.VariableFilter{}
-	options := scalr.VariableListOptions{Filter: &filters, Include: scalr.String("updated-by")}
+	options := scalr.VariableListOptions{Filter: &filters, Include: ptr("updated-by")}
 
 	variableID := d.Get("id").(string)
 	key := d.Get("key").(string)
 
-	filters.Account = scalr.String(d.Get("account_id").(string))
+	filters.Account = ptr(d.Get("account_id").(string))
 
 	if variableID != "" {
-		filters.Var = scalr.String(variableID)
+		filters.Var = ptr(variableID)
 	}
 	if key != "" {
-		filters.Key = scalr.String(key)
+		filters.Key = ptr(key)
 	}
 	if categoryI, ok := d.GetOk("category"); ok {
-		filters.Category = scalr.String(categoryI.(string))
+		filters.Category = ptr(categoryI.(string))
 	}
 	if envIdI, ok := d.GetOk("environment_id"); ok {
-		filters.Environment = scalr.String(envIdI.(string))
+		filters.Environment = ptr(envIdI.(string))
 	}
 	if workspaceIDI, ok := d.GetOk("workspace_id"); ok {
-		filters.Workspace = scalr.String(workspaceIDI.(string))
+		filters.Workspace = ptr(workspaceIDI.(string))
 	}
 
 	variables, err := scalrClient.Variables.List(ctx, options)

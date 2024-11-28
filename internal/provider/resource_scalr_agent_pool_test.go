@@ -123,7 +123,7 @@ func testAccCheckScalrAgentPoolRename(pool *scalr.AgentPool) func() {
 		r, err = scalrClient.AgentPools.Update(
 			context.Background(),
 			r.ID,
-			scalr.AgentPoolUpdateOptions{Name: scalr.String("renamed-outside-of-terraform")},
+			scalr.AgentPoolUpdateOptions{Name: ptr("renamed-outside-of-terraform")},
 		)
 		if err != nil {
 			log.Fatalf("Could not rename the agent pool outside of terraform: %v", err)

@@ -74,23 +74,23 @@ func dataSourceScalrVcsProvider() *schema.Resource {
 func dataSourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 	options := scalr.VcsProvidersListOptions{
-		Account: scalr.String(d.Get("account_id").(string)),
+		Account: ptr(d.Get("account_id").(string)),
 	}
 
 	if vcsProviderID, ok := d.GetOk("id"); ok {
-		options.ID = scalr.String(vcsProviderID.(string))
+		options.ID = ptr(vcsProviderID.(string))
 	}
 
 	if name, ok := d.GetOk("name"); ok {
-		options.Query = scalr.String(name.(string))
+		options.Query = ptr(name.(string))
 	}
 
 	if envId, ok := d.GetOk("environment_id"); ok {
-		options.Environment = scalr.String(envId.(string))
+		options.Environment = ptr(envId.(string))
 	}
 
 	if agentPoolID, ok := d.GetOk("agent_pool_id"); ok {
-		options.AgentPool = scalr.String(agentPoolID.(string))
+		options.AgentPool = ptr(agentPoolID.(string))
 	}
 
 	if vcsType, ok := d.GetOk("vcs_type"); ok {
