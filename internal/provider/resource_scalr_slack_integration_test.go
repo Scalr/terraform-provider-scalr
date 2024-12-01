@@ -23,7 +23,7 @@ func TestAccSlackIntegration_basic(t *testing.T) {
 				t.Skip("Scalr instance doesn't have working slack connection.")
 			}
 		},
-		ProviderFactories: testAccProviderFactories,
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrSlackIntegrationConfig(),

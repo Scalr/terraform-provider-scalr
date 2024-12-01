@@ -15,7 +15,7 @@ func TestAccCurrentRun_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                  func() { testAccPreCheck(t) },
-		ProviderFactories:         testAccProviderFactories,
+		ProtoV5ProviderFactories:  protoV5ProviderFactories(t),
 		PreventPostDestroyRefresh: true,
 		Steps: []resource.TestStep{
 			{
@@ -46,7 +46,7 @@ func TestAccCurrentRun_basic(t *testing.T) {
 
 func launchRun(environmentName, workspaceName string) func() {
 	return func() {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		options := GetEnvironmentByNameOptions{
 			Name: &environmentName,

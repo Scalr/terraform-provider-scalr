@@ -10,8 +10,8 @@ import (
 
 func TestAccScalrProviderConfigurationsDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationsDataSourceInitConfig, // depends_on works improperly with data sources

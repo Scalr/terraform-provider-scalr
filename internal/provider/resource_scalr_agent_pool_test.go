@@ -16,9 +16,9 @@ func TestAccScalrAgentPool_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrAgentPoolDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrAgentPoolDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAgentPoolBasic(rInt),
@@ -39,9 +39,9 @@ func TestAccScalrAgentPool_update(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrAgentPoolDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrAgentPoolDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAgentPoolBasic(rInt),
@@ -68,9 +68,9 @@ func TestAccScalrAgentPool_import(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrAgentPoolDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrAgentPoolDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAgentPoolBasic(rInt),
@@ -87,7 +87,7 @@ func TestAccScalrAgentPool_import(t *testing.T) {
 
 func testAccCheckScalrAgentPoolExists(resId string, pool *scalr.AgentPool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[resId]
 		if !ok {
@@ -112,7 +112,7 @@ func testAccCheckScalrAgentPoolExists(resId string, pool *scalr.AgentPool) resou
 
 func testAccCheckScalrAgentPoolRename(pool *scalr.AgentPool) func() {
 	return func() {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		r, err := scalrClient.AgentPools.Read(ctx, pool.ID)
 
@@ -136,7 +136,7 @@ func testAccCheckScalrAgentPoolRename(pool *scalr.AgentPool) func() {
 }
 
 func testAccCheckScalrAgentPoolDestroy(s *terraform.State) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_agent_pool" {

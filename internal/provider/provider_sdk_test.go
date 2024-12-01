@@ -9,10 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"github.com/scalr/terraform-provider-scalr/internal/framework/defaults"
 )
 
-var testAccProvider *schema.Provider
-var testAccProviderFactories map[string]func() (*schema.Provider, error)
+var testAccProviderSDK *schema.Provider
 var noInstanceIdErr = fmt.Errorf("No instance ID is set")
 var githubToken = os.Getenv("githubToken")
 
@@ -20,12 +21,7 @@ var githubToken = os.Getenv("githubToken")
 var ctx = context.Background()
 
 func init() {
-	testAccProvider = Provider(testProviderVersion)
-	testAccProviderFactories = map[string]func() (*schema.Provider, error){
-		"scalr": func() (*schema.Provider, error) {
-			return testAccProvider, nil
-		},
-	}
+	testAccProviderSDK = Provider(testProviderVersion)
 }
 
 func TestProvider(t *testing.T) {
@@ -48,7 +44,7 @@ func testAccPreCheck(t *testing.T) {
 		}
 	}
 	// Set env variable to allow `account_id` compute the default value
-	_ = os.Setenv(currentAccountIDEnvVar, defaultAccount)
+	_ = os.Setenv(defaults.CurrentAccountIDEnvVar, defaultAccount)
 }
 
 func testVcsAccGithubTokenPreCheck(t *testing.T) {

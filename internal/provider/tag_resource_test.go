@@ -13,9 +13,9 @@ func TestAccScalrTag_basic(t *testing.T) {
 	tag := &scalr.Tag{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrTagDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrTagDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrTagBasic(),
@@ -32,9 +32,9 @@ func TestAccScalrTag_basic(t *testing.T) {
 func TestAccScalrTag_import(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrTagDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrTagDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrTagBasic(),
@@ -53,9 +53,9 @@ func TestAccScalrTag_update(t *testing.T) {
 	tag := &scalr.Tag{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrTagDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrTagDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrTagBasic(),
@@ -104,7 +104,7 @@ resource scalr_tag test {
 
 func testAccCheckScalrTagExists(resId string, tag *scalr.Tag) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[resId]
 		if !ok {
@@ -128,7 +128,7 @@ func testAccCheckScalrTagExists(resId string, tag *scalr.Tag) resource.TestCheck
 }
 
 func testAccCheckScalrTagDestroy(s *terraform.State) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_tag" {

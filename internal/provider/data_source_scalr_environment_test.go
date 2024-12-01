@@ -21,8 +21,8 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 	cuttedRInt := strconv.Itoa(rInt)[:len(strconv.Itoa(rInt))-1]
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config:      `data scalr_environment test {}`,

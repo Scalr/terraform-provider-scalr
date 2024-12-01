@@ -17,8 +17,8 @@ func TestAccScalrModule_basic(t *testing.T) {
 			t.Skip("Working on personal token but not working with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrModuleDestroy,
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrModuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrModulesOnAllScopes(),
@@ -68,8 +68,8 @@ func TestAccScalrModule_import(t *testing.T) {
 		PreCheck: func() {
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrModuleDestroy,
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrModuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrModule(),
@@ -85,7 +85,7 @@ func TestAccScalrModule_import(t *testing.T) {
 
 func testAccCheckScalrModuleExists(moduleId string, module *scalr.Module) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[moduleId]
 		if !ok {
@@ -109,7 +109,7 @@ func testAccCheckScalrModuleExists(moduleId string, module *scalr.Module) resour
 }
 
 func testAccCheckScalrModuleDestroy(s *terraform.State) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_module" {

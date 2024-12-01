@@ -79,7 +79,6 @@ func Provider(v string) *schema.Provider {
 			"scalr_service_account":                resourceScalrServiceAccount(),
 			"scalr_service_account_token":          resourceScalrServiceAccountToken(),
 			"scalr_slack_integration":              resourceScalrSlackIntegration(),
-			"scalr_tag":                            resourceScalrTag(),
 			"scalr_variable":                       resourceScalrVariable(),
 			"scalr_vcs_provider":                   resourceScalrVcsProvider(),
 			"scalr_webhook":                        resourceScalrWebhook(),

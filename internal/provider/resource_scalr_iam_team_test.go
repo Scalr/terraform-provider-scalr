@@ -17,9 +17,9 @@ func TestAccScalrIamTeam_basic(t *testing.T) {
 	team := &scalr.Team{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrIamTeamDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrIamTeamDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrIamTeamBasic(rInt),
@@ -44,9 +44,9 @@ func TestAccScalrIamTeam_update(t *testing.T) {
 	team := &scalr.Team{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrIamTeamDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrIamTeamDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrIamTeamBasic(rInt),
@@ -84,9 +84,9 @@ func TestAccScalrIamTeam_import(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrIamTeamDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrIamTeamDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrIamTeamBasic(rInt),
@@ -102,7 +102,7 @@ func TestAccScalrIamTeam_import(t *testing.T) {
 
 func testAccCheckScalrIamTeamExists(resId string, team *scalr.Team) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[resId]
 		if !ok {
@@ -126,7 +126,7 @@ func testAccCheckScalrIamTeamExists(resId string, team *scalr.Team) resource.Tes
 
 func testAccCheckScalrIamTeamRename(team *scalr.Team) func() {
 	return func() {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		t, err := scalrClient.Teams.Read(ctx, team.ID)
 		if err != nil {
@@ -151,7 +151,7 @@ func testAccCheckScalrIamTeamRename(team *scalr.Team) func() {
 }
 
 func testAccCheckScalrIamTeamDestroy(s *terraform.State) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_iam_team" {

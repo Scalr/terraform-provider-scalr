@@ -32,8 +32,8 @@ type tagDataSource struct {
 	framework.DataSourceWithScalrClient
 }
 
-// TagDataSourceModel describes the data source data model.
-type TagDataSourceModel struct {
+// tagDataSourceModel describes the data source data model.
+type tagDataSourceModel struct {
 	Id        types.String `tfsdk:"id"`
 	Name      types.String `tfsdk:"name"`
 	AccountID types.String `tfsdk:"account_id"`
@@ -83,7 +83,7 @@ func (d *tagDataSource) ConfigValidators(_ context.Context) []datasource.ConfigV
 }
 
 func (d *tagDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var cfg TagDataSourceModel
+	var cfg tagDataSourceModel
 
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &cfg)...)
@@ -93,10 +93,10 @@ func (d *tagDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 
 	opts := scalr.TagListOptions{}
 	if !cfg.Id.IsNull() {
-		opts.Tag = ptr(cfg.Id.ValueString())
+		opts.Tag = cfg.Id.ValueStringPointer()
 	}
 	if !cfg.Name.IsNull() {
-		opts.Name = ptr(cfg.Name.ValueString())
+		opts.Name = cfg.Name.ValueStringPointer()
 	}
 
 	tags, err := d.Client.Tags.List(ctx, opts)

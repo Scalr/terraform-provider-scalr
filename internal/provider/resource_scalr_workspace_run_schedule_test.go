@@ -11,9 +11,9 @@ func TestScalrWorkspaceRunSchedule_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceRunSchedule(rInt),
@@ -32,9 +32,9 @@ func TestScalrWorkspaceRunSchedule_default(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrWorkspaceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrWorkspaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceRunScheduleDefaultValue(rInt),

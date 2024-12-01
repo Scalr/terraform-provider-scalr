@@ -17,9 +17,9 @@ func TestAccScalrSSHKey_basic(t *testing.T) {
 	var sshKey scalr.SSHKey
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckSSHKeyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSSHKeyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrSSHKeyConfig(rName),
@@ -38,9 +38,9 @@ func TestAccScalrSSHKey_update(t *testing.T) {
 	var sshKey scalr.SSHKey
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckSSHKeyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSSHKeyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrSSHKeyConfig(rName),
@@ -64,9 +64,9 @@ func TestAccScalrSSHKey_import(t *testing.T) {
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckSSHKeyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckSSHKeyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrSSHKeyConfig(rName),
@@ -112,7 +112,7 @@ EOF
 }
 
 func testAccCheckSSHKeyDestroy(s *terraform.State) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_ssh_key" {
@@ -139,7 +139,7 @@ func testAccCheckSSHKeyIsShared(resourceName string, expectedIsShared bool, sshK
 			return fmt.Errorf("Not found: %s", resourceName)
 		}
 
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 		readKey, err := scalrClient.SSHKeys.Read(context.Background(), rs.Primary.ID)
 		if err != nil {
 			return fmt.Errorf("Error reading SSH key: %s", err)

@@ -13,9 +13,9 @@ func TestAccScalrServiceAccountToken_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrServiceAccountTokenDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrServiceAccountTokenDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrServiceAccountTokenBasicConfig(rInt),
@@ -38,9 +38,9 @@ func TestAccScalrServiceAccountToken_update(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrServiceAccountTokenDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrServiceAccountTokenDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrServiceAccountTokenBasicConfig(rInt),
@@ -59,7 +59,7 @@ func TestAccScalrServiceAccountToken_update(t *testing.T) {
 }
 
 func testAccCheckScalrServiceAccountTokenDestroy(s *terraform.State) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_service_account_token" {

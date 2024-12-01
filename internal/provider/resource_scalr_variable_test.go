@@ -26,9 +26,9 @@ func TestAccScalrVariable_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrVariableDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVariableOnAccountScopeImplicit(rInt),
@@ -84,9 +84,9 @@ func TestAccScalrVariable_basic(t *testing.T) {
 func TestAccScalrVariable_defaults(t *testing.T) {
 	rInt := GetRandomInteger()
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrVariableDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVariableOnAccountScopeImplicit(rInt),
@@ -111,9 +111,9 @@ func TestAccScalrVariable_scopes(t *testing.T) {
 	variable := &scalr.Variable{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrVariableDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVariableOnAllScopes(rInt),
@@ -128,9 +128,9 @@ func TestAccScalrVariable_update(t *testing.T) {
 	variable := &scalr.Variable{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrVariableDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVariableOnWorkspaceScope(rInt),
@@ -188,9 +188,9 @@ func TestAccScalrVariable_update(t *testing.T) {
 func TestAccScalrVariable_import(t *testing.T) {
 	rInt := GetRandomInteger()
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrVariableDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrVariableDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVariableOnWorkspaceScope(rInt),
@@ -205,7 +205,7 @@ func TestAccScalrVariable_import(t *testing.T) {
 }
 
 func variableFromState(s *terraform.State, n string, v *scalr.Variable) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	rs, ok := s.RootModule().Resources[n]
 	if !ok {
@@ -333,7 +333,7 @@ func testAccCheckScalrVariableAttributesUpdate(
 }
 
 func testAccCheckScalrVariableDestroy(s *terraform.State) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_variable" {

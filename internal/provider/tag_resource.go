@@ -3,118 +3,190 @@ package provider
 import (
 	"context"
 	"errors"
-	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/scalr/go-scalr"
+
+	"github.com/scalr/terraform-provider-scalr/internal/framework"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/defaults"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
 )
 
-func resourceScalrTag() *schema.Resource {
-	return &schema.Resource{
-		Description:   "Manages the state of tags in Scalr.",
-		CreateContext: resourceScalrTagCreate,
-		ReadContext:   resourceScalrTagRead,
-		UpdateContext: resourceScalrTagUpdate,
-		DeleteContext: resourceScalrTagDelete,
-		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
-		},
+// Ensure provider defined types fully satisfy framework interfaces.
+var (
+	_ resource.Resource                     = &tagResource{}
+	_ resource.ResourceWithConfigure        = &tagResource{}
+	_ resource.ResourceWithConfigValidators = &tagResource{}
+	_ resource.ResourceWithImportState      = &tagResource{}
+)
 
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Description: "Name of the tag.",
-				Type:        schema.TypeString,
-				Required:    true,
+func newTagResource() resource.Resource {
+	return &tagResource{}
+}
+
+// tagResource defines the resource implementation.
+type tagResource struct {
+	framework.ResourceWithScalrClient
+}
+
+// tagResourceModel describes the resource data model.
+type tagResourceModel struct {
+	Id        types.String `tfsdk:"id"`
+	Name      types.String `tfsdk:"name"`
+	AccountID types.String `tfsdk:"account_id"`
+}
+
+func (r *tagResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_tag"
+}
+
+func (r *tagResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages the state of tags in Scalr.",
+
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				MarkdownDescription: "The ID of this resource.",
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
-			"account_id": {
-				Description: "ID of the account, in the format `acc-<RANDOM STRING>`.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				DefaultFunc: scalrAccountIDDefaultFunc,
-				ForceNew:    true,
+			"name": schema.StringAttribute{
+				MarkdownDescription: "Name of the tag.",
+				Required:            true,
+				Validators: []validator.String{
+					validation.StringIsNotWhiteSpace(),
+				},
+			},
+			"account_id": schema.StringAttribute{
+				MarkdownDescription: "ID of the account, in the format `acc-<RANDOM STRING>`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             defaults.AccountIDRequired(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 		},
 	}
 }
 
-func resourceScalrTagRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	scalrClient := meta.(*scalr.Client)
-	id := d.Id()
+func (r *tagResource) ConfigValidators(_ context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{}
+}
 
-	log.Printf("[DEBUG] Read tag: %s", id)
-	tag, err := scalrClient.Tags.Read(ctx, id)
+func (r *tagResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan tagResourceModel
+
+	// Read plan data
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	opts := scalr.TagCreateOptions{
+		Name:    plan.Name.ValueStringPointer(),
+		Account: &scalr.Account{ID: plan.AccountID.ValueString()},
+	}
+	tag, err := r.Client.Tags.Create(ctx, opts)
+	if err != nil {
+		resp.Diagnostics.AddError("Error creating tag", err.Error())
+		return
+	}
+
+	plan.Id = types.StringValue(tag.ID)
+	plan.Name = types.StringValue(tag.Name)
+	plan.AccountID = types.StringValue(tag.Account.ID)
+
+	// Set state to fully populated data
+	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *tagResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	// Get current state
+	var state tagResourceModel
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Get refreshed resource state from API
+	tag, err := r.Client.Tags.Read(ctx, state.Id.ValueString())
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			log.Printf("[DEBUG] Tag %s not found", id)
-			d.SetId("")
-			return nil
+			resp.State.RemoveResource(ctx)
+			return
 		}
-		return diag.Errorf("Error reading tag %s: %v", id, err)
+		resp.Diagnostics.AddError("Error retrieving tag", err.Error())
+		return
 	}
 
-	// Update config.
-	_ = d.Set("name", tag.Name)
-	_ = d.Set("account_id", tag.Account.ID)
+	// Overwrite attributes with refreshed values
+	state.Name = types.StringValue(tag.Name)
+	state.AccountID = types.StringValue(tag.Account.ID)
 
-	return nil
+	// Set refreshed state
+	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
 
-func resourceScalrTagCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	scalrClient := meta.(*scalr.Client)
-
-	// Get the name and account_id.
-	name := d.Get("name").(string)
-	accountID := d.Get("account_id").(string)
-
-	options := scalr.TagCreateOptions{
-		Name:    ptr(name),
-		Account: &scalr.Account{ID: accountID},
+func (r *tagResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	// Read plan data
+	var plan tagResourceModel
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
-	log.Printf("[DEBUG] Create tag %s for account %s", name, accountID)
-	tag, err := scalrClient.Tags.Create(ctx, options)
+	opts := scalr.TagUpdateOptions{
+		Name: plan.Name.ValueStringPointer(),
+	}
+
+	// Update existing resource
+	tag, err := r.Client.Tags.Update(ctx, plan.Id.ValueString(), opts)
 	if err != nil {
-		return diag.Errorf(
-			"Error creating tag %s for account %s: %v", name, accountID, err)
+		resp.Diagnostics.AddError("Error updating tag", err.Error())
+		return
 	}
-	d.SetId(tag.ID)
 
-	return resourceScalrTagRead(ctx, d, meta)
+	// Overwrite attributes with refreshed values
+	plan.Name = types.StringValue(tag.Name)
+	plan.AccountID = types.StringValue(tag.Account.ID)
+
+	// Set refreshed state
+	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
 
-func resourceScalrTagUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	scalrClient := meta.(*scalr.Client)
-
-	id := d.Id()
-	if d.HasChange("name") {
-		name := d.Get("name").(string)
-		opts := scalr.TagUpdateOptions{
-			Name: ptr(name),
-		}
-		log.Printf("[DEBUG] Update tag %s", id)
-		_, err := scalrClient.Tags.Update(ctx, id, opts)
-		if err != nil {
-			return diag.Errorf("error updating tag %s: %v", id, err)
-		}
+func (r *tagResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// Get current state
+	var state tagResourceModel
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
-	return resourceScalrTagRead(ctx, d, meta)
+	err := r.Client.Tags.Delete(ctx, state.Id.ValueString())
+	if err != nil && !errors.Is(err, scalr.ErrResourceNotFound) {
+		resp.Diagnostics.AddError("Error deleting tag", err.Error())
+		return
+	}
 }
 
-func resourceScalrTagDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	scalrClient := meta.(*scalr.Client)
-	id := d.Id()
-
-	log.Printf("[DEBUG] Delete tag %s", id)
-	err := scalrClient.Tags.Delete(ctx, id)
-	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return nil
-		}
-		return diag.Errorf("Error deleting tag %s: %v", id, err)
-	}
-
-	return nil
+func (r *tagResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

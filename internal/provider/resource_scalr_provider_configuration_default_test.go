@@ -16,8 +16,8 @@ func TestAccProviderConfigurationDefault_basic(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckProviderConfigurationDefaultDestroy,
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProviderConfigurationDefaultDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProviderConfigurationDefaultBasicConfig(rInt),
@@ -38,8 +38,8 @@ func TestAccProviderConfigurationDefault_import(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckProviderConfigurationDefaultDestroy,
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProviderConfigurationDefaultDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccProviderConfigurationDefaultBasicConfig(rInt),
@@ -62,7 +62,7 @@ func testAccCheckProviderConfigurationDefaultExists(
 			return fmt.Errorf("Not found: %s", rn)
 		}
 
-		client := testAccProvider.Meta().(*scalr.Client)
+		client := testAccProviderSDK.Meta().(*scalr.Client)
 
 		providerConfigurationID := rs.Primary.Attributes["provider_configuration_id"]
 		environmentID := rs.Primary.Attributes["environment_id"]
@@ -83,7 +83,7 @@ func testAccCheckProviderConfigurationDefaultExists(
 }
 
 func testAccCheckProviderConfigurationDefaultDestroy(s *terraform.State) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_provider_configuration_default" {

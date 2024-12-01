@@ -22,8 +22,8 @@ func TestAccProviderConfiguration_import(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationCustomImportConfig(rName),
@@ -43,9 +43,9 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationCustomConfig(rName),
@@ -165,9 +165,9 @@ func TestAccProviderConfiguration_aws_custom(t *testing.T) {
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationCustomConfigAws(rName),
@@ -187,9 +187,9 @@ func TestAccProviderConfiguration_aws(t *testing.T) {
 	accessKeyId, secretAccessKey, roleArn, externalId := getAwsTestingCreds(t)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationAwsConfig(rName, accessKeyId, secretAccessKey, roleArn, externalId),
@@ -234,9 +234,9 @@ func TestAccProviderConfiguration_scalr(t *testing.T) {
 	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationScalrConfig(rName),
@@ -279,9 +279,9 @@ func TestAccProviderConfiguration_google(t *testing.T) {
 	credentials, project := getGoogleTestingCreds(t)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationGoogleConfig(rName, credentials, project),
@@ -325,9 +325,9 @@ func TestAccProviderConfiguration_google_oidc(t *testing.T) {
 	_, project := getGoogleTestingCreds(t)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationGoogleOidcConfig(rName, project),
@@ -372,9 +372,9 @@ func TestAccProviderConfiguration_aws_oidc(t *testing.T) {
 	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationAWSOidcConfig(rName),
@@ -414,9 +414,9 @@ func TestAccProviderConfiguration_azurerm(t *testing.T) {
 	armClientId, armClientSecret, armSubscription, armTenantId := getAzureTestingCreds(t)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckProviderConfigurationResourceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProviderConfigurationResourceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrProviderConfigurationAzurermConfig(rName, armClientId, armClientSecret, armSubscription, armTenantId),
@@ -694,7 +694,7 @@ func testAccCheckProviderConfigurationExists(n string, providerConfiguration *sc
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		providerConfigurationResource, err := scalrClient.ProviderConfigurations.Read(ctx, rs.Primary.ID)
 
@@ -709,7 +709,7 @@ func testAccCheckProviderConfigurationExists(n string, providerConfiguration *sc
 }
 
 func testAccCheckProviderConfigurationResourceDestroy(s *terraform.State) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_provider_configuration" {

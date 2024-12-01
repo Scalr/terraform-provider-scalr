@@ -14,9 +14,9 @@ func TestAccScalrRunTriggersDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckRunTriggerDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckRunTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccRunTriggerConfig(rInt),
@@ -30,7 +30,7 @@ func TestAccScalrRunTriggersDataSource_basic(t *testing.T) {
 }
 
 func testAccCheckRunTriggerDestroy(s *terraform.State) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_run_trigger" {
@@ -77,7 +77,7 @@ resource "scalr_run_trigger" "foobar" {
 
 func testAccCheckRunTriggerExists(n string, runTrigger *scalr.RunTrigger) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -101,7 +101,7 @@ func testAccCheckRunTriggerExists(n string, runTrigger *scalr.RunTrigger) resour
 
 func testAccCheckRunTriggerAttributes(runTrigger *scalr.RunTrigger, environmentName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		environment, ok := s.RootModule().Resources[environmentName]
 		if !ok {

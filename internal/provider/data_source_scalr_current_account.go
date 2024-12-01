@@ -8,6 +8,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/scalr/go-scalr"
+
+	"github.com/scalr/terraform-provider-scalr/internal/framework/defaults"
 )
 
 func dataSourceScalrCurrentAccount() *schema.Resource {
@@ -36,7 +38,7 @@ func dataSourceScalrCurrentAccountRead(ctx context.Context, d *schema.ResourceDa
 
 	accID, ok := getDefaultScalrAccountID()
 	if !ok {
-		log.Printf("[DEBUG] %s is not set", currentAccountIDEnvVar)
+		log.Printf("[DEBUG] %s is not set", defaults.CurrentAccountIDEnvVar)
 		return diag.Errorf("Current account is not set")
 	}
 

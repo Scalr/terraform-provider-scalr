@@ -14,8 +14,8 @@ func TestAccVcsProvider_basic(t *testing.T) {
 	provider := &scalr.VcsProvider{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testVcsAccGithubTokenPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testVcsAccGithubTokenPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVcsProviderConfig(),
@@ -55,9 +55,9 @@ func TestAccVcsProvider_basic(t *testing.T) {
 func TestAccVcsProvider_globalScope(t *testing.T) {
 	provider := &scalr.VcsProvider{}
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testVcsAccGithubTokenPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrVcsProviderDestroy,
+		PreCheck:                 func() { testVcsAccGithubTokenPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrVcsProviderDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -80,9 +80,9 @@ func TestAccVcsProvider_globalScope(t *testing.T) {
 
 func TestAccScalrVcsProvider_import(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testVcsAccGithubTokenPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrVcsProviderDestroy,
+		PreCheck:                 func() { testVcsAccGithubTokenPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrVcsProviderDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVcsProviderConfig(),
@@ -99,7 +99,7 @@ func TestAccScalrVcsProvider_import(t *testing.T) {
 
 func testAccCheckScalrVcsProviderExists(resId string, vcsProvider *scalr.VcsProvider) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[resId]
 		if !ok {
@@ -123,7 +123,7 @@ func testAccCheckScalrVcsProviderExists(resId string, vcsProvider *scalr.VcsProv
 }
 
 func testAccCheckScalrVcsProviderDestroy(s *terraform.State) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_vcs_provider" {

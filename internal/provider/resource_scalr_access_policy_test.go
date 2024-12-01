@@ -19,9 +19,9 @@ func TestAccScalrAccessPolicy_basic(t *testing.T) {
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrAccessPolicyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrAccessPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAccessPolicyBasic(rInt),
@@ -44,8 +44,8 @@ func TestAccScalrAccessPolicy_bad_scope(t *testing.T) {
 	rg, _ := regexp.Compile(`scope.0.type must be one of \[workspace, environment, account], got: universe`)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrAccessPolicyBadScope(),
@@ -59,8 +59,8 @@ func TestAccScalrAccessPolicy_bad_subject(t *testing.T) {
 	rg, _ := regexp.Compile(`subject.0.type must be one of \[user, team, service_account], got: grandpa`)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrAccessPolicyBadSubject(),
@@ -75,9 +75,9 @@ func TestAccScalrAccessPolicy_update(t *testing.T) {
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrAccessPolicyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrAccessPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAccessPolicyBasic(rInt),
@@ -119,9 +119,9 @@ func TestAccScalrAccessPolicy_import(t *testing.T) {
 	rInt := rand.New(rand.NewSource(time.Now().UnixNano())).Int()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrAccessPolicyDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrAccessPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAccessPolicyBasic(rInt),
@@ -138,7 +138,7 @@ func TestAccScalrAccessPolicy_import(t *testing.T) {
 
 func testAccCheckScalrAccessPolicyExists(resId string, ap *scalr.AccessPolicy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[resId]
 		if !ok {
@@ -163,7 +163,7 @@ func testAccCheckScalrAccessPolicyExists(resId string, ap *scalr.AccessPolicy) r
 
 func testAccCheckScalrAccessPolicyChangedOutside(ap *scalr.AccessPolicy) func() {
 	return func() {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		r, err := scalrClient.AccessPolicies.Read(ctx, ap.ID)
 
@@ -187,7 +187,7 @@ func testAccCheckScalrAccessPolicyChangedOutside(ap *scalr.AccessPolicy) func() 
 }
 
 func testAccCheckScalrAccessPolicyDestroy(s *terraform.State) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_access_policy" {

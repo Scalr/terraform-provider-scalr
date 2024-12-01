@@ -12,8 +12,8 @@ func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testVcsAccGithubTokenPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testVcsAccGithubTokenPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrVcsProviderDataSourceConfigAllFilters(rInt, githubToken),

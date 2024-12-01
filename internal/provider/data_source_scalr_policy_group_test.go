@@ -20,7 +20,7 @@ func TestAccPolicyGroupDataSource_basic(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: testAccProviderFactories,
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupConfig(rInt),
@@ -103,7 +103,7 @@ func TestAccPolicyGroupDataSource_basic(t *testing.T) {
 
 func waitForPolicyGroupFetch(name string) func() {
 	return func() {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		pgl, err := scalrClient.PolicyGroups.List(ctx, scalr.PolicyGroupListOptions{
 			Account: defaultAccount,

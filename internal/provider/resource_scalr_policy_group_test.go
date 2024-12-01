@@ -25,8 +25,8 @@ func TestAccPolicyGroup_basic(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckPolicyGroupDestroy,
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPolicyGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupBasicConfig(rInt),
@@ -78,8 +78,8 @@ func TestAccPolicyGroup_update(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckPolicyGroupDestroy,
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPolicyGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupBasicConfig(rInt),
@@ -169,8 +169,8 @@ func TestAccPolicyGroup_renamed(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckPolicyGroupDestroy,
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPolicyGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupBasicConfig(rInt),
@@ -260,8 +260,8 @@ func TestAccPolicyGroup_import(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckPolicyGroupDestroy,
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPolicyGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupBasicConfig(rInt),
@@ -277,7 +277,7 @@ func TestAccPolicyGroup_import(t *testing.T) {
 
 func testAccCheckPolicyGroupExists(resID string, policyGroup *scalr.PolicyGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[resID]
 		if !ok {
@@ -299,7 +299,7 @@ func testAccCheckPolicyGroupExists(resID string, policyGroup *scalr.PolicyGroup)
 }
 
 func testAccCheckPolicyGroupDestroy(s *terraform.State) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_policy_group" {
@@ -321,7 +321,7 @@ func testAccCheckPolicyGroupDestroy(s *terraform.State) error {
 
 func testAccCheckPolicyGroupRename(policyGroup *scalr.PolicyGroup) func() {
 	return func() {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		_, err := scalrClient.PolicyGroups.Update(
 			context.Background(),

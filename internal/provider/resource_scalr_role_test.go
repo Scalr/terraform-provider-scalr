@@ -16,9 +16,9 @@ func TestAccScalrRole_basic(t *testing.T) {
 	role := &scalr.Role{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrRoleDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrRoleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrRoleBasic(),
@@ -40,9 +40,9 @@ func TestAccScalrRole_update(t *testing.T) {
 	role := &scalr.Role{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrRoleDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrRoleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrRoleBasic(),
@@ -80,9 +80,9 @@ func TestAccScalrRole_update(t *testing.T) {
 func TestAccScalrRole_import(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrRoleDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrRoleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrRoleBasic(),
@@ -99,7 +99,7 @@ func TestAccScalrRole_import(t *testing.T) {
 
 func testAccCheckScalrRoleExists(resId string, role *scalr.Role) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[resId]
 		if !ok {
@@ -124,7 +124,7 @@ func testAccCheckScalrRoleExists(resId string, role *scalr.Role) resource.TestCh
 
 func testAccCheckScalrRoleRename(role *scalr.Role) func() {
 	return func() {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		r, err := scalrClient.Roles.Read(ctx, role.ID)
 
@@ -148,7 +148,7 @@ func testAccCheckScalrRoleRename(role *scalr.Role) func() {
 }
 
 func testAccCheckScalrRoleDestroy(s *terraform.State) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_role" {

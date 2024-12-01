@@ -8,11 +8,12 @@ import (
 	"os"
 
 	"github.com/scalr/go-scalr"
+
+	"github.com/scalr/terraform-provider-scalr/internal/framework/defaults"
 )
 
 const (
-	currentAccountIDEnvVar = "SCALR_ACCOUNT_ID"
-	dummyIdentifier        = "-"
+	dummyIdentifier = "-"
 )
 
 type GetEnvironmentByNameOptions struct {
@@ -108,7 +109,7 @@ func InterfaceArrToTagRelationArr(arr []interface{}) []*scalr.TagRelation {
 }
 
 func getDefaultScalrAccountID() (string, bool) {
-	if v := os.Getenv(currentAccountIDEnvVar); v != "" {
+	if v := os.Getenv(defaults.CurrentAccountIDEnvVar); v != "" {
 		return v, true
 	}
 	return "", false

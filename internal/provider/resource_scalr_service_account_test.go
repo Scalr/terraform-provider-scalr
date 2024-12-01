@@ -13,9 +13,9 @@ func TestAccScalrServiceAccount_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrServiceAccountDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrServiceAccountDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrServiceAccountBasic(rInt),
@@ -50,9 +50,9 @@ func TestAccScalrServiceAccount_import(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrServiceAccountDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrServiceAccountDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrServiceAccountBasic(rInt),
@@ -70,9 +70,9 @@ func TestAccScalrServiceAccount_update(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrServiceAccountDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrServiceAccountDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrServiceAccountBasic(rInt),
@@ -127,7 +127,7 @@ resource scalr_service_account test {
 }
 
 func testAccCheckScalrServiceAccountDestroy(s *terraform.State) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_service_account" {

@@ -16,7 +16,7 @@ func TestAccModuleVersionsDataSource_basic(t *testing.T) {
 		PreCheck: func() {
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: testAccProviderFactories,
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config:      `data scalr_module_versions all_by_none {}`,

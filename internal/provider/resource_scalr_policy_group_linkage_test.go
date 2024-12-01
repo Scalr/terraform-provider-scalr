@@ -20,8 +20,8 @@ func TestAccPolicyGroupLinkage_basic(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckPolicyGroupLinkageDestroy,
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPolicyGroupLinkageDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupLinkageBasicConfig(rInt),
@@ -56,8 +56,8 @@ func TestAccPolicyGroupLinkage_import(t *testing.T) {
 			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckPolicyGroupLinkageDestroy,
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPolicyGroupLinkageDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccPolicyGroupLinkageBasicConfig(rInt),
@@ -77,7 +77,7 @@ func testAccCheckPolicyGroupLinkageExists(
 	environment *scalr.Environment,
 ) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[resID]
 		if !ok {
@@ -101,7 +101,7 @@ func testAccCheckPolicyGroupLinkageExists(
 }
 
 func testAccCheckPolicyGroupLinkageDestroy(s *terraform.State) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_policy_group_linkage" {

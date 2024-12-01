@@ -6,17 +6,19 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+
+	"github.com/scalr/terraform-provider-scalr/internal/framework/defaults"
 )
 
 func TestAccCurrentAccount_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                  func() { testAccPreCheck(t) },
-		ProviderFactories:         testAccProviderFactories,
+		ProtoV5ProviderFactories:  protoV5ProviderFactories(t),
 		PreventPostDestroyRefresh: true,
 		Steps: []resource.TestStep{
 			{
 				PreConfig: func() {
-					_ = os.Unsetenv(currentAccountIDEnvVar)
+					_ = os.Unsetenv(defaults.CurrentAccountIDEnvVar)
 				},
 				Config:      testAccCurrentAccountDataSourceConfig(),
 				PlanOnly:    true,
@@ -24,7 +26,7 @@ func TestAccCurrentAccount_basic(t *testing.T) {
 			},
 			{
 				PreConfig: func() {
-					_ = os.Setenv(currentAccountIDEnvVar, defaultAccount)
+					_ = os.Setenv(defaults.CurrentAccountIDEnvVar, defaultAccount)
 				},
 				Config:   testAccCurrentAccountDataSourceConfig(),
 				PlanOnly: true,

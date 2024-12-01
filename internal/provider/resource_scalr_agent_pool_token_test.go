@@ -21,9 +21,9 @@ func TestAccScalrAgentPoolToken_basic(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrAgentPoolTokenDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrAgentPoolTokenDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAgentPoolTokenBasic(pool),
@@ -46,9 +46,9 @@ func TestAccScalrAgentPoolToken_update(t *testing.T) {
 	token := &scalr.AccessToken{}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrAgentPoolTokenDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrAgentPoolTokenDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAgentPoolTokenBasic(pool),
@@ -71,7 +71,7 @@ func TestAccScalrAgentPoolToken_update(t *testing.T) {
 
 func testAccCheckScalrAgentPoolTokenExists(resId string, pool scalr.AgentPool, token *scalr.AccessToken) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[resId]
 		if !ok {
@@ -103,7 +103,7 @@ func testAccCheckScalrAgentPoolTokenExists(resId string, pool scalr.AgentPool, t
 
 func testAccCheckScalrAgentPoolTokenChangedOutside(token *scalr.AccessToken) func() {
 	return func() {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		r, err := scalrClient.AccessTokens.Update(
 			context.Background(),
@@ -152,7 +152,7 @@ func createPool(t *testing.T) scalr.AgentPool {
 }
 
 func testAccCheckScalrAgentPoolTokenDestroy(s *terraform.State) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_agent_pool_token" {

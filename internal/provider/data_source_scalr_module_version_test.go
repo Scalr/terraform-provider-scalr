@@ -17,7 +17,7 @@ func TestAccModuleVersionDataSource_basic(t *testing.T) {
 		PreCheck: func() {
 			testVcsAccGithubTokenPreCheck(t)
 		},
-		ProviderFactories: testAccProviderFactories,
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrAccountModule(rInt),
@@ -55,7 +55,7 @@ func TestAccModuleVersionDataSource_basic(t *testing.T) {
 
 func waitForModuleVersions(environmentName string) func() {
 	return func() {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		options := GetEnvironmentByNameOptions{
 			Name: &environmentName,

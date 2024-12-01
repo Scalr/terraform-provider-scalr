@@ -14,9 +14,9 @@ func TestAccEnvironment_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrEnvironmentDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrEnvironmentDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEnvironmentConfig(rInt),
@@ -42,9 +42,9 @@ func TestAccEnvironment_update(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrEnvironmentDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrEnvironmentDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEnvironmentConfig(rInt),
@@ -79,9 +79,9 @@ func TestAccEnvironmentWithProviderConfigurations_update(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckScalrEnvironmentDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrEnvironmentDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEnvironmentWithProviderConfigurationsConfig(rInt),
@@ -109,7 +109,7 @@ func TestAccEnvironmentWithProviderConfigurations_update(t *testing.T) {
 }
 
 func testAccCheckScalrEnvironmentDestroy(s *terraform.State) error {
-	scalrClient := testAccProvider.Meta().(*scalr.Client)
+	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_environment" {
@@ -131,7 +131,7 @@ func testAccCheckScalrEnvironmentDestroy(s *terraform.State) error {
 
 func testAccCheckScalrEnvironmentExists(n string, environment *scalr.Environment) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -185,7 +185,7 @@ func testAccCheckScalrEnvironmentAttributesUpdate(environment *scalr.Environment
 
 func testAccCheckScalrEnvironmentProviderConfigurations(environment *scalr.Environment) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		if len(environment.DefaultProviderConfigurations) != 1 {
 			return fmt.Errorf("Bad default provider configurations: %v", environment.DefaultProviderConfigurations)
@@ -202,7 +202,7 @@ func testAccCheckScalrEnvironmentProviderConfigurations(environment *scalr.Envir
 }
 func testAccCheckScalrEnvironmentProviderConfigurationsUpdate(environment *scalr.Environment) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProvider.Meta().(*scalr.Client)
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		if len(environment.DefaultProviderConfigurations) != 1 {
 			return fmt.Errorf("Bad default provider configurations: %v", environment.DefaultProviderConfigurations)
