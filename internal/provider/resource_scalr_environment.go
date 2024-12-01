@@ -30,7 +30,7 @@ func resourceScalrEnvironment() *schema.Resource {
 				Required:    true,
 			},
 			"cost_estimation_enabled": {
-				Description: "Set (true/false) to enable/disable cost estimation for the environment. Default `true`.",
+				Description: "Set (true/false) to enable/disable cost estimation for the environment.",
 				Type:        schema.TypeBool,
 				Computed:    true,
 				Optional:    true,
@@ -127,10 +127,12 @@ func resourceScalrEnvironmentCreate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	options := scalr.EnvironmentCreateOptions{
-		Name:                  ptr(name),
-		CostEstimationEnabled: ptr(d.Get("cost_estimation_enabled").(bool)),
-		Account:               &scalr.Account{ID: accountID},
-		PolicyGroups:          policyGroups,
+		Name:         ptr(name),
+		Account:      &scalr.Account{ID: accountID},
+		PolicyGroups: policyGroups,
+	}
+	if costEstimationEnabled, ok := d.GetOkExists("cost_estimation_enabled"); ok { //nolint:staticcheck
+		options.CostEstimationEnabled = ptr(costEstimationEnabled.(bool))
 	}
 	if defaultProviderConfigurationsI, ok := d.GetOk("default_provider_configurations"); ok {
 		defaultProviderConfigurations := defaultProviderConfigurationsI.(*schema.Set).List()
@@ -229,9 +231,11 @@ func resourceScalrEnvironmentUpdate(ctx context.Context, d *schema.ResourceData,
 
 	// Create a new options struct.
 	options := scalr.EnvironmentUpdateOptions{
-		Name:                  ptr(d.Get("name").(string)),
-		CostEstimationEnabled: ptr(d.Get("cost_estimation_enabled").(bool)),
-		PolicyGroups:          policyGroups,
+		Name:         ptr(d.Get("name").(string)),
+		PolicyGroups: policyGroups,
+	}
+	if costEstimationEnabled, ok := d.GetOkExists("cost_estimation_enabled"); ok { //nolint:staticcheck
+		options.CostEstimationEnabled = ptr(costEstimationEnabled.(bool))
 	}
 
 	if defaultProviderConfigurationsI, ok := d.GetOk("default_provider_configurations"); ok {
