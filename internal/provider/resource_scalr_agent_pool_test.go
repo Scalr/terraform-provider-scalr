@@ -1,9 +1,7 @@
 package provider
 
 import (
-	"context"
 	"fmt"
-	"log"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -107,31 +105,6 @@ func testAccCheckScalrAgentPoolExists(resId string, pool *scalr.AgentPool) resou
 		*pool = *r
 
 		return nil
-	}
-}
-
-func testAccCheckScalrAgentPoolRename(pool *scalr.AgentPool) func() {
-	return func() {
-		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
-
-		r, err := scalrClient.AgentPools.Read(ctx, pool.ID)
-
-		if err != nil {
-			log.Fatalf("Error retrieving agent pool: %v", err)
-		}
-
-		r, err = scalrClient.AgentPools.Update(
-			context.Background(),
-			r.ID,
-			scalr.AgentPoolUpdateOptions{Name: ptr("renamed-outside-of-terraform")},
-		)
-		if err != nil {
-			log.Fatalf("Could not rename the agent pool outside of terraform: %v", err)
-		}
-
-		if r.Name != "renamed-outside-of-terraform" {
-			log.Fatalf("Failed to rename the agent pool outside of terraform: %v", err)
-		}
 	}
 }
 

@@ -1,9 +1,7 @@
 package provider
 
 import (
-	"context"
 	"fmt"
-	"log"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -98,25 +96,6 @@ func testAccCheckScalrAgentPoolTokenExists(resId string, pool scalr.AgentPool, t
 		*token = *l.Items[0]
 
 		return nil
-	}
-}
-
-func testAccCheckScalrAgentPoolTokenChangedOutside(token *scalr.AccessToken) func() {
-	return func() {
-		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
-
-		r, err := scalrClient.AccessTokens.Update(
-			context.Background(),
-			token.ID,
-			scalr.AccessTokenUpdateOptions{Description: ptr("changed-outside-of-terraform")},
-		)
-		if err != nil {
-			log.Fatalf("Could not update the agent pool outside of terraform: %v", err)
-		}
-
-		if r.Description != "changed-outside-of-terraform" {
-			log.Fatalf("Failed to update the agent pool outside of terraform: %v", err)
-		}
 	}
 }
 

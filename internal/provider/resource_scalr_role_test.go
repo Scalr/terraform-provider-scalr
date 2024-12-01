@@ -1,9 +1,7 @@
 package provider
 
 import (
-	"context"
 	"fmt"
-	"log"
 	"regexp"
 	"testing"
 
@@ -119,31 +117,6 @@ func testAccCheckScalrRoleExists(resId string, role *scalr.Role) resource.TestCh
 		*role = *r
 
 		return nil
-	}
-}
-
-func testAccCheckScalrRoleRename(role *scalr.Role) func() {
-	return func() {
-		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
-
-		r, err := scalrClient.Roles.Read(ctx, role.ID)
-
-		if err != nil {
-			log.Fatalf("Error retrieving role: %v", err)
-		}
-
-		r, err = scalrClient.Roles.Update(
-			context.Background(),
-			r.ID,
-			scalr.RoleUpdateOptions{Name: ptr("renamed-outside-of-terraform")},
-		)
-		if err != nil {
-			log.Fatalf("Could not rename the role outside of terraform: %v", err)
-		}
-
-		if r.Name != "renamed-outside-of-terraform" {
-			log.Fatalf("Failed to rename the role outside of terraform: %v", err)
-		}
 	}
 }
 

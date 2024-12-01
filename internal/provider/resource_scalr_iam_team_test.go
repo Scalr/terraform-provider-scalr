@@ -1,9 +1,7 @@
 package provider
 
 import (
-	"context"
 	"fmt"
-	"log"
 	"regexp"
 	"testing"
 
@@ -121,32 +119,6 @@ func testAccCheckScalrIamTeamExists(resId string, team *scalr.Team) resource.Tes
 		*team = *t
 
 		return nil
-	}
-}
-
-func testAccCheckScalrIamTeamRename(team *scalr.Team) func() {
-	return func() {
-		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
-
-		t, err := scalrClient.Teams.Read(ctx, team.ID)
-		if err != nil {
-			log.Fatalf("Error retrieving team: %v", err)
-		}
-
-		t, err = scalrClient.Teams.Update(
-			context.Background(),
-			team.ID,
-			scalr.TeamUpdateOptions{
-				Name:  ptr("renamed-outside-of-terraform"),
-				Users: t.Users,
-			},
-		)
-		if err != nil {
-			log.Fatalf("Could not rename team outside of terraform: %v", err)
-		}
-		if t.Name != "renamed-outside-of-terraform" {
-			log.Fatalf("Failed to rename the team outside of terraform: %v", err)
-		}
 	}
 }
 

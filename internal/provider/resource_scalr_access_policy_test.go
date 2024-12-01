@@ -1,9 +1,7 @@
 package provider
 
 import (
-	"context"
 	"fmt"
-	"log"
 	"math/rand"
 	"regexp"
 	"testing"
@@ -158,31 +156,6 @@ func testAccCheckScalrAccessPolicyExists(resId string, ap *scalr.AccessPolicy) r
 		*ap = *r
 
 		return nil
-	}
-}
-
-func testAccCheckScalrAccessPolicyChangedOutside(ap *scalr.AccessPolicy) func() {
-	return func() {
-		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
-
-		r, err := scalrClient.AccessPolicies.Read(ctx, ap.ID)
-
-		if err != nil {
-			log.Fatalf("Error retrieving access policy: %v", err)
-		}
-
-		r, err = scalrClient.AccessPolicies.Update(
-			context.Background(),
-			r.ID,
-			scalr.AccessPolicyUpdateOptions{Roles: []*scalr.Role{{ID: userRole}}},
-		)
-		if err != nil {
-			log.Fatalf("Could not change the access policy outside of terraform: %v", err)
-		}
-
-		if r.Roles[0].ID != userRole {
-			log.Fatalf("Failed to change the access policy outside of terraform: %v", err)
-		}
 	}
 }
 

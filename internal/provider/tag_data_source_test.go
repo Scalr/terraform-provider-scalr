@@ -17,7 +17,7 @@ func TestAccScalrTagDataSource_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      `data scalr_tag test {}`,
-				ExpectError: regexp.MustCompile("At least one of these attributes must be configured: \\[id,name]"),
+				ExpectError: regexp.MustCompile(`At least one of these attributes must be configured: \[id,name]`),
 				PlanOnly:    true,
 			},
 			{

@@ -94,14 +94,6 @@ resource scalr_tag test {
 }`, defaultAccount)
 }
 
-func testAccScalrTagRenamed() string {
-	return fmt.Sprintf(`
-resource scalr_tag test {
-  name       = "renamed-outside-terraform"
-  account_id = "%s"
-}`, defaultAccount)
-}
-
 func testAccCheckScalrTagExists(resId string, tag *scalr.Tag) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
