@@ -53,4 +53,12 @@ test-compile:
 	fi
 	go test -c $(TEST) $(TESTARGS)
 
-.PHONY: build test testacc vet fmt test-compile notify-upstream
+resource:
+	@echo "Skaffolding resource $(name)..."
+	@cd skaff && go run cmd/main.go -type=resource -name=$(name)
+
+datasource:
+	@echo "Skaffolding datasource $(name)..."
+	@cd skaff && go run cmd/main.go -type=data_source -name=$(name)
+
+.PHONY: build test testacc vet fmt test-compile notify-upstream resource datasource

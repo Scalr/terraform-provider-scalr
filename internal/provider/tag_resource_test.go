@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/scalr/go-scalr"
 )
 
 func TestAccScalrTag_basic(t *testing.T) {
+	tagName := acctest.RandomWithPrefix("test-tag")
 	tag := &scalr.Tag{}
 
 	resource.Test(t, resource.TestCase{
@@ -18,10 +20,10 @@ func TestAccScalrTag_basic(t *testing.T) {
 		CheckDestroy:             testAccCheckScalrTagDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrTagBasic(),
+				Config: testAccScalrTagBasic(tagName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrTagExists("scalr_tag.test", tag),
-					resource.TestCheckResourceAttr("scalr_tag.test", "name", "test-tag-name"),
+					resource.TestCheckResourceAttr("scalr_tag.test", "name", tagName),
 					resource.TestCheckResourceAttr("scalr_tag.test", "account_id", defaultAccount),
 				),
 			},
@@ -30,6 +32,7 @@ func TestAccScalrTag_basic(t *testing.T) {
 }
 
 func TestAccScalrTag_import(t *testing.T) {
+	tagName := acctest.RandomWithPrefix("test-tag")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -37,7 +40,7 @@ func TestAccScalrTag_import(t *testing.T) {
 		CheckDestroy:             testAccCheckScalrTagDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrTagBasic(),
+				Config: testAccScalrTagBasic(tagName),
 			},
 
 			{
@@ -50,6 +53,8 @@ func TestAccScalrTag_import(t *testing.T) {
 }
 
 func TestAccScalrTag_update(t *testing.T) {
+	tagName := acctest.RandomWithPrefix("test-tag")
+	tagNameUpdated := acctest.RandomWithPrefix("test-tag")
 	tag := &scalr.Tag{}
 
 	resource.Test(t, resource.TestCase{
@@ -58,19 +63,19 @@ func TestAccScalrTag_update(t *testing.T) {
 		CheckDestroy:             testAccCheckScalrTagDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrTagBasic(),
+				Config: testAccScalrTagBasic(tagName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrTagExists("scalr_tag.test", tag),
-					resource.TestCheckResourceAttr("scalr_tag.test", "name", "test-tag-name"),
+					resource.TestCheckResourceAttr("scalr_tag.test", "name", tagName),
 					resource.TestCheckResourceAttr("scalr_tag.test", "account_id", defaultAccount),
 				),
 			},
 
 			{
-				Config: testAccScalrTagUpdate(),
+				Config: testAccScalrTagUpdate(tagNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrTagExists("scalr_tag.test", tag),
-					resource.TestCheckResourceAttr("scalr_tag.test", "name", "test-tag-name-updated"),
+					resource.TestCheckResourceAttr("scalr_tag.test", "name", tagNameUpdated),
 					resource.TestCheckResourceAttr("scalr_tag.test", "account_id", defaultAccount),
 				),
 			},
@@ -78,20 +83,20 @@ func TestAccScalrTag_update(t *testing.T) {
 	})
 }
 
-func testAccScalrTagBasic() string {
+func testAccScalrTagBasic(name string) string {
 	return fmt.Sprintf(`
 resource scalr_tag test {
-  name       = "test-tag-name"
-  account_id = "%s"
-}`, defaultAccount)
+  name       = "%[1]s"
+  account_id = "%[2]s"
+}`, name, defaultAccount)
 }
 
-func testAccScalrTagUpdate() string {
+func testAccScalrTagUpdate(name string) string {
 	return fmt.Sprintf(`
 resource scalr_tag test {
-  name       = "test-tag-name-updated"
-  account_id = "%s"
-}`, defaultAccount)
+  name       = "%[1]s"
+  account_id = "%[2]s"
+}`, name, defaultAccount)
 }
 
 func testAccCheckScalrTagExists(resId string, tag *scalr.Tag) resource.TestCheckFunc {

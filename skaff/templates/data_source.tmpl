@@ -1,0 +1,132 @@
+package provider
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
+	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/scalr/go-scalr"
+
+	"github.com/scalr/terraform-provider-scalr/internal/framework"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
+)
+
+// Ensure provider defined types fully satisfy framework interfaces.
+var (
+	_ datasource.DataSource                     = &{{ .Name | lowerCamel }}DataSource{}
+	_ datasource.DataSourceWithConfigure        = &{{ .Name | lowerCamel }}DataSource{}
+	_ datasource.DataSourceWithConfigValidators = &{{ .Name | lowerCamel }}DataSource{}
+)
+
+func new{{ .Name | camel }}DataSource() datasource.DataSource {
+	return &{{ .Name | lowerCamel }}DataSource{}
+}
+
+// {{ .Name | lowerCamel }}DataSource defines the data source implementation.
+type {{ .Name | lowerCamel }}DataSource struct {
+	framework.DataSourceWithScalrClient
+}
+
+// {{ .Name | lowerCamel }}DataSourceModel describes the data source data model.
+type {{ .Name | lowerCamel }}DataSourceModel struct {
+	Id        types.String `tfsdk:"id"`
+	Name      types.String `tfsdk:"name"`
+	AccountID types.String `tfsdk:"account_id"`
+}
+
+func (d *{{ .Name | lowerCamel }}DataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_{{ .Name }}"
+}
+
+func (d *{{ .Name | lowerCamel }}DataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{
+		MarkdownDescription: "Retrieves information about {{ .Name }}.",
+
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				MarkdownDescription: "The identifier of the {{ .Name }}.",
+				Optional:            true,
+				Computed:            true,
+				Validators: []validator.String{
+					validation.StringIsNotWhiteSpace(),
+				},
+			},
+			"name": schema.StringAttribute{
+				MarkdownDescription: "The name of the {{ .Name }}.",
+				Optional:            true,
+				Computed:            true,
+				Validators: []validator.String{
+					validation.StringIsNotWhiteSpace(),
+				},
+			},
+			"account_id": schema.StringAttribute{
+				MarkdownDescription: "The ID of the Scalr account, in the format `acc-<RANDOM STRING>`.",
+				Optional:            true,
+				Computed:            true,
+			},
+		},
+	}
+}
+
+func (d *{{ .Name | lowerCamel }}DataSource) ConfigValidators(_ context.Context) []datasource.ConfigValidator {
+	return []datasource.ConfigValidator{
+		datasourcevalidator.AtLeastOneOf(
+			path.MatchRoot("id"),
+			path.MatchRoot("name"),
+		),
+	}
+}
+
+func (d *{{ .Name | lowerCamel }}DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var cfg {{ .Name | lowerCamel }}DataSourceModel
+
+	// Read Terraform configuration data into the model
+	resp.Diagnostics.Append(req.Config.Get(ctx, &cfg)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	opts := scalr.{{ .Name | camel }}ListOptions{}
+	if !cfg.Id.IsNull() {
+		opts.{{ .Name | camel }} = cfg.Id.ValueStringPointer()
+	}
+	if !cfg.Name.IsNull() {
+		opts.Name = cfg.Name.ValueStringPointer()
+	}
+
+	{{ .Name | lowerCamel }}s, err := d.Client.{{ .Name | camel }}s.List(ctx, opts)
+	if err != nil {
+		resp.Diagnostics.AddError("Error retrieving {{ .Name }}", err.Error())
+		return
+	}
+
+	// Unlikely
+	if {{ .Name | lowerCamel }}s.TotalCount > 1 {
+		resp.Diagnostics.AddError(
+			"Error retrieving {{ .Name }}",
+			"Your query returned more than one result. Please try a more specific search criteria.",
+		)
+		return
+	}
+
+	if {{ .Name | lowerCamel }}s.TotalCount == 0 {
+		resp.Diagnostics.AddError(
+			"Error retrieving {{ .Name }}",
+			fmt.Sprintf("Could not find {{ .Name }} with ID '%s', name '%s'.", cfg.Id.ValueString(), cfg.Name.ValueString()),
+		)
+		return
+	}
+
+	{{ .Name | lowerCamel }} := {{ .Name | lowerCamel }}s.Items[0]
+
+	cfg.Id = types.StringValue({{ .Name | lowerCamel }}.ID)
+	cfg.Name = types.StringValue({{ .Name | lowerCamel }}.Name)
+	cfg.AccountID = types.StringValue({{ .Name | lowerCamel }}.Account.ID)
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &cfg)...)
+}
