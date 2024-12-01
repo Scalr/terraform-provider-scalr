@@ -18,7 +18,7 @@ import (
 	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
 )
 
-// Ensure provider defined types fully satisfy framework interfaces.
+// Compile-time interface checks
 var (
 	_ resource.Resource                     = &tagResource{}
 	_ resource.ResourceWithConfigure        = &tagResource{}
