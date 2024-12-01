@@ -95,3 +95,35 @@ data scalr_tag test {
   account_id = "%[2]s"
 }`, name, defaultAccount)
 }
+
+func TestAccScalrTagDataSource_UpgradeFromSDK(t *testing.T) {
+	tagName := acctest.RandomWithPrefix("test-tag")
+
+	resource.Test(t, resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"scalr": {
+						Source:            "registry.scalr.io/scalr/scalr",
+						VersionConstraint: "<=2.2.0",
+					},
+				},
+				Config: testAccScalrTagDataSourceByIDConfig(tagName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.scalr_tag.test", "id"),
+					resource.TestCheckResourceAttr("data.scalr_tag.test", "name", tagName),
+					resource.TestCheckResourceAttr("data.scalr_tag.test", "account_id", defaultAccount),
+				),
+			},
+			{
+				ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+				Config:                   testAccScalrTagDataSourceByIDConfig(tagName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.scalr_tag.test", "id"),
+					resource.TestCheckResourceAttr("data.scalr_tag.test", "name", tagName),
+					resource.TestCheckResourceAttr("data.scalr_tag.test", "account_id", defaultAccount),
+				),
+			},
+		},
+	})
+}

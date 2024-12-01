@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/scalr/go-scalr"
 )
@@ -143,4 +144,36 @@ func testAccCheckScalrTagDestroy(s *terraform.State) error {
 	}
 
 	return nil
+}
+
+func TestAccScalrTag_UpgradeFromSDK(t *testing.T) {
+	tagName := acctest.RandomWithPrefix("test-tag")
+
+	resource.Test(t, resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"scalr": {
+						Source:            "registry.scalr.io/scalr/scalr",
+						VersionConstraint: "<=2.2.0",
+					},
+				},
+				Config: testAccScalrTagBasic(tagName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("scalr_tag.test", "id"),
+					resource.TestCheckResourceAttr("scalr_tag.test", "name", tagName),
+					resource.TestCheckResourceAttr("scalr_tag.test", "account_id", defaultAccount),
+				),
+			},
+			{
+				ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+				Config:                   testAccScalrTagBasic(tagName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
 }
