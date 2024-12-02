@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `data.scalr_environments`: changed type of `ids` attribute from TypeList to TypeSet
+- `data.scalr_environments`: changed type of `ids` attribute from TypeList to TypeSet ([372](https://github.com/Scalr/terraform-provider-scalr/pull/372))
 
 ## [2.2.0] - 2024-11-22
 
