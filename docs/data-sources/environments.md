@@ -42,4 +42,4 @@ data "scalr_environments" "all" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-- `ids` (List of String) The list of environment IDs, in the format [`env-xxxxxxxxxxx`, `env-yyyyyyyyy`].
+- `ids` (Set of String) The list of environment IDs, in the format [`env-xxxxxxxxxxx`, `env-yyyyyyyyy`].

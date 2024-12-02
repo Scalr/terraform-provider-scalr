@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `data.scalr_environments`: changed type of `ids` attribute from TypeList to TypeSet
+
 ## [2.2.0] - 2024-11-22
 
 ### Added
