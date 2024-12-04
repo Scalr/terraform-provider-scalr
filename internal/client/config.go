@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/hashicorp/hcl"
-	svchost "github.com/hashicorp/terraform-svchost"
+	"github.com/hashicorp/terraform-svchost"
 	"github.com/hashicorp/terraform-svchost/auth"
 )
 
@@ -17,15 +17,15 @@ const (
 
 // config is the structure of the configuration for the Terraform CLI.
 type config struct {
-	Hosts       map[string]*configHost            `hcl:"host"`
-	Credentials map[string]map[string]interface{} `hcl:"credentials"`
+	Hosts       map[string]*configHost    `hcl:"host"`
+	Credentials map[string]map[string]any `hcl:"credentials"`
 }
 
 // configHost is the structure of the "host" nested block within the CLI
 // configuration, which can be used to override the default service host
 // discovery behavior for a particular hostname.
 type configHost struct {
-	Services map[string]interface{} `hcl:"services"`
+	Services map[string]any `hcl:"services"`
 }
 
 // CliConfig tries to find and parse the configuration of the Terraform CLI.
@@ -57,7 +57,7 @@ func cliConfig() *config {
 	// hostnames.
 	combinedConfig.Credentials = credentialsConfig.Credentials
 	if combinedConfig.Credentials == nil {
-		combinedConfig.Credentials = make(map[string]map[string]interface{})
+		combinedConfig.Credentials = make(map[string]map[string]any)
 	}
 	for host, creds := range mainConfig.Credentials {
 		combinedConfig.Credentials[host] = creds
@@ -71,7 +71,7 @@ func credentialsSource(config *config) auth.CredentialsSource {
 
 	// Add all configured credentials to the credentials source.
 	if len(config.Credentials) > 0 {
-		staticTable := map[svchost.Hostname]map[string]interface{}{}
+		staticTable := map[svchost.Hostname]map[string]any{}
 		for userHost, creds := range config.Credentials {
 			host, err := svchost.ForComparison(userHost)
 			if err != nil {

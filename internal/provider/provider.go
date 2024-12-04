@@ -148,9 +148,13 @@ func (p *scalrProvider) Configure(ctx context.Context, req provider.ConfigureReq
 }
 
 func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource {
-	return []func() resource.Resource{}
+	return []func() resource.Resource{
+		newTagResource,
+	}
 }
 
 func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource{}
+	return []func() datasource.DataSource{
+		newTagDataSource,
+	}
 }

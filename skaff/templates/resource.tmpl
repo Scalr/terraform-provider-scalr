@@ -1,0 +1,194 @@
+package provider
+
+import (
+	"context"
+	"errors"
+
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/scalr/go-scalr"
+
+	"github.com/scalr/terraform-provider-scalr/internal/framework"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/defaults"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
+)
+
+// Compile-time interface checks
+var (
+	_ resource.Resource                     = &{{ .Name | lowerCamel }}Resource{}
+	_ resource.ResourceWithConfigure        = &{{ .Name | lowerCamel }}Resource{}
+	_ resource.ResourceWithConfigValidators = &{{ .Name | lowerCamel }}Resource{}
+	_ resource.ResourceWithImportState      = &{{ .Name | lowerCamel }}Resource{}
+)
+
+func new{{ .Name | camel }}Resource() resource.Resource {
+	return &{{ .Name | lowerCamel }}Resource{}
+}
+
+// {{ .Name | lowerCamel }}Resource defines the resource implementation.
+type {{ .Name | lowerCamel }}Resource struct {
+	framework.ResourceWithScalrClient
+}
+
+// {{ .Name | lowerCamel }}ResourceModel describes the resource data model.
+type {{ .Name | lowerCamel }}ResourceModel struct {
+	Id        types.String `tfsdk:"id"`
+	Name      types.String `tfsdk:"name"`
+	AccountID types.String `tfsdk:"account_id"`
+}
+
+func (r *{{ .Name | lowerCamel }}Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_{{ .Name }}"
+}
+
+func (r *{{ .Name | lowerCamel }}Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages the state of {{ .Name }}s in Scalr.",
+
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				MarkdownDescription: "The ID of this resource.",
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"name": schema.StringAttribute{
+				MarkdownDescription: "Name of the {{ .Name }}.",
+				Required:            true,
+				Validators: []validator.String{
+					validation.StringIsNotWhiteSpace(),
+				},
+			},
+			"account_id": schema.StringAttribute{
+				MarkdownDescription: "ID of the account, in the format `acc-<RANDOM STRING>`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             defaults.AccountIDRequired(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+		},
+	}
+}
+
+func (r *{{ .Name | lowerCamel }}Resource) ConfigValidators(_ context.Context) []resource.ConfigValidator {
+	// If needed, add config validation logic here,
+	// or remove this method if no additional validation is needed.
+	return []resource.ConfigValidator{}
+}
+
+func (r *{{ .Name | lowerCamel }}Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan {{ .Name | lowerCamel }}ResourceModel
+
+	// Read plan data
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	opts := scalr.{{ .Name | camel }}CreateOptions{
+		Name:    plan.Name.ValueStringPointer(),
+		Account: &scalr.Account{ID: plan.AccountID.ValueString()},
+	}
+	{{ .Name | lowerCamel }}, err := r.Client.{{ .Name | camel }}s.Create(ctx, opts)
+	if err != nil {
+		resp.Diagnostics.AddError("Error creating {{ .Name }}", err.Error())
+		return
+	}
+
+	plan.Id = types.StringValue({{ .Name | lowerCamel }}.ID)
+	plan.Name = types.StringValue({{ .Name | lowerCamel }}.Name)
+	plan.AccountID = types.StringValue({{ .Name | lowerCamel }}.Account.ID)
+
+	// Set state to fully populated data
+	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *{{ .Name | lowerCamel }}Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	// Get current state
+	var state {{ .Name | lowerCamel }}ResourceModel
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Get refreshed resource state from API
+	{{ .Name | lowerCamel }}, err := r.Client.{{ .Name | camel }}s.Read(ctx, state.Id.ValueString())
+	if err != nil {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+		resp.Diagnostics.AddError("Error retrieving {{ .Name }}", err.Error())
+		return
+	}
+
+	// Overwrite attributes with refreshed values
+	state.Name = types.StringValue({{ .Name | lowerCamel }}.Name)
+	state.AccountID = types.StringValue({{ .Name | lowerCamel }}.Account.ID)
+
+	// Set refreshed state
+	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *{{ .Name | lowerCamel }}Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	// Read plan data
+	var plan {{ .Name | lowerCamel }}ResourceModel
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	opts := scalr.{{ .Name | camel }}UpdateOptions{
+		Name: plan.Name.ValueStringPointer(),
+	}
+
+	// Update existing resource
+	{{ .Name | lowerCamel }}, err := r.Client.{{ .Name | camel }}s.Update(ctx, plan.Id.ValueString(), opts)
+	if err != nil {
+		resp.Diagnostics.AddError("Error updating {{ .Name }}", err.Error())
+		return
+	}
+
+	// Overwrite attributes with refreshed values
+	plan.Name = types.StringValue({{ .Name | lowerCamel }}.Name)
+	plan.AccountID = types.StringValue({{ .Name | lowerCamel }}.Account.ID)
+
+	// Set refreshed state
+	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *{{ .Name | lowerCamel }}Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// Get current state
+	var state {{ .Name | lowerCamel }}ResourceModel
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	err := r.Client.{{ .Name | camel }}s.Delete(ctx, state.Id.ValueString())
+	if err != nil && !errors.Is(err, scalr.ErrResourceNotFound) {
+		resp.Diagnostics.AddError("Error deleting {{ .Name }}", err.Error())
+		return
+	}
+}
+
+func (r *{{ .Name | lowerCamel }}Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
