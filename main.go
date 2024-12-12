@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/scalr/terraform-provider-scalr/internal/provider"
-	"github.com/scalr/terraform-provider-scalr/scalr"
 	"github.com/scalr/terraform-provider-scalr/version"
 )
 
@@ -46,7 +45,7 @@ func main() {
 		// New provider implementation with Terraform Plugin Framework
 		providerserver.NewProtocol5(provider.New(version.ProviderVersion)()),
 		// Classic provider implementation with Terraform Plugin SDK
-		scalr.Provider().GRPCProvider,
+		provider.Provider(version.ProviderVersion).GRPCProvider,
 	}
 
 	muxServer, err := tf5muxserver.NewMuxServer(ctx, providers...)

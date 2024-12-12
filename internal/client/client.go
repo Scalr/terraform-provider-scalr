@@ -7,16 +7,18 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
-	svchost "github.com/hashicorp/terraform-svchost"
+	"github.com/hashicorp/terraform-svchost"
 	"github.com/hashicorp/terraform-svchost/disco"
 	"github.com/scalr/go-scalr"
+
+	"github.com/scalr/terraform-provider-scalr/internal/logging"
 )
 
 var scalrServiceIDs = []string{"iacp.v3"}
 
+// Configure configures and returns a new Scalr client.
 func Configure(h, t, v string) (*scalr.Client, error) {
-	// Parse the hostname for comparison,
+	// Parse the hostname for comparison
 	hostname, err := svchost.ForComparison(h)
 	if err != nil {
 		return nil, err
@@ -31,7 +33,7 @@ func Configure(h, t, v string) (*scalr.Client, error) {
 	credsSrc := credentialsSource(config)
 	services := disco.NewWithCredentialsSource(credsSrc)
 	services.SetUserAgent(providerUaString)
-	services.Transport = logging.NewLoggingHTTPTransport(services.Transport)
+	services.Transport = logging.NewLoggingTransport(services.Transport)
 
 	// Add any static host configurations service discovery object.
 	for userHost, hostConfig := range config.Hosts {
@@ -93,7 +95,7 @@ func Configure(h, t, v string) (*scalr.Client, error) {
 	}
 
 	httpClient := scalr.DefaultConfig().HTTPClient
-	httpClient.Transport = logging.NewLoggingHTTPTransport(httpClient.Transport)
+	httpClient.Transport = logging.NewLoggingTransport(httpClient.Transport)
 
 	headers := make(http.Header)
 	headers.Add("User-Agent", providerUaString)
