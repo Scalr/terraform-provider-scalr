@@ -36,7 +36,7 @@ func dataSourceScalrEnvironments() *schema.Resource {
 			},
 			"ids": {
 				Description: "The list of environment IDs, in the format [`env-xxxxxxxxxxx`, `env-yyyyyyyyy`].",
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Computed:    true,
 			},
