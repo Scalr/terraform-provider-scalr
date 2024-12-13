@@ -127,6 +127,7 @@ jobs:
         id: create-preview-env
         with:
           ref: ${{ github.head_ref || github.ref_name }}
+          ignore_missing_branches: true
           github_token: ${{ steps.generate_token.outputs.token }}
           google_cloud_credentials: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
           run_prefix: e2e-provider-default
