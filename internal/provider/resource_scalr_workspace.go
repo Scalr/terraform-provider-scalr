@@ -142,6 +142,18 @@ func resourceScalrWorkspace() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 			},
+			"terragrunt_version": {
+				Description: "The version of Terragrunt the workspace performs runs on.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+			},
+			"terragrunt_use_run_all": {
+				Description: "Indicates whether the workspace uses `terragrunt run-all`.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+			},
 
 			"iac_platform": {
 				Description: "The IaC platform to use for this workspace. Valid values are `terraform` and `opentofu`. Defaults to `terraform`.",
@@ -412,6 +424,12 @@ func resourceScalrWorkspaceCreate(ctx context.Context, d *schema.ResourceData, m
 	if operations, ok := d.GetOk("operations"); ok {
 		options.Operations = ptr(operations.(bool))
 	}
+	if terragruntVersion, ok := d.GetOk("terragrunt_version"); ok {
+		options.TerragruntVersion = ptr(terragruntVersion.(string))
+	}
+	if terragruntUseRunAll, ok := d.GetOk("terragrunt_use_run_all"); ok {
+		options.TerragruntUseRunAll = ptr(terragruntUseRunAll.(bool))
+	}
 
 	if executionMode, ok := d.GetOk("execution_mode"); ok {
 		options.ExecutionMode = ptr(
@@ -585,6 +603,8 @@ func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, met
 	_ = d.Set("auto_queue_runs", workspace.AutoQueueRuns)
 	_ = d.Set("type", workspace.EnvironmentType)
 	_ = d.Set("var_files", workspace.VarFiles)
+	_ = d.Set("terragrunt_version", workspace.TerraformVersion)
+	_ = d.Set("terragrunt_use_run_all", workspace.TerragruntUseRunAll)
 
 	if workspace.RunOperationTimeout != nil {
 		_ = d.Set("run_operation_timeout", &workspace.RunOperationTimeout)
@@ -689,7 +709,7 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 		d.HasChange("vcs_provider_id") || d.HasChange("agent_pool_id") || d.HasChange("deletion_protection_enabled") ||
 		d.HasChange("hooks") || d.HasChange("module_version_id") || d.HasChange("var_files") ||
 		d.HasChange("run_operation_timeout") || d.HasChange("iac_platform") ||
-		d.HasChange("type") {
+		d.HasChange("type") || d.HasChange("terragrunt_version") || d.HasChange("terragrunt_use_run_all") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
 			Name:                      ptr(d.Get("name").(string)),
@@ -714,6 +734,12 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 			options.ExecutionMode = ptr(
 				scalr.WorkspaceExecutionMode(executionMode.(string)),
 			)
+		}
+		if terragruntVersion, ok := d.GetOk("terragrunt_version"); ok {
+			options.TerragruntVersion = ptr(terragruntVersion.(string))
+		}
+		if terragruntUseRunAll, ok := d.GetOkExists("terragrunt_use_run_all"); ok { //nolint:staticcheck
+			options.TerragruntUseRunAll = ptr(terragruntUseRunAll.(bool))
 		}
 
 		if autoQueueRunsI, ok := d.GetOk("auto_queue_runs"); ok {

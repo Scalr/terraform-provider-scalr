@@ -96,6 +96,13 @@ func resourceScalrEnvironment() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"remote_backend": {
+				Description: "If Scalr exports the remote backend configuration and state storage for your infrastructure management. Disabling this feature will also prevent the ability to perform state locking, which ensures that concurrent operations do not conflict. Additionally, it will disable the capability to initiate CLI-driven runs through Scalr.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+			},
 		},
 	}
 }
@@ -134,6 +141,10 @@ func resourceScalrEnvironmentCreate(ctx context.Context, d *schema.ResourceData,
 	if costEstimationEnabled, ok := d.GetOkExists("cost_estimation_enabled"); ok { //nolint:staticcheck
 		options.CostEstimationEnabled = ptr(costEstimationEnabled.(bool))
 	}
+	if remoteBackend, ok := d.GetOkExists("remote_backend"); ok { //nolint:staticcheck
+		options.RemoteBackend = ptr(remoteBackend.(bool))
+	}
+
 	if defaultProviderConfigurationsI, ok := d.GetOk("default_provider_configurations"); ok {
 		defaultProviderConfigurations := defaultProviderConfigurationsI.(*schema.Set).List()
 		pcfgValues := make([]*scalr.ProviderConfiguration, 0)
@@ -183,6 +194,7 @@ func resourceScalrEnvironmentRead(ctx context.Context, d *schema.ResourceData, m
 	_ = d.Set("name", environment.Name)
 	_ = d.Set("account_id", environment.Account.ID)
 	_ = d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)
+	_ = d.Set("remote_backend", environment.RemoteBackend)
 	_ = d.Set("status", environment.Status)
 
 	defaultProviderConfigurations := make([]string, 0)
