@@ -603,7 +603,7 @@ func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, met
 	_ = d.Set("auto_queue_runs", workspace.AutoQueueRuns)
 	_ = d.Set("type", workspace.EnvironmentType)
 	_ = d.Set("var_files", workspace.VarFiles)
-	_ = d.Set("terragrunt_version", workspace.TerraformVersion)
+	_ = d.Set("terragrunt_version", workspace.TerragruntVersion)
 	_ = d.Set("terragrunt_use_run_all", workspace.TerragruntUseRunAll)
 
 	if workspace.RunOperationTimeout != nil {
