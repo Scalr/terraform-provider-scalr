@@ -11,9 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `data.scalr_environments`: changed type of `ids` attribute from TypeList to TypeSet ([373](https://github.com/Scalr/terraform-provider-scalr/pull/373))
 
-- `scalr_workspace`: new attribute `terragrunt_version` ([#378](https://github.com/Scalr/terraform-provider-scalr/pull/378))
-- `scalr_workspace`: new attribute `terragrunt_use_run_all` ([#378](https://github.com/Scalr/terraform-provider-scalr/pull/378))
-- `scalr_environment`: new attribute `remote_backend` ([#378](https://github.com/Scalr/terraform-provider-scalr/pull/378))
+- `scalr_workspace` and `data.scalr_workspace`: new attributes `terragrunt_version` and `terragrunt_use_run_all` ([#378](https://github.com/Scalr/terraform-provider-scalr/pull/378))
+- `scalr_environment` and `data.scalr_environment`: new attribute `remote_backend` ([#378](https://github.com/Scalr/terraform-provider-scalr/pull/378))
 
 ## [2.2.0] - 2024-11-22
 

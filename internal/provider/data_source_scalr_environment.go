@@ -90,6 +90,11 @@ func dataSourceScalrEnvironment() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"remote_backend": {
+				Description: "If Scalr exports the remote backend configuration and state storage for your infrastructure management. Disabling this feature will also prevent the ability to perform state locking, which ensures that concurrent operations do not conflict. Additionally, it will disable the capability to initiate CLI-driven runs through Scalr.",
+				Type:        schema.TypeBool,
+				Computed:    true,
+			},
 		}}
 }
 
@@ -131,6 +136,7 @@ func dataSourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta
 	_ = d.Set("name", environment.Name)
 	_ = d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)
 	_ = d.Set("status", environment.Status)
+	_ = d.Set("remote_backend", environment.RemoteBackend)
 
 	var createdBy []interface{}
 	if environment.CreatedBy != nil {
