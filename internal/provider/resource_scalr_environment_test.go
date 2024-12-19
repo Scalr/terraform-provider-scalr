@@ -25,6 +25,7 @@ func TestAccEnvironment_basic(t *testing.T) {
 					testAccCheckScalrEnvironmentAttributes(environment, rInt),
 					resource.TestCheckResourceAttr("scalr_environment.test", "name", fmt.Sprintf("test-env-%d", rInt)),
 					resource.TestCheckResourceAttr("scalr_environment.test", "cost_estimation_enabled", "true"),
+					resource.TestCheckResourceAttr("scalr_environment.test", "remote_backend", "false"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "status", "Active"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "account_id", defaultAccount),
 					resource.TestCheckResourceAttr("scalr_environment.test", "policy_groups.%", "0"),
@@ -233,6 +234,7 @@ resource "scalr_environment" "test" {
   name       = "test-env-%d"
   account_id = "%s"
   cost_estimation_enabled = true
+  remote_backend = false
 }`, rInt, defaultAccount)
 }
 
