@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2024-12-20
+
 ### Changed
 
 - `data.scalr_environments`: changed type of `ids` attribute from TypeList to TypeSet ([373](https://github.com/Scalr/terraform-provider-scalr/pull/373))
@@ -911,7 +913,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v2.3.0...HEAD
+[2.3.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.3.0
 [2.2.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.2.0
 [2.1.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.1.0
 [2.0.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.0.0
