@@ -70,6 +70,11 @@ func resourceScalrPolicyGroup() *schema.Resource {
 					},
 				},
 			},
+			"common_functions_folder": {
+				Description: "An absolute path from the repository root to the folder that contains common rego functions.",
+				Type:        schema.TypeString,
+				Optional:    true,
+			},
 			"account_id": {
 				Description: "The identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.",
 				Type:        schema.TypeString,
@@ -168,6 +173,10 @@ func resourceScalrPolicyGroupCreate(ctx context.Context, d *schema.ResourceData,
 		opts.OpaVersion = ptr(opaVersion.(string))
 	}
 
+	if commonFunctionFolder, ok := d.GetOk("common_functions_folder"); ok {
+		opts.CommonFunctionsFolder = ptr(commonFunctionFolder.(string))
+	}
+
 	pg, err := scalrClient.PolicyGroups.Create(ctx, opts)
 	if err != nil {
 		return diag.Errorf("error creating policy group: %v", err)
@@ -216,6 +225,7 @@ func resourceScalrPolicyGroupRead(ctx context.Context, d *schema.ResourceData, m
 	_ = d.Set("status", pg.Status)
 	_ = d.Set("error_message", pg.ErrorMessage)
 	_ = d.Set("opa_version", pg.OpaVersion)
+	_ = d.Set("common_functions_folder", pg.CommonFunctionsFolder)
 	_ = d.Set("account_id", pg.Account.ID)
 	_ = d.Set("vcs_provider_id", pg.VcsProvider.ID)
 	_ = d.Set("vcs_repo", []map[string]interface{}{{
@@ -257,7 +267,7 @@ func resourceScalrPolicyGroupUpdate(ctx context.Context, d *schema.ResourceData,
 
 	if d.HasChange("name") || d.HasChange("opa_version") ||
 		d.HasChange("vcs_provider_id") || d.HasChange("vcs_repo") ||
-		d.HasChange("environments") {
+		d.HasChange("environments") || d.HasChange("common_functions_folder") {
 
 		name := d.Get("name").(string)
 		vcsProviderID := d.Get("vcs_provider_id").(string)
@@ -281,6 +291,10 @@ func resourceScalrPolicyGroupUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 		if opaVersion, ok := d.GetOk("opa_version"); ok {
 			opts.OpaVersion = ptr(opaVersion.(string))
+		}
+
+		if commonFunctionsFolder, ok := d.GetOk("common_functions_folder"); ok {
+			opts.CommonFunctionsFolder = ptr(commonFunctionsFolder.(string))
 		}
 
 		environments := make([]*scalr.Environment, 0)

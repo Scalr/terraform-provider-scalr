@@ -14,6 +14,7 @@ import (
 const (
 	policyGroupVcsRepoID   = "Scalr/tf-revizor-fixtures"
 	policyGroupVcsRepoPath = "policies/clouds"
+	commonFunctionsFolder  = "policies/instances"
 )
 
 func TestAccPolicyGroup_basic(t *testing.T) {
@@ -63,6 +64,11 @@ func TestAccPolicyGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "vcs_repo.0.branch"),
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "policies.#"),
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "environments.#"),
+					resource.TestCheckResourceAttr(
+						"scalr_policy_group.test",
+						"common_functions_folder",
+						commonFunctionsFolder,
+					),
 				),
 			},
 		},
@@ -116,6 +122,11 @@ func TestAccPolicyGroup_update(t *testing.T) {
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "vcs_repo.0.branch"),
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "policies.#"),
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "environments.#"),
+					resource.TestCheckResourceAttr(
+						"scalr_policy_group.test",
+						"common_functions_folder",
+						commonFunctionsFolder,
+					),
 				),
 			},
 			{
@@ -153,6 +164,7 @@ func TestAccPolicyGroup_update(t *testing.T) {
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "vcs_repo.0.branch"),
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "policies.#"),
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "environments.#"),
+					resource.TestCheckResourceAttr("scalr_policy_group.test", "common_functions_folder", ""),
 				),
 			},
 		},
@@ -350,8 +362,17 @@ resource "scalr_policy_group" "test" {
 	identifier = "%s"
     path       = "%s"
   }
+  common_functions_folder = "%s"
 }
-`, rInt, string(scalr.Github), githubToken, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
+`,
+		rInt,
+		string(scalr.Github),
+		githubToken,
+		defaultAccount,
+		policyGroupVcsRepoID,
+		policyGroupVcsRepoPath,
+		commonFunctionsFolder,
+	)
 }
 
 func testAccPolicyGroupUpdateConfig(rInt int) string {

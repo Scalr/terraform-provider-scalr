@@ -42,6 +42,7 @@ data "scalr_policy_group" "example2" {
 - `status` (String) A system status of the policy group.
 - `vcs_provider_id` (String) The VCS provider identifier for the repository where the policy group resides. In the format `vcs-<RANDOM STRING>`.
 - `vcs_repo` (List of Object) Contains VCS-related meta-data for the policy group. (see [below for nested schema](#nestedatt--vcs_repo))
+- `common_functions_folder` (String) An absolute path from the repository root to the folder that contains common rego functions.
 
 <a id="nestedatt--policies"></a>
 ### Nested Schema for `policies`

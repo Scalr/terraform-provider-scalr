@@ -71,6 +71,12 @@ func dataSourceScalrPolicyGroup() *schema.Resource {
 					},
 				},
 			},
+			"common_functions_folder": {
+				Description: "An absolute path from the repository root to the folder that contains common rego functions.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+			},
 			"account_id": {
 				Description: "The identifier of the Scalr account.",
 				Type:        schema.TypeString,
@@ -156,6 +162,7 @@ func dataSourceScalrPolicyGroupRead(ctx context.Context, d *schema.ResourceData,
 	_ = d.Set("status", pg.Status)
 	_ = d.Set("error_message", pg.ErrorMessage)
 	_ = d.Set("opa_version", pg.OpaVersion)
+	_ = d.Set("common_functions_folder", pg.CommonFunctionsFolder)
 
 	if pg.VcsProvider != nil {
 		_ = d.Set("vcs_provider_id", pg.VcsProvider.ID)

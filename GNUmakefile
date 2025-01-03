@@ -6,7 +6,7 @@ BUILD_ENV=CGO_ENABLED=0
 TAG=$(shell PAGER= git tag --points-at HEAD)
 BRANCH=$(subst /,-,$(shell git branch --show-current))
 VERSION=$(if $(VER),$(VER),$(if $(TAG),$(TAG),$(BRANCH)))
-USER_PLUGIN_DIR=${HOME}/.terraform.d/plugins/scalr.io/scalr/scalr/$(VERSION)/$(PLATFORM)
+USER_PLUGIN_DIR=${HOME}/.terraform.d/plugins/registry.scalr.io/scalr/scalr/$(VERSION)/$(PLATFORM)
 BIN_NAME := terraform-provider-scalr_$(VERSION)
 ARGS=-ldflags='-X github.com/scalr/terraform-provider-scalr/version.ProviderVersion=$(TAG) -X github.com/scalr/terraform-provider-scalr/version.Branch=$(BRANCH)'
 UPSTREAM_COMMIT_DESCRIPTION="Scalr terraform provider acceptance tests"
@@ -21,6 +21,11 @@ build:
 test:
 	echo $(TEST) | \
 		$(BUILD_ENV) xargs -t -n4  go test $(TESTARGS) -timeout=30s -parallel=4
+
+
+install: build
+	@echo "Installing version $(VERSION) for $(PLATFORM)"
+	mkdir -p $(USER_PLUGIN_DIR); cp $(BIN_NAME) $(USER_PLUGIN_DIR)
 
 testacc:
 	TF_ACC=1 go test -race $(TEST) -v $(TESTARGS) -timeout 15m  -covermode atomic -coverprofile=covprofile
