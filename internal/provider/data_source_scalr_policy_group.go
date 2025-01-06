@@ -74,7 +74,6 @@ func dataSourceScalrPolicyGroup() *schema.Resource {
 			"common_functions_folder": {
 				Description: "An absolute path from the repository root to the folder that contains common rego functions.",
 				Type:        schema.TypeString,
-				Optional:    true,
 				Computed:    true,
 			},
 			"account_id": {
