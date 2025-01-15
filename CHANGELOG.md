@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
 - `scalr_policy_group` and `data.scalr_policy_group`: new attribute `common_functions_folder` ([#380](https://github.com/Scalr/terraform-provider-scalr/pull/380))
+- `scalr_workspace`: new attribute `remote_state_consumers` ([#384](https://github.com/Scalr/terraform-provider-scalr/pull/384))
 
 ## [2.3.0] - 2024-12-20
 

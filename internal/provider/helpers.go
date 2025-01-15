@@ -108,6 +108,18 @@ func InterfaceArrToTagRelationArr(arr []interface{}) []*scalr.TagRelation {
 	return tags
 }
 
+func InterfaceArrToWorkspaceRelationArr(arr []interface{}) []*scalr.WorkspaceRelation {
+	relations := make([]*scalr.WorkspaceRelation, 0)
+	for _, id := range arr {
+		strID := id.(string)
+		if strID == "*" {
+			continue
+		}
+		relations = append(relations, &scalr.WorkspaceRelation{ID: strID})
+	}
+	return relations
+}
+
 func getDefaultScalrAccountID() (string, bool) {
 	if v := os.Getenv(defaults.CurrentAccountIDEnvVar); v != "" {
 		return v, true
