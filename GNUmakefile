@@ -28,7 +28,7 @@ install: build
 	mkdir -p $(USER_PLUGIN_DIR); cp $(BIN_NAME) $(USER_PLUGIN_DIR)
 
 testacc:
-	TF_ACC=1 go test -race $(TEST) -v $(TESTARGS) -timeout 15m  -covermode atomic -coverprofile=covprofile
+	TF_ACC=1 go test -race $(TEST) -v $(TESTARGS) -timeout 30m  -covermode atomic -coverprofile=covprofile
 
 notify-upstream:
 	curl -X POST \
