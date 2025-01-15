@@ -545,7 +545,7 @@ func resourceScalrWorkspaceCreate(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	remoteStateConsumers := make([]*scalr.WorkspaceRelation, 0)
-	if consumersI, ok := d.GetOkExists("remote_state_consumers"); ok {
+	if consumersI, ok := d.GetOkExists("remote_state_consumers"); ok { //nolint:staticcheck
 		options.RemoteStateSharing = ptr(false)
 		consumers := consumersI.(*schema.Set).List()
 		if (len(consumers) == 1) && (consumers[0].(string) == "*") {
@@ -880,7 +880,7 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 			}
 		}
 
-		if consumersI, ok := d.GetOkExists("remote_state_consumers"); ok {
+		if consumersI, ok := d.GetOkExists("remote_state_consumers"); ok { //nolint:staticcheck
 			options.RemoteStateSharing = ptr(false)
 			consumers := consumersI.(*schema.Set).List()
 			if (len(consumers) == 1) && (consumers[0].(string) == "*") {
