@@ -383,6 +383,13 @@ func resourceScalrWorkspace() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"remote_state_consumers": {
+				Description: "The list of workspace identifiers that are allowed to access the state of this workspace. Use `[\"*\"]` to share the state with all the workspaces within the environment.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -537,6 +544,19 @@ func resourceScalrWorkspaceCreate(ctx context.Context, d *schema.ResourceData, m
 		options.Tags = tags
 	}
 
+	remoteStateConsumers := make([]*scalr.WorkspaceRelation, 0)
+	if consumersI, ok := d.GetOkExists("remote_state_consumers"); ok { //nolint:staticcheck
+		options.RemoteStateSharing = ptr(false)
+		consumers := consumersI.(*schema.Set).List()
+		if (len(consumers) == 1) && (consumers[0].(string) == "*") {
+			options.RemoteStateSharing = ptr(true)
+		} else if len(consumers) > 0 {
+			for _, ws := range consumers {
+				remoteStateConsumers = append(remoteStateConsumers, &scalr.WorkspaceRelation{ID: ws.(string)})
+			}
+		}
+	}
+
 	log.Printf("[DEBUG] Create workspace %s for environment: %s", name, environmentID)
 	workspace, err := scalrClient.Workspaces.Create(ctx, options)
 	if err != nil {
@@ -568,6 +588,13 @@ func resourceScalrWorkspaceCreate(ctx context.Context, d *schema.ResourceData, m
 		_, err := scalrClient.SSHKeysLinks.Create(ctx, workspace.ID, sshKeyID.(string))
 		if err != nil {
 			return diag.Errorf("Error creating SSH key link for workspace %s: %v", name, err)
+		}
+	}
+
+	if len(remoteStateConsumers) > 0 {
+		err = scalrClient.RemoteStateConsumers.Add(ctx, workspace.ID, remoteStateConsumers)
+		if err != nil {
+			return diag.Errorf("Error adding remote state consumers to workspace: %v", err)
 		}
 	}
 
@@ -695,6 +722,30 @@ func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, met
 	}
 	_ = d.Set("tag_ids", tagIDs)
 
+	if workspace.RemoteStateSharing {
+		all := []string{"*"}
+		_ = d.Set("remote_state_consumers", all)
+	} else {
+		consumers := make([]string, 0)
+		listOpts := scalr.ListOptions{}
+		for {
+			cl, err := scalrClient.RemoteStateConsumers.List(ctx, id, listOpts)
+			if err != nil {
+				return diag.Errorf("Error reading remote state consumers: %v", err)
+			}
+
+			for _, c := range cl.Items {
+				consumers = append(consumers, c.ID)
+			}
+
+			if cl.CurrentPage >= cl.TotalPages {
+				break
+			}
+			listOpts.PageNumber = cl.NextPage
+		}
+		_ = d.Set("remote_state_consumers", consumers)
+	}
+
 	return nil
 }
 
@@ -709,7 +760,8 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 		d.HasChange("vcs_provider_id") || d.HasChange("agent_pool_id") || d.HasChange("deletion_protection_enabled") ||
 		d.HasChange("hooks") || d.HasChange("module_version_id") || d.HasChange("var_files") ||
 		d.HasChange("run_operation_timeout") || d.HasChange("iac_platform") ||
-		d.HasChange("type") || d.HasChange("terragrunt_version") || d.HasChange("terragrunt_use_run_all") {
+		d.HasChange("type") || d.HasChange("terragrunt_version") || d.HasChange("terragrunt_use_run_all") ||
+		d.HasChange("remote_state_consumers") {
 		// Create a new options struct.
 		options := scalr.WorkspaceUpdateOptions{
 			Name:                      ptr(d.Get("name").(string)),
@@ -828,6 +880,14 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 			}
 		}
 
+		if consumersI, ok := d.GetOkExists("remote_state_consumers"); ok { //nolint:staticcheck
+			options.RemoteStateSharing = ptr(false)
+			consumers := consumersI.(*schema.Set).List()
+			if (len(consumers) == 1) && (consumers[0].(string) == "*") {
+				options.RemoteStateSharing = ptr(true)
+			}
+		}
+
 		log.Printf("[DEBUG] Update workspace %s", id)
 		_, err := scalrClient.Workspaces.Update(ctx, id, options)
 		if err != nil {
@@ -919,6 +979,28 @@ func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, m
 			if err != nil {
 				return diag.Errorf(
 					"Error deleting tags from workspace %s: %v", id, err)
+			}
+		}
+	}
+
+	if d.HasChange("remote_state_consumers") {
+		oldConsumers, newConsumers := d.GetChange("remote_state_consumers")
+		oldSet := oldConsumers.(*schema.Set)
+		newSet := newConsumers.(*schema.Set)
+		consumersToAdd := InterfaceArrToWorkspaceRelationArr(newSet.Difference(oldSet).List())
+		consumersToDelete := InterfaceArrToWorkspaceRelationArr(oldSet.Difference(newSet).List())
+
+		if len(consumersToAdd) > 0 {
+			err := scalrClient.RemoteStateConsumers.Add(ctx, id, consumersToAdd)
+			if err != nil {
+				return diag.Errorf("Error adding remote state consumers: %v", err)
+			}
+		}
+
+		if len(consumersToDelete) > 0 {
+			err := scalrClient.RemoteStateConsumers.Delete(ctx, id, consumersToDelete)
+			if err != nil {
+				return diag.Errorf("Error deleting remote state consumers: %v", err)
 			}
 		}
 	}

@@ -319,6 +319,37 @@ func TestAccScalrWorkspaceSSHKey(t *testing.T) {
 	})
 }
 
+func TestAccScalrWorkspaceStateConsumers(t *testing.T) {
+	workspace := &scalr.Workspace{}
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrWorkspaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrWorkspaceWithStateConsumersConfig(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrWorkspaceExists("scalr_workspace.test", workspace),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "remote_state_consumers.#", "2"),
+					testAccCheckScalrWorkspaceStateSharing("scalr_workspace.test", false),
+				),
+			},
+			{
+				Config: testAccScalrWorkspaceWithStateConsumersUpdatedConfig(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrWorkspaceExists("scalr_workspace.test", workspace),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "remote_state_consumers.#", "1"),
+					testAccCheckScalrWorkspaceStateSharing("scalr_workspace.test", true),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckScalrSSHKeyExists(n string, sshKey *scalr.SSHKey) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
@@ -551,6 +582,34 @@ func testAccCheckScalrWorkspaceProviderConfigurationsUpdated(
 
 		} else {
 			return fmt.Errorf("Bad consul provider configuration link aliases: %v", aliases)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckScalrWorkspaceStateSharing(
+	n string, isShared bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
+
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No instance ID is set")
+		}
+
+		// Get the workspace
+		w, err := scalrClient.Workspaces.ReadByID(ctx, rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+
+		if w.RemoteStateSharing != isShared {
+			return fmt.Errorf("Expected RemoteStateSharing %t, got %t", isShared, w.RemoteStateSharing)
 		}
 
 		return nil
@@ -852,4 +911,52 @@ resource "scalr_workspace" "test" {
   execution_mode         = "remote"
   working_directory      = ""
 }`, rInt, defaultAccount, sshKeyName)
+}
+
+func testAccScalrWorkspaceWithStateConsumersConfig(rInt int) string {
+	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name       = "test-env-%[1]d"
+  account_id = "%[2]s"
+}
+
+resource "scalr_workspace" "consumer1" {
+  name                   = "consumer1-%[1]d"
+  environment_id         = scalr_environment.test.id
+}
+
+resource "scalr_workspace" "consumer2" {
+  name                   = "consumer2-%[1]d"
+  environment_id         = scalr_environment.test.id
+}
+
+resource "scalr_workspace" "test" {
+  name                   = "state-sharing-%[1]d"
+  environment_id         = scalr_environment.test.id
+  remote_state_consumers = [ scalr_workspace.consumer1.id, scalr_workspace.consumer2.id ]
+}`, rInt, defaultAccount)
+}
+
+func testAccScalrWorkspaceWithStateConsumersUpdatedConfig(rInt int) string {
+	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name       = "test-env-%[1]d"
+  account_id = "%[2]s"
+}
+
+resource "scalr_workspace" "consumer1" {
+  name                   = "consumer1-%[1]d"
+  environment_id         = scalr_environment.test.id
+}
+
+resource "scalr_workspace" "consumer2" {
+  name                   = "consumer2-%[1]d"
+  environment_id         = scalr_environment.test.id
+}
+
+resource "scalr_workspace" "test" {
+  name                   = "state-sharing-%[1]d"
+  environment_id         = scalr_environment.test.id
+  remote_state_consumers = [ "*" ]
+}`, rInt, defaultAccount)
 }
