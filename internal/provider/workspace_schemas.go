@@ -266,6 +266,9 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 							MarkdownDescription: "The repository branch where Terraform will be run from. If omitted, the repository default branch will be used.",
 							Optional:            true,
 							Computed:            true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
 						},
 						"path": schema.StringAttribute{
 							MarkdownDescription: "The repository subdirectory that Terraform will execute from. If omitted or submitted as an empty string, this defaults to the repository's root.",
@@ -278,6 +281,8 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 							MarkdownDescription: "List of paths (relative to `path`), whose changes will trigger a run for the workspace using this binding when the CV is created. Conflicts with `trigger_patterns`. If `trigger_prefixes` and `trigger_patterns` are omitted, any change in `path` will trigger a new run.",
 							ElementType:         types.StringType,
 							Optional:            true,
+							Computed:            true,
+							Default:             listdefault.StaticValue(emptyStringList),
 						},
 						"trigger_patterns": schema.StringAttribute{
 							MarkdownDescription: "The gitignore-style patterns for files, whose changes will trigger a run for the workspace using this binding when the CV is created. Conflicts with `trigger_prefixes`. If `trigger_prefixes` and `trigger_patterns` are omitted, any change in `path` will trigger a new run.",
