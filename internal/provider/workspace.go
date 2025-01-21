@@ -38,7 +38,7 @@ var (
 	}
 )
 
-type workspaceModel struct {
+type workspaceResourceModel struct {
 	Id                        types.String `tfsdk:"id"`
 	AgentPoolID               types.String `tfsdk:"agent_pool_id"`
 	AutoApply                 types.Bool   `tfsdk:"auto_apply"`
@@ -51,7 +51,7 @@ type workspaceModel struct {
 	HasResources              types.Bool   `tfsdk:"has_resources"`
 	Hooks                     types.List   `tfsdk:"hooks"`
 	IaCPlatform               types.String `tfsdk:"iac_platform"`
-	ModuleVersion             types.String `tfsdk:"module_version_id"`
+	ModuleVersionID           types.String `tfsdk:"module_version_id"`
 	Name                      types.String `tfsdk:"name"`
 	Operations                types.Bool   `tfsdk:"operations"`
 	ProviderConfiguration     types.Set    `tfsdk:"provider_configuration"`
@@ -91,15 +91,15 @@ type hooksModel struct {
 	PostApply types.String `tfsdk:"post_apply"`
 }
 
-func workspaceModelFromAPI(
+func workspaceResourceModelFromAPI(
 	ctx context.Context,
 	ws *scalr.Workspace,
 	pcfgLinks []*scalr.ProviderConfigurationLink,
-	existing *workspaceModel,
-) (*workspaceModel, diag.Diagnostics) {
+	existing *workspaceResourceModel,
+) (*workspaceResourceModel, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	model := &workspaceModel{
+	model := &workspaceResourceModel{
 		Id:                        types.StringValue(ws.ID),
 		AgentPoolID:               types.StringNull(),
 		AutoApply:                 types.BoolValue(ws.AutoApply),
@@ -112,7 +112,7 @@ func workspaceModelFromAPI(
 		HasResources:              types.BoolValue(ws.HasResources),
 		Hooks:                     types.ListNull(hooksElementType),
 		IaCPlatform:               types.StringValue(string(ws.IaCPlatform)),
-		ModuleVersion:             types.StringNull(),
+		ModuleVersionID:           types.StringNull(),
 		Name:                      types.StringValue(ws.Name),
 		Operations:                types.BoolValue(ws.Operations),
 		ProviderConfiguration:     types.SetNull(providerConfigurationElementType),
@@ -144,7 +144,7 @@ func workspaceModelFromAPI(
 	}
 
 	if ws.ModuleVersion != nil {
-		model.ModuleVersion = types.StringValue(ws.ModuleVersion.ID)
+		model.ModuleVersionID = types.StringValue(ws.ModuleVersion.ID)
 	}
 
 	if ws.SSHKey != nil {
