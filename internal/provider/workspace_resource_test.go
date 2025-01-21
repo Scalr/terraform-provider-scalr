@@ -76,11 +76,11 @@ func TestAccScalrWorkspace_create_missed_vcs_attr(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrWorkspaceMissedVcsProvider(rInt),
-				ExpectError: regexp.MustCompile("\"vcs_repo\": all of `vcs_provider_id,vcs_repo` must be specified"),
+				ExpectError: regexp.MustCompile(`These attributes must be configured together: \[vcs_provider_id,vcs_repo]`),
 			},
 			{
 				Config:      testAccScalrWorkspaceMissedVcsRepo(rInt),
-				ExpectError: regexp.MustCompile("\"vcs_provider_id\": all of `vcs_provider_id,vcs_repo` must be specified"),
+				ExpectError: regexp.MustCompile(`These attributes must be configured together: \[vcs_provider_id,vcs_repo]`),
 			},
 		},
 	})
@@ -221,8 +221,6 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 						"scalr_workspace.test", "iac_platform", string(scalr.WorkspaceIaCPlatformTerraform)),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "working_directory", "terraform/test"),
-					resource.TestCheckResourceAttr(
-						"scalr_workspace.test", "run_operation_timeout", "0"),
 					resource.TestCheckResourceAttr("scalr_workspace.test", "hooks.#", "0"),
 				),
 			},

@@ -3,927 +3,912 @@ package provider
 import (
 	"context"
 	"errors"
-	"fmt"
-	"log"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/scalr/go-scalr"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/scalr/terraform-provider-scalr/internal/framework"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
 )
 
-func resourceScalrWorkspace() *schema.Resource {
-	return &schema.Resource{
-		Description:   "Manage the state of workspaces in Scalr. Create, update and destroy.",
-		CreateContext: resourceScalrWorkspaceCreate,
-		ReadContext:   resourceScalrWorkspaceRead,
-		UpdateContext: resourceScalrWorkspaceUpdate,
-		DeleteContext: resourceScalrWorkspaceDelete,
-		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
-		},
+// Compile-time interface checks
+var (
+	_ resource.Resource                     = &workspaceResource{}
+	_ resource.ResourceWithConfigure        = &workspaceResource{}
+	_ resource.ResourceWithConfigValidators = &workspaceResource{}
+	_ resource.ResourceWithModifyPlan       = &workspaceResource{}
+	_ resource.ResourceWithImportState      = &workspaceResource{}
+)
 
-		SchemaVersion: 4,
-		StateUpgraders: []schema.StateUpgrader{
-			{
-				Type:    resourceScalrWorkspaceResourceV0().CoreConfigSchema().ImpliedType(),
-				Upgrade: resourceScalrWorkspaceStateUpgradeV0,
-				Version: 0,
-			},
-			{
-				Type:    resourceScalrWorkspaceResourceV1().CoreConfigSchema().ImpliedType(),
-				Upgrade: resourceScalrWorkspaceStateUpgradeV1,
-				Version: 1,
-			},
-			{
-				Type:    resourceScalrWorkspaceResourceV2().CoreConfigSchema().ImpliedType(),
-				Upgrade: resourceScalrWorkspaceStateUpgradeV2,
-				Version: 2,
-			},
-			{
-				Type:    resourceScalrWorkspaceResourceV3().CoreConfigSchema().ImpliedType(),
-				Upgrade: resourceScalrWorkspaceStateUpgradeV3,
-				Version: 3,
-			},
-		},
+func newWorkspaceResource() resource.Resource {
+	return &workspaceResource{}
+}
 
-		Schema: map[string]*schema.Schema{
-			"name": {
-				Description: "Name of the workspace.",
-				Type:        schema.TypeString,
-				Required:    true,
-			},
+// workspaceResource defines the resource implementation.
+type workspaceResource struct {
+	framework.ResourceWithScalrClient
+}
 
-			"environment_id": {
-				Description: "ID of the environment, in the format `env-<RANDOM STRING>`.",
-				Type:        schema.TypeString,
-				Required:    true,
-				ForceNew:    true,
-			},
+func (r *workspaceResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_workspace"
+}
 
-			"vcs_provider_id": {
-				Description:   "ID of VCS provider - required if vcs-repo present and vice versa, in the format `vcs-<RANDOM STRING>`.",
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"module_version_id"},
-				RequiredWith:  []string{"vcs_repo"},
-			},
-			"module_version_id": {
-				Description:   "The identifier of a module version in the format `modver-<RANDOM STRING>`. This attribute conflicts with `vcs_provider_id` and `vcs_repo` attributes.",
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"vcs_provider_id", "vcs_repo"},
-			},
-			"agent_pool_id": {
-				Description: "The identifier of an agent pool in the format `apool-<RANDOM STRING>`.",
-				Type:        schema.TypeString,
-				Optional:    true,
-			},
+func (r *workspaceResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	emptyStringList, _ := types.ListValueFrom(ctx, types.StringType, []string{})
+	emptyStringSet, _ := types.SetValueFrom(ctx, types.StringType, []string{})
 
-			"auto_apply": {
-				Description: "Set (true/false) to configure if `terraform apply` should automatically run when `terraform plan` ends without error. Default `false`.",
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-			},
+	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages the state of workspaces in Scalr.",
 
-			"force_latest_run": {
-				Description: "Set (true/false) to configure if latest new run will be automatically raised in priority. Default `false`.",
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-			},
-
-			"deletion_protection_enabled": {
-				Description: "Indicates if the workspace has the protection from an accidental state lost. If enabled and the workspace has resource, the deletion will not be allowed. Default `true`.",
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     true,
-			},
-
-			"var_files": {
-				Description: "A list of paths to the `.tfvars` file(s) to be used as part of the workspace configuration.",
-				Type:        schema.TypeList,
-				Optional:    true,
-				Computed:    true,
-				Elem: &schema.Schema{
-					Type:         schema.TypeString,
-					ValidateFunc: validation.NoZeroValues,
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				MarkdownDescription: "The ID of this resource.",
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-
-			"operations": {
-				Description: "Set (true/false) to configure workspace remote execution. When `false` workspace is only used to store state. Defaults to `true`.",
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Computed:    true,
-				Deprecated:  "The attribute `operations` is deprecated. Use `execution_mode` instead",
+			"name": schema.StringAttribute{
+				MarkdownDescription: "Name of the workspace.",
+				Required:            true,
 			},
-
-			"execution_mode": {
-				Description: "Which execution mode to use. Valid values are `remote` and `local`. When set to `local`, the workspace will be used for state storage only. Defaults to `remote` (not set, backend default is used).",
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ValidateFunc: validation.StringInSlice(
-					[]string{
+			"environment_id": schema.StringAttribute{
+				MarkdownDescription: "ID of the environment, in the format `env-<RANDOM STRING>`.",
+				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"vcs_provider_id": schema.StringAttribute{
+				MarkdownDescription: "ID of VCS provider - required if vcs-repo present and vice versa, in the format `vcs-<RANDOM STRING>`.",
+				Optional:            true,
+			},
+			"module_version_id": schema.StringAttribute{
+				MarkdownDescription: "The identifier of a module version in the format `modver-<RANDOM STRING>`. This attribute conflicts with `vcs_provider_id` and `vcs_repo` attributes.",
+				Optional:            true,
+			},
+			"agent_pool_id": schema.StringAttribute{
+				MarkdownDescription: "The identifier of an agent pool in the format `apool-<RANDOM STRING>`.",
+				Optional:            true,
+			},
+			"auto_apply": schema.BoolAttribute{
+				MarkdownDescription: "Set (true/false) to configure if `terraform apply` should automatically run when `terraform plan` ends without error. Default `false`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+			},
+			"force_latest_run": schema.BoolAttribute{
+				MarkdownDescription: "Set (true/false) to configure if latest new run will be automatically raised in priority. Default `false`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+			},
+			"deletion_protection_enabled": schema.BoolAttribute{
+				MarkdownDescription: "Indicates if the workspace has the protection from an accidental state lost. If enabled and the workspace has resource, the deletion will not be allowed. Default `true`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(true),
+			},
+			"var_files": schema.ListAttribute{
+				MarkdownDescription: "A list of paths to the `.tfvars` file(s) to be used as part of the workspace configuration.",
+				Optional:            true,
+				Computed:            true,
+				Default:             listdefault.StaticValue(emptyStringList),
+				ElementType:         types.StringType,
+				Validators: []validator.List{
+					listvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
+				},
+			},
+			"operations": schema.BoolAttribute{
+				MarkdownDescription: "Set (true/false) to configure workspace remote execution. When `false` workspace is only used to store state. Defaults to `true`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(true),
+				DeprecationMessage:  "The attribute `operations` is deprecated. Use `execution_mode` instead",
+			},
+			"execution_mode": schema.StringAttribute{
+				MarkdownDescription: "Which execution mode to use. Valid values are `remote` and `local`. When set to `local`, the workspace will be used for state storage only. Defaults to `remote`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             stringdefault.StaticString(string(scalr.WorkspaceExecutionModeRemote)),
+				Validators: []validator.String{
+					stringvalidator.OneOf(
 						string(scalr.WorkspaceExecutionModeRemote),
 						string(scalr.WorkspaceExecutionModeLocal),
-					},
-					false,
-				),
-			},
-
-			"terraform_version": {
-				Description: "The version of Terraform to use for this workspace. Defaults to the latest available version.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-			},
-			"terragrunt_version": {
-				Description: "The version of Terragrunt the workspace performs runs on.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-			},
-			"terragrunt_use_run_all": {
-				Description: "Indicates whether the workspace uses `terragrunt run-all`.",
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Computed:    true,
-			},
-
-			"iac_platform": {
-				Description: "The IaC platform to use for this workspace. Valid values are `terraform` and `opentofu`. Defaults to `terraform`.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     string(scalr.WorkspaceIaCPlatformTerraform),
-				ValidateDiagFunc: validation.ToDiagFunc(
-					validation.StringInSlice(
-						[]string{
-							string(scalr.WorkspaceIaCPlatformTerraform),
-							string(scalr.WorkspaceIaCPlatformOpenTofu),
-						},
-						false,
 					),
-				),
-			},
-
-			"working_directory": {
-				Description: "A relative path that Terraform will be run in. Defaults to the root of the repository `\"\"`.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				Default:     "",
-			},
-
-			"hooks": {
-				Description: "Settings for the workspaces custom hooks.",
-				Type:        schema.TypeList,
-				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"pre_init": {
-							Description: "Action that will be called before the init phase.",
-							Type:        schema.TypeString,
-							Optional:    true,
-							Default:     "",
-						},
-
-						"pre_plan": {
-							Description: "Action that will be called before the plan phase.",
-							Type:        schema.TypeString,
-							Optional:    true,
-							Default:     "",
-						},
-
-						"post_plan": {
-							Description: "Action that will be called after plan phase.",
-							Type:        schema.TypeString,
-							Optional:    true,
-							Default:     "",
-						},
-
-						"pre_apply": {
-							Description: "Action that will be called before apply phase.",
-							Type:        schema.TypeString,
-							Optional:    true,
-							Default:     "",
-						},
-
-						"post_apply": {
-							Description: "Action that will be called after apply phase.",
-							Type:        schema.TypeString,
-							Optional:    true,
-							Default:     "",
-						},
-					},
 				},
 			},
-
-			"has_resources": {
-				Description: "The presence of active terraform resources in the current state version.",
-				Type:        schema.TypeBool,
-				Computed:    true,
+			"terraform_version": schema.StringAttribute{
+				MarkdownDescription: "The version of Terraform to use for this workspace. Defaults to the latest available version.",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
-
-			"auto_queue_runs": {
-				Description: "Indicates if runs have to be queued automatically when a new configuration version is uploaded. Supported values are `skip_first`, `always`, `never`:" +
+			"terragrunt_version": schema.StringAttribute{
+				MarkdownDescription: "The version of Terragrunt the workspace performs runs on.",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"terragrunt_use_run_all": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether the workspace uses `terragrunt run-all`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+			},
+			"iac_platform": schema.StringAttribute{
+				MarkdownDescription: "The IaC platform to use for this workspace. Valid values are `terraform` and `opentofu`. Defaults to `terraform`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             stringdefault.StaticString(string(scalr.WorkspaceIaCPlatformTerraform)),
+				Validators: []validator.String{
+					stringvalidator.OneOf(
+						string(scalr.WorkspaceIaCPlatformTerraform),
+						string(scalr.WorkspaceIaCPlatformOpenTofu),
+					),
+				},
+			},
+			"working_directory": schema.StringAttribute{
+				MarkdownDescription: "A relative path that Terraform will be run in. Defaults to the root of the repository `\"\"`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             stringdefault.StaticString(""),
+			},
+			"has_resources": schema.BoolAttribute{
+				MarkdownDescription: "The presence of active terraform resources in the current state version.",
+				Computed:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"auto_queue_runs": schema.StringAttribute{
+				MarkdownDescription: "Indicates if runs have to be queued automatically when a new configuration version is uploaded. Supported values are `skip_first`, `always`, `never`:" +
 					"\n  * `skip_first` - after the very first configuration version is uploaded into the workspace the run will not be triggered. But the following configurations will do. This is the default behavior." +
 					"\n  * `always` - runs will be triggered automatically on every upload of the configuration version." +
 					"\n  * `never` - configuration versions are uploaded into the workspace, but runs will not be triggered.",
-				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringInSlice(
-					[]string{
+				Computed: true,
+				Default:  stringdefault.StaticString(string(scalr.AutoQueueRunsModeSkipFirst)),
+				Validators: []validator.String{
+					stringvalidator.OneOf(
 						string(scalr.AutoQueueRunsModeSkipFirst),
 						string(scalr.AutoQueueRunsModeAlways),
 						string(scalr.AutoQueueRunsModeNever),
-					},
-					false,
-				),
-				Computed: true,
-			},
-
-			"vcs_repo": {
-				Description:   "Settings for the workspace's VCS repository.",
-				Type:          schema.TypeList,
-				Optional:      true,
-				MinItems:      1,
-				MaxItems:      1,
-				ConflictsWith: []string{"module_version_id"},
-				RequiredWith:  []string{"vcs_provider_id"},
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"identifier": {
-							Description: "A reference to your VCS repository in the format `:org/:repo`, it refers to the organization and repository in your VCS provider.",
-							Type:        schema.TypeString,
-							Required:    true,
-						},
-
-						"branch": {
-							Description: "The repository branch where Terraform will be run from. If omitted, the repository default branch will be used.",
-							Type:        schema.TypeString,
-							Optional:    true,
-						},
-
-						"path": {
-							Description: "The repository subdirectory that Terraform will execute from. If omitted or submitted as an empty string, this defaults to the repository's root.",
-							Type:        schema.TypeString,
-							Default:     "",
-							Optional:    true,
-							Deprecated:  "The attribute `vcs-repo.path` is deprecated. Use working-directory and trigger-prefixes instead.",
-						},
-
-						"trigger_prefixes": {
-							Description:   "List of paths (relative to `path`), whose changes will trigger a run for the workspace using this binding when the CV is created. Conflicts with `trigger_patterns`. If `trigger_prefixes` and `trigger_patterns` are omitted, any change in `path` will trigger a new run.",
-							Type:          schema.TypeList,
-							Elem:          &schema.Schema{Type: schema.TypeString},
-							Optional:      true,
-							Computed:      true,
-							ConflictsWith: []string{"vcs_repo.0.trigger_patterns"},
-						},
-						"trigger_patterns": {
-							Description:   "The gitignore-style patterns for files, whose changes will trigger a run for the workspace using this binding when the CV is created. Conflicts with `trigger_prefixes`. If `trigger_prefixes` and `trigger_patterns` are omitted, any change in `path` will trigger a new run.",
-							Type:          schema.TypeString,
-							Optional:      true,
-							ConflictsWith: []string{"vcs_repo.0.trigger_prefixes"},
-						},
-
-						"dry_runs_enabled": {
-							Description: "Set (true/false) to configure the VCS driven dry runs should run when pull request to configuration versions branch created. Default `true`.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     true,
-						},
-						"ingress_submodules": {
-							Description: "Designates whether to clone git submodules of the VCS repository.",
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Default:     false,
-						},
-					},
+					),
 				},
 			},
-
-			"created_by": {
-				Description: "Details of the user that created the workspace.",
-				Type:        schema.TypeList,
-				Computed:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"username": {
-							Description: "Username of creator.",
-							Type:        schema.TypeString,
-							Computed:    true,
-						},
-						"email": {
-							Description: "Email address of creator.",
-							Type:        schema.TypeString,
-							Computed:    true,
-						},
-						"full_name": {
-							Description: "Full name of creator.",
-							Type:        schema.TypeString,
-							Computed:    true,
-						},
-					},
+			"created_by": schema.ListAttribute{
+				MarkdownDescription: "Details of the user that created the workspace.",
+				ElementType:         userElementType,
+				Computed:            true,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"run_operation_timeout": {
-				Description: "The number of minutes run operation can be executed before termination. Defaults to `0` (not set, backend default is used).",
-				Type:        schema.TypeInt,
-				Optional:    true,
+			"run_operation_timeout": schema.Int32Attribute{
+				MarkdownDescription: "The number of minutes run operation can be executed before termination.",
+				Optional:            true,
 			},
-			"type": {
-				Description: "The type of the Scalr Workspace environment, available options: `production`, `staging`, `testing`, `development`, `unmapped`.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ValidateFunc: validation.StringInSlice(
-					[]string{
+			"type": schema.StringAttribute{
+				MarkdownDescription: "The type of the Scalr Workspace environment, available options: `production`, `staging`, `testing`, `development`, `unmapped`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             stringdefault.StaticString(string(scalr.WorkspaceEnvironmentTypeUnmapped)),
+				Validators: []validator.String{
+					stringvalidator.OneOf(
 						string(scalr.WorkspaceEnvironmentTypeProduction),
 						string(scalr.WorkspaceEnvironmentTypeStaging),
 						string(scalr.WorkspaceEnvironmentTypeTesting),
 						string(scalr.WorkspaceEnvironmentTypeDevelopment),
 						string(scalr.WorkspaceEnvironmentTypeUnmapped),
-					},
-					false,
-				),
+					),
+				},
 			},
-			"provider_configuration": {
-				Description: "Provider configurations used in workspace runs.",
-				Type:        schema.TypeSet,
-				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": {
-							Description: "The identifier of provider configuration.",
-							Type:        schema.TypeString,
-							Required:    true,
+			"ssh_key_id": schema.StringAttribute{
+				MarkdownDescription: "The identifier of the SSH key to use for the workspace.",
+				Optional:            true,
+			},
+			"tag_ids": schema.SetAttribute{
+				MarkdownDescription: "List of tag IDs associated with the workspace.",
+				ElementType:         types.StringType,
+				Optional:            true,
+				Computed:            true,
+				Default:             setdefault.StaticValue(emptyStringSet),
+				Validators: []validator.Set{
+					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
+				},
+			},
+		},
+		Blocks: map[string]schema.Block{
+			"hooks": schema.ListNestedBlock{
+				MarkdownDescription: "Settings for the workspaces custom hooks.",
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"pre_init": schema.StringAttribute{
+							MarkdownDescription: "Action that will be called before the init phase.",
+							Optional:            true,
+							Computed:            true,
+							Default:             stringdefault.StaticString(""),
 						},
-						"alias": {
-							Description: "The alias of provider configuration.",
-							Type:        schema.TypeString,
-							Optional:    true,
+						"pre_plan": schema.StringAttribute{
+							MarkdownDescription: "Action that will be called before the plan phase.",
+							Optional:            true,
+							Computed:            true,
+							Default:             stringdefault.StaticString(""),
+						},
+						"post_plan": schema.StringAttribute{
+							MarkdownDescription: "Action that will be called after plan phase.",
+							Optional:            true,
+							Computed:            true,
+							Default:             stringdefault.StaticString(""),
+						},
+						"pre_apply": schema.StringAttribute{
+							MarkdownDescription: "Action that will be called before apply phase.",
+							Optional:            true,
+							Computed:            true,
+							Default:             stringdefault.StaticString(""),
+						},
+						"post_apply": schema.StringAttribute{
+							MarkdownDescription: "Action that will be called after apply phase.",
+							Optional:            true,
+							Computed:            true,
+							Default:             stringdefault.StaticString(""),
 						},
 					},
 				},
+				Validators: []validator.List{
+					listvalidator.SizeAtMost(1),
+				},
 			},
-			"ssh_key_id": {
-				Description: "The identifier of the SSH key to use for the workspace.",
-				Type:        schema.TypeString,
-				Optional:    true,
+			"vcs_repo": schema.ListNestedBlock{
+				MarkdownDescription: "Settings for the workspace's VCS repository.",
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"identifier": schema.StringAttribute{
+							MarkdownDescription: "A reference to your VCS repository in the format `:org/:repo`, it refers to the organization and repository in your VCS provider.",
+							Required:            true,
+						},
+						"branch": schema.StringAttribute{
+							MarkdownDescription: "The repository branch where Terraform will be run from. If omitted, the repository default branch will be used.",
+							Optional:            true,
+							Computed:            true,
+						},
+						"path": schema.StringAttribute{
+							MarkdownDescription: "The repository subdirectory that Terraform will execute from. If omitted or submitted as an empty string, this defaults to the repository's root.",
+							Optional:            true,
+							Computed:            true,
+							Default:             stringdefault.StaticString(""),
+							DeprecationMessage:  "The attribute `vcs-repo.path` is deprecated. Use working-directory and trigger-prefixes instead.",
+						},
+						"trigger_prefixes": schema.ListAttribute{
+							MarkdownDescription: "List of paths (relative to `path`), whose changes will trigger a run for the workspace using this binding when the CV is created. Conflicts with `trigger_patterns`. If `trigger_prefixes` and `trigger_patterns` are omitted, any change in `path` will trigger a new run.",
+							ElementType:         types.StringType,
+							Optional:            true,
+						},
+						"trigger_patterns": schema.StringAttribute{
+							MarkdownDescription: "The gitignore-style patterns for files, whose changes will trigger a run for the workspace using this binding when the CV is created. Conflicts with `trigger_prefixes`. If `trigger_prefixes` and `trigger_patterns` are omitted, any change in `path` will trigger a new run.",
+							Optional:            true,
+							Validators: []validator.String{
+								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("trigger_prefixes")),
+							},
+						},
+						"dry_runs_enabled": schema.BoolAttribute{
+							MarkdownDescription: "Set (true/false) to configure the VCS driven dry runs should run when pull request to configuration versions branch created. Default `true`.",
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(true),
+						},
+						"ingress_submodules": schema.BoolAttribute{
+							MarkdownDescription: "Designates whether to clone git submodules of the VCS repository.",
+							Optional:            true,
+							Computed:            true,
+							Default:             booldefault.StaticBool(false),
+						},
+					},
+				},
+				Validators: []validator.List{
+					listvalidator.SizeAtMost(1),
+				},
 			},
-			"tag_ids": {
-				Description: "List of tag IDs associated with the workspace.",
-				Type:        schema.TypeSet,
-				Optional:    true,
-				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+			"provider_configuration": schema.SetNestedBlock{
+				MarkdownDescription: "Provider configurations used in workspace runs.",
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							MarkdownDescription: "The identifier of provider configuration.",
+							Required:            true,
+						},
+						"alias": schema.StringAttribute{
+							MarkdownDescription: "The alias of provider configuration.",
+							Optional:            true,
+							Computed:            true,
+							Default:             stringdefault.StaticString(""),
+						},
+					},
+				},
 			},
 		},
 	}
 }
 
-func parseTriggerPrefixDefinitions(vcsRepo map[string]interface{}) ([]string, error) {
-	triggerPrefixes := make([]string, 0)
-
-	triggerPrefixIds := vcsRepo["trigger_prefixes"].([]interface{})
-	err := ValidateIDsDefinitions(triggerPrefixIds)
-	if err != nil {
-		return nil, fmt.Errorf("Got error during parsing trigger prefixes: %s", err.Error())
+func (r *workspaceResource) ConfigValidators(_ context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		resourcevalidator.Conflicting(
+			path.MatchRoot("module_version_id"),
+			path.MatchRoot("vcs_provider_id"),
+		),
+		resourcevalidator.Conflicting(
+			path.MatchRoot("module_version_id"),
+			path.MatchRoot("vcs_repo"),
+		),
+		resourcevalidator.RequiredTogether(
+			path.MatchRoot("vcs_provider_id"),
+			path.MatchRoot("vcs_repo"),
+		),
 	}
-
-	for _, triggerPrefixId := range triggerPrefixIds {
-		triggerPrefixes = append(triggerPrefixes, triggerPrefixId.(string))
-	}
-
-	return triggerPrefixes, nil
 }
 
-func resourceScalrWorkspaceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	scalrClient := meta.(*scalr.Client)
+func (r *workspaceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan workspaceModel
 
-	// Get the name, environment_id and vcs_provider_id.
-	name := d.Get("name").(string)
-	environmentID := d.Get("environment_id").(string)
-
-	// Create a new options struct.
-	options := scalr.WorkspaceCreateOptions{
-		Name:                      ptr(name),
-		AutoApply:                 ptr(d.Get("auto_apply").(bool)),
-		ForceLatestRun:            ptr(d.Get("force_latest_run").(bool)),
-		DeletionProtectionEnabled: ptr(d.Get("deletion_protection_enabled").(bool)),
-		Environment:               &scalr.Environment{ID: environmentID},
-		Hooks:                     &scalr.HooksOptions{},
+	// Read plan data
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
-	// Process all configured options.
-	if operations, ok := d.GetOk("operations"); ok {
-		options.Operations = ptr(operations.(bool))
-	}
-	if terragruntVersion, ok := d.GetOk("terragrunt_version"); ok {
-		options.TerragruntVersion = ptr(terragruntVersion.(string))
-	}
-	if terragruntUseRunAll, ok := d.GetOk("terragrunt_use_run_all"); ok {
-		options.TerragruntUseRunAll = ptr(terragruntUseRunAll.(bool))
+	var varFiles []string
+	resp.Diagnostics.Append(plan.VarFiles.ElementsAs(ctx, &varFiles, false)...)
+
+	opts := scalr.WorkspaceCreateOptions{
+		AutoApply:                 plan.AutoApply.ValueBoolPointer(),
+		AutoQueueRuns:             ptr(scalr.WorkspaceAutoQueueRuns(plan.AutoQueueRuns.ValueString())),
+		DeletionProtectionEnabled: plan.DeletionProtectionEnabled.ValueBoolPointer(),
+		EnvironmentType:           ptr(scalr.WorkspaceEnvironmentType(plan.Type.ValueString())),
+		ExecutionMode:             ptr(scalr.WorkspaceExecutionMode(plan.ExecutionMode.ValueString())),
+		ForceLatestRun:            plan.ForceLatestRun.ValueBoolPointer(),
+		IacPlatform:               ptr(scalr.WorkspaceIaCPlatform(plan.IaCPlatform.ValueString())),
+		Name:                      plan.Name.ValueStringPointer(),
+		Operations:                plan.Operations.ValueBoolPointer(),
+		TerragruntUseRunAll:       plan.TerragruntUseRunAll.ValueBoolPointer(),
+		VarFiles:                  varFiles,
+		WorkingDirectory:          plan.WorkingDirectory.ValueStringPointer(),
+		Environment: &scalr.Environment{
+			ID: plan.EnvironmentID.ValueString(),
+		},
 	}
 
-	if executionMode, ok := d.GetOk("execution_mode"); ok {
-		options.ExecutionMode = ptr(
-			scalr.WorkspaceExecutionMode(executionMode.(string)),
-		)
+	if !plan.TerraformVersion.IsUnknown() && !plan.TerraformVersion.IsNull() {
+		opts.TerraformVersion = plan.TerraformVersion.ValueStringPointer()
 	}
 
-	if autoQueueRunsI, ok := d.GetOk("auto_queue_runs"); ok {
-		options.AutoQueueRuns = ptr(
-			scalr.WorkspaceAutoQueueRuns(autoQueueRunsI.(string)),
-		)
+	if !plan.TerragruntVersion.IsUnknown() && !plan.TerragruntVersion.IsNull() {
+		opts.TerragruntVersion = plan.TerragruntVersion.ValueStringPointer()
 	}
 
-	if workspaceEnvironmentTypeI, ok := d.GetOk("type"); ok {
-		options.EnvironmentType = ptr(
-			scalr.WorkspaceEnvironmentType(workspaceEnvironmentTypeI.(string)),
-		)
+	if !plan.RunOperationTimeout.IsUnknown() && !plan.RunOperationTimeout.IsNull() {
+		opts.RunOperationTimeout = ptr(int(plan.RunOperationTimeout.ValueInt32()))
 	}
 
-	if tfVersion, ok := d.GetOk("terraform_version"); ok {
-		options.TerraformVersion = ptr(tfVersion.(string))
-	}
-
-	if iacPlatform, ok := d.GetOk("iac_platform"); ok {
-		options.IacPlatform = ptr(scalr.WorkspaceIaCPlatform(iacPlatform.(string)))
-	}
-
-	if workingDir, ok := d.GetOk("working_directory"); ok {
-		options.WorkingDirectory = ptr(workingDir.(string))
-	}
-
-	if runOperationTimeout, ok := d.GetOk("run_operation_timeout"); ok {
-		options.RunOperationTimeout = ptr(runOperationTimeout.(int))
-	}
-
-	if v, ok := d.GetOk("module_version_id"); ok {
-		options.ModuleVersion = &scalr.ModuleVersion{ID: v.(string)}
-	}
-
-	if vcsProviderID, ok := d.GetOk("vcs_provider_id"); ok {
-		options.VcsProvider = &scalr.VcsProvider{
-			ID: vcsProviderID.(string),
+	if !plan.VCSProviderID.IsUnknown() && !plan.VCSProviderID.IsNull() {
+		opts.VcsProvider = &scalr.VcsProvider{
+			ID: plan.VCSProviderID.ValueString(),
 		}
 	}
 
-	if agentPoolID, ok := d.GetOk("agent_pool_id"); ok {
-		options.AgentPool = &scalr.AgentPool{
-			ID: agentPoolID.(string),
+	if !plan.ModuleVersion.IsUnknown() && !plan.ModuleVersion.IsNull() {
+		opts.ModuleVersion = &scalr.ModuleVersion{
+			ID: plan.ModuleVersion.ValueString(),
 		}
 	}
 
-	// Get and assert the VCS repo configuration block.
-	if v, ok := d.GetOk("vcs_repo"); ok {
-		vcsRepo := v.([]interface{})[0].(map[string]interface{})
-		triggerPrefixes, err := parseTriggerPrefixDefinitions(vcsRepo)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-
-		options.VCSRepo = &scalr.WorkspaceVCSRepoOptions{
-			Identifier:        ptr(vcsRepo["identifier"].(string)),
-			Path:              ptr(vcsRepo["path"].(string)),
-			TriggerPrefixes:   &triggerPrefixes,
-			TriggerPatterns:   ptr(vcsRepo["trigger_patterns"].(string)),
-			DryRunsEnabled:    ptr(vcsRepo["dry_runs_enabled"].(bool)),
-			IngressSubmodules: ptr(vcsRepo["ingress_submodules"].(bool)),
-		}
-
-		// Only set the branch if one is configured.
-		if branch, ok := vcsRepo["branch"].(string); ok && branch != "" {
-			options.VCSRepo.Branch = ptr(branch)
+	if !plan.AgentPoolID.IsUnknown() && !plan.AgentPoolID.IsNull() {
+		opts.AgentPool = &scalr.AgentPool{
+			ID: plan.AgentPoolID.ValueString(),
 		}
 	}
 
-	// Get and assert the hooks
-	if v, ok := d.GetOk("hooks"); ok {
-		if _, ok := v.([]interface{})[0].(map[string]interface{}); ok {
-			hooks := v.([]interface{})[0].(map[string]interface{})
+	if !plan.VCSRepo.IsUnknown() && !plan.VCSRepo.IsNull() {
+		var vcsRepo []vcsRepoModel
+		resp.Diagnostics.Append(plan.VCSRepo.ElementsAs(ctx, &vcsRepo, false)...)
 
-			options.Hooks = &scalr.HooksOptions{
-				PreInit:   ptr(hooks["pre_init"].(string)),
-				PrePlan:   ptr(hooks["pre_plan"].(string)),
-				PostPlan:  ptr(hooks["post_plan"].(string)),
-				PreApply:  ptr(hooks["pre_apply"].(string)),
-				PostApply: ptr(hooks["post_apply"].(string)),
+		if len(vcsRepo) > 0 {
+			repo := vcsRepo[0]
+
+			opts.VCSRepo = &scalr.WorkspaceVCSRepoOptions{
+				Identifier:        repo.Identifier.ValueStringPointer(),
+				Path:              repo.Path.ValueStringPointer(),
+				TriggerPatterns:   repo.TriggerPatterns.ValueStringPointer(),
+				DryRunsEnabled:    repo.DryRunsEnabled.ValueBoolPointer(),
+				IngressSubmodules: repo.IngressSubmodules.ValueBoolPointer(),
+			}
+
+			if !repo.Branch.IsUnknown() && !repo.Branch.IsNull() {
+				opts.VCSRepo.Branch = repo.Branch.ValueStringPointer()
+			}
+
+			if !repo.TriggerPrefixes.IsUnknown() && !repo.TriggerPrefixes.IsNull() {
+				var prefixes []string
+				resp.Diagnostics.Append(repo.TriggerPrefixes.ElementsAs(ctx, &prefixes, false)...)
+				opts.VCSRepo.TriggerPrefixes = &prefixes
 			}
 		}
 	}
 
-	if v, ok := d.GetOk("var_files"); ok {
-		vfiles := v.([]interface{})
-		varFiles := make([]string, 0)
-		for _, varFile := range vfiles {
-			varFiles = append(varFiles, varFile.(string))
+	if !plan.Hooks.IsUnknown() && !plan.Hooks.IsNull() {
+		var hooks []hooksModel
+		resp.Diagnostics.Append(plan.Hooks.ElementsAs(ctx, &hooks, false)...)
+
+		if len(hooks) > 0 {
+			hook := hooks[0]
+			opts.Hooks = &scalr.HooksOptions{
+				PreInit:   hook.PreInit.ValueStringPointer(),
+				PrePlan:   hook.PrePlan.ValueStringPointer(),
+				PostPlan:  hook.PostPlan.ValueStringPointer(),
+				PreApply:  hook.PreApply.ValueStringPointer(),
+				PostApply: hook.PostApply.ValueStringPointer(),
+			}
 		}
-		options.VarFiles = varFiles
 	}
 
-	if tagIDs, ok := d.GetOk("tag_ids"); ok {
-		tagIDsList := tagIDs.(*schema.Set).List()
-		tags := make([]*scalr.Tag, len(tagIDsList))
-		for i, id := range tagIDsList {
-			tags[i] = &scalr.Tag{ID: id.(string)}
+	if !plan.TagIDs.IsUnknown() && !plan.TagIDs.IsNull() {
+		var tagIDs []string
+		resp.Diagnostics.Append(plan.TagIDs.ElementsAs(ctx, &tagIDs, false)...)
+
+		tags := make([]*scalr.Tag, len(tagIDs))
+		for i, tagID := range tagIDs {
+			tags[i] = &scalr.Tag{ID: tagID}
 		}
-		options.Tags = tags
+
+		opts.Tags = tags
 	}
 
-	log.Printf("[DEBUG] Create workspace %s for environment: %s", name, environmentID)
-	workspace, err := scalrClient.Workspaces.Create(ctx, options)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	workspace, err := r.Client.Workspaces.Create(ctx, opts)
 	if err != nil {
-		return diag.Errorf(
-			"Error creating workspace %s for environment %s: %v", name, environmentID, err)
+		resp.Diagnostics.AddError("Error creating workspace", err.Error())
+		return
 	}
-	d.SetId(workspace.ID)
 
-	if providerConfigurationsI, ok := d.GetOk("provider_configuration"); ok {
-		for _, v := range providerConfigurationsI.(*schema.Set).List() {
-			pcfg := v.(map[string]interface{})
-			createLinkOption := scalr.ProviderConfigurationLinkCreateOptions{
-				ProviderConfiguration: &scalr.ProviderConfiguration{ID: pcfg["id"].(string)},
+	if !plan.ProviderConfiguration.IsUnknown() && !plan.ProviderConfiguration.IsNull() {
+		var pcfgs []providerConfigurationModel
+		resp.Diagnostics.Append(plan.ProviderConfiguration.ElementsAs(ctx, &pcfgs, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		for _, pcfg := range pcfgs {
+			pcfgOpts := scalr.ProviderConfigurationLinkCreateOptions{
+				ProviderConfiguration: &scalr.ProviderConfiguration{ID: pcfg.ID.ValueString()},
 			}
-			if alias, ok := pcfg["alias"]; ok && len(alias.(string)) > 0 {
-				createLinkOption.Alias = ptr(alias.(string))
+			if !pcfg.Alias.IsUnknown() && len(pcfg.Alias.ValueString()) > 0 {
+				pcfgOpts.Alias = pcfg.Alias.ValueStringPointer()
 			}
-			_, err := scalrClient.ProviderConfigurationLinks.Create(
-				ctx, workspace.ID, createLinkOption,
-			)
+			_, err = r.Client.ProviderConfigurationLinks.Create(ctx, workspace.ID, pcfgOpts)
 			if err != nil {
-				return diag.Errorf(
-					"Error creating workspace %s provider configuration link: %v", name, err)
+				resp.Diagnostics.AddError("Error creating provider configuration link", err.Error())
+				return
 			}
 		}
 	}
 
-	if sshKeyID, ok := d.GetOk("ssh_key_id"); ok {
-		_, err := scalrClient.SSHKeysLinks.Create(ctx, workspace.ID, sshKeyID.(string))
+	if !plan.SSHKeyID.IsUnknown() && !plan.SSHKeyID.IsNull() {
+		_, err = r.Client.SSHKeysLinks.Create(ctx, workspace.ID, plan.SSHKeyID.ValueString())
 		if err != nil {
-			return diag.Errorf("Error creating SSH key link for workspace %s: %v", name, err)
+			resp.Diagnostics.AddError("Error creating SSH key link", err.Error())
+			return
 		}
 	}
 
-	return resourceScalrWorkspaceRead(ctx, d, meta)
-}
-
-func resourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	scalrClient := meta.(*scalr.Client)
-	id := d.Id()
-	log.Printf("[DEBUG] Read configuration of workspace: %s", id)
-	workspace, err := scalrClient.Workspaces.ReadByID(ctx, id)
+	// Get refreshed resource state from API
+	workspace, err = r.Client.Workspaces.ReadByID(ctx, workspace.ID)
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
-			log.Printf("[DEBUG] Workspace %s no longer exists", id)
-			d.SetId("")
-			return nil
+			resp.State.RemoveResource(ctx)
+			return
 		}
-		return diag.Errorf("Error reading configuration of workspace %s: %v", id, err)
+		resp.Diagnostics.AddError("Error retrieving workspace", err.Error())
+		return
 	}
 
-	// Update the config.
-	_ = d.Set("name", workspace.Name)
-	_ = d.Set("auto_apply", workspace.AutoApply)
-	_ = d.Set("force_latest_run", workspace.ForceLatestRun)
-	_ = d.Set("deletion_protection_enabled", workspace.DeletionProtectionEnabled)
-	_ = d.Set("operations", workspace.Operations)
-	_ = d.Set("execution_mode", workspace.ExecutionMode)
-	_ = d.Set("terraform_version", workspace.TerraformVersion)
-	_ = d.Set("iac_platform", workspace.IaCPlatform)
-	_ = d.Set("working_directory", workspace.WorkingDirectory)
-	_ = d.Set("environment_id", workspace.Environment.ID)
-	_ = d.Set("has_resources", workspace.HasResources)
-	_ = d.Set("auto_queue_runs", workspace.AutoQueueRuns)
-	_ = d.Set("type", workspace.EnvironmentType)
-	_ = d.Set("var_files", workspace.VarFiles)
-	_ = d.Set("terragrunt_version", workspace.TerragruntVersion)
-	_ = d.Set("terragrunt_use_run_all", workspace.TerragruntUseRunAll)
-
-	if workspace.RunOperationTimeout != nil {
-		_ = d.Set("run_operation_timeout", &workspace.RunOperationTimeout)
-	}
-
-	if workspace.VcsProvider != nil {
-		_ = d.Set("vcs_provider_id", workspace.VcsProvider.ID)
-	}
-
-	if workspace.SSHKey != nil {
-		_ = d.Set("ssh_key_id", workspace.SSHKey.ID)
-	}
-
-	if workspace.AgentPool != nil {
-		_ = d.Set("agent_pool_id", workspace.AgentPool.ID)
-	} else {
-		_ = d.Set("agent_pool_id", "")
-	}
-
-	var mv string
-	if workspace.ModuleVersion != nil {
-		mv = workspace.ModuleVersion.ID
-	}
-	_ = d.Set("module_version_id", mv)
-
-	var createdBy []interface{}
-	if workspace.CreatedBy != nil {
-		createdBy = append(createdBy, map[string]interface{}{
-			"username":  workspace.CreatedBy.Username,
-			"email":     workspace.CreatedBy.Email,
-			"full_name": workspace.CreatedBy.FullName,
-		})
-	}
-	_ = d.Set("created_by", createdBy)
-
-	var vcsRepo []interface{}
-	if workspace.VCSRepo != nil {
-		vcsRepo = append(vcsRepo, map[string]interface{}{
-			"branch":             workspace.VCSRepo.Branch,
-			"identifier":         workspace.VCSRepo.Identifier,
-			"path":               workspace.VCSRepo.Path,
-			"trigger_prefixes":   workspace.VCSRepo.TriggerPrefixes,
-			"trigger_patterns":   workspace.VCSRepo.TriggerPatterns,
-			"dry_runs_enabled":   workspace.VCSRepo.DryRunsEnabled,
-			"ingress_submodules": workspace.VCSRepo.IngressSubmodules,
-		})
-	}
-	_ = d.Set("vcs_repo", vcsRepo)
-
-	var hooks []interface{}
-	if workspace.Hooks != nil {
-		hooks = append(hooks, map[string]interface{}{
-			"pre_init":   workspace.Hooks.PreInit,
-			"pre_plan":   workspace.Hooks.PrePlan,
-			"post_plan":  workspace.Hooks.PostPlan,
-			"pre_apply":  workspace.Hooks.PreApply,
-			"post_apply": workspace.Hooks.PostApply,
-		})
-	} else if _, ok := d.GetOk("hooks"); ok {
-		hooks = append(hooks, map[string]interface{}{
-			"pre_init":   "",
-			"pre_plan":   "",
-			"post_plan":  "",
-			"pre_apply":  "",
-			"post_apply": "",
-		})
-	}
-	_ = d.Set("hooks", hooks)
-
-	providerConfigurationLinks, err := getProviderConfigurationWorkspaceLinks(ctx, scalrClient, id)
+	pcfgLinks, err := getProviderConfigurationWorkspaceLinks(ctx, r.Client, workspace.ID)
 	if err != nil {
-		return diag.Errorf("Error reading provider configuration links of workspace %s: %v", id, err)
+		resp.Diagnostics.AddError("Error retrieving provider configuration links", err.Error())
+		return
 	}
-	var providerConfigurations []map[string]interface{}
-	for _, link := range providerConfigurationLinks {
-		providerConfigurations = append(providerConfigurations, map[string]interface{}{
-			"id":    link.ProviderConfiguration.ID,
-			"alias": link.Alias,
-		})
-	}
-	_ = d.Set("provider_configuration", providerConfigurations)
 
-	var tagIDs []string
-	if len(workspace.Tags) != 0 {
-		for _, tag := range workspace.Tags {
-			tagIDs = append(tagIDs, tag.ID)
-		}
+	result, diags := workspaceModelFromAPI(ctx, workspace, pcfgLinks, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
-	_ = d.Set("tag_ids", tagIDs)
 
-	return nil
+	// Set state to fully populated data
+	resp.Diagnostics.Append(resp.State.Set(ctx, &result)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
 
-func resourceScalrWorkspaceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	scalrClient := meta.(*scalr.Client)
+func (r *workspaceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state workspaceModel
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
-	id := d.Id()
+	workspace, err := r.Client.Workspaces.ReadByID(ctx, state.Id.ValueString())
+	if err != nil {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+		resp.Diagnostics.AddError("Error retrieving workspace", err.Error())
+		return
+	}
 
-	if d.HasChange("name") || d.HasChange("auto_apply") || d.HasChange("auto_queue_runs") ||
-		d.HasChange("terraform_version") || d.HasChange("working_directory") || d.HasChange("force_latest_run") ||
-		d.HasChange("vcs_repo") || d.HasChange("operations") || d.HasChange("execution_mode") ||
-		d.HasChange("vcs_provider_id") || d.HasChange("agent_pool_id") || d.HasChange("deletion_protection_enabled") ||
-		d.HasChange("hooks") || d.HasChange("module_version_id") || d.HasChange("var_files") ||
-		d.HasChange("run_operation_timeout") || d.HasChange("iac_platform") ||
-		d.HasChange("type") || d.HasChange("terragrunt_version") || d.HasChange("terragrunt_use_run_all") {
-		// Create a new options struct.
-		options := scalr.WorkspaceUpdateOptions{
-			Name:                      ptr(d.Get("name").(string)),
-			AutoApply:                 ptr(d.Get("auto_apply").(bool)),
-			ForceLatestRun:            ptr(d.Get("force_latest_run").(bool)),
-			DeletionProtectionEnabled: ptr(d.Get("deletion_protection_enabled").(bool)),
-			Hooks: &scalr.HooksOptions{
+	pcfgLinks, err := getProviderConfigurationWorkspaceLinks(ctx, r.Client, state.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Error retrieving provider configuration links", err.Error())
+		return
+	}
+
+	result, diags := workspaceModelFromAPI(ctx, workspace, pcfgLinks, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Set refreshed state
+	resp.Diagnostics.Append(resp.State.Set(ctx, &result)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state workspaceModel
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	opts := scalr.WorkspaceUpdateOptions{}
+
+	if !plan.Name.Equal(state.Name) {
+		opts.Name = plan.Name.ValueStringPointer()
+	}
+
+	if !plan.AutoApply.Equal(state.AutoApply) {
+		opts.AutoApply = plan.AutoApply.ValueBoolPointer()
+	}
+
+	if !plan.AutoQueueRuns.Equal(state.AutoQueueRuns) {
+		opts.AutoQueueRuns = ptr(scalr.WorkspaceAutoQueueRuns(plan.AutoQueueRuns.ValueString()))
+	}
+
+	if !plan.DeletionProtectionEnabled.Equal(state.DeletionProtectionEnabled) {
+		opts.DeletionProtectionEnabled = plan.DeletionProtectionEnabled.ValueBoolPointer()
+	}
+
+	if !plan.ExecutionMode.Equal(state.ExecutionMode) {
+		opts.ExecutionMode = ptr(scalr.WorkspaceExecutionMode(plan.ExecutionMode.ValueString()))
+	}
+
+	if !plan.ForceLatestRun.Equal(state.ForceLatestRun) {
+		opts.ForceLatestRun = plan.ForceLatestRun.ValueBoolPointer()
+	}
+
+	if !plan.IaCPlatform.Equal(state.IaCPlatform) {
+		opts.IacPlatform = ptr(scalr.WorkspaceIaCPlatform(plan.IaCPlatform.ValueString()))
+	}
+
+	if !plan.Operations.Equal(state.Operations) {
+		opts.Operations = plan.Operations.ValueBoolPointer()
+	}
+
+	if !plan.RunOperationTimeout.Equal(state.RunOperationTimeout) && !plan.RunOperationTimeout.IsNull() {
+		opts.RunOperationTimeout = ptr(int(plan.RunOperationTimeout.ValueInt32()))
+	}
+
+	if !plan.TerraformVersion.Equal(state.TerraformVersion) && !plan.TerraformVersion.IsNull() {
+		opts.TerraformVersion = plan.TerraformVersion.ValueStringPointer()
+	}
+
+	if !plan.TerragruntUseRunAll.Equal(state.TerragruntUseRunAll) {
+		opts.TerragruntUseRunAll = plan.TerragruntUseRunAll.ValueBoolPointer()
+	}
+
+	if !plan.TerragruntVersion.Equal(state.TerragruntVersion) && !plan.TerragruntVersion.IsNull() {
+		opts.TerragruntVersion = plan.TerragruntVersion.ValueStringPointer()
+	}
+
+	if !plan.Type.Equal(state.Type) {
+		opts.EnvironmentType = ptr(scalr.WorkspaceEnvironmentType(plan.Type.ValueString()))
+	}
+
+	if !plan.WorkingDirectory.Equal(state.WorkingDirectory) {
+		opts.WorkingDirectory = plan.WorkingDirectory.ValueStringPointer()
+	}
+
+	if !plan.VCSProviderID.IsNull() {
+		opts.VcsProvider = &scalr.VcsProvider{ID: plan.VCSProviderID.ValueString()}
+	}
+
+	if !plan.ModuleVersion.IsNull() {
+		opts.ModuleVersion = &scalr.ModuleVersion{ID: plan.ModuleVersion.ValueString()}
+	}
+
+	if !plan.AgentPoolID.IsNull() {
+		opts.AgentPool = &scalr.AgentPool{ID: plan.AgentPoolID.ValueString()}
+	}
+
+	if !plan.VCSRepo.IsNull() {
+		var vcsRepo []vcsRepoModel
+		resp.Diagnostics.Append(plan.VCSRepo.ElementsAs(ctx, &vcsRepo, false)...)
+
+		if len(vcsRepo) > 0 {
+			repo := vcsRepo[0]
+
+			opts.VCSRepo = &scalr.WorkspaceVCSRepoOptions{
+				Identifier:        repo.Identifier.ValueStringPointer(),
+				Path:              repo.Path.ValueStringPointer(),
+				TriggerPatterns:   repo.TriggerPatterns.ValueStringPointer(),
+				DryRunsEnabled:    repo.DryRunsEnabled.ValueBoolPointer(),
+				IngressSubmodules: repo.IngressSubmodules.ValueBoolPointer(),
+			}
+
+			if !repo.Branch.IsUnknown() && !repo.Branch.IsNull() {
+				opts.VCSRepo.Branch = repo.Branch.ValueStringPointer()
+			}
+
+			if !repo.TriggerPrefixes.IsUnknown() && !repo.TriggerPrefixes.IsNull() {
+				var prefixes []string
+				resp.Diagnostics.Append(repo.TriggerPrefixes.ElementsAs(ctx, &prefixes, false)...)
+				opts.VCSRepo.TriggerPrefixes = &prefixes
+			}
+		}
+	}
+
+	if !plan.Hooks.Equal(state.Hooks) {
+		var hooks []hooksModel
+		resp.Diagnostics.Append(plan.Hooks.ElementsAs(ctx, &hooks, false)...)
+
+		if len(hooks) > 0 {
+			hook := hooks[0]
+			opts.Hooks = &scalr.HooksOptions{
+				PreInit:   hook.PreInit.ValueStringPointer(),
+				PrePlan:   hook.PrePlan.ValueStringPointer(),
+				PostPlan:  hook.PostPlan.ValueStringPointer(),
+				PreApply:  hook.PreApply.ValueStringPointer(),
+				PostApply: hook.PostApply.ValueStringPointer(),
+			}
+		} else {
+			opts.Hooks = &scalr.HooksOptions{
 				PreInit:   ptr(""),
 				PrePlan:   ptr(""),
 				PostPlan:  ptr(""),
 				PreApply:  ptr(""),
 				PostApply: ptr(""),
-			},
-		}
-
-		// Process all configured options.
-		if operations, ok := d.GetOk("operations"); ok {
-			options.Operations = ptr(operations.(bool))
-		}
-
-		if executionMode, ok := d.GetOk("execution_mode"); ok {
-			options.ExecutionMode = ptr(
-				scalr.WorkspaceExecutionMode(executionMode.(string)),
-			)
-		}
-		if terragruntVersion, ok := d.GetOk("terragrunt_version"); ok {
-			options.TerragruntVersion = ptr(terragruntVersion.(string))
-		}
-		if terragruntUseRunAll, ok := d.GetOkExists("terragrunt_use_run_all"); ok { //nolint:staticcheck
-			options.TerragruntUseRunAll = ptr(terragruntUseRunAll.(bool))
-		}
-
-		if autoQueueRunsI, ok := d.GetOk("auto_queue_runs"); ok {
-			options.AutoQueueRuns = ptr(
-				scalr.WorkspaceAutoQueueRuns(autoQueueRunsI.(string)),
-			)
-		}
-
-		if workspaceEnvironmentTypeI, ok := d.GetOk("type"); ok {
-			options.EnvironmentType = ptr(
-				scalr.WorkspaceEnvironmentType(workspaceEnvironmentTypeI.(string)),
-			)
-		}
-
-		if tfVersion, ok := d.GetOk("terraform_version"); ok {
-			options.TerraformVersion = ptr(tfVersion.(string))
-		}
-
-		if iacPlatform, ok := d.GetOk("iac_platform"); ok {
-			options.IacPlatform = ptr(scalr.WorkspaceIaCPlatform(iacPlatform.(string)))
-		}
-
-		if v, ok := d.Get("var_files").([]interface{}); ok {
-			varFiles := make([]string, 0)
-			for _, varFile := range v {
-				varFiles = append(varFiles, varFile.(string))
-			}
-			options.VarFiles = varFiles
-		}
-
-		options.WorkingDirectory = ptr(d.Get("working_directory").(string))
-
-		if runOperationTimeout, ok := d.GetOk("run_operation_timeout"); ok {
-			options.RunOperationTimeout = ptr(runOperationTimeout.(int))
-		}
-
-		if vcsProviderId, ok := d.GetOk("vcs_provider_id"); ok {
-			options.VcsProvider = &scalr.VcsProvider{
-				ID: vcsProviderId.(string),
-			}
-		}
-
-		if agentPoolID, ok := d.GetOk("agent_pool_id"); ok {
-			options.AgentPool = &scalr.AgentPool{
-				ID: agentPoolID.(string),
-			}
-		}
-
-		// Get and assert the VCS repo configuration block.
-		if v, ok := d.GetOk("vcs_repo"); ok {
-			vcsRepo := v.([]interface{})[0].(map[string]interface{})
-			triggerPrefixes, err := parseTriggerPrefixDefinitions(vcsRepo)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-
-			options.VCSRepo = &scalr.WorkspaceVCSRepoOptions{
-				Identifier:        ptr(vcsRepo["identifier"].(string)),
-				Branch:            ptr(vcsRepo["branch"].(string)),
-				Path:              ptr(vcsRepo["path"].(string)),
-				TriggerPrefixes:   &triggerPrefixes,
-				TriggerPatterns:   ptr(vcsRepo["trigger_patterns"].(string)),
-				DryRunsEnabled:    ptr(vcsRepo["dry_runs_enabled"].(bool)),
-				IngressSubmodules: ptr(vcsRepo["ingress_submodules"].(bool)),
-			}
-		}
-
-		// Get and assert the hooks
-		if v, ok := d.GetOk("hooks"); ok {
-			if _, ok := v.([]interface{})[0].(map[string]interface{}); ok {
-				hooks := v.([]interface{})[0].(map[string]interface{})
-
-				options.Hooks = &scalr.HooksOptions{
-					PreInit:   ptr(hooks["pre_init"].(string)),
-					PrePlan:   ptr(hooks["pre_plan"].(string)),
-					PostPlan:  ptr(hooks["post_plan"].(string)),
-					PreApply:  ptr(hooks["pre_apply"].(string)),
-					PostApply: ptr(hooks["post_apply"].(string)),
-				}
-			}
-		}
-
-		if v, ok := d.GetOk("module_version_id"); ok {
-			options.ModuleVersion = &scalr.ModuleVersion{
-				ID: v.(string),
-			}
-		}
-
-		log.Printf("[DEBUG] Update workspace %s", id)
-		_, err := scalrClient.Workspaces.Update(ctx, id, options)
-		if err != nil {
-			return diag.Errorf(
-				"Error updating workspace %s: %v", id, err)
-		}
-	}
-	if d.HasChange("ssh_key_id") {
-		oldSSHKeyID, newSSHKeyID := d.GetChange("ssh_key_id")
-
-		if oldSSHKeyID != "" && newSSHKeyID == "" {
-			err := scalrClient.SSHKeysLinks.Delete(ctx, id)
-			if err != nil {
-				return diag.Errorf("Error removing SSH key link for workspace %s: %v", id, err)
-			}
-		}
-
-		if newSSHKeyID != "" {
-			_, err := scalrClient.SSHKeysLinks.Create(ctx, id, newSSHKeyID.(string))
-			if err != nil {
-				return diag.Errorf("Error creating SSH key link for workspace %s: %v", id, err)
 			}
 		}
 	}
 
-	if d.HasChange("provider_configuration") {
-
-		expectedLinks := make(map[string]scalr.ProviderConfigurationLinkCreateOptions)
-		if providerConfigurationI, ok := d.GetOk("provider_configuration"); ok {
-			for _, v := range providerConfigurationI.(*schema.Set).List() {
-				configLink := v.(map[string]interface{})
-				mapID := configLink["id"].(string)
-				linkCreateOption := scalr.ProviderConfigurationLinkCreateOptions{
-					ProviderConfiguration: &scalr.ProviderConfiguration{ID: configLink["id"].(string)},
-				}
-				if v, ok := configLink["alias"]; ok && len(v.(string)) > 0 {
-					linkCreateOption.Alias = ptr(v.(string))
-					mapID = mapID + v.(string)
-				}
-				expectedLinks[mapID] = linkCreateOption
-
-			}
-		}
-
-		currentLinks, err := getProviderConfigurationWorkspaceLinks(ctx, scalrClient, id)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-
-		for _, currentLink := range currentLinks {
-			mapID := currentLink.ProviderConfiguration.ID + currentLink.Alias
-			if _, ok := expectedLinks[mapID]; ok {
-				delete(expectedLinks, mapID)
-			} else {
-				err = scalrClient.ProviderConfigurationLinks.Delete(ctx, currentLink.ID)
-				if err != nil {
-					return diag.Errorf(
-						"Error removing provider configuration link in workspace %s: %v", id, err)
-				}
-			}
-		}
-		for _, createOption := range expectedLinks {
-			_, err = scalrClient.ProviderConfigurationLinks.Create(ctx, id, createOption)
-			if err != nil {
-				return diag.Errorf(
-					"Error creating provider configuration link in workspace %s: %v", id, err)
-			}
-
-		}
+	if !plan.VarFiles.IsNull() {
+		var varFiles []string
+		resp.Diagnostics.Append(plan.VarFiles.ElementsAs(ctx, &varFiles, false)...)
+		opts.VarFiles = varFiles
 	}
 
-	if d.HasChange("tag_ids") {
-		oldTags, newTags := d.GetChange("tag_ids")
-		oldSet := oldTags.(*schema.Set)
-		newSet := newTags.(*schema.Set)
-		tagsToAdd := InterfaceArrToTagRelationArr(newSet.Difference(oldSet).List())
-		tagsToDelete := InterfaceArrToTagRelationArr(oldSet.Difference(newSet).List())
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Update existing resource
+	_, err := r.Client.Workspaces.Update(ctx, plan.Id.ValueString(), opts)
+	if err != nil {
+		resp.Diagnostics.AddError("Error updating workspace", err.Error())
+		return
+	}
+
+	if !plan.TagIDs.Equal(state.TagIDs) {
+		var planTags []string
+		var stateTags []string
+		resp.Diagnostics.Append(plan.TagIDs.ElementsAs(ctx, &planTags, false)...)
+		resp.Diagnostics.Append(state.TagIDs.ElementsAs(ctx, &stateTags, false)...)
+
+		tagsToAdd, tagsToRemove := diff(stateTags, planTags)
 
 		if len(tagsToAdd) > 0 {
-			err := scalrClient.WorkspaceTags.Add(ctx, id, tagsToAdd)
+			tagRelations := make([]*scalr.TagRelation, len(tagsToAdd))
+			for i, tag := range tagsToAdd {
+				tagRelations[i] = &scalr.TagRelation{ID: tag}
+			}
+			err = r.Client.WorkspaceTags.Add(ctx, plan.Id.ValueString(), tagRelations)
 			if err != nil {
-				return diag.Errorf(
-					"Error adding tags to workspace %s: %v", id, err)
+				resp.Diagnostics.AddError("Error adding tags to workspace", err.Error())
 			}
 		}
 
-		if len(tagsToDelete) > 0 {
-			err := scalrClient.WorkspaceTags.Delete(ctx, id, tagsToDelete)
+		if len(tagsToRemove) > 0 {
+			tagRelations := make([]*scalr.TagRelation, len(tagsToRemove))
+			for i, tag := range tagsToRemove {
+				tagRelations[i] = &scalr.TagRelation{ID: tag}
+			}
+			err = r.Client.WorkspaceTags.Delete(ctx, plan.Id.ValueString(), tagRelations)
 			if err != nil {
-				return diag.Errorf(
-					"Error deleting tags from workspace %s: %v", id, err)
+				resp.Diagnostics.AddError("Error removing tags from workspace", err.Error())
 			}
 		}
 	}
 
-	return resourceScalrWorkspaceRead(ctx, d, meta)
+	if !plan.ProviderConfiguration.Equal(state.ProviderConfiguration) {
+		expectedLinks := make(map[string]scalr.ProviderConfigurationLinkCreateOptions)
+		if !plan.ProviderConfiguration.IsNull() {
+			var pcfgs []providerConfigurationModel
+			resp.Diagnostics.Append(plan.ProviderConfiguration.ElementsAs(ctx, &pcfgs, false)...)
+
+			for _, pcfg := range pcfgs {
+				mapID := pcfg.ID.ValueString()
+				pcfgOpts := scalr.ProviderConfigurationLinkCreateOptions{
+					ProviderConfiguration: &scalr.ProviderConfiguration{ID: pcfg.ID.ValueString()},
+				}
+				if !pcfg.Alias.IsUnknown() && len(pcfg.Alias.ValueString()) > 0 {
+					pcfgOpts.Alias = pcfg.Alias.ValueStringPointer()
+					mapID = mapID + pcfg.Alias.ValueString()
+				}
+				expectedLinks[mapID] = pcfgOpts
+			}
+		}
+
+		currentLinks, err := getProviderConfigurationWorkspaceLinks(ctx, r.Client, plan.Id.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError("Error retrieving provider configuration links", err.Error())
+		} else {
+			for _, currentLink := range currentLinks {
+				mapID := currentLink.ProviderConfiguration.ID + currentLink.Alias
+				if _, ok := expectedLinks[mapID]; ok {
+					delete(expectedLinks, mapID)
+				} else {
+					err = r.Client.ProviderConfigurationLinks.Delete(ctx, currentLink.ID)
+					if err != nil {
+						resp.Diagnostics.AddError("Error deleting provider configuration link", err.Error())
+					}
+				}
+			}
+
+			for _, link := range expectedLinks {
+				_, err = r.Client.ProviderConfigurationLinks.Create(ctx, plan.Id.ValueString(), link)
+				if err != nil {
+					resp.Diagnostics.AddError("Error creating provider configuration link", err.Error())
+				}
+			}
+		}
+	}
+
+	if !plan.SSHKeyID.Equal(state.SSHKeyID) {
+		if !state.SSHKeyID.IsNull() && plan.SSHKeyID.IsNull() {
+			err = r.Client.SSHKeysLinks.Delete(ctx, plan.Id.ValueString())
+			if err != nil {
+				resp.Diagnostics.AddError("Error deleting SSH key link", err.Error())
+			}
+		} else if !plan.SSHKeyID.IsNull() {
+			_, err = r.Client.SSHKeysLinks.Create(ctx, plan.Id.ValueString(), plan.SSHKeyID.ValueString())
+			if err != nil {
+				resp.Diagnostics.AddError("Error creating SSH key link", err.Error())
+			}
+		}
+	}
+
+	// Get refreshed resource state from API
+	workspace, err := r.Client.Workspaces.ReadByID(ctx, plan.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Error retrieving workspace", err.Error())
+		return
+	}
+
+	pcfgLinks, err := getProviderConfigurationWorkspaceLinks(ctx, r.Client, workspace.ID)
+	if err != nil {
+		resp.Diagnostics.AddError("Error retrieving provider configuration links", err.Error())
+		return
+	}
+
+	result, diags := workspaceModelFromAPI(ctx, workspace, pcfgLinks, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Set state to fully populated data
+	resp.Diagnostics.Append(resp.State.Set(ctx, &result)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *workspaceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// Get current state
+	var state workspaceModel
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	err := r.Client.Workspaces.Delete(ctx, state.Id.ValueString())
+	if err != nil && !errors.Is(err, scalr.ErrResourceNotFound) {
+		resp.Diagnostics.AddError("Error deleting workspace", err.Error())
+		return
+	}
+}
+
+func (r *workspaceResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	if req.Plan.Raw.IsNull() {
+		// The resource is being destroyed
+		return
+	}
+
+	var operations, operationsCfg types.Bool
+	var executionMode, executionModeCfg types.String
+	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("operations"), &operations)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("operations"), &operationsCfg)...)
+	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("execution_mode"), &executionMode)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("execution_mode"), &executionModeCfg)...)
+
+	if !operationsCfg.IsNull() && !executionModeCfg.IsNull() {
+		// Both attributes cannot be set to mutually exclusive values at the same time.
+		if operations.ValueBool() == false && executionMode.ValueString() == string(scalr.WorkspaceExecutionModeRemote) ||
+			operations.ValueBool() == true && executionMode.ValueString() == string(scalr.WorkspaceExecutionModeLocal) {
+			resp.Diagnostics.AddError(
+				"Attributes `operations` and `execution_mode` are configured with conflicting values",
+				"The attribute `operations` is deprecated. Use `execution_mode` instead",
+			)
+		}
+	}
+
+	if !operationsCfg.IsNull() && executionModeCfg.IsNull() {
+		// When the `operations` is explicitly set in the configuration, and `execution_mode` is not -
+		// this is the only case when it takes precedence.
+		if operations.ValueBool() == false {
+			resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("execution_mode"), string(scalr.WorkspaceExecutionModeLocal))...)
+		} else {
+			resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("execution_mode"), string(scalr.WorkspaceExecutionModeRemote))...)
+		}
+	} else {
+		// In all other cases, `execution_mode` dictates the value for `operations`, even when left default.
+		if executionMode.ValueString() == string(scalr.WorkspaceExecutionModeLocal) {
+			resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("operations"), false)...)
+		} else {
+			resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("operations"), true)...)
+		}
+	}
+}
+
+func (r *workspaceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
 func getProviderConfigurationWorkspaceLinks(
@@ -934,7 +919,7 @@ func getProviderConfigurationWorkspaceLinks(
 		linksList, err := scalrClient.ProviderConfigurationLinks.List(ctx, workspaceId, linkListOption)
 
 		if err != nil {
-			return nil, fmt.Errorf("Error reading provider configuration links %s: %v", workspaceId, err)
+			return nil, err
 		}
 
 		for _, link := range linksList.Items {
@@ -952,20 +937,4 @@ func getProviderConfigurationWorkspaceLinks(
 		linkListOption.PageNumber = linksList.NextPage
 	}
 	return
-}
-
-func resourceScalrWorkspaceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	scalrClient := meta.(*scalr.Client)
-	id := d.Id()
-
-	log.Printf("[DEBUG] Delete workspace %s", id)
-	err := scalrClient.Workspaces.Delete(ctx, id)
-	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
-			return nil
-		}
-		return diag.Errorf("Error deleting workspace %s: %v", id, err)
-	}
-
-	return nil
 }

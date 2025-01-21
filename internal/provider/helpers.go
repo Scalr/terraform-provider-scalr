@@ -138,3 +138,27 @@ func scalrAccountIDOptionalDefaultFunc() (interface{}, error) {
 func ptr[T any](v T) *T {
 	return &v
 }
+
+// diff returns the added and removed elements between two slices.
+func diff[T comparable](old, new []T) (added, removed []T) {
+	newSet := make(map[T]struct{}, len(new))
+	for _, v := range new {
+		newSet[v] = struct{}{}
+	}
+
+	oldSet := make(map[T]struct{}, len(old))
+	for _, v := range old {
+		oldSet[v] = struct{}{}
+		if _, found := newSet[v]; !found {
+			removed = append(removed, v)
+		}
+	}
+
+	for _, v := range new {
+		if _, found := oldSet[v]; !found {
+			added = append(added, v)
+		}
+	}
+
+	return
+}
