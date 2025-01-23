@@ -26,6 +26,7 @@ import (
 func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 	emptyStringList, _ := types.ListValueFrom(ctx, types.StringType, []string{})
 	emptyStringSet, _ := types.SetValueFrom(ctx, types.StringType, []string{})
+	asteriskStringSet, _ := types.SetValueFrom(ctx, types.StringType, []string{"*"})
 
 	return &schema.Schema{
 		MarkdownDescription: "Manages the state of workspaces in Scalr.",
@@ -208,6 +209,16 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 				Optional:            true,
 				Computed:            true,
 				Default:             setdefault.StaticValue(emptyStringSet),
+				Validators: []validator.Set{
+					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
+				},
+			},
+			"remote_state_consumers": schema.SetAttribute{
+				MarkdownDescription: "The list of workspace identifiers that are allowed to access the state of this workspace. Use `[\"*\"]` to share the state with all the workspaces within the environment.",
+				ElementType:         types.StringType,
+				Optional:            true,
+				Computed:            true,
+				Default:             setdefault.StaticValue(asteriskStringSet),
 				Validators: []validator.Set{
 					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
 				},

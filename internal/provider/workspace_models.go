@@ -55,6 +55,7 @@ type workspaceResourceModel struct {
 	Name                      types.String `tfsdk:"name"`
 	Operations                types.Bool   `tfsdk:"operations"`
 	ProviderConfiguration     types.Set    `tfsdk:"provider_configuration"`
+	RemoteStateConsumers      types.Set    `tfsdk:"remote_state_consumers"`
 	RunOperationTimeout       types.Int32  `tfsdk:"run_operation_timeout"`
 	SSHKeyID                  types.String `tfsdk:"ssh_key_id"`
 	TagIDs                    types.Set    `tfsdk:"tag_ids"`
@@ -95,6 +96,7 @@ func workspaceResourceModelFromAPI(
 	ctx context.Context,
 	ws *scalr.Workspace,
 	pcfgLinks []*scalr.ProviderConfigurationLink,
+	stateConsumers []string,
 	existing *workspaceResourceModel,
 ) (*workspaceResourceModel, diag.Diagnostics) {
 	var diags diag.Diagnostics
@@ -116,6 +118,7 @@ func workspaceResourceModelFromAPI(
 		Name:                      types.StringValue(ws.Name),
 		Operations:                types.BoolValue(ws.Operations),
 		ProviderConfiguration:     types.SetNull(providerConfigurationElementType),
+		RemoteStateConsumers:      types.SetNull(types.StringType),
 		RunOperationTimeout:       types.Int32Null(),
 		SSHKeyID:                  types.StringNull(),
 		TagIDs:                    types.SetNull(types.StringType),
@@ -232,6 +235,15 @@ func workspaceResourceModelFromAPI(
 		diags.Append(d...)
 		model.ProviderConfiguration = pcfgValue
 	}
+
+	if ws.RemoteStateSharing {
+		stateConsumers = []string{"*"}
+	} else if stateConsumers == nil {
+		stateConsumers = []string{}
+	}
+	consumersValue, d := types.SetValueFrom(ctx, types.StringType, stateConsumers)
+	diags.Append(d...)
+	model.RemoteStateConsumers = consumersValue
 
 	return model, diags
 }

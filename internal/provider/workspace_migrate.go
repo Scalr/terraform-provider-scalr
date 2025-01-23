@@ -42,7 +42,13 @@ func upgradeWorkspaceResourceStateV0toV4(c *scalr.Client) func(ctx context.Conte
 			return
 		}
 
-		data, diags := workspaceResourceModelFromAPI(ctx, ws, pcfgLinks, nil)
+		stateConsumers, err := getRemoteStateConsumers(ctx, c, dataV0.Id.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError("Error retrieving remote state consumers", err.Error())
+			return
+		}
+
+		data, diags := workspaceResourceModelFromAPI(ctx, ws, pcfgLinks, stateConsumers, nil)
 		resp.Diagnostics.Append(diags...)
 
 		diags = resp.State.Set(ctx, data)
@@ -83,7 +89,13 @@ func upgradeWorkspaceResourceStateV1toV4(c *scalr.Client) func(ctx context.Conte
 			return
 		}
 
-		data, diags := workspaceResourceModelFromAPI(ctx, ws, pcfgLinks, nil)
+		stateConsumers, err := getRemoteStateConsumers(ctx, c, dataV1.Id.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError("Error retrieving remote state consumers", err.Error())
+			return
+		}
+
+		data, diags := workspaceResourceModelFromAPI(ctx, ws, pcfgLinks, stateConsumers, nil)
 		resp.Diagnostics.Append(diags...)
 
 		diags = resp.State.Set(ctx, data)
@@ -124,7 +136,13 @@ func upgradeWorkspaceResourceStateV2toV4(c *scalr.Client) func(ctx context.Conte
 			return
 		}
 
-		data, diags := workspaceResourceModelFromAPI(ctx, ws, pcfgLinks, nil)
+		stateConsumers, err := getRemoteStateConsumers(ctx, c, dataV2.Id.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError("Error retrieving remote state consumers", err.Error())
+			return
+		}
+
+		data, diags := workspaceResourceModelFromAPI(ctx, ws, pcfgLinks, stateConsumers, nil)
 		resp.Diagnostics.Append(diags...)
 
 		diags = resp.State.Set(ctx, data)
@@ -172,7 +190,13 @@ func upgradeWorkspaceResourceStateV3toV4(c *scalr.Client) func(ctx context.Conte
 			return
 		}
 
-		data, diags := workspaceResourceModelFromAPI(ctx, ws, pcfgLinks, nil)
+		stateConsumers, err := getRemoteStateConsumers(ctx, c, dataV3.Id.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError("Error retrieving remote state consumers", err.Error())
+			return
+		}
+
+		data, diags := workspaceResourceModelFromAPI(ctx, ws, pcfgLinks, stateConsumers, nil)
 		resp.Diagnostics.Append(diags...)
 
 		diags = resp.State.Set(ctx, data)

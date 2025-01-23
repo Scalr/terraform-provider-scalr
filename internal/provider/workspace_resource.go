@@ -172,6 +172,21 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 		opts.Tags = tags
 	}
 
+	remoteStateConsumers := make([]*scalr.WorkspaceRelation, 0)
+	if !plan.RemoteStateConsumers.IsUnknown() && !plan.RemoteStateConsumers.IsNull() {
+		opts.RemoteStateSharing = ptr(false)
+		var consumerIDs []string
+		resp.Diagnostics.Append(plan.RemoteStateConsumers.ElementsAs(ctx, &consumerIDs, false)...)
+
+		if (len(consumerIDs) == 1) && (consumerIDs[0] == "*") {
+			opts.RemoteStateSharing = ptr(true)
+		} else if len(consumerIDs) > 0 {
+			for _, consumerID := range consumerIDs {
+				remoteStateConsumers = append(remoteStateConsumers, &scalr.WorkspaceRelation{ID: consumerID})
+			}
+		}
+	}
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -212,6 +227,14 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 		}
 	}
 
+	if len(remoteStateConsumers) > 0 {
+		err = r.Client.RemoteStateConsumers.Add(ctx, workspace.ID, remoteStateConsumers)
+		if err != nil {
+			resp.Diagnostics.AddError("Error adding remote state consumers", err.Error())
+			return
+		}
+	}
+
 	// Get refreshed resource state from API
 	workspace, err = r.Client.Workspaces.ReadByID(ctx, workspace.ID)
 	if err != nil {
@@ -222,10 +245,14 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 	pcfgLinks, err := getProviderConfigurationWorkspaceLinks(ctx, r.Client, workspace.ID)
 	if err != nil {
 		resp.Diagnostics.AddError("Error retrieving provider configuration links", err.Error())
-		return
 	}
 
-	result, diags := workspaceResourceModelFromAPI(ctx, workspace, pcfgLinks, &plan)
+	stateConsumers, err := getRemoteStateConsumers(ctx, r.Client, workspace.ID)
+	if err != nil {
+		resp.Diagnostics.AddError("Error retrieving remote state consumers", err.Error())
+	}
+
+	result, diags := workspaceResourceModelFromAPI(ctx, workspace, pcfgLinks, stateConsumers, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -258,10 +285,14 @@ func (r *workspaceResource) Read(ctx context.Context, req resource.ReadRequest, 
 	pcfgLinks, err := getProviderConfigurationWorkspaceLinks(ctx, r.Client, state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error retrieving provider configuration links", err.Error())
-		return
 	}
 
-	result, diags := workspaceResourceModelFromAPI(ctx, workspace, pcfgLinks, &state)
+	stateConsumers, err := getRemoteStateConsumers(ctx, r.Client, workspace.ID)
+	if err != nil {
+		resp.Diagnostics.AddError("Error retrieving remote state consumers", err.Error())
+	}
+
+	result, diags := workspaceResourceModelFromAPI(ctx, workspace, pcfgLinks, stateConsumers, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -409,6 +440,26 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 		opts.VarFiles = varFiles
 	}
 
+	var consumersToAdd, consumersToRemove []string
+	if !plan.RemoteStateConsumers.Equal(state.RemoteStateConsumers) {
+		var planConsumers []string
+		var stateConsumers []string
+		resp.Diagnostics.Append(plan.RemoteStateConsumers.ElementsAs(ctx, &planConsumers, false)...)
+		resp.Diagnostics.Append(state.RemoteStateConsumers.ElementsAs(ctx, &stateConsumers, false)...)
+
+		opts.RemoteStateSharing = ptr(false)
+
+		if len(planConsumers) == 1 && planConsumers[0] == "*" {
+			opts.RemoteStateSharing = ptr(true)
+			planConsumers = []string{}
+		}
+		if len(stateConsumers) == 1 && stateConsumers[0] == "*" {
+			stateConsumers = []string{}
+		}
+
+		consumersToAdd, consumersToRemove = diff(stateConsumers, planConsumers)
+	}
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -509,6 +560,21 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 		}
 	}
 
+	if len(consumersToAdd) > 0 {
+		c := make([]*scalr.WorkspaceRelation, len(consumersToAdd))
+		for i, consumer := range consumersToAdd {
+			c[i] = &scalr.WorkspaceRelation{ID: consumer}
+		}
+		err = r.Client.RemoteStateConsumers.Add(ctx, plan.Id.ValueString(), c)
+	}
+	if len(consumersToRemove) > 0 {
+		c := make([]*scalr.WorkspaceRelation, len(consumersToRemove))
+		for i, consumer := range consumersToRemove {
+			c[i] = &scalr.WorkspaceRelation{ID: consumer}
+		}
+		err = r.Client.RemoteStateConsumers.Delete(ctx, plan.Id.ValueString(), c)
+	}
+
 	// Get refreshed resource state from API
 	workspace, err := r.Client.Workspaces.ReadByID(ctx, plan.Id.ValueString())
 	if err != nil {
@@ -519,10 +585,14 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 	pcfgLinks, err := getProviderConfigurationWorkspaceLinks(ctx, r.Client, workspace.ID)
 	if err != nil {
 		resp.Diagnostics.AddError("Error retrieving provider configuration links", err.Error())
-		return
 	}
 
-	result, diags := workspaceResourceModelFromAPI(ctx, workspace, pcfgLinks, &plan)
+	stateConsumers, err := getRemoteStateConsumers(ctx, r.Client, workspace.ID)
+	if err != nil {
+		resp.Diagnostics.AddError("Error retrieving remote state consumers", err.Error())
+	}
+
+	result, diags := workspaceResourceModelFromAPI(ctx, workspace, pcfgLinks, stateConsumers, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -641,6 +711,28 @@ func getProviderConfigurationWorkspaceLinks(
 
 		// Update the page number to get the next page.
 		linkListOption.PageNumber = linksList.NextPage
+	}
+	return
+}
+
+func getRemoteStateConsumers(
+	ctx context.Context, scalrClient *scalr.Client, workspaceId string,
+) (consumers []string, err error) {
+	listOpts := scalr.ListOptions{}
+	for {
+		cl, err := scalrClient.RemoteStateConsumers.List(ctx, workspaceId, listOpts)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, c := range cl.Items {
+			consumers = append(consumers, c.ID)
+		}
+
+		if cl.CurrentPage >= cl.TotalPages {
+			break
+		}
+		listOpts.PageNumber = cl.NextPage
 	}
 	return
 }
