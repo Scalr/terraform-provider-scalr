@@ -566,6 +566,9 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 			c[i] = &scalr.WorkspaceRelation{ID: consumer}
 		}
 		err = r.Client.RemoteStateConsumers.Add(ctx, plan.Id.ValueString(), c)
+		if err != nil {
+			resp.Diagnostics.AddError("Error adding remote state consumers", err.Error())
+		}
 	}
 	if len(consumersToRemove) > 0 {
 		c := make([]*scalr.WorkspaceRelation, len(consumersToRemove))
@@ -573,6 +576,9 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 			c[i] = &scalr.WorkspaceRelation{ID: consumer}
 		}
 		err = r.Client.RemoteStateConsumers.Delete(ctx, plan.Id.ValueString(), c)
+		if err != nil {
+			resp.Diagnostics.AddError("Error removing remote state consumers", err.Error())
+		}
 	}
 
 	// Get refreshed resource state from API
