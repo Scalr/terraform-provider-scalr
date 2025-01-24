@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/scalr/go-scalr"
 )
@@ -381,6 +382,36 @@ func TestAccScalrWorkspace_emptyHooks(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrWorkspaceEmptyHooks(rInt),
+			},
+		},
+	})
+}
+
+func TestAccScalrWorkspace_UpgradeFromSDK(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"scalr": {
+						Source:            "registry.scalr.io/scalr/scalr",
+						VersionConstraint: "<=2.3.0",
+					},
+				},
+				Config: testAccScalrWorkspaceFullConfig(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("scalr_workspace.test", "id"),
+				),
+			},
+			{
+				ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+				Config:                   testAccScalrWorkspaceFullConfig(rInt),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
 			},
 		},
 	})
@@ -957,4 +988,99 @@ resource "scalr_workspace" "test" {
   environment_id         = scalr_environment.test.id
   remote_state_consumers = [ "*" ]
 }`, rInt, defaultAccount)
+}
+
+func testAccScalrWorkspaceFullConfig(rInt int) string {
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount,
+		fmt.Sprintf(`
+resource "scalr_agent_pool" "test" {
+  name       = "apool-test-%[1]d"
+  account_id = "%[2]s"
+}
+
+resource "scalr_ssh_key" "test" {
+  name        = "ssh-key-%[1]d"
+  private_key = <<EOF
+-----BEGIN PRIVATE KEY-----
+MC4CAQAwBQYDK2VwBCIEIBvMDyNaYtWK2TmJIfFhmPZeGxK0bWnNDhjlTZ+V6e4x
+-----END PRIVATE KEY-----
+EOF
+  account_id  = "%[2]s"
+  environments = [scalr_environment.test.id]
+}
+
+resource "scalr_tag" "tag1" {
+  name       = "tag1-%[1]d"
+  account_id = "%[2]s"
+}
+
+resource "scalr_tag" "tag2" {
+  name       = "tag2-%[1]d"
+  account_id = "%[2]s"
+}
+
+resource "scalr_provider_configuration" "kubernetes" {
+  name         = "kubernetes"
+  account_id   = "%[2]s"
+  environments = ["*"]
+  custom {
+    provider_name = "kubernetes"
+    argument {
+      name  = "config_path"
+      value = "~/.kube/config"
+	}
+  }
+}
+
+resource "scalr_provider_configuration" "consul" {
+  name         = "consul"
+  account_id   = "%[2]s"
+  environments = ["*"]
+  custom {
+    provider_name = "consul"
+    argument {
+      name  = "config_path"
+      value = "~/.kube/config"
+    }
+  }
+}
+
+resource "scalr_workspace" "test" {
+  name                           = "workspace-test-%[1]d"
+  environment_id                 = scalr_environment.test.id
+  agent_pool_id    				 = scalr_agent_pool.test.id
+  auto_apply                     = true
+  force_latest_run 				 = true
+  deletion_protection_enabled    = false
+  var_files                      = [ "test1.tfvars", "test2.tfvars" ]
+  operations					 = false
+  execution_mode				 = "local"
+  terraform_version  			 = "1.8.5"
+  iac_platform 					 = "opentofu"
+  working_directory				 = "workdir"
+  auto_queue_runs                = "always"
+  run_operation_timeout          = 18
+  type                           = "testing"
+  ssh_key_id             		 = scalr_ssh_key.test.id
+  tag_ids						 = [ scalr_tag.tag1.id, scalr_tag.tag2.id ]
+  hooks {
+    pre_init   = "./scripts/pre-init.sh"
+    pre_plan   = "./scripts/pre-plan.sh"
+    post_plan  = "./scripts/post-plan.sh"
+    pre_apply  = "./scripts/pre-apply.sh"
+    post_apply = "./scripts/post-apply.sh"
+  }
+  provider_configuration {
+    id    = scalr_provider_configuration.kubernetes.id
+    alias = ""
+  }
+  provider_configuration {
+    id    = scalr_provider_configuration.consul.id
+    alias = "dev"
+  }
+  provider_configuration {
+    id    = scalr_provider_configuration.consul.id
+    alias = "dev2"
+  }
+}`, rInt, defaultAccount))
 }
