@@ -9,8 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+## [2.4.0] - 2025-01-24
+
 - `scalr_policy_group` and `data.scalr_policy_group`: new attribute `common_functions_folder` ([#380](https://github.com/Scalr/terraform-provider-scalr/pull/380))
 - `scalr_workspace`: new attribute `remote_state_consumers` ([#384](https://github.com/Scalr/terraform-provider-scalr/pull/384))
+
+### Required
+
+- scalr-server >= 8.168.0
 
 ## [2.3.0] - 2024-12-20
 
@@ -48,7 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Required
 
-- scalr-server >= 8.143.0
+- scalr-server >= 8.136.0
 
 ## [2.1.0] - 2024-09-06
 
@@ -918,7 +924,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v2.3.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v2.4.0...HEAD
+[2.4.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.4.0
 [2.3.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.3.0
 [2.2.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.2.0
 [2.1.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.1.0
