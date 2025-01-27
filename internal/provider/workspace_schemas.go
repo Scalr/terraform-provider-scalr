@@ -298,6 +298,8 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 						"trigger_patterns": schema.StringAttribute{
 							MarkdownDescription: "The gitignore-style patterns for files, whose changes will trigger a run for the workspace using this binding when the CV is created. Conflicts with `trigger_prefixes`. If `trigger_prefixes` and `trigger_patterns` are omitted, any change in `path` will trigger a new run.",
 							Optional:            true,
+							Computed:            true,
+							Default:             stringdefault.StaticString(""),
 							Validators: []validator.String{
 								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("trigger_prefixes")),
 							},

@@ -164,7 +164,7 @@ func workspaceResourceModelFromAPI(
 			Branch:            types.StringValue(ws.VCSRepo.Branch),
 			Path:              types.StringValue(ws.VCSRepo.Path),
 			TriggerPrefixes:   types.ListNull(types.StringType),
-			TriggerPatterns:   types.StringNull(),
+			TriggerPatterns:   types.StringValue(ws.VCSRepo.TriggerPatterns),
 			DryRunsEnabled:    types.BoolValue(ws.VCSRepo.DryRunsEnabled),
 			IngressSubmodules: types.BoolValue(ws.VCSRepo.IngressSubmodules),
 		}
@@ -173,10 +173,6 @@ func workspaceResourceModelFromAPI(
 			prefixes, d := types.ListValueFrom(ctx, types.StringType, ws.VCSRepo.TriggerPrefixes)
 			diags.Append(d...)
 			repo.TriggerPrefixes = prefixes
-		}
-
-		if ws.VCSRepo.TriggerPatterns != "" {
-			repo.TriggerPatterns = types.StringValue(ws.VCSRepo.TriggerPatterns)
 		}
 
 		repoValue, d := types.ListValueFrom(ctx, vcsRepoElementType, []vcsRepoModel{repo})
