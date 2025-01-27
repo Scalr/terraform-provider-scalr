@@ -214,7 +214,7 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 				},
 			},
 			"remote_state_consumers": schema.SetAttribute{
-				MarkdownDescription: "The list of workspace identifiers that are allowed to access the state of this workspace. Use `[\"*\"]` to share the state with all the workspaces within the environment.",
+				MarkdownDescription: "The list of workspace identifiers that are allowed to access the state of this workspace. Use `[\"*\"]` to share the state with all the workspaces within the environment (default).",
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
