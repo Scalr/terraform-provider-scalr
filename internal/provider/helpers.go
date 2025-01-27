@@ -108,18 +108,6 @@ func InterfaceArrToTagRelationArr(arr []interface{}) []*scalr.TagRelation {
 	return tags
 }
 
-func InterfaceArrToWorkspaceRelationArr(arr []interface{}) []*scalr.WorkspaceRelation {
-	relations := make([]*scalr.WorkspaceRelation, 0)
-	for _, id := range arr {
-		strID := id.(string)
-		if strID == "*" {
-			continue
-		}
-		relations = append(relations, &scalr.WorkspaceRelation{ID: strID})
-	}
-	return relations
-}
-
 func getDefaultScalrAccountID() (string, bool) {
 	if v := os.Getenv(defaults.CurrentAccountIDEnvVar); v != "" {
 		return v, true
@@ -149,4 +137,28 @@ func scalrAccountIDOptionalDefaultFunc() (interface{}, error) {
 // ptr returns a pointer to the value passed.
 func ptr[T any](v T) *T {
 	return &v
+}
+
+// diff returns the added and removed elements between two slices.
+func diff[T comparable](old, new []T) (added, removed []T) {
+	newSet := make(map[T]struct{}, len(new))
+	for _, v := range new {
+		newSet[v] = struct{}{}
+	}
+
+	oldSet := make(map[T]struct{}, len(old))
+	for _, v := range old {
+		oldSet[v] = struct{}{}
+		if _, found := newSet[v]; !found {
+			removed = append(removed, v)
+		}
+	}
+
+	for _, v := range new {
+		if _, found := oldSet[v]; !found {
+			added = append(added, v)
+		}
+	}
+
+	return
 }

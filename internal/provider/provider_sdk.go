@@ -82,7 +82,6 @@ func Provider(v string) *schema.Provider {
 			"scalr_variable":                       resourceScalrVariable(),
 			"scalr_vcs_provider":                   resourceScalrVcsProvider(),
 			"scalr_webhook":                        resourceScalrWebhook(),
-			"scalr_workspace":                      resourceScalrWorkspace(),
 			"scalr_workspace_run_schedule":         resourceScalrWorkspaceRunSchedule(),
 			"scalr_run_schedule_rule":              resourceScalrRunScheduleRule(),
 			"scalr_event_bridge_integration":       resourceScalrEventBridgeIntegration(),

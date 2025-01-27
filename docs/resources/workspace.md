@@ -8,7 +8,7 @@ order: 24
 ---
 ## Resource: scalr_workspace
 
-Manage the state of workspaces in Scalr. Create, update and destroy.
+Manages the state of workspaces in Scalr.
 
 ## Example Usage
 
@@ -156,15 +156,15 @@ resource "scalr_workspace" "example-b" {
   * `always` - runs will be triggered automatically on every upload of the configuration version.
   * `never` - configuration versions are uploaded into the workspace, but runs will not be triggered.
 - `deletion_protection_enabled` (Boolean) Indicates if the workspace has the protection from an accidental state lost. If enabled and the workspace has resource, the deletion will not be allowed. Default `true`.
-- `execution_mode` (String) Which execution mode to use. Valid values are `remote` and `local`. When set to `local`, the workspace will be used for state storage only. Defaults to `remote` (not set, backend default is used).
+- `execution_mode` (String) Which execution mode to use. Valid values are `remote` and `local`. When set to `local`, the workspace will be used for state storage only. Defaults to `remote`.
 - `force_latest_run` (Boolean) Set (true/false) to configure if latest new run will be automatically raised in priority. Default `false`.
 - `hooks` (Block List) Settings for the workspaces custom hooks. (see [below for nested schema](#nestedblock--hooks))
 - `iac_platform` (String) The IaC platform to use for this workspace. Valid values are `terraform` and `opentofu`. Defaults to `terraform`.
 - `module_version_id` (String) The identifier of a module version in the format `modver-<RANDOM STRING>`. This attribute conflicts with `vcs_provider_id` and `vcs_repo` attributes.
 - `operations` (Boolean, Deprecated) Set (true/false) to configure workspace remote execution. When `false` workspace is only used to store state. Defaults to `true`.
 - `provider_configuration` (Block Set) Provider configurations used in workspace runs. (see [below for nested schema](#nestedblock--provider_configuration))
-- `remote_state_consumers` (Set of String) The list of workspace identifiers that are allowed to access the state of this workspace. Use `["*"]` to share the state with all the workspaces within the environment.
-- `run_operation_timeout` (Number) The number of minutes run operation can be executed before termination. Defaults to `0` (not set, backend default is used).
+- `remote_state_consumers` (Set of String) The list of workspace identifiers that are allowed to access the state of this workspace. Use `["*"]` to share the state with all the workspaces within the environment (default).
+- `run_operation_timeout` (Number) The number of minutes run operation can be executed before termination.
 - `ssh_key_id` (String) The identifier of the SSH key to use for the workspace.
 - `tag_ids` (Set of String) List of tag IDs associated with the workspace.
 - `terraform_version` (String) The version of Terraform to use for this workspace. Defaults to the latest available version.
@@ -173,7 +173,7 @@ resource "scalr_workspace" "example-b" {
 - `type` (String) The type of the Scalr Workspace environment, available options: `production`, `staging`, `testing`, `development`, `unmapped`.
 - `var_files` (List of String) A list of paths to the `.tfvars` file(s) to be used as part of the workspace configuration.
 - `vcs_provider_id` (String) ID of VCS provider - required if vcs-repo present and vice versa, in the format `vcs-<RANDOM STRING>`.
-- `vcs_repo` (Block List, Max: 1) Settings for the workspace's VCS repository. (see [below for nested schema](#nestedblock--vcs_repo))
+- `vcs_repo` (Block List) Settings for the workspace's VCS repository. (see [below for nested schema](#nestedblock--vcs_repo))
 - `working_directory` (String) A relative path that Terraform will be run in. Defaults to the root of the repository `""`.
 
 ### Read-Only
