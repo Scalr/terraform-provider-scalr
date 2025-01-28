@@ -38,6 +38,7 @@ data "scalr_environment" "example2" {
 - `cost_estimation_enabled` (Boolean) Boolean indicates if cost estimation is enabled for the environment.
 - `created_by` (List of Object) Details of the user that created the environment. (see [below for nested schema](#nestedatt--created_by))
 - `default_provider_configurations` (List of String) List of IDs of provider configurations, used in the environment workspaces by default.
+- `mask_sensitive_output` (Boolean) Enable masking of the sensitive console output.
 - `policy_groups` (List of String) List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.
 - `remote_backend` (Boolean) If Scalr exports the remote backend configuration and state storage for your infrastructure management. Disabling this feature will also prevent the ability to perform state locking, which ensures that concurrent operations do not conflict. Additionally, it will disable the capability to initiate CLI-driven runs through Scalr.
 - `status` (String) The status of an environment.
