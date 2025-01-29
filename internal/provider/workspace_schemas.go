@@ -117,20 +117,6 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"terragrunt_version": schema.StringAttribute{
-				MarkdownDescription: "The version of Terragrunt the workspace performs runs on.",
-				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"terragrunt_use_run_all": schema.BoolAttribute{
-				MarkdownDescription: "Indicates whether the workspace uses `terragrunt run-all`.",
-				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
-			},
 			"iac_platform": schema.StringAttribute{
 				MarkdownDescription: "The IaC platform to use for this workspace. Valid values are `terraform` and `opentofu`. Defaults to `terraform`.",
 				Optional:            true,
@@ -335,6 +321,29 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 							Optional:            true,
 							Computed:            true,
 							Default:             stringdefault.StaticString(""),
+						},
+					},
+				},
+			},
+			"terragrunt": schema.ListNestedBlock{
+				MarkdownDescription: "Settings for the workspace's Terragrunt configuration.",
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"version": schema.StringAttribute{
+							MarkdownDescription: "The version of Terragrunt the workspace performs runs on.",
+							Required:            true,
+						},
+						"use_run_all": schema.BoolAttribute{
+							MarkdownDescription: "Indicates whether the workspace uses `terragrunt run-all`.",
+							Default:             booldefault.StaticBool(false),
+							Optional:            true,
+							Computed:            true,
+						},
+						"include_external_dependencies": schema.BoolAttribute{
+							MarkdownDescription: "Indicates whether the workspace includes external dependencies.",
+							Default:             booldefault.StaticBool(false),
+							Optional:            true,
+							Computed:            true,
 						},
 					},
 				},

@@ -94,16 +94,31 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
-			"terragrunt_version": {
-				Description: "The version of Terragrunt the workspace performs runs on.",
-				Type:        schema.TypeString,
+			"terragrunt": {
+				Description: "List of terragrunt configurations in a workspace if set.",
+				Type:        schema.TypeList,
 				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"version": {
+							Description: "The version of terragrunt.",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+						"use_run_all": {
+							Description: "Boolean indicates if terragrunt should run all commands.",
+							Type:        schema.TypeBool,
+							Computed:    true,
+						},
+						"include_external_dependencies": {
+							Description: "Boolean indicates if terragrunt should include external dependencies.",
+							Type:        schema.TypeBool,
+							Computed:    true,
+						},
+					},
+				},
 			},
-			"terragrunt_use_run_all": {
-				Description: "Indicates whether the workspace uses `terragrunt run-all`.",
-				Type:        schema.TypeBool,
-				Computed:    true,
-			},
+
 			"iac_platform": {
 				Description: "The IaC platform used for this workspace.",
 				Type:        schema.TypeString,
@@ -284,8 +299,6 @@ func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, m
 	_ = d.Set("operations", workspace.Operations)
 	_ = d.Set("execution_mode", workspace.ExecutionMode)
 	_ = d.Set("terraform_version", workspace.TerraformVersion)
-	_ = d.Set("terragrunt_version", workspace.TerragruntVersion)
-	_ = d.Set("terragrunt_use_run_all", workspace.TerragruntUseRunAll)
 	_ = d.Set("iac_platform", workspace.IaCPlatform)
 	_ = d.Set("type", workspace.EnvironmentType)
 	_ = d.Set("working_directory", workspace.WorkingDirectory)
@@ -321,6 +334,17 @@ func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, m
 		vcsRepo = append(vcsRepo, vcsConfig)
 	}
 	_ = d.Set("vcs_repo", vcsRepo)
+
+	var terragrunt []interface{}
+	if workspace.Terragrunt != nil {
+		terragruntConfig := map[string]interface{}{
+			"version":                       workspace.Terragrunt.Version,
+			"use_run_all":                   workspace.Terragrunt.UseRunAll,
+			"include_external_dependencies": workspace.Terragrunt.IncludeExternalDependencies,
+		}
+		terragrunt = append(terragrunt, terragruntConfig)
+	}
+	_ = d.Set("terragrunt", terragrunt)
 
 	var hooks []interface{}
 	if workspace.Hooks != nil {
