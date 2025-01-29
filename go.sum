@@ -201,12 +201,6 @@ github.com/rogpeppe/go-internal v1.6.1 h1:/FiVV8dS/e+YqF2JvO3yXRFbBLTIuSDkuC7aBO
 github.com/rogpeppe/go-internal v1.6.1/go.mod h1:xXDCJY+GAPziupqXw64V24skbSoqbTEfhy4qGm1nDQc=
 github.com/russross/blackfriday v1.6.0 h1:KqfZb0pUVN2lYqZUYRddxF4OR8ZMURnJIG5Y3VRLtww=
 github.com/russross/blackfriday v1.6.0/go.mod h1:ti0ldHuxg49ri4ksnFxlkCfN+hvslNlmVHqNRXXJNAY=
-github.com/scalr/go-scalr v0.0.0-20250115101005-ccf67688eb14 h1:lzee+F20vQN/iQA0eQZGS1ZXtf7la1ak3cdZdo739BI=
-github.com/scalr/go-scalr v0.0.0-20250115101005-ccf67688eb14/go.mod h1:p34SHb25YRvbgft7SUjSDYESeoQhWzAlxGXId/BbaSE=
-github.com/scalr/go-scalr v0.0.0-20250123122100-4f68f22d5457 h1:N4tAdYw3P+pAmCXjiuojC1qlEcFk4KS/1+4u7qoURu4=
-github.com/scalr/go-scalr v0.0.0-20250123122100-4f68f22d5457/go.mod h1:PKuZ6tEH/QfPk10pLtFCN7yYqYQ3przx/Yut1qbK48Q=
-github.com/scalr/go-scalr v0.0.0-20250128135027-3bf5c7aadf0f h1:FHqw+74bsU9uMtTd+NdlEORQu8Iw38C91fLk+9F1y7A=
-github.com/scalr/go-scalr v0.0.0-20250128135027-3bf5c7aadf0f/go.mod h1:PKuZ6tEH/QfPk10pLtFCN7yYqYQ3przx/Yut1qbK48Q=
 github.com/scalr/go-scalr v0.0.0-20250128142245-aa2431e56f20 h1:C+PYAn/+z0r4YvCzZ2Fh+drIApzJOfF9j+fzvc9pOFI=
 github.com/scalr/go-scalr v0.0.0-20250128142245-aa2431e56f20/go.mod h1:PKuZ6tEH/QfPk10pLtFCN7yYqYQ3przx/Yut1qbK48Q=
 github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 h1:n661drycOFuPLCN3Uc8sB6B/s6Z4t2xvBgU1htSHuq8=

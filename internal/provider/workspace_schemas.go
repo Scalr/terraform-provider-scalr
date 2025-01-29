@@ -26,7 +26,6 @@ import (
 func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 	emptyStringList, _ := types.ListValueFrom(ctx, types.StringType, []string{})
 	emptyStringSet, _ := types.SetValueFrom(ctx, types.StringType, []string{})
-	asteriskStringSet, _ := types.SetValueFrom(ctx, types.StringType, []string{"*"})
 
 	return &schema.Schema{
 		MarkdownDescription: "Manages the state of workspaces in Scalr.",
@@ -204,7 +203,6 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Default:             setdefault.StaticValue(asteriskStringSet),
 				Validators: []validator.Set{
 					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
 				},
