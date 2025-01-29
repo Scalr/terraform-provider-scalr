@@ -61,7 +61,7 @@ data "scalr_workspace" "example2" {
 - `vcs_provider_id` (String) The identifier of a VCS provider in the format `vcs-<RANDOM STRING>`.
 - `vcs_repo` (List of Object) If a workspace is linked to a VCS repository this block shows the details, otherwise `{}` (see [below for nested schema](#nestedatt--vcs_repo))
 - `working_directory` (String) A relative path that Terraform will execute within.
-- `terragrunt` (List of Object) If a workspace is using Terragrunt this block shows the details, otherwise `{}` (see [below for nested schema](#nestedatt--terragrunt))"
+- `terragrunt` (List of Object) If a workspace is linked to a Terragrunt configuration this block shows the details, otherwise `{}` (see [below for nested schema](#nestedatt--terragrunt))
 
 <a id="nestedatt--created_by"></a>
 ### Nested Schema for `created_by`
@@ -95,11 +95,12 @@ Read-Only:
 - `ingress_submodules` (Boolean) Designates whether to clone git submodules of the VCS repository.
 - `path` (String) Path within the repo, if any.
 
+
 <a id="nestedatt--terragrunt"></a>
 ### Nested Schema for `terragrunt`
 
 Read-Only:
 
 - `version` (String) The version of Terragrunt used for this workspace.
-- `use_run_all` (Boolean) Boolean indicates if Terragrunt will use the `run-all` command.
+- `use_run_all` (Boolean) Boolean indicates if Terragrunt will use `run-all` command.
 - `include_external_dependencies` (Boolean) Boolean indicates if Terragrunt will include external dependencies.
