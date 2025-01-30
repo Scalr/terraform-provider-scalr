@@ -190,7 +190,6 @@ func dataSourceScalrWorkspace() *schema.Resource {
 					},
 				},
 			},
-
 			"vcs_repo": {
 				Description: "If a workspace is linked to a VCS repository this block shows the details, otherwise `{}`",
 				Type:        schema.TypeList,
