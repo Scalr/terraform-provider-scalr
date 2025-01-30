@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
@@ -205,6 +206,9 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 				Computed:            true,
 				Validators: []validator.Set{
 					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
+				},
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
 				},
 			},
 		},
