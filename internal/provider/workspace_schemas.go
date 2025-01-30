@@ -349,6 +349,9 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 						},
 					},
 				},
+				Validators: []validator.List{
+					listvalidator.SizeAtMost(1),
+				},
 			},
 		},
 	}
