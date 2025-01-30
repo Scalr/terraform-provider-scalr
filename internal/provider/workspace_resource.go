@@ -146,7 +146,7 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 		if len(terragrunt) > 0 {
 			terr := terragrunt[0]
 			opts.Terragrunt = &scalr.WorkspaceTerragruntOptions{
-				Version:                     terr.Version.ValueStringPointer(),
+				Version:                     terr.Version.ValueString(),
 				UseRunAll:                   terr.UseRunAll.ValueBoolPointer(),
 				IncludeExternalDependencies: terr.IncludeExternalDependencies.ValueBoolPointer(),
 			}
@@ -418,7 +418,7 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 		if len(terragrunt) > 0 {
 			terr := terragrunt[0]
 			opts.Terragrunt = &scalr.WorkspaceTerragruntOptions{
-				Version:                     terr.Version.ValueStringPointer(),
+				Version:                     terr.Version.ValueString(),
 				UseRunAll:                   terr.UseRunAll.ValueBoolPointer(),
 				IncludeExternalDependencies: terr.IncludeExternalDependencies.ValueBoolPointer(),
 			}
