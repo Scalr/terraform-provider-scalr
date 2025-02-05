@@ -69,8 +69,11 @@ func TestAccScalrAgentPoolToken_update(t *testing.T) {
 }
 
 func TestAccScalrAgentPoolToken_UpgradeFromSDK(t *testing.T) {
-	var pool = createPool(t)
-	defer deletePool(t, pool)
+	var pool scalr.AgentPool
+	if isAccTest() {
+		pool = createPool(t)
+		defer deletePool(t, pool)
+	}
 
 	resource.Test(t, resource.TestCase{
 		Steps: []resource.TestStep{
