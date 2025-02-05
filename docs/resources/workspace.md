@@ -168,8 +168,7 @@ resource "scalr_workspace" "example-b" {
 - `ssh_key_id` (String) The identifier of the SSH key to use for the workspace.
 - `tag_ids` (Set of String) List of tag IDs associated with the workspace.
 - `terraform_version` (String) The version of Terraform to use for this workspace. Defaults to the latest available version.
-- `terragrunt_use_run_all` (Boolean) Indicates whether the workspace uses `terragrunt run-all`.
-- `terragrunt_version` (String) The version of Terragrunt the workspace performs runs on.
+- `terragrunt` (Block List) Settings for the workspace's Terragrunt configuration. (see [below for nested schema](#nestedblock--terragrunt))
 - `type` (String) The type of the Scalr Workspace environment, available options: `production`, `staging`, `testing`, `development`, `unmapped`.
 - `var_files` (List of String) A list of paths to the `.tfvars` file(s) to be used as part of the workspace configuration.
 - `vcs_provider_id` (String) ID of VCS provider - required if vcs-repo present and vice versa, in the format `vcs-<RANDOM STRING>`.
@@ -204,6 +203,19 @@ Required:
 Optional:
 
 - `alias` (String) The alias of provider configuration.
+
+
+<a id="nestedblock--terragrunt"></a>
+### Nested Schema for `terragrunt`
+
+Required:
+
+- `version` (String) The version of Terragrunt the workspace performs runs on.
+
+Optional:
+
+- `include_external_dependencies` (Boolean) Indicates whether the workspace includes external dependencies.
+- `use_run_all` (Boolean) Indicates whether the workspace uses `terragrunt run-all`.
 
 
 <a id="nestedblock--vcs_repo"></a>

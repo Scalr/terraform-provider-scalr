@@ -79,7 +79,6 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 		IacPlatform:               ptr(scalr.WorkspaceIaCPlatform(plan.IaCPlatform.ValueString())),
 		Name:                      plan.Name.ValueStringPointer(),
 		Operations:                plan.Operations.ValueBoolPointer(),
-		TerragruntUseRunAll:       plan.TerragruntUseRunAll.ValueBoolPointer(),
 		VarFiles:                  varFiles,
 		WorkingDirectory:          plan.WorkingDirectory.ValueStringPointer(),
 		Environment: &scalr.Environment{
@@ -89,10 +88,6 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 
 	if !plan.TerraformVersion.IsUnknown() && !plan.TerraformVersion.IsNull() {
 		opts.TerraformVersion = plan.TerraformVersion.ValueStringPointer()
-	}
-
-	if !plan.TerragruntVersion.IsUnknown() && !plan.TerragruntVersion.IsNull() {
-		opts.TerragruntVersion = plan.TerragruntVersion.ValueStringPointer()
 	}
 
 	if !plan.RunOperationTimeout.IsUnknown() && !plan.RunOperationTimeout.IsNull() {
@@ -140,6 +135,20 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 				var prefixes []string
 				resp.Diagnostics.Append(repo.TriggerPrefixes.ElementsAs(ctx, &prefixes, false)...)
 				opts.VCSRepo.TriggerPrefixes = &prefixes
+			}
+		}
+	}
+
+	if !plan.Terragrunt.IsUnknown() && !plan.Terragrunt.IsNull() {
+		var terragrunt []terragruntModel
+		resp.Diagnostics.Append(plan.Terragrunt.ElementsAs(ctx, &terragrunt, false)...)
+
+		if len(terragrunt) > 0 {
+			terr := terragrunt[0]
+			opts.Terragrunt = &scalr.WorkspaceTerragruntOptions{
+				Version:                     terr.Version.ValueString(),
+				UseRunAll:                   terr.UseRunAll.ValueBoolPointer(),
+				IncludeExternalDependencies: terr.IncludeExternalDependencies.ValueBoolPointer(),
 			}
 		}
 	}
@@ -355,14 +364,6 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 		opts.TerraformVersion = plan.TerraformVersion.ValueStringPointer()
 	}
 
-	if !plan.TerragruntUseRunAll.Equal(state.TerragruntUseRunAll) {
-		opts.TerragruntUseRunAll = plan.TerragruntUseRunAll.ValueBoolPointer()
-	}
-
-	if !plan.TerragruntVersion.Equal(state.TerragruntVersion) && !plan.TerragruntVersion.IsNull() {
-		opts.TerragruntVersion = plan.TerragruntVersion.ValueStringPointer()
-	}
-
 	if !plan.Type.Equal(state.Type) {
 		opts.EnvironmentType = ptr(scalr.WorkspaceEnvironmentType(plan.Type.ValueString()))
 	}
@@ -406,6 +407,20 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 				var prefixes []string
 				resp.Diagnostics.Append(repo.TriggerPrefixes.ElementsAs(ctx, &prefixes, false)...)
 				opts.VCSRepo.TriggerPrefixes = &prefixes
+			}
+		}
+	}
+
+	if !plan.Terragrunt.IsNull() {
+		var terragrunt []terragruntModel
+		resp.Diagnostics.Append(plan.Terragrunt.ElementsAs(ctx, &terragrunt, false)...)
+
+		if len(terragrunt) > 0 {
+			terr := terragrunt[0]
+			opts.Terragrunt = &scalr.WorkspaceTerragruntOptions{
+				Version:                     terr.Version.ValueString(),
+				UseRunAll:                   terr.UseRunAll.ValueBoolPointer(),
+				IncludeExternalDependencies: terr.IncludeExternalDependencies.ValueBoolPointer(),
 			}
 		}
 	}
