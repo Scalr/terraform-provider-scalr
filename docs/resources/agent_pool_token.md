@@ -8,7 +8,7 @@ order: 4
 ---
 ## Resource: scalr_agent_pool_token
 
-Manage the state of agent pool's tokens in Scalr. Create, update and destroy.
+Manage the state of agent pool's tokens in Scalr.
 
 ## Example Usage
 
@@ -25,6 +25,9 @@ resource "scalr_agent_pool_token" "default" {
 ### Required
 
 - `agent_pool_id` (String) ID of the agent pool.
+
+### Optional
+
 - `description` (String) Description of the token.
 
 ### Read-Only

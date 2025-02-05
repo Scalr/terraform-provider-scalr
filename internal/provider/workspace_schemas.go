@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
@@ -26,7 +27,6 @@ import (
 func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 	emptyStringList, _ := types.ListValueFrom(ctx, types.StringType, []string{})
 	emptyStringSet, _ := types.SetValueFrom(ctx, types.StringType, []string{})
-	asteriskStringSet, _ := types.SetValueFrom(ctx, types.StringType, []string{"*"})
 
 	return &schema.Schema{
 		MarkdownDescription: "Manages the state of workspaces in Scalr.",
@@ -117,20 +117,6 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"terragrunt_version": schema.StringAttribute{
-				MarkdownDescription: "The version of Terragrunt the workspace performs runs on.",
-				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"terragrunt_use_run_all": schema.BoolAttribute{
-				MarkdownDescription: "Indicates whether the workspace uses `terragrunt run-all`.",
-				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
-			},
 			"iac_platform": schema.StringAttribute{
 				MarkdownDescription: "The IaC platform to use for this workspace. Valid values are `terraform` and `opentofu`. Defaults to `terraform`.",
 				Optional:            true,
@@ -218,9 +204,11 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Default:             setdefault.StaticValue(asteriskStringSet),
 				Validators: []validator.Set{
 					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
+				},
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
 				},
 			},
 		},
@@ -337,6 +325,32 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 							Default:             stringdefault.StaticString(""),
 						},
 					},
+				},
+			},
+			"terragrunt": schema.ListNestedBlock{
+				MarkdownDescription: "Settings for the workspace's Terragrunt configuration.",
+				NestedObject: schema.NestedBlockObject{
+					Attributes: map[string]schema.Attribute{
+						"version": schema.StringAttribute{
+							MarkdownDescription: "The version of Terragrunt the workspace performs runs on.",
+							Required:            true,
+						},
+						"use_run_all": schema.BoolAttribute{
+							MarkdownDescription: "Indicates whether the workspace uses `terragrunt run-all`.",
+							Default:             booldefault.StaticBool(false),
+							Optional:            true,
+							Computed:            true,
+						},
+						"include_external_dependencies": schema.BoolAttribute{
+							MarkdownDescription: "Indicates whether the workspace includes external dependencies.",
+							Default:             booldefault.StaticBool(false),
+							Optional:            true,
+							Computed:            true,
+						},
+					},
+				},
+				Validators: []validator.List{
+					listvalidator.SizeAtMost(1),
 				},
 			},
 		},

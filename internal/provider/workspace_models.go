@@ -21,6 +21,14 @@ var (
 			"trigger_prefixes":   types.ListType{ElemType: types.StringType},
 		},
 	}
+	terragruntElementType = types.ObjectType{
+		AttrTypes: map[string]attr.Type{
+			"version":                       types.StringType,
+			"use_run_all":                   types.BoolType,
+			"include_external_dependencies": types.BoolType,
+		},
+	}
+
 	providerConfigurationElementType = types.ObjectType{
 		AttrTypes: map[string]attr.Type{
 			"id":    types.StringType,
@@ -60,13 +68,18 @@ type workspaceResourceModel struct {
 	SSHKeyID                  types.String `tfsdk:"ssh_key_id"`
 	TagIDs                    types.Set    `tfsdk:"tag_ids"`
 	TerraformVersion          types.String `tfsdk:"terraform_version"`
-	TerragruntUseRunAll       types.Bool   `tfsdk:"terragrunt_use_run_all"`
-	TerragruntVersion         types.String `tfsdk:"terragrunt_version"`
+	Terragrunt                types.List   `tfsdk:"terragrunt"`
 	Type                      types.String `tfsdk:"type"`
 	VCSProviderID             types.String `tfsdk:"vcs_provider_id"`
 	VCSRepo                   types.List   `tfsdk:"vcs_repo"`
 	VarFiles                  types.List   `tfsdk:"var_files"`
 	WorkingDirectory          types.String `tfsdk:"working_directory"`
+}
+
+type terragruntModel struct {
+	Version                     types.String `tfsdk:"version"`
+	UseRunAll                   types.Bool   `tfsdk:"use_run_all"`
+	IncludeExternalDependencies types.Bool   `tfsdk:"include_external_dependencies"`
 }
 
 type vcsRepoModel struct {
@@ -123,8 +136,7 @@ func workspaceResourceModelFromAPI(
 		SSHKeyID:                  types.StringNull(),
 		TagIDs:                    types.SetNull(types.StringType),
 		TerraformVersion:          types.StringValue(ws.TerraformVersion),
-		TerragruntUseRunAll:       types.BoolValue(ws.TerragruntUseRunAll),
-		TerragruntVersion:         types.StringValue(ws.TerragruntVersion),
+		Terragrunt:                types.ListNull(terragruntElementType),
 		Type:                      types.StringValue(string(ws.EnvironmentType)),
 		VCSProviderID:             types.StringNull(),
 		VCSRepo:                   types.ListNull(vcsRepoElementType),
@@ -178,6 +190,17 @@ func workspaceResourceModelFromAPI(
 		repoValue, d := types.ListValueFrom(ctx, vcsRepoElementType, []vcsRepoModel{repo})
 		diags.Append(d...)
 		model.VCSRepo = repoValue
+	}
+
+	if ws.Terragrunt != nil {
+		terragrunt := terragruntModel{
+			Version:                     types.StringValue(ws.Terragrunt.Version),
+			UseRunAll:                   types.BoolValue(ws.Terragrunt.UseRunAll),
+			IncludeExternalDependencies: types.BoolValue(ws.Terragrunt.IncludeExternalDependencies),
+		}
+		terragruntValue, d := types.ListValueFrom(ctx, terragruntElementType, []terragruntModel{terragrunt})
+		diags.Append(d...)
+		model.Terragrunt = terragruntValue
 	}
 
 	if ws.CreatedBy != nil {
