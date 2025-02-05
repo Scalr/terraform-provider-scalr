@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+### Fixed
+
+- `scalr_agent_pool_token`: attribute `description` is now optional ([#392](https://github.com/Scalr/terraform-provider-scalr/pull/392))
 
 ## [2.4.0] - 2025-01-24
 
