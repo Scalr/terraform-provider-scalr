@@ -2,7 +2,6 @@ package provider
 
 import (
 	"context"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
@@ -15,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -149,13 +149,15 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 					"\n  * `never` - configuration versions are uploaded into the workspace, but runs will not be triggered.",
 				Optional: true,
 				Computed: true,
-				Default:  stringdefault.StaticString(string(scalr.AutoQueueRunsModeSkipFirst)),
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						string(scalr.AutoQueueRunsModeSkipFirst),
 						string(scalr.AutoQueueRunsModeAlways),
 						string(scalr.AutoQueueRunsModeNever),
 					),
+				},
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"created_by": schema.ListAttribute{
