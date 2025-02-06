@@ -9,12 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.5.0] - 2025-02-07
 
-### Changed 
+### Added
+
+- `scalr_workspace`: new attribute `terragrunt` ([#390](https://github.com/Scalr/terraform-provider-scalr/pull/390))
+
+### Changed
+
+- `scalr_agent_pool_token`: attribute `description` is now optional ([#392](https://github.com/Scalr/terraform-provider-scalr/pull/392))
+
+### Removed
 
 - `scalr_workspace`: deleted attribute `terragrunt_version` ([#390](https://github.com/Scalr/terraform-provider-scalr/pull/390))
 - `scalr_workspace`: deleted attribute `terragrunt_use_run_all` ([#390](https://github.com/Scalr/terraform-provider-scalr/pull/390))
-- `scalr_workspace`: added attribute `terragrunt` ([#390](https://github.com/Scalr/terraform-provider-scalr/pull/390))
-- `scalr_agent_pool_token`: attribute `description` is now optional ([#392](https://github.com/Scalr/terraform-provider-scalr/pull/392))
 
 ### Required
 
