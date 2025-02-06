@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.0] - 2025-02-07
+
 ### Changed 
 
 - `scalr_workspace`: deleted attribute `terragrunt_version` ([#390](https://github.com/Scalr/terraform-provider-scalr/pull/390))
@@ -14,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scalr_workspace`: added attribute `terragrunt` ([#390](https://github.com/Scalr/terraform-provider-scalr/pull/390))
 - `scalr_agent_pool_token`: attribute `description` is now optional ([#392](https://github.com/Scalr/terraform-provider-scalr/pull/392))
 
+### Required
+
+- scalr-server >= 8.174.0
+  
 ## [2.4.0] - 2025-01-24
 
 ### Added
@@ -931,7 +937,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v2.4.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v2.5.0...HEAD
+[2.5.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.5.0
 [2.4.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.4.0
 [2.3.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.3.0
 [2.2.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.2.0
