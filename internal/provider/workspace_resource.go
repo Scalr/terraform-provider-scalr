@@ -71,7 +71,6 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 
 	opts := scalr.WorkspaceCreateOptions{
 		AutoApply:                 plan.AutoApply.ValueBoolPointer(),
-		AutoQueueRuns:             ptr(scalr.WorkspaceAutoQueueRuns(plan.AutoQueueRuns.ValueString())),
 		DeletionProtectionEnabled: plan.DeletionProtectionEnabled.ValueBoolPointer(),
 		EnvironmentType:           ptr(scalr.WorkspaceEnvironmentType(plan.Type.ValueString())),
 		ExecutionMode:             ptr(scalr.WorkspaceExecutionMode(plan.ExecutionMode.ValueString())),
@@ -84,6 +83,10 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 		Environment: &scalr.Environment{
 			ID: plan.EnvironmentID.ValueString(),
 		},
+	}
+
+	if !plan.AutoQueueRuns.IsUnknown() && !plan.AutoQueueRuns.IsNull() {
+		opts.AutoQueueRuns = ptr(scalr.WorkspaceAutoQueueRuns(plan.AutoQueueRuns.ValueString()))
 	}
 
 	if !plan.TerraformVersion.IsUnknown() && !plan.TerraformVersion.IsNull() {
