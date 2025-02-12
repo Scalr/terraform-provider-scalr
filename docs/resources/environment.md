@@ -34,6 +34,7 @@ resource "scalr_environment" "test" {
 - `account_id` (String) ID of the environment account, in the format `acc-<RANDOM STRING>`.
 - `cost_estimation_enabled` (Boolean, Deprecated) Set (true/false) to enable/disable cost estimation for the environment.
 - `default_provider_configurations` (Set of String) List of IDs of provider configurations, used in the environment workspaces by default.
+- `mask_sensitive_output` (Boolean) Enable masking of the sensitive console output. Defaults to `true`.
 - `policy_groups` (List of String, Deprecated) List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.
 - `remote_backend` (Boolean) If Scalr exports the remote backend configuration and state storage for your infrastructure management. Disabling this feature will also prevent the ability to perform state locking, which ensures that concurrent operations do not conflict. Additionally, it will disable the capability to initiate CLI-driven runs through Scalr.
 - `tag_ids` (Set of String) List of tag IDs associated with the environment.
