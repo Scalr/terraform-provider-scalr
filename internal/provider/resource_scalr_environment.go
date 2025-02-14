@@ -72,6 +72,12 @@ func resourceScalrEnvironment() *schema.Resource {
 				DefaultFunc: scalrAccountIDDefaultFunc,
 				ForceNew:    true,
 			},
+			"policy_groups": {
+				Description: "List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.",
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 			"default_provider_configurations": {
 				Description: "List of IDs of provider configurations, used in the environment workspaces by default.",
 				Type:        schema.TypeSet,
@@ -181,6 +187,14 @@ func resourceScalrEnvironmentRead(ctx context.Context, d *schema.ResourceData, m
 		})
 	}
 	_ = d.Set("created_by", createdBy)
+
+	policyGroups := make([]string, 0)
+	if environment.PolicyGroups != nil {
+		for _, group := range environment.PolicyGroups {
+			policyGroups = append(policyGroups, group.ID)
+		}
+	}
+	_ = d.Set("policy_groups", policyGroups)
 
 	var tagIDs []string
 	if len(environment.Tags) != 0 {
