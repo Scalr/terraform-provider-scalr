@@ -41,6 +41,7 @@ resource "scalr_environment" "test" {
 
 - `created_by` (List of Object) Details of the user that created the environment. (see [below for nested schema](#nestedatt--created_by))
 - `id` (String) The ID of this resource.
+- `policy_groups` (List of String) List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.
 - `status` (String) The status of the environment.
 
 <a id="nestedatt--created_by"></a>
