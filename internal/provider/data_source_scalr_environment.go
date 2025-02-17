@@ -95,6 +95,11 @@ func dataSourceScalrEnvironment() *schema.Resource {
 				Type:        schema.TypeBool,
 				Computed:    true,
 			},
+			"mask_sensitive_output": {
+				Description: "Enable masking of the sensitive console output.",
+				Type:        schema.TypeBool,
+				Computed:    true,
+			},
 		}}
 }
 
@@ -137,6 +142,7 @@ func dataSourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta
 	_ = d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)
 	_ = d.Set("status", environment.Status)
 	_ = d.Set("remote_backend", environment.RemoteBackend)
+	_ = d.Set("mask_sensitive_output", environment.MaskSensitiveOutput)
 
 	var createdBy []interface{}
 	if environment.CreatedBy != nil {

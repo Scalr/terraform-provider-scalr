@@ -99,6 +99,12 @@ func resourceScalrEnvironment() *schema.Resource {
 				Computed:    true,
 				ForceNew:    true,
 			},
+			"mask_sensitive_output": {
+				Description: "Enable masking of the sensitive console output. Defaults to `true`.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+			},
 		},
 	}
 }
@@ -118,6 +124,9 @@ func resourceScalrEnvironmentCreate(ctx context.Context, d *schema.ResourceData,
 	}
 	if remoteBackend, ok := d.GetOkExists("remote_backend"); ok { //nolint:staticcheck
 		options.RemoteBackend = ptr(remoteBackend.(bool))
+	}
+	if maskOutput, ok := d.GetOkExists("mask_sensitive_output"); ok { //nolint:staticcheck
+		options.MaskSensitiveOutput = ptr(maskOutput.(bool))
 	}
 
 	if defaultProviderConfigurationsI, ok := d.GetOk("default_provider_configurations"); ok {
@@ -170,6 +179,7 @@ func resourceScalrEnvironmentRead(ctx context.Context, d *schema.ResourceData, m
 	_ = d.Set("account_id", environment.Account.ID)
 	_ = d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)
 	_ = d.Set("remote_backend", environment.RemoteBackend)
+	_ = d.Set("mask_sensitive_output", environment.MaskSensitiveOutput)
 	_ = d.Set("status", environment.Status)
 
 	defaultProviderConfigurations := make([]string, 0)
@@ -218,6 +228,10 @@ func resourceScalrEnvironmentUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 	if costEstimationEnabled, ok := d.GetOkExists("cost_estimation_enabled"); ok { //nolint:staticcheck
 		options.CostEstimationEnabled = ptr(costEstimationEnabled.(bool))
+	}
+
+	if maskOutput, ok := d.GetOkExists("mask_sensitive_output"); ok { //nolint:staticcheck
+		options.MaskSensitiveOutput = ptr(maskOutput.(bool))
 	}
 
 	if defaultProviderConfigurationsI, ok := d.GetOk("default_provider_configurations"); ok {
