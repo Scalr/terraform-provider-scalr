@@ -4,7 +4,7 @@ categorySlug: "scalr-terraform-provider"
 slug: "provider_resource_scalr_vcs_provider"
 parentDocSlug: "provider_resources"
 hidden: false
-order: 22
+order: 23
 ---
 ## Resource: scalr_vcs_provider
 
