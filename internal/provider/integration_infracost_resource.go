@@ -148,6 +148,10 @@ func (r *integrationInfracostResource) Create(ctx context.Context, req resource.
 	resp.Diagnostics.Append(d...)
 	plan.Environments = envsValues
 
+	if len(integrationInfracost.ErrMessage) > 0 {
+		resp.Diagnostics.AddWarning("Issues detected", integrationInfracost.ErrMessage)
+	}
+
 	// Set state to fully populated data
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 	if resp.Diagnostics.HasError() {
