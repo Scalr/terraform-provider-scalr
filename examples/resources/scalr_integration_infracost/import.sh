@@ -1,0 +1,1 @@
+terraform import scalr_integration_infracost.example in-xxxxxxxxxx
