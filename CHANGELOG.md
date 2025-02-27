@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scalr_workspace`: deleted attribute `terragrunt_version` ([#390](https://github.com/Scalr/terraform-provider-scalr/pull/390))
 - `scalr_workspace`: deleted attribute `terragrunt_use_run_all` ([#390](https://github.com/Scalr/terraform-provider-scalr/pull/390))
 
+### Fixed
+
+- `data.scalr_provider_configuration` not populating the `name` attribute ([#399](https://github.com/Scalr/terraform-provider-scalr/pull/399))
+
 ### Required
 
 - scalr-server >= 8.172.0
