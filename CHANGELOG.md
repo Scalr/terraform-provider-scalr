@@ -9,12 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `scalr_workspace`: new attribute `terragrunt` ([#390](https://github.com/Scalr/terraform-provider-scalr/pull/390))
 - `scalr_environment` and `data.scalr_environment`: new attribute `mask_sensitive_output` ([#389](https://github.com/Scalr/terraform-provider-scalr/pull/389))
 - **New resource:** `scalr_integration_infracost` ([#397](https://github.com/Scalr/terraform-provider-scalr/pull/397)
-- **New data source:**  `scalr_integration_infracost` ([#397](https://github.com/Scalr/terraform-provider-scalr/pull/397))
+- **New data source:** `scalr_integration_infracost` ([#397](https://github.com/Scalr/terraform-provider-scalr/pull/397))
 
-### Changed 
+### Fixed
+
+- `data.scalr_provider_configuration` not populating the `name` attribute ([#399](https://github.com/Scalr/terraform-provider-scalr/pull/399))
+
+### Required
+
+- scalr-server >= 8.177.0
+
+## [2.5.0] - 2025-02-07
+
+### Added
+
+- `scalr_workspace`: new attribute `terragrunt` ([#390](https://github.com/Scalr/terraform-provider-scalr/pull/390))
+
+### Changed
 
 - `scalr_agent_pool_token`: attribute `description` is now optional ([#392](https://github.com/Scalr/terraform-provider-scalr/pull/392))
 
@@ -25,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Required
 
-- scalr-server >= 8.172.0
+- scalr-server >= 8.174.0
 
 ## [2.4.0] - 2025-01-24
 
