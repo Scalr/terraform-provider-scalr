@@ -221,24 +221,25 @@ func (r *integrationInfracostResource) Update(ctx context.Context, req resource.
 		opts.ApiKey = plan.ApiKey.ValueStringPointer()
 	}
 
+	var environments []string
 	if !plan.Environments.Equal(state.Environments) {
-		var environments []string
 		resp.Diagnostics.Append(plan.Environments.ElementsAs(ctx, &environments, false)...)
-
-		if (len(environments) == 1) && (environments[0] == "*") {
-			opts.IsShared = ptr(true)
-			opts.Environments = make([]*scalr.Environment, 0)
-		} else if len(environments) > 0 {
-			envs := make([]*scalr.Environment, len(environments))
-			for i, env := range environments {
-				envs[i] = &scalr.Environment{ID: env}
-			}
-			opts.Environments = envs
-			opts.IsShared = ptr(false)
-		} else {
-			opts.IsShared = ptr(false)
-			opts.Environments = make([]*scalr.Environment, 0)
+	} else {
+		state.Environments.ElementsAs(ctx, &environments, false)
+	}
+	if (len(environments) == 1) && (environments[0] == "*") {
+		opts.IsShared = ptr(true)
+		opts.Environments = make([]*scalr.Environment, 0)
+	} else if len(environments) > 0 {
+		envs := make([]*scalr.Environment, len(environments))
+		for i, env := range environments {
+			envs[i] = &scalr.Environment{ID: env}
 		}
+		opts.Environments = envs
+		opts.IsShared = ptr(false)
+	} else {
+		opts.IsShared = ptr(false)
+		opts.Environments = make([]*scalr.Environment, 0)
 	}
 
 	// Update existing resource
