@@ -225,7 +225,7 @@ func (r *integrationInfracostResource) Update(ctx context.Context, req resource.
 	if !plan.Environments.Equal(state.Environments) {
 		resp.Diagnostics.Append(plan.Environments.ElementsAs(ctx, &environments, false)...)
 	} else {
-		state.Environments.ElementsAs(ctx, &environments, false)
+		resp.Diagnostics.Append(state.Environments.ElementsAs(ctx, &environments, false)...)
 	}
 	if (len(environments) == 1) && (environments[0] == "*") {
 		opts.IsShared = ptr(true)
