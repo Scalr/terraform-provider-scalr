@@ -359,7 +359,7 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 		opts.Operations = plan.Operations.ValueBoolPointer()
 	}
 
-	if !plan.RunOperationTimeout.Equal(state.RunOperationTimeout) && !plan.RunOperationTimeout.IsNull() {
+	if !plan.RunOperationTimeout.IsNull() {
 		opts.RunOperationTimeout = ptr(int(plan.RunOperationTimeout.ValueInt32()))
 	}
 

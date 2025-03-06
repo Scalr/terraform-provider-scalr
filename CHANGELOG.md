@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `data.scalr_provider_configuration` not populating the `name` attribute ([#399](https://github.com/Scalr/terraform-provider-scalr/pull/399))
+- `scalr_workspace`: issue with `run_operation_timeout` attribute causing "provider produced an unexpected new value" error on resource update ([#401](https://github.com/Scalr/terraform-provider-scalr/pull/401))
 
 ### Required
 
