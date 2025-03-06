@@ -242,6 +242,10 @@ func (r *integrationInfracostResource) Update(ctx context.Context, req resource.
 		opts.Environments = make([]*scalr.Environment, 0)
 	}
 
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	// Update existing resource
 	integrationInfracost, err := r.Client.InfracostIntegrations.Update(ctx, plan.Id.ValueString(), opts)
 	if err != nil {
