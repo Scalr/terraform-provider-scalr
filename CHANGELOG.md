@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.6.0] - 2025-03-07
+
 ### Added
 
 - `scalr_environment` and `data.scalr_environment`: new attribute `mask_sensitive_output` ([#389](https://github.com/Scalr/terraform-provider-scalr/pull/389))
@@ -958,7 +960,9 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v2.4.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v2.6.0...HEAD
+[2.6.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.6.0
+[2.5.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.5.0
 [2.4.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.4.0
 [2.3.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.3.0
 [2.2.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.2.0
