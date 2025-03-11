@@ -190,23 +190,3 @@ resource "scalr_hook" "test" {
   }
 }`, rInt, githubToken, rInt)
 }
-
-func testAccScalrHookNoBranch(rInt int) string {
-	return fmt.Sprintf(`
-resource "scalr_vcs_provider" "test" {
-  name     = "vcs-test-%d"
-  vcs_type = "github"
-  token    = "%s"
-}
-
-resource "scalr_hook" "test" {
-  name            = "hook-test-no-branch-%d"
-  interpreter     = "bash"
-  scriptfile_path = "pre-plan.sh"
-  vcs_provider_id = scalr_vcs_provider.test.id
-  vcs_repo {
-    identifier = "scalr/terraform-provider-scalr"
-    # branch attribute is not specified
-  }
-}`, rInt, githubToken, rInt)
-}
