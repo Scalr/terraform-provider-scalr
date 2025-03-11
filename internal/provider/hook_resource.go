@@ -427,12 +427,4 @@ func (r *hookResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRe
 		)
 		return
 	}
-
-	if req.State.Raw.IsNull() {
-		var vcsRepo []hookResourceVcsRepoModel
-		resp.Diagnostics.Append(plan.VcsRepo.ElementsAs(ctx, &vcsRepo, false)...)
-
-		if len(vcsRepo) > 0 && (vcsRepo[0].Branch.IsNull() || vcsRepo[0].Branch.IsUnknown()) {
-		}
-	}
 }
