@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- `scalr_environment` and `data.scalr_environment`: deleted attribute `cost_estimation_enabled` ([#CHANGE](https://github.com/Scalr/terraform-provider-scalr/pull/CHANGE))
+
 ## [2.6.0] - 2025-03-07
 
 ### Added
@@ -369,7 +373,7 @@ of a sensitive variable ([#346](https://github.com/Scalr/terraform-provider-scal
   - attribute `endpoint_id` is deprecated
   - attribute `environment_id` is deprecated
   - attribute `workspace_id` is deprecated
-  
+
 ### Required
 
 - scalr-server >= `8.63.0`
@@ -378,7 +382,7 @@ of a sensitive variable ([#346](https://github.com/Scalr/terraform-provider-scal
 
 ### Fixed
 
-- `data.scalr_current_run` no longer produces plan error if no current run info is present ([#219](https://github.com/Scalr/terraform-provider-scalr/pull/219)) 
+- `data.scalr_current_run` no longer produces plan error if no current run info is present ([#219](https://github.com/Scalr/terraform-provider-scalr/pull/219))
 
 ## [1.0.3] - 2023-03-03
 
