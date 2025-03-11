@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **New resource:** `scalr_hook`
+- **New resource:** `scalr_hook` ([#403](https://github.com/Scalr/terraform-provider-scalr/pull/403)
 
 ## [2.6.0] - 2025-03-07
 
