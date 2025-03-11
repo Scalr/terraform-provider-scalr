@@ -13,16 +13,17 @@ Manages a hook in Scalr. Hooks allow you to execute custom scripts at different 
 ## Example Usage
 
 ```terraform
-resource "scalr_hook_environment_link" "test_link" {
-  hook_id        = "hook-xxxxx"
-  environment_id = "env-xxxxx"
-  events         = ["pre-init", "post-appy"]
-}
-
-resource "scalr_hook_environment_link" "test_link_all" {
-  hook_id        = "hook-xxxxx"
-  environment_id = "env-xxxxx"
-  events         = ["*"]
+resource "scalr_hook" "example" {
+  name            = "hook-test"
+  description     = "Hook description"
+  interpreter     = "bash"
+  scriptfile_path = "root.sh"
+  vcs_provider_id = "vcs-xxxxx"
+  account_id      = "acc-xxxxx"
+  vcs_repo {
+    identifier = "TestRepo/example"
+    branch     = "main"
+  }
 }
 ```
 
@@ -62,5 +63,5 @@ Optional:
 Import is supported using the following syntax:
 
 ```shell
-terraform import scalr_hook_environment_link.example hkenv-xxxxxxxxxx
+terraform import scalr_hook.example hook-xxxxxxxxxx
 ```
