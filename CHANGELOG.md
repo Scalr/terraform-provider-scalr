@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- `scalr_environment` and `data.scalr_environment`: deleted attribute `cost_estimation_enabled` ([#CHANGE](https://github.com/Scalr/terraform-provider-scalr/pull/CHANGE))
+- `scalr_environment` and `data.scalr_environment`: deleted attribute `cost_estimation_enabled` ([#404](https://github.com/Scalr/terraform-provider-scalr/pull/404))
 
 ## [2.6.0] - 2025-03-07
 
