@@ -4,7 +4,7 @@ categorySlug: "scalr-terraform-provider"
 slug: "provider_datasource_scalr_integration_infracost"
 parentDocSlug: "provider_datasources"
 hidden: false
-order: 10
+order: 11
 ---
 ## Data Source: scalr_integration_infracost
 

@@ -155,7 +155,7 @@ func testAccScalrHookBasic(rInt int) string {
 resource "scalr_vcs_provider" "test" {
   name     = "vcs-test-%d"
   vcs_type = "github"
-  token    = "test-token"
+  token    = "%s"
 }
 
 resource "scalr_hook" "test" {
@@ -167,7 +167,7 @@ resource "scalr_hook" "test" {
     identifier = "scalr/terraform-provider-scalr"
     branch     = "main"
   }
-}`, rInt, rInt)
+}`, rInt, githubToken, rInt)
 }
 
 func testAccScalrHookUpdate(rInt int) string {
@@ -175,7 +175,7 @@ func testAccScalrHookUpdate(rInt int) string {
 resource "scalr_vcs_provider" "test" {
   name     = "vcs-test-%d"
   vcs_type = "github"
-  token    = "test-token"
+  token    = "%s"
 }
 
 resource "scalr_hook" "test" {
@@ -188,7 +188,7 @@ resource "scalr_hook" "test" {
     identifier = "scalr/terraform-provider-scalr"
     branch     = "develop"
   }
-}`, rInt, rInt)
+}`, rInt, githubToken, rInt)
 }
 
 func testAccScalrHookNoBranch(rInt int) string {
@@ -196,7 +196,7 @@ func testAccScalrHookNoBranch(rInt int) string {
 resource "scalr_vcs_provider" "test" {
   name     = "vcs-test-%d"
   vcs_type = "github"
-  token    = "test-token"
+  token    = "%s"
 }
 
 resource "scalr_hook" "test" {
@@ -208,5 +208,5 @@ resource "scalr_hook" "test" {
     identifier = "scalr/terraform-provider-scalr"
     # branch attribute is not specified
   }
-}`, rInt, rInt)
+}`, rInt, githubToken, rInt)
 }
