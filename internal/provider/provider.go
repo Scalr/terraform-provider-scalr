@@ -153,6 +153,8 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 		newTagResource,
 		newWorkspaceResource,
 		newIntegrationInfracostResource,
+		newWorkloadIdentityProviderResource,
+		NewAssumeServiceAccountPolicyResource,
 	}
 }
 
