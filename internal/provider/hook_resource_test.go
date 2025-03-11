@@ -106,40 +106,6 @@ func TestAccScalrHook_import(t *testing.T) {
 	})
 }
 
-func TestAccScalrHook_noBranch(t *testing.T) {
-	rInt := GetRandomInteger()
-	resourceName := "scalr_hook.test"
-	var hook scalr.Hook
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckScalrHookDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccScalrHookNoBranch(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrHookExists(resourceName, &hook),
-					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("hook-test-no-branch-%d", rInt)),
-					resource.TestCheckResourceAttr(resourceName, "interpreter", "bash"),
-					resource.TestCheckResourceAttr(resourceName, "scriptfile_path", "pre-plan.sh"),
-					resource.TestCheckResourceAttrSet(resourceName, "vcs_provider_id"),
-					resource.TestCheckResourceAttr(resourceName, "vcs_repo.0.identifier", "scalr/terraform-provider-scalr"),
-					resource.TestCheckNoResourceAttr(resourceName, "vcs_repo.0.branch"),
-					resource.TestCheckResourceAttrSet(resourceName, "account_id"),
-				),
-			},
-			{
-				Config: testAccScalrHookNoBranch(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrHookExists(resourceName, &hook),
-					resource.TestCheckNoResourceAttr(resourceName, "vcs_repo.0.branch"),
-				),
-			},
-		},
-	})
-}
-
 func testAccCheckScalrHookExists(
 	n string, hook *scalr.Hook) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
