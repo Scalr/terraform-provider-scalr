@@ -15,7 +15,10 @@ func TestAccScalrHook_basic(t *testing.T) {
 	var hook scalr.Hook
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck: func() {
+			t.Skip("Works with personal token but does not work with github action token.")
+			testVcsAccGithubTokenPreCheck(t)
+		},
 		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
 		CheckDestroy:             testAccCheckScalrHookDestroy,
 		Steps: []resource.TestStep{
