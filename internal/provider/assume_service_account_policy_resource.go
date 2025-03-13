@@ -115,7 +115,8 @@ func (r *assumeServiceAccountPolicyResource) Schema(_ context.Context, _ resourc
 					},
 				},
 				Validators: []validator.Set{
-					setvalidator.SizeBetween(1, 10),
+					setvalidator.IsRequired(),
+					setvalidator.SizeAtMost(10),
 				},
 			},
 		},
