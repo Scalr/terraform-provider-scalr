@@ -102,10 +102,10 @@ func TestAccScalrAssumeServiceAccountPolicy_update(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_assume_service_account_policy.test", "claim_condition.#", "2"),
 					resource.TestCheckResourceAttr("scalr_assume_service_account_policy.test", "claim_condition.0.claim", "aud"),
 					resource.TestCheckResourceAttr("scalr_assume_service_account_policy.test", "claim_condition.0.value", "67890"),
-					resource.TestCheckResourceAttr("scalr_assume_service_account_policy.test", "claim_condition.0.operator", "like"),
+					resource.TestCheckResourceAttr("scalr_assume_service_account_policy.test", "claim_condition.0.operator", "eq"),
 					resource.TestCheckResourceAttr("scalr_assume_service_account_policy.test", "claim_condition.1.claim", "sub"),
 					resource.TestCheckResourceAttr("scalr_assume_service_account_policy.test", "claim_condition.1.value", "12345"),
-					resource.TestCheckResourceAttr("scalr_assume_service_account_policy.test", "claim_condition.1.operator", "eq"),
+					resource.TestCheckResourceAttr("scalr_assume_service_account_policy.test", "claim_condition.1.operator", "like"),
 				),
 			},
 		},
@@ -157,12 +157,11 @@ resource "scalr_assume_service_account_policy" "test" {
   claim_condition {
     claim    = "sub"
     value    = "12345"
-    operator = "eq"
+    operator = "like"
   }
   claim_condition {
     claim    = "aud"
     value    = "67890"
-    operator = "like"
   }
 }`, name)
 }

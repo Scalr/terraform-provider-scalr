@@ -29,7 +29,7 @@ var (
 	_ resource.ResourceWithImportState      = &assumeServiceAccountPolicyResource{}
 )
 
-func NewAssumeServiceAccountPolicyResource() resource.Resource {
+func newAssumeServiceAccountPolicyResource() resource.Resource {
 	return &assumeServiceAccountPolicyResource{}
 }
 
@@ -58,56 +58,56 @@ func (r *assumeServiceAccountPolicyResource) Metadata(_ context.Context, req res
 
 func (r *assumeServiceAccountPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Manages an Assume Service Account Policy in Scalr.",
+		MarkdownDescription: "Manages an Assume Service Account Policy in Scalr.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Description: "The ID of the Assume Service Account Policy.",
-				Computed:    true,
+				MarkdownDescription: "The ID of the Assume Service Account Policy.",
+				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				Description: "The name of the Assume Service Account Policy.",
-				Required:    true,
+				MarkdownDescription: "The name of the Assume Service Account Policy.",
+				Required:            true,
 			},
 			"service_account_id": schema.StringAttribute{
-				Description: "The ID of the Service Account to which this policy is attached.",
-				Required:    true,
+				MarkdownDescription: "The ID of the Service Account to which this policy is attached.",
+				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"provider_id": schema.StringAttribute{
-				Description: "The ID of the Workload Identity Provider associated with this policy.",
-				Required:    true,
+				MarkdownDescription: "The ID of the Workload Identity Provider associated with this policy.",
+				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"maximum_session_duration": schema.Int64Attribute{
-				Description: "The maximum session duration in seconds for the assumed role.",
-				Optional:    true,
-				Computed:    true,
+				MarkdownDescription: "The maximum session duration in seconds for the assumed role.",
+				Optional:            true,
+				Computed:            true,
 			},
 		},
 		Blocks: map[string]schema.Block{
 			"claim_condition": schema.SetNestedBlock{
-				Description: "A set of claim conditions for the policy.",
+				MarkdownDescription: "A set of claim conditions for the policy.",
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
 						"claim": schema.StringAttribute{
-							Description: "The claim to match.",
-							Required:    true,
+							MarkdownDescription: "The claim to match.",
+							Required:            true,
 						},
 						"value": schema.StringAttribute{
-							Description: "The value to match for the claim.",
-							Required:    true,
+							MarkdownDescription: "The value to match for the claim.",
+							Required:            true,
 						},
 						"operator": schema.StringAttribute{
-							Description: "The operator to use for matching the claim value. Must be one of: 'eq', 'like', 'startswith', or 'endswith'.",
-							Optional:    true,
-							Computed:    true,
+							MarkdownDescription: "The operator to use for matching the claim value. Must be one of: 'eq', 'like', 'startswith', or 'endswith'.",
+							Optional:            true,
+							Computed:            true,
 							Validators: []validator.String{
 								stringvalidator.OneOf("eq", "like", "startswith", "endswith"),
 							},
@@ -157,6 +157,10 @@ func (r *assumeServiceAccountPolicyResource) Create(ctx context.Context, req res
 	plan.Name = types.StringValue(policy.Name)
 	plan.MaximumSessionDuration = types.Int64Value(int64(policy.MaximumSessionDuration))
 
+	tfClaimConditions, diags := toTerraformClaimConditions(ctx, policy.ClaimConditions)
+	resp.Diagnostics.Append(diags...)
+	plan.ClaimConditions = tfClaimConditions
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -190,9 +194,6 @@ func (r *assumeServiceAccountPolicyResource) Read(ctx context.Context, req resou
 
 	claimConditions, diags := toTerraformClaimConditions(ctx, policy.ClaimConditions)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 	state.ClaimConditions = claimConditions
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
@@ -230,6 +231,13 @@ func (r *assumeServiceAccountPolicyResource) Update(ctx context.Context, req res
 	plan.ID = types.StringValue(policy.ID)
 	plan.Name = types.StringValue(policy.Name)
 	plan.MaximumSessionDuration = types.Int64Value(int64(policy.MaximumSessionDuration))
+
+	tfClaimConditions, diags := toTerraformClaimConditions(ctx, policy.ClaimConditions)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	plan.ClaimConditions = tfClaimConditions
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 	if resp.Diagnostics.HasError() {
@@ -282,10 +290,15 @@ func toScalrClaimConditions(ctx context.Context, tfSet types.Set) ([]scalr.Claim
 
 	scalrConditions := make([]scalr.ClaimCondition, len(conditions))
 	for i, condition := range conditions {
+		var operator *string
+		if !condition.Operator.IsNull() && !condition.Operator.IsUnknown() {
+			operator = condition.Operator.ValueStringPointer()
+		}
+
 		scalrConditions[i] = scalr.ClaimCondition{
 			Claim:    condition.Claim.ValueString(),
 			Value:    condition.Value.ValueString(),
-			Operator: condition.Operator.ValueStringPointer(),
+			Operator: operator,
 		}
 	}
 
