@@ -1,1 +1,0 @@
-scalr_hook_environment_link.example hkenv-xxxxxxxxxx

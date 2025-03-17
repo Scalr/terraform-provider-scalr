@@ -42,7 +42,6 @@ type hookDataSourceModel struct {
 	ScriptfilePath types.String `tfsdk:"scriptfile_path"`
 	VcsProviderId  types.String `tfsdk:"vcs_provider_id"`
 	VcsRepo        types.List   `tfsdk:"vcs_repo"`
-	AccountId      types.String `tfsdk:"account_id"`
 }
 
 // hookDataSourceVcsRepoModel maps the vcs_repo nested schema data.
@@ -102,11 +101,6 @@ func (d *hookDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, r
 					},
 				},
 			},
-			"account_id": schema.StringAttribute{
-				MarkdownDescription: "The ID of the Scalr account, in the format `acc-<RANDOM STRING>`.",
-				Optional:            true,
-				Computed:            true,
-			},
 		},
 	}
 }
@@ -136,10 +130,6 @@ func (d *hookDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 
 	if !cfg.Name.IsNull() {
 		opts.Name = cfg.Name.ValueString()
-	}
-
-	if !cfg.AccountId.IsNull() {
-		opts.Account = cfg.AccountId.ValueString()
 	}
 
 	hooks, err := d.Client.Hooks.List(ctx, opts)
@@ -194,10 +184,6 @@ func (d *hookDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 
 	cfg.Interpreter = types.StringValue(hook.Interpreter)
 	cfg.ScriptfilePath = types.StringValue(hook.ScriptfilePath)
-
-	if hook.Account != nil {
-		cfg.AccountId = types.StringValue(hook.Account.ID)
-	}
 
 	if hook.VcsProvider != nil {
 		cfg.VcsProviderId = types.StringValue(hook.VcsProvider.ID)

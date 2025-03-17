@@ -14,13 +14,11 @@ Retrieves information about a hook.
 
 ```terraform
 data "scalr_hook" "example1" {
-  id         = "hook-xxxxxxxxxx"
-  account_id = "acc-xxxxxxxxxx"
+  id = "hook-xxxxxxxxxx"
 }
 
 data "scalr_hook" "example2" {
-  name       = "production"
-  account_id = "acc-xxxxxxxxxx"
+  name = "production"
 }
 ```
 
@@ -29,7 +27,6 @@ data "scalr_hook" "example2" {
 
 ### Optional
 
-- `account_id` (String) The ID of the Scalr account, in the format `acc-<RANDOM STRING>`.
 - `id` (String) The identifier of the hook in the format `hook-<RANDOM STRING>`.
 - `name` (String) The name of the hook.
 

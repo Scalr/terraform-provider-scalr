@@ -1,32 +1,32 @@
 ---
-title: "scalr_hook_environment_link"
+title: "scalr_environment_hook"
 categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_hook_environment_link"
+slug: "provider_resource_scalr_environment_hook"
 parentDocSlug: "provider_resources"
 hidden: false
-order: 8
+order: 6
 ---
-## Resource: scalr_hook_environment_link
+## Resource: scalr_environment_hook
 
 Manages the link between a hook and an environment in Scalr. This allows you to attach hooks to specific environments for execution during the Terraform workflow.
 
 ## Import
 
-Hook-environment links can be imported using the link ID:
+Environment-hook links can be imported using the link ID:
 ```
-terraform import scalr_hook_environment_link.example henv-123456
+terraform import scalr_environment_hook.example henv-123456
 ```
 
 ## Example Usage
 
 ```terraform
-resource "scalr_hook_environment_link" "test_link" {
+resource "scalr_environment_hook" "test_link" {
   hook_id        = "hook-xxxxx"
   environment_id = "env-xxxxx"
   events         = ["pre-init", "post-appy"]
 }
 
-resource "scalr_hook_environment_link" "test_link_all" {
+resource "scalr_environment_hook" "test_link_all" {
   hook_id        = "hook-xxxxx"
   environment_id = "env-xxxxx"
   events         = ["*"]
@@ -51,5 +51,5 @@ resource "scalr_hook_environment_link" "test_link_all" {
 Import is supported using the following syntax:
 
 ```shell
-scalr_hook_environment_link.example hkenv-xxxxxxxxxx
+scalr_environment_hook.example hkenv-xxxxxxxxxx
 ```

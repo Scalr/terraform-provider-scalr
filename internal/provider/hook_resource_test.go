@@ -59,7 +59,6 @@ func TestAccScalrHook_update(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("hook-test-%d", rInt)),
 					resource.TestCheckResourceAttr(resourceName, "interpreter", "bash"),
 					resource.TestCheckResourceAttr(resourceName, "scriptfile_path", "pre-plan.sh"),
-					resource.TestCheckResourceAttrSet(resourceName, "account_id"),
 				),
 			},
 			{
@@ -72,7 +71,6 @@ func TestAccScalrHook_update(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "scriptfile_path", "scripts/pre-apply.py"),
 					resource.TestCheckResourceAttr(resourceName, "vcs_repo.0.identifier", "scalr/terraform-provider-scalr"),
 					resource.TestCheckResourceAttr(resourceName, "vcs_repo.0.branch", "develop"),
-					resource.TestCheckResourceAttrSet(resourceName, "account_id"),
 				),
 			},
 		},
@@ -97,7 +95,6 @@ func TestAccScalrHook_import(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrHookExists(resourceName, &hook),
 					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("hook-test-%d", rInt)),
-					resource.TestCheckResourceAttrSet(resourceName, "account_id"),
 				),
 			},
 			{
@@ -146,7 +143,7 @@ func testAccCheckScalrHookDestroy(s *terraform.State) error {
 
 		_, err := scalrClient.Hooks.Read(ctx, rs.Primary.ID)
 		if err == nil {
-			return fmt.Errorf("Workspace %s still exists", rs.Primary.ID)
+			return fmt.Errorf("Hook %s still exists", rs.Primary.ID)
 		}
 	}
 

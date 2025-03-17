@@ -4,7 +4,7 @@ categorySlug: "scalr-terraform-provider"
 slug: "provider_resource_scalr_hook"
 parentDocSlug: "provider_resources"
 hidden: false
-order: 7
+order: 8
 ---
 ## Resource: scalr_hook
 
@@ -19,7 +19,6 @@ resource "scalr_hook" "example" {
   interpreter     = "bash"
   scriptfile_path = "root.sh"
   vcs_provider_id = "vcs-xxxxx"
-  account_id      = "acc-xxxxx"
   vcs_repo {
     identifier = "TestRepo/example"
     branch     = "main"
@@ -39,7 +38,6 @@ resource "scalr_hook" "example" {
 
 ### Optional
 
-- `account_id` (String) ID of the account, in the format `acc-<RANDOM STRING>`.
 - `description` (String) Description of the hook.
 - `vcs_repo` (Block List) Source configuration of a VCS repository. (see [below for nested schema](#nestedblock--vcs_repo))
 

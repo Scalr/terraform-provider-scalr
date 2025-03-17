@@ -20,14 +20,14 @@ import (
 
 // Compile-time interface checks
 var (
-	_ resource.Resource                     = &hookEnvironmentLinkResource{}
-	_ resource.ResourceWithConfigure        = &hookEnvironmentLinkResource{}
-	_ resource.ResourceWithConfigValidators = &hookEnvironmentLinkResource{}
-	_ resource.ResourceWithImportState      = &hookEnvironmentLinkResource{}
+	_ resource.Resource                     = &environmentHookResource{}
+	_ resource.ResourceWithConfigure        = &environmentHookResource{}
+	_ resource.ResourceWithConfigValidators = &environmentHookResource{}
+	_ resource.ResourceWithImportState      = &environmentHookResource{}
 )
 
-func newHookEnvironmentLinkResource() resource.Resource {
-	return &hookEnvironmentLinkResource{}
+func newEnvironmentHookResource() resource.Resource {
+	return &environmentHookResource{}
 }
 
 // The list of allowed hook events
@@ -35,31 +35,31 @@ var allowedHookEvents = []string{
 	"pre-init", "pre-plan", "post-plan", "pre-apply", "post-apply",
 }
 
-// hookEnvironmentLinkResource defines the resource implementation.
-type hookEnvironmentLinkResource struct {
+// environmentHookResource defines the resource implementation.
+type environmentHookResource struct {
 	framework.ResourceWithScalrClient
 }
 
-// hookEnvironmentLinkResourceModel describes the resource data model.
-type hookEnvironmentLinkResourceModel struct {
+// environmentHookResourceModel describes the resource data model.
+type environmentHookResourceModel struct {
 	Id            types.String `tfsdk:"id"`
 	HookId        types.String `tfsdk:"hook_id"`
 	EnvironmentId types.String `tfsdk:"environment_id"`
 	Events        types.List   `tfsdk:"events"`
 }
 
-func (r *hookEnvironmentLinkResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_hook_environment_link"
+func (r *environmentHookResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_environment_hook"
 }
 
-func (r *hookEnvironmentLinkResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *environmentHookResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Manages the link between a hook and an environment in Scalr. This allows you to attach hooks to specific environments for execution during the Terraform workflow." +
 			"\n\n" +
 			"## Import\n\n" +
-			"Hook-environment links can be imported using the link ID:\n" +
+			"Environment-hook links can be imported using the link ID:\n" +
 			"```\n" +
-			"terraform import scalr_hook_environment_link.example henv-123456\n" +
+			"terraform import scalr_environment_hook.example henv-123456\n" +
 			"```",
 
 		Attributes: map[string]schema.Attribute{
@@ -107,7 +107,7 @@ func (r *hookEnvironmentLinkResource) Schema(_ context.Context, _ resource.Schem
 	}
 }
 
-func (r *hookEnvironmentLinkResource) ConfigValidators(_ context.Context) []resource.ConfigValidator {
+func (r *environmentHookResource) ConfigValidators(_ context.Context) []resource.ConfigValidator {
 	return []resource.ConfigValidator{}
 }
 
@@ -126,8 +126,8 @@ func deduplicateEvents(events []string) []string {
 	return result
 }
 
-func (r *hookEnvironmentLinkResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan hookEnvironmentLinkResourceModel
+func (r *environmentHookResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan environmentHookResourceModel
 
 	// Read plan data
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -150,15 +150,15 @@ func (r *hookEnvironmentLinkResource) Create(ctx context.Context, req resource.C
 	// Deduplicate events - this is now handled by the validator, but keeping as a safety measure
 	eventsSlice = deduplicateEvents(eventsSlice)
 
-	opts := scalr.HookEnvironmentLinkCreateOptions{
+	opts := scalr.EnvironmentHookCreateOptions{
 		Hook:        &scalr.Hook{ID: plan.HookId.ValueString()},
 		Environment: &scalr.Environment{ID: plan.EnvironmentId.ValueString()},
-		Events:      &eventsSlice,
+		Events:      eventsSlice,
 	}
 
-	link, err := r.Client.HookEnvironmentLinks.Create(ctx, opts)
+	link, err := r.Client.EnvironmentHooks.Create(ctx, opts)
 	if err != nil {
-		resp.Diagnostics.AddError("Error creating hook-environment link", err.Error())
+		resp.Diagnostics.AddError("Error creating environment-hook link", err.Error())
 		return
 	}
 
@@ -170,20 +170,20 @@ func (r *hookEnvironmentLinkResource) Create(ctx context.Context, req resource.C
 	}
 }
 
-func (r *hookEnvironmentLinkResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state hookEnvironmentLinkResourceModel
+func (r *environmentHookResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state environmentHookResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	link, err := r.Client.HookEnvironmentLinks.Read(ctx, state.Id.ValueString())
+	link, err := r.Client.EnvironmentHooks.Read(ctx, state.Id.ValueString())
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
-		resp.Diagnostics.AddError("Error reading hook-environment link", err.Error())
+		resp.Diagnostics.AddError("Error reading environment-hook link", err.Error())
 		return
 	}
 
@@ -249,9 +249,9 @@ func containsAllEvents(events []string) bool {
 	return true
 }
 
-func (r *hookEnvironmentLinkResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan hookEnvironmentLinkResourceModel
-	var state hookEnvironmentLinkResourceModel
+func (r *environmentHookResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan environmentHookResourceModel
+	var state environmentHookResourceModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -272,13 +272,16 @@ func (r *hookEnvironmentLinkResource) Update(ctx context.Context, req resource.U
 
 	eventsSlice = deduplicateEvents(eventsSlice)
 
-	updateOpts := scalr.HookEnvironmentLinkUpdateOptions{
-		Events: &eventsSlice,
+	// Convert to pointer as required by the API
+	eventsPtr := &eventsSlice
+
+	updateOpts := scalr.EnvironmentHookUpdateOptions{
+		Events: eventsPtr,
 	}
 
-	_, err := r.Client.HookEnvironmentLinks.Update(ctx, state.Id.ValueString(), updateOpts)
+	_, err := r.Client.EnvironmentHooks.Update(ctx, state.Id.ValueString(), updateOpts)
 	if err != nil {
-		resp.Diagnostics.AddError("Error updating hook-environment link", err.Error())
+		resp.Diagnostics.AddError("Error updating environment-hook link", err.Error())
 		return
 	}
 
@@ -292,20 +295,20 @@ func (r *hookEnvironmentLinkResource) Update(ctx context.Context, req resource.U
 	}
 }
 
-func (r *hookEnvironmentLinkResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state hookEnvironmentLinkResourceModel
+func (r *environmentHookResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state environmentHookResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	err := r.Client.HookEnvironmentLinks.Delete(ctx, state.Id.ValueString())
+	err := r.Client.EnvironmentHooks.Delete(ctx, state.Id.ValueString())
 	if err != nil && !errors.Is(err, scalr.ErrResourceNotFound) {
-		resp.Diagnostics.AddError("Error deleting hook-environment link", err.Error())
+		resp.Diagnostics.AddError("Error deleting environment-hook link", err.Error())
 		return
 	}
 }
 
-func (r *hookEnvironmentLinkResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *environmentHookResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

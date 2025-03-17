@@ -9,9 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccScalrHookEnvironmentLinkResource_basic(t *testing.T) {
+func TestAccScalrEnvironmentHookResource_basic(t *testing.T) {
 	rName := acctest.RandomWithPrefix("test-hook-env-link")
-	resourceName := "scalr_hook_environment_link.test"
+	resourceName := "scalr_environment_hook.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -21,7 +21,7 @@ func TestAccScalrHookEnvironmentLinkResource_basic(t *testing.T) {
 		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrHookEnvironmentLinkConfig(rName),
+				Config: testAccScalrEnvironmentHookConfig(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "hook_id"),
@@ -37,7 +37,7 @@ func TestAccScalrHookEnvironmentLinkResource_basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccScalrHookEnvironmentLinkConfigUpdated(rName),
+				Config: testAccScalrEnvironmentHookConfigUpdated(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "events.#", "3"),
@@ -52,7 +52,7 @@ func TestAccScalrHookEnvironmentLinkResource_basic(t *testing.T) {
 
 func TestAccScalrHookEnvironmentLinkResource_allEvents(t *testing.T) {
 	rName := acctest.RandomWithPrefix("test-hook-env-link-all")
-	resourceName := "scalr_hook_environment_link.test"
+	resourceName := "scalr_environment_hook.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -62,12 +62,11 @@ func TestAccScalrHookEnvironmentLinkResource_allEvents(t *testing.T) {
 		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrHookEnvironmentLinkConfigAllEvents(rName),
+				Config: testAccScalrEnvironmentHookConfigAllEvents(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "hook_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "environment_id"),
-					// Check that the "*" value is stored in the state
 					resource.TestCheckResourceAttr(resourceName, "events.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "events.0", "*"),
 				),
@@ -76,7 +75,6 @@ func TestAccScalrHookEnvironmentLinkResource_allEvents(t *testing.T) {
 	})
 }
 
-// Test for the uniqueness validation in events
 func TestAccScalrHookEnvironmentLinkResource_uniqueEvents(t *testing.T) {
 	rName := acctest.RandomWithPrefix("test-hook-env-link-uniq")
 
@@ -88,14 +86,14 @@ func TestAccScalrHookEnvironmentLinkResource_uniqueEvents(t *testing.T) {
 		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccScalrHookEnvironmentLinkConfigDuplicateEvents(rName),
+				Config:      testAccScalrEnvironmentHookConfigDuplicateEvents(rName),
 				ExpectError: regexp.MustCompile(`This attribute contains duplicate values`),
 			},
 		},
 	})
 }
 
-func testAccScalrHookEnvironmentLinkConfig(name string) string {
+func testAccScalrEnvironmentHookConfig(name string) string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
   name       = "%[1]s"
@@ -105,7 +103,7 @@ resource "scalr_environment" "test" {
 resource "scalr_vcs_provider" "test" {
   name       = "%[1]s-vcs"
   vcs_type   = "github"
-  token    = "%s"
+  token    = "%[3]s"
   account_id = "%[2]s"
 }
 
@@ -114,7 +112,6 @@ resource "scalr_hook" "test" {
   interpreter     = "bash"
   scriptfile_path = "script.sh"
   vcs_provider_id = scalr_vcs_provider.test.id
-  account_id      = "%[2]s"
   
   vcs_repo {
     identifier = "scalr/terraform-provider-scalr"
@@ -122,15 +119,15 @@ resource "scalr_hook" "test" {
   }
 }
 
-resource "scalr_hook_environment_link" "test" {
+resource "scalr_environment_hook" "test" {
   hook_id        = scalr_hook.test.id
   environment_id = scalr_environment.test.id
   events         = ["pre-plan", "post-apply"]
 }
-`, name, githubToken, defaultAccount)
+`, name, defaultAccount, githubToken)
 }
 
-func testAccScalrHookEnvironmentLinkConfigUpdated(name string) string {
+func testAccScalrEnvironmentHookConfigUpdated(name string) string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
   name       = "%[1]s"
@@ -140,7 +137,7 @@ resource "scalr_environment" "test" {
 resource "scalr_vcs_provider" "test" {
   name       = "%[1]s-vcs"
   vcs_type   = "github"
-  token      = "%s"
+  token      = "%[3]s"
   account_id = "%[2]s"
 }
 
@@ -149,7 +146,6 @@ resource "scalr_hook" "test" {
   interpreter     = "bash"
   scriptfile_path = "script.sh"
   vcs_provider_id = scalr_vcs_provider.test.id
-  account_id      = "%[2]s"
   
   vcs_repo {
     identifier = "scalr/terraform-provider-scalr"
@@ -157,15 +153,15 @@ resource "scalr_hook" "test" {
   }
 }
 
-resource "scalr_hook_environment_link" "test" {
+resource "scalr_environment_hook" "test" {
   hook_id        = scalr_hook.test.id
   environment_id = scalr_environment.test.id
   events         = ["pre-init", "post-plan", "pre-apply"]
 }
-`, name, githubToken, defaultAccount)
+`, name, defaultAccount, githubToken)
 }
 
-func testAccScalrHookEnvironmentLinkConfigAllEvents(name string) string {
+func testAccScalrEnvironmentHookConfigAllEvents(name string) string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
   name       = "%[1]s"
@@ -175,7 +171,7 @@ resource "scalr_environment" "test" {
 resource "scalr_vcs_provider" "test" {
   name       = "%[1]s-vcs"
   vcs_type   = "github"
-  token      = "%s"
+  token      = "%[3]s"
   account_id = "%[2]s"
 }
 
@@ -184,7 +180,6 @@ resource "scalr_hook" "test" {
   interpreter     = "bash"
   scriptfile_path = "script.sh"
   vcs_provider_id = scalr_vcs_provider.test.id
-  account_id      = "%[2]s"
   
   vcs_repo {
     identifier = "scalr/terraform-provider-scalr"
@@ -192,15 +187,15 @@ resource "scalr_hook" "test" {
   }
 }
 
-resource "scalr_hook_environment_link" "test" {
+resource "scalr_environment_hook" "test" {
   hook_id        = scalr_hook.test.id
   environment_id = scalr_environment.test.id
   events         = ["*"]
 }
-`, name, githubToken, defaultAccount)
+`, name, defaultAccount, githubToken)
 }
 
-func testAccScalrHookEnvironmentLinkConfigDuplicateEvents(name string) string {
+func testAccScalrEnvironmentHookConfigDuplicateEvents(name string) string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
   name       = "%[1]s"
@@ -210,7 +205,7 @@ resource "scalr_environment" "test" {
 resource "scalr_vcs_provider" "test" {
   name       = "%[1]s-vcs"
   vcs_type   = "github"
-  token      = "%s"
+  token      = "%[3]s"
   account_id = "%[2]s"
 }
 
@@ -219,18 +214,18 @@ resource "scalr_hook" "test" {
   interpreter     = "bash"
   scriptfile_path = "script.sh"
   vcs_provider_id = scalr_vcs_provider.test.id
-  account_id      = "%[2]s"
   
   vcs_repo {
-    identifier = "scalr/terraform-provider-scalr"
+    //identifier = "scalr/terraform-provider-scalr"
+    identifier = "RomanMytsko/hooks"
     branch     = "main"
   }
 }
 
-resource "scalr_hook_environment_link" "test" {
+resource "scalr_environment_hook" "test" {
   hook_id        = scalr_hook.test.id
   environment_id = scalr_environment.test.id
   events         = ["pre-plan", "pre-plan", "post-apply"]  # Duplicate event should cause validation error
 }
-`, name, githubToken, defaultAccount)
+`, name, defaultAccount, githubToken)
 }

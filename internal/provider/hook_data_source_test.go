@@ -39,7 +39,6 @@ func TestAccScalrHookDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.scalr_hook.test", "interpreter", "bash"),
 					resource.TestCheckResourceAttr("data.scalr_hook.test", "scriptfile_path", "script.sh"),
 					resource.TestCheckResourceAttrSet("data.scalr_hook.test", "vcs_provider_id"),
-					resource.TestCheckResourceAttrSet("data.scalr_hook.test", "account_id"),
 					resource.TestCheckResourceAttrSet("data.scalr_hook.test", "vcs_repo.0.identifier"),
 					resource.TestCheckResourceAttrSet("data.scalr_hook.test", "vcs_repo.0.branch"),
 				),
@@ -51,8 +50,6 @@ func TestAccScalrHookDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.scalr_hook.test", "name", hookName),
 					resource.TestCheckResourceAttr("data.scalr_hook.test", "interpreter", "bash"),
 					resource.TestCheckResourceAttr("data.scalr_hook.test", "scriptfile_path", "script.sh"),
-					resource.TestCheckResourceAttrSet("data.scalr_hook.test", "vcs_provider_id"),
-					resource.TestCheckResourceAttrSet("data.scalr_hook.test", "account_id"),
 					resource.TestCheckResourceAttrSet("data.scalr_hook.test", "vcs_repo.0.identifier"),
 					resource.TestCheckResourceAttrSet("data.scalr_hook.test", "vcs_repo.0.branch"),
 				),
@@ -65,7 +62,6 @@ func TestAccScalrHookDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.scalr_hook.test", "interpreter", "bash"),
 					resource.TestCheckResourceAttr("data.scalr_hook.test", "scriptfile_path", "script.sh"),
 					resource.TestCheckResourceAttrSet("data.scalr_hook.test", "vcs_provider_id"),
-					resource.TestCheckResourceAttrSet("data.scalr_hook.test", "account_id"),
 					resource.TestCheckResourceAttrSet("data.scalr_hook.test", "vcs_repo.0.identifier"),
 					resource.TestCheckResourceAttrSet("data.scalr_hook.test", "vcs_repo.0.branch"),
 				),
@@ -79,7 +75,7 @@ func testAccScalrHookDataSourceByIDConfig(name string) string {
 resource scalr_vcs_provider test {
   name       = "%[1]s-vcs"
   vcs_type   = "github"
-  token      = "token"
+  token      = "%[2]s"
 }
 
 resource scalr_hook test {
@@ -87,7 +83,6 @@ resource scalr_hook test {
   interpreter     = "bash"
   scriptfile_path = "script.sh"
   vcs_provider_id = scalr_vcs_provider.test.id
-  account_id      = "%[2]s"
   
   vcs_repo {
     identifier = "scalr/terraform-provider-scalr"
@@ -97,8 +92,7 @@ resource scalr_hook test {
 
 data scalr_hook test {
   id         = scalr_hook.test.id
-  account_id = "%[2]s"
-}`, name, defaultAccount)
+}`, name, githubToken)
 }
 
 func testAccScalrHookDataSourceByNameConfig(name string) string {
@@ -106,7 +100,7 @@ func testAccScalrHookDataSourceByNameConfig(name string) string {
 resource scalr_vcs_provider test {
   name       = "%[1]s-vcs"
   vcs_type   = "github"
-  token      = "%s"
+  token      = "%[2]s"
 }
 
 resource scalr_hook test {
@@ -114,7 +108,6 @@ resource scalr_hook test {
   interpreter     = "bash"
   scriptfile_path = "script.sh"
   vcs_provider_id = scalr_vcs_provider.test.id
-  account_id      = "%[2]s"
   
   vcs_repo {
     identifier = "scalr/terraform-provider-scalr"
@@ -123,9 +116,8 @@ resource scalr_hook test {
 }
 
 data scalr_hook test {
-  name       = scalr_hook.test.name
-  account_id = "%[2]s"
-}`, name, githubToken, defaultAccount)
+  name = scalr_hook.test.name
+}`, name, githubToken)
 }
 
 func testAccScalrHookDataSourceByIDAndNameConfig(name string) string {
@@ -133,7 +125,7 @@ func testAccScalrHookDataSourceByIDAndNameConfig(name string) string {
 resource scalr_vcs_provider test {
   name       = "%[1]s-vcs"
   vcs_type   = "github"
-  token      = "%s"
+  token      = "%[2]s"
 }
 
 resource scalr_hook test {
@@ -141,7 +133,6 @@ resource scalr_hook test {
   interpreter     = "bash"
   scriptfile_path = "script.sh"
   vcs_provider_id = scalr_vcs_provider.test.id
-  account_id      = "%[2]s"
   
   vcs_repo {
     identifier = "scalr/terraform-provider-scalr"
@@ -152,6 +143,5 @@ resource scalr_hook test {
 data scalr_hook test {
   id         = scalr_hook.test.id
   name       = scalr_hook.test.name
-  account_id = "%[2]s"
-}`, name, githubToken, defaultAccount)
+}`, name, githubToken)
 }

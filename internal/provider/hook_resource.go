@@ -16,7 +16,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
-	"github.com/scalr/terraform-provider-scalr/internal/framework/defaults"
 	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
 )
 
@@ -47,7 +46,6 @@ type hookResourceModel struct {
 	ScriptfilePath types.String `tfsdk:"scriptfile_path"`
 	VcsProviderId  types.String `tfsdk:"vcs_provider_id"`
 	VcsRepo        types.List   `tfsdk:"vcs_repo"`
-	AccountId      types.String `tfsdk:"account_id"`
 }
 
 // hookResourceVcsRepoModel maps the vcs_repo nested schema data.
@@ -94,15 +92,6 @@ func (r *hookResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				MarkdownDescription: "ID of the VCS provider in the format `vcs-<RANDOM STRING>`.",
 				Required:            true,
 			},
-			"account_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the account, in the format `acc-<RANDOM STRING>`.",
-				Optional:            true,
-				Computed:            true,
-				Default:             defaults.AccountIDRequired(),
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
 		},
 		Blocks: map[string]schema.Block{
 			"vcs_repo": schema.ListNestedBlock{
@@ -148,10 +137,9 @@ func (r *hookResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 
 	options := scalr.HookCreateOptions{
-		Name:           scalr.String(plan.Name.ValueString()),
-		Interpreter:    scalr.String(plan.Interpreter.ValueString()),
-		ScriptfilePath: scalr.String(plan.ScriptfilePath.ValueString()),
-		Account:        &scalr.Account{ID: plan.AccountId.ValueString()},
+		Name:           plan.Name.ValueString(),
+		Interpreter:    plan.Interpreter.ValueString(),
+		ScriptfilePath: plan.ScriptfilePath.ValueString(),
 		VcsProvider:    &scalr.VcsProvider{ID: plan.VcsProviderId.ValueString()},
 	}
 
@@ -194,10 +182,6 @@ func (r *hookResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 	plan.Interpreter = types.StringValue(hook.Interpreter)
 	plan.ScriptfilePath = types.StringValue(hook.ScriptfilePath)
-
-	if hook.Account != nil {
-		plan.AccountId = types.StringValue(hook.Account.ID)
-	}
 
 	if hook.VcsProvider != nil {
 		plan.VcsProviderId = types.StringValue(hook.VcsProvider.ID)
@@ -256,10 +240,6 @@ func (r *hookResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 
 	state.Interpreter = types.StringValue(hook.Interpreter)
 	state.ScriptfilePath = types.StringValue(hook.ScriptfilePath)
-
-	if hook.Account != nil {
-		state.AccountId = types.StringValue(hook.Account.ID)
-	}
 
 	if hook.VcsProvider != nil {
 		state.VcsProviderId = types.StringValue(hook.VcsProvider.ID)
@@ -354,10 +334,6 @@ func (r *hookResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 	plan.Interpreter = types.StringValue(hook.Interpreter)
 	plan.ScriptfilePath = types.StringValue(hook.ScriptfilePath)
-
-	if hook.Account != nil {
-		plan.AccountId = types.StringValue(hook.Account.ID)
-	}
 
 	if hook.VcsProvider != nil {
 		plan.VcsProviderId = types.StringValue(hook.VcsProvider.ID)
