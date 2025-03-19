@@ -55,7 +55,6 @@ func (v stringIsValidURLValidator) ValidateString(ctx context.Context, req valid
 			fmt.Sprintf("%q", value),
 		))
 	}
-	return
 }
 
 func StringIsValidURL() validator.String {
