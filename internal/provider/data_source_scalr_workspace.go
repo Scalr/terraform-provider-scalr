@@ -144,11 +144,11 @@ func dataSourceScalrWorkspace() *schema.Resource {
 			},
 
 			"auto_queue_runs": {
-				Description: "Indicates if runs have to be queued automatically when a new configuration version is uploaded." +
-					"\n\n  Supported values are `skip_first`, `always`, `never`:" +
-					"\n\n  * `skip_first` - after the very first configuration version is uploaded into the workspace the run will not be triggered. But the following configurations will do. This is the default behavior." +
+				Description: "Indicates if runs have to be queued automatically when a new configuration version is uploaded. Supported values are `skip_first`, `always`, `never`, `first_only`:" +
+					"\n  * `skip_first` - after the very first configuration version is uploaded into the workspace the run will not be triggered. But the following configurations will do. This is the default behavior." +
 					"\n  * `always` - runs will be triggered automatically on every upload of the configuration version." +
-					"\n  * `never` - configuration versions are uploaded into the workspace, but runs will not be triggered.",
+					"\n  * `never` - configuration versions are uploaded into the workspace, but runs will not be triggered." +
+					"\n  * `first_only` - the run is triggered only when the first configuration version is uploaded into the workspace. Subsequent configurations will not trigger runs.",
 				Type:     schema.TypeString,
 				Computed: true,
 			},

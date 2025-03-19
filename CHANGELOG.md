@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `scalr_workspace.auto_queue_runs`: support `first_only` option ([#406](https://github.com/Scalr/terraform-provider-scalr/pull/406))
+
 ## [2.6.0] - 2025-03-07
 
 ### Added
