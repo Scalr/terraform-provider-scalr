@@ -29,13 +29,6 @@ func resourceScalrEnvironment() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 			},
-			"cost_estimation_enabled": {
-				Description: "Set (true/false) to enable/disable cost estimation for the environment.",
-				Type:        schema.TypeBool,
-				Computed:    true,
-				Optional:    true,
-				Deprecated:  "Managing cost estimation is deprecated. Use Infracost integration instead.",
-			},
 			"status": {
 				Description: "The status of the environment.",
 				Type:        schema.TypeString,
@@ -144,9 +137,6 @@ func resourceScalrEnvironmentCreate(ctx context.Context, d *schema.ResourceData,
 		Account:      &scalr.Account{ID: accountID},
 		PolicyGroups: policyGroups,
 	}
-	if costEstimationEnabled, ok := d.GetOkExists("cost_estimation_enabled"); ok { //nolint:staticcheck
-		options.CostEstimationEnabled = ptr(costEstimationEnabled.(bool))
-	}
 	if remoteBackend, ok := d.GetOkExists("remote_backend"); ok { //nolint:staticcheck
 		options.RemoteBackend = ptr(remoteBackend.(bool))
 	}
@@ -202,7 +192,6 @@ func resourceScalrEnvironmentRead(ctx context.Context, d *schema.ResourceData, m
 	// Update the configuration.
 	_ = d.Set("name", environment.Name)
 	_ = d.Set("account_id", environment.Account.ID)
-	_ = d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)
 	_ = d.Set("remote_backend", environment.RemoteBackend)
 	_ = d.Set("mask_sensitive_output", environment.MaskSensitiveOutput)
 	_ = d.Set("status", environment.Status)
@@ -255,9 +244,6 @@ func resourceScalrEnvironmentUpdate(ctx context.Context, d *schema.ResourceData,
 	options := scalr.EnvironmentUpdateOptions{
 		Name:         ptr(d.Get("name").(string)),
 		PolicyGroups: policyGroups,
-	}
-	if costEstimationEnabled, ok := d.GetOkExists("cost_estimation_enabled"); ok { //nolint:staticcheck
-		options.CostEstimationEnabled = ptr(costEstimationEnabled.(bool))
 	}
 
 	if maskOutput, ok := d.GetOkExists("mask_sensitive_output"); ok { //nolint:staticcheck
