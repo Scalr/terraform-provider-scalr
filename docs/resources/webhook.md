@@ -4,7 +4,7 @@ categorySlug: "scalr-terraform-provider"
 slug: "provider_resource_scalr_webhook"
 parentDocSlug: "provider_resources"
 hidden: false
-order: 24
+order: 25
 ---
 ## Resource: scalr_webhook
 
