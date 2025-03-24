@@ -152,11 +152,16 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 		newAgentPoolTokenResource,
 		newTagResource,
 		newWorkspaceResource,
+		newIntegrationInfracostResource,
+		newWorkloadIdentityProviderResource,
+		newAssumeServiceAccountPolicyResource,
 	}
 }
 
 func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		newProviderConfigurationDataSource,
 		newTagDataSource,
+		newIntegrationInfracostDataSource,
 	}
 }

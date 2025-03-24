@@ -417,6 +417,35 @@ func TestAccScalrWorkspace_UpgradeFromSDK(t *testing.T) {
 	})
 }
 
+func TestAccScalrWorkspace_SCALRCORE_34129(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrWorkspace_SCALRCORE_34129(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("scalr_workspace.test", "run_operation_timeout", "30"),
+				),
+			},
+			{
+				Config: testAccScalrWorkspace_SCALRCORE_34129_update1(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("scalr_workspace.test", "run_operation_timeout", "30"),
+				),
+			},
+			{
+				Config: testAccScalrWorkspace_SCALRCORE_34129_update2(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr("scalr_workspace.test", "run_operation_timeout"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckScalrWorkspaceExists(
 	n string, workspace *scalr.Workspace) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -1083,4 +1112,45 @@ resource "scalr_workspace" "test" {
     alias = "dev2"
   }
 }`, rInt, defaultAccount))
+}
+
+func testAccScalrWorkspace_SCALRCORE_34129(rInt int) string {
+	return fmt.Sprintf(
+		testAccScalrWorkspaceCommonConfig,
+		rInt,
+		defaultAccount,
+		fmt.Sprintf(`
+resource scalr_workspace test {
+  name                           = "ws-%d"
+  environment_id                 = scalr_environment.test.id
+  run_operation_timeout          = 30
+}`, rInt),
+	)
+}
+
+func testAccScalrWorkspace_SCALRCORE_34129_update1(rInt int) string {
+	return fmt.Sprintf(
+		testAccScalrWorkspaceCommonConfig,
+		rInt,
+		defaultAccount,
+		fmt.Sprintf(`
+resource scalr_workspace test {
+  name                           = "ws-%d-updated"
+  environment_id                 = scalr_environment.test.id
+  run_operation_timeout          = 30
+}`, rInt),
+	)
+}
+
+func testAccScalrWorkspace_SCALRCORE_34129_update2(rInt int) string {
+	return fmt.Sprintf(
+		testAccScalrWorkspaceCommonConfig,
+		rInt,
+		defaultAccount,
+		fmt.Sprintf(`
+resource scalr_workspace test {
+  name                           = "ws-%d"
+  environment_id                 = scalr_environment.test.id
+}`, rInt),
+	)
 }

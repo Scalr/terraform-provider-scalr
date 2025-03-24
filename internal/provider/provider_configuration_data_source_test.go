@@ -7,7 +7,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 )
+
+var rName = acctest.RandomWithPrefix("test-pcfg")
 
 func TestAccScalrProviderConfigurationDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
@@ -19,12 +22,12 @@ func TestAccScalrProviderConfigurationDataSource(t *testing.T) {
 			},
 			{
 				Config:      `data scalr_provider_configuration test {id = ""}`,
-				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				ExpectError: regexp.MustCompile("Attribute id must not be empty"),
 				PlanOnly:    true,
 			},
 			{
 				Config:      `data scalr_provider_configuration test {name = ""}`,
-				ExpectError: regexp.MustCompile("expected \"name\" to not be an empty string or whitespace"),
+				ExpectError: regexp.MustCompile("Attribute name must not be empty"),
 				PlanOnly:    true,
 			},
 			{
@@ -34,8 +37,27 @@ func TestAccScalrProviderConfigurationDataSource(t *testing.T) {
 					testAccCheckEqualID("data.scalr_provider_configuration.consul", "scalr_provider_configuration.consul"),
 					testAccCheckEqualID("data.scalr_provider_configuration.consul_id", "scalr_provider_configuration.consul"),
 					resource.TestCheckResourceAttrPair(
+						"data.scalr_provider_configuration.kubernetes", "name",
+						"scalr_provider_configuration.kubernetes", "name",
+					),
+					resource.TestCheckResourceAttr(
+						"data.scalr_provider_configuration.kubernetes", "provider_name", "kubernetes",
+					),
+					resource.TestCheckResourceAttrPair(
 						"data.scalr_provider_configuration.kubernetes", "owners",
 						"scalr_provider_configuration.kubernetes", "owners",
+					),
+					resource.TestCheckResourceAttrPair(
+						"data.scalr_provider_configuration.kubernetes", "environments",
+						"scalr_provider_configuration.kubernetes", "environments",
+					),
+					resource.TestCheckResourceAttrPair(
+						"data.scalr_provider_configuration.consul", "name",
+						"scalr_provider_configuration.consul", "name",
+					),
+					resource.TestCheckResourceAttrPair(
+						"data.scalr_provider_configuration.consul_id", "name",
+						"scalr_provider_configuration.consul", "name",
 					),
 				),
 			},
@@ -55,7 +77,44 @@ func TestAccScalrProviderConfigurationDataSource(t *testing.T) {
 	})
 }
 
-var rName = acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+func TestAccScalrProviderConfigurationDataSource_UpgradeFromSDK(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"scalr": {
+						Source:            "registry.scalr.io/scalr/scalr",
+						VersionConstraint: "<=2.5.0",
+					},
+				},
+				Config: testAccScalrProviderConfigurationDataSourceInitConfig,
+			},
+			{
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"scalr": {
+						Source:            "registry.scalr.io/scalr/scalr",
+						VersionConstraint: "<=2.5.0",
+					},
+				},
+				Config: testAccScalrProviderConfigurationDataSourceConfig,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.scalr_provider_configuration.kubernetes", "id"),
+					resource.TestCheckResourceAttrSet("data.scalr_provider_configuration.consul", "id"),
+					resource.TestCheckResourceAttrSet("data.scalr_provider_configuration.consul_id", "id"),
+				),
+			},
+			{
+				ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+				Config:                   testAccScalrProviderConfigurationDataSourceConfig,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
 
 var testAccScalrProviderConfigurationDataSourceScalrConfig = testAccScalrProviderConfigurationScalrConfig(rName) + `
 data "scalr_provider_configuration" "scalr" {
@@ -64,8 +123,8 @@ data "scalr_provider_configuration" "scalr" {
 
 var testAccScalrProviderConfigurationDataSourceInitConfig = fmt.Sprintf(`
 resource "scalr_provider_configuration" "kubernetes" {
-  name       = "kubernetes1"
-  account_id = "%[1]s"
+  name       = "%[1]s-kubernetes1"
+  account_id = "%[2]s"
   owners      = [scalr_iam_team.test.id]
   custom {
     provider_name = "kubernetes"
@@ -87,8 +146,8 @@ resource "scalr_iam_team" "test" {
   }
 
 resource "scalr_provider_configuration" "consul" {
-  name       = "consul"
-  account_id = "%[1]s"
+  name       = "%[1]s-consul"
+  account_id = "%[2]s"
   custom {
     provider_name = "consul"
     argument {
@@ -101,7 +160,7 @@ resource "scalr_provider_configuration" "consul" {
     }
   }
 }
-`, defaultAccount)
+`, rName, defaultAccount)
 
 var testAccScalrProviderConfigurationDataSourceConfig = testAccScalrProviderConfigurationDataSourceInitConfig + `
 data "scalr_provider_configuration" "kubernetes" {
