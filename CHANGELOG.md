@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - **New resource:** `scalr_workload_identity_provider` ([#405](https://github.com/Scalr/terraform-provider-scalr/pull/405)
  - **New resource:** `scalr_assume_service_account_policy` ([#405](https://github.com/Scalr/terraform-provider-scalr/pull/405)
 
+### Changed
+
+- `scalr_environment`: attribute `policy_groups` became read-only ([#395](https://github.com/Scalr/terraform-provider-scalr/pull/395))
+
 ### Removed
 
 - `scalr_environment` and `data.scalr_environment`: deleted attribute `cost_estimation_enabled` ([#404](https://github.com/Scalr/terraform-provider-scalr/pull/404))

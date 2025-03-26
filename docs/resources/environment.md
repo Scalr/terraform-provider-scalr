@@ -16,7 +16,6 @@ Manage the state of environments in Scalr. Creates, updates and destroys.
 resource "scalr_environment" "test" {
   name                            = "test-env"
   account_id                      = "acc-xxxxxxxxxx"
-  policy_groups                   = ["pgrp-xxxxxxxxxx", "pgrp-yyyyyyyyyy"]
   default_provider_configurations = ["pcfg-xxxxxxxxxx", "pcfg-yyyyyyyyyy"]
 }
 ```
@@ -33,7 +32,6 @@ resource "scalr_environment" "test" {
 - `account_id` (String) ID of the environment account, in the format `acc-<RANDOM STRING>`.
 - `default_provider_configurations` (Set of String) List of IDs of provider configurations, used in the environment workspaces by default.
 - `mask_sensitive_output` (Boolean) Enable masking of the sensitive console output. Defaults to `true`.
-- `policy_groups` (List of String, Deprecated) List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.
 - `remote_backend` (Boolean) If Scalr exports the remote backend configuration and state storage for your infrastructure management. Disabling this feature will also prevent the ability to perform state locking, which ensures that concurrent operations do not conflict. Additionally, it will disable the capability to initiate CLI-driven runs through Scalr.
 - `tag_ids` (Set of String) List of tag IDs associated with the environment.
 
@@ -41,6 +39,7 @@ resource "scalr_environment" "test" {
 
 - `created_by` (List of Object) Details of the user that created the environment. (see [below for nested schema](#nestedatt--created_by))
 - `id` (String) The ID of this resource.
+- `policy_groups` (List of String) List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.
 - `status` (String) The status of the environment.
 
 <a id="nestedatt--created_by"></a>
