@@ -35,7 +35,6 @@ data "scalr_environment" "example2" {
 
 ### Read-Only
 
-- `cost_estimation_enabled` (Boolean) Boolean indicates if cost estimation is enabled for the environment.
 - `created_by` (List of Object) Details of the user that created the environment. (see [below for nested schema](#nestedatt--created_by))
 - `default_provider_configurations` (List of String) List of IDs of provider configurations, used in the environment workspaces by default.
 - `mask_sensitive_output` (Boolean) Enable masking of the sensitive console output.
