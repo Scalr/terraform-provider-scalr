@@ -16,7 +16,6 @@ Manage the state of environments in Scalr. Creates, updates and destroys.
 resource "scalr_environment" "test" {
   name                            = "test-env"
   account_id                      = "acc-xxxxxxxxxx"
-  cost_estimation_enabled         = true
   policy_groups                   = ["pgrp-xxxxxxxxxx", "pgrp-yyyyyyyyyy"]
   default_provider_configurations = ["pcfg-xxxxxxxxxx", "pcfg-yyyyyyyyyy"]
 }
@@ -32,7 +31,6 @@ resource "scalr_environment" "test" {
 ### Optional
 
 - `account_id` (String) ID of the environment account, in the format `acc-<RANDOM STRING>`.
-- `cost_estimation_enabled` (Boolean, Deprecated) Set (true/false) to enable/disable cost estimation for the environment.
 - `default_provider_configurations` (Set of String) List of IDs of provider configurations, used in the environment workspaces by default.
 - `mask_sensitive_output` (Boolean) Enable masking of the sensitive console output. Defaults to `true`.
 - `policy_groups` (List of String, Deprecated) List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.

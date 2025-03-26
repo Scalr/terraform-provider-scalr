@@ -24,7 +24,6 @@ func TestAccEnvironment_basic(t *testing.T) {
 					testAccCheckScalrEnvironmentExists("scalr_environment.test", environment),
 					testAccCheckScalrEnvironmentAttributes(environment, rInt),
 					resource.TestCheckResourceAttr("scalr_environment.test", "name", fmt.Sprintf("test-env-%d", rInt)),
-					resource.TestCheckResourceAttr("scalr_environment.test", "cost_estimation_enabled", "true"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "remote_backend", "false"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "status", "Active"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "account_id", defaultAccount),
@@ -53,7 +52,6 @@ func TestAccEnvironment_update(t *testing.T) {
 					testAccCheckScalrEnvironmentExists("scalr_environment.test", environment),
 					testAccCheckScalrEnvironmentAttributes(environment, rInt),
 					resource.TestCheckResourceAttr("scalr_environment.test", "name", fmt.Sprintf("test-env-%d", rInt)),
-					resource.TestCheckResourceAttr("scalr_environment.test", "cost_estimation_enabled", "true"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "status", "Active"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "account_id", defaultAccount),
 					resource.TestCheckResourceAttr("scalr_environment.test", "policy_groups.%", "0"),
@@ -68,7 +66,6 @@ func TestAccEnvironment_update(t *testing.T) {
 					testAccCheckScalrEnvironmentExists("scalr_environment.test", environment),
 					testAccCheckScalrEnvironmentAttributesUpdate(environment, rInt),
 					resource.TestCheckResourceAttr("scalr_environment.test", "name", fmt.Sprintf("test-env-%d-patched", rInt)),
-					resource.TestCheckResourceAttr("scalr_environment.test", "cost_estimation_enabled", "false"),
 				),
 			},
 		},
@@ -159,9 +156,6 @@ func testAccCheckScalrEnvironmentAttributes(environment *scalr.Environment, rInt
 			return fmt.Errorf("Bad status: %s", environment.Status)
 		}
 
-		if environment.CostEstimationEnabled != true {
-			return fmt.Errorf("Bad cost_estimation_enabled: %t", environment.CostEstimationEnabled)
-		}
 		if environment.Name != fmt.Sprintf("test-env-%d", rInt) {
 			return fmt.Errorf("Bad name: %s", environment.Name)
 		}
@@ -174,9 +168,6 @@ func testAccCheckScalrEnvironmentAttributes(environment *scalr.Environment, rInt
 }
 func testAccCheckScalrEnvironmentAttributesUpdate(environment *scalr.Environment, rInt int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if environment.CostEstimationEnabled != false {
-			return fmt.Errorf("Bad cost_estimation_enabled: %t", environment.CostEstimationEnabled)
-		}
 		if environment.Name != fmt.Sprintf("test-env-%d-patched", rInt) {
 			return fmt.Errorf("Bad name: %s", environment.Name)
 		}
@@ -233,7 +224,6 @@ func testAccEnvironmentConfig(rInt int) string {
 resource "scalr_environment" "test" {
   name       = "test-env-%d"
   account_id = "%s"
-  cost_estimation_enabled = true
   remote_backend = false
 }`, rInt, defaultAccount)
 }
@@ -243,7 +233,6 @@ func testAccEnvironmentUpdateConfig(rInt int) string {
 resource "scalr_environment" "test" {
   name       = "test-env-%d-patched"
   account_id = "%s"
-  cost_estimation_enabled = false
 }`, rInt, defaultAccount)
 }
 
@@ -265,7 +254,6 @@ resource "scalr_provider_configuration" "consul" {
 resource "scalr_environment" "test" {
   name       = "test-env-%d"
   account_id = "%s"
-  cost_estimation_enabled = true
   default_provider_configurations = ["${scalr_provider_configuration.consul.id}"]
 }`, defaultAccount, rInt, defaultAccount)
 }
@@ -288,7 +276,6 @@ resource "scalr_provider_configuration" "kubernetes" {
 resource "scalr_environment" "test" {
   name       = "test-env-%d-patched"
   account_id = "%s"
-  cost_estimation_enabled = false
   default_provider_configurations = ["${scalr_provider_configuration.kubernetes.id}"]
 }`, defaultAccount, rInt, defaultAccount)
 }
@@ -304,6 +291,5 @@ resource "scalr_workspace" "test" {
 resource "scalr_environment" "test" {
   name       = "test-env-%d-patched"
   account_id = "%s"
-  cost_estimation_enabled = false
 }`, rInt, defaultAccount)
 }

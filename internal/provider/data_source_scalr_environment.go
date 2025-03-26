@@ -31,11 +31,6 @@ func dataSourceScalrEnvironment() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: validation.StringIsNotWhiteSpace,
 			},
-			"cost_estimation_enabled": {
-				Description: "Boolean indicates if cost estimation is enabled for the environment.",
-				Type:        schema.TypeBool,
-				Computed:    true,
-			},
 			"status": {
 				Description: "The status of an environment.",
 				Type:        schema.TypeString,
@@ -139,7 +134,6 @@ func dataSourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta
 
 	// Update the configuration.
 	_ = d.Set("name", environment.Name)
-	_ = d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)
 	_ = d.Set("status", environment.Status)
 	_ = d.Set("remote_backend", environment.RemoteBackend)
 	_ = d.Set("mask_sensitive_output", environment.MaskSensitiveOutput)
