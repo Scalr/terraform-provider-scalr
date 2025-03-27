@@ -151,11 +151,11 @@ resource "scalr_workspace" "example-b" {
 
 - `agent_pool_id` (String) The identifier of an agent pool in the format `apool-<RANDOM STRING>`.
 - `auto_apply` (Boolean) Set (true/false) to configure if `terraform apply` should automatically run when `terraform plan` ends without error. Default `false`.
-- `auto_queue_runs` (String) Indicates if runs have to be queued automatically when a new configuration version is uploaded. Supported values are `skip_first`, `always`, `never`, `first_only`:
+- `auto_queue_runs` (String) Indicates if runs have to be queued automatically when a new configuration version is uploaded. Supported values are `skip_first`, `always`, `never`, `on_create_only`:
   * `skip_first` - after the very first configuration version is uploaded into the workspace the run will not be triggered. But the following configurations will do. This is the default behavior.
   * `always` - runs will be triggered automatically on every upload of the configuration version.
   * `never` - configuration versions are uploaded into the workspace, but runs will not be triggered.
-  * `first_only` - the run is triggered only when the first configuration version is uploaded into the workspace. Subsequent configurations will not trigger runs.
+  * `on_create_only` - single run will be triggered only when the workspace is created and the first configuration version is uploaded. Subsequent configurations will not trigger runs.
 - `deletion_protection_enabled` (Boolean) Indicates if the workspace has the protection from an accidental state lost. If enabled and the workspace has resource, the deletion will not be allowed. Default `true`.
 - `execution_mode` (String) Which execution mode to use. Valid values are `remote` and `local`. When set to `local`, the workspace will be used for state storage only. Defaults to `remote`.
 - `force_latest_run` (Boolean) Set (true/false) to configure if latest new run will be automatically raised in priority. Default `false`.

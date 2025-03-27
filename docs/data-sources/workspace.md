@@ -40,11 +40,11 @@ data "scalr_workspace" "example2" {
 
 - `agent_pool_id` (String) The identifier of an agent pool in the format `apool-<RANDOM STRING>`.
 - `auto_apply` (Boolean) Boolean indicates if `terraform apply` will be automatically run when `terraform plan` ends without error.
-- `auto_queue_runs` (String) Indicates if runs have to be queued automatically when a new configuration version is uploaded. Supported values are `skip_first`, `always`, `never`, `first_only`:
+- `auto_queue_runs` (String) Indicates if runs have to be queued automatically when a new configuration version is uploaded. Supported values are `skip_first`, `always`, `never`, `on_create_only`:
   * `skip_first` - after the very first configuration version is uploaded into the workspace the run will not be triggered. But the following configurations will do. This is the default behavior.
   * `always` - runs will be triggered automatically on every upload of the configuration version.
   * `never` - configuration versions are uploaded into the workspace, but runs will not be triggered.
-  * `first_only` - the run is triggered only when the first configuration version is uploaded into the workspace. Subsequent configurations will not trigger runs.
+  * `on_create_only` - single run will be triggered only when the workspace is created and the first configuration version is uploaded. Subsequent configurations will not trigger runs.
 - `created_by` (List of Object) Details of the user that created the workspace. (see [below for nested schema](#nestedatt--created_by))
 - `deletion_protection_enabled` (Boolean) Boolean, indicates if the workspace has the protection from an accidental state lost. If enabled and the workspace has resource, the deletion will not be allowed.
 - `execution_mode` (String) Execution mode of the workspace.
