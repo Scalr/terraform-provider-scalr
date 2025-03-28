@@ -125,7 +125,7 @@ func (d *hookDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 	opts := scalr.HookListOptions{}
 
 	if !cfg.Id.IsNull() {
-		opts.Query = cfg.Id.ValueString()
+		opts.Hook = cfg.Id.ValueStringPointer()
 	}
 
 	if !cfg.Name.IsNull() {
@@ -138,7 +138,6 @@ func (d *hookDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		return
 	}
 
-	// Якщо шукаємо за ID, додатково перевіряємо результати
 	if !cfg.Id.IsNull() {
 		idToFind := cfg.Id.ValueString()
 		filteredHooks := make([]*scalr.Hook, 0)
@@ -149,12 +148,10 @@ func (d *hookDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 			}
 		}
 
-		// Замінюємо оригінальний список відфільтрованим
 		hooks.Items = filteredHooks
 		hooks.TotalCount = len(filteredHooks)
 	}
 
-	// Unlikely
 	if hooks.TotalCount > 1 {
 		resp.Diagnostics.AddError(
 			"Error retrieving hook",

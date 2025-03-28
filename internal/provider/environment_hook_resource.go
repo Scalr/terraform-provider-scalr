@@ -54,13 +54,7 @@ func (r *environmentHookResource) Metadata(_ context.Context, req resource.Metad
 
 func (r *environmentHookResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages the link between a hook and an environment in Scalr. This allows you to attach hooks to specific environments for execution during the Terraform workflow." +
-			"\n\n" +
-			"## Import\n\n" +
-			"Environment-hook links can be imported using the link ID:\n" +
-			"```\n" +
-			"terraform import scalr_environment_hook.example henv-123456\n" +
-			"```",
+		MarkdownDescription: "Manages the link between a hook and an environment in Scalr. This allows you to attach hooks to specific environments for execution during the Terraform workflow.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
