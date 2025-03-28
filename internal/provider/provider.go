@@ -155,6 +155,8 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 		newIntegrationInfracostResource,
 		newWorkloadIdentityProviderResource,
 		newAssumeServiceAccountPolicyResource,
+		newHookResource,
+		newEnvironmentHookResource,
 	}
 }
 
@@ -163,5 +165,6 @@ func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataS
 		newProviderConfigurationDataSource,
 		newTagDataSource,
 		newIntegrationInfracostDataSource,
+		newHookDataSource,
 	}
 }
