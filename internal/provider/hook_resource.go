@@ -373,10 +373,8 @@ func (r *hookResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 	}
 
 	err := r.Client.Hooks.Delete(ctx, state.Id.ValueString())
-	if err != nil {
-		if err != scalr.ErrResourceNotFound {
-			resp.Diagnostics.AddError("Error deleting hook", err.Error())
-		}
+	if err != nil && !errors.Is(err, scalr.ErrResourceNotFound) {
+		resp.Diagnostics.AddError("Error deleting hook", err.Error())
 	}
 }
 
