@@ -273,8 +273,7 @@ func (r *hookResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 }
 
 func (r *hookResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan hookResourceModel
-	var state hookResourceModel
+	var plan, state hookResourceModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -282,41 +281,49 @@ func (r *hookResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		return
 	}
 
-	options := scalr.HookUpdateOptions{
-		Name:           scalr.String(plan.Name.ValueString()),
-		Interpreter:    scalr.String(plan.Interpreter.ValueString()),
-		ScriptfilePath: scalr.String(plan.ScriptfilePath.ValueString()),
-		VcsProvider:    &scalr.VcsProvider{ID: plan.VcsProviderId.ValueString()},
+	options := scalr.HookUpdateOptions{}
+
+	if !plan.Name.Equal(state.Name) {
+		options.Name = scalr.String(plan.Name.ValueString())
+	}
+
+	if !plan.Interpreter.Equal(state.Interpreter) {
+		options.Interpreter = scalr.String(plan.Interpreter.ValueString())
+	}
+
+	if !plan.ScriptfilePath.Equal(state.ScriptfilePath) {
+		options.ScriptfilePath = scalr.String(plan.ScriptfilePath.ValueString())
+	}
+
+	if !plan.VcsProviderId.Equal(state.VcsProviderId) {
+		options.VcsProvider = &scalr.VcsProvider{ID: plan.VcsProviderId.ValueString()}
+	}
+
+	if !plan.Description.Equal(state.Description) {
+		if !plan.Description.IsNull() {
+			options.Description = scalr.String(plan.Description.ValueString())
+		} else {
+			options.Description = scalr.String("")
+		}
 	}
 
 	if !plan.VcsRepo.IsNull() {
-		var planVcsRepo []hookResourceVcsRepoModel
-		var stateVcsRepo []hookResourceVcsRepoModel
+		var vcsRepo []hookResourceVcsRepoModel
+		resp.Diagnostics.Append(plan.VcsRepo.ElementsAs(ctx, &vcsRepo, false)...)
 
-		resp.Diagnostics.Append(plan.VcsRepo.ElementsAs(ctx, &planVcsRepo, false)...)
-		resp.Diagnostics.Append(state.VcsRepo.ElementsAs(ctx, &stateVcsRepo, false)...)
-
-		if len(planVcsRepo) > 0 {
-			planRepo := planVcsRepo[0]
+		if len(vcsRepo) > 0 {
+			repo := vcsRepo[0]
 
 			vcsRepoOptions := &scalr.HookVcsRepo{
-				Identifier: planRepo.Identifier.ValueString(),
+				Identifier: repo.Identifier.ValueString(),
 			}
 
-			if !planRepo.Branch.IsNull() && !planRepo.Branch.IsUnknown() {
-				vcsRepoOptions.Branch = planRepo.Branch.ValueString()
-			} else if len(stateVcsRepo) > 0 {
-				vcsRepoOptions.Branch = stateVcsRepo[0].Branch.ValueString()
+			if !repo.Branch.IsUnknown() && !repo.Branch.IsNull() {
+				vcsRepoOptions.Branch = repo.Branch.ValueString()
 			}
 
 			options.VcsRepo = vcsRepoOptions
 		}
-	}
-
-	if !plan.Description.IsNull() {
-		options.Description = scalr.String(plan.Description.ValueString())
-	} else {
-		options.Description = scalr.String("")
 	}
 
 	hook, err := r.Client.Hooks.Update(ctx, plan.Id.ValueString(), options)
