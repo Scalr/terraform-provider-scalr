@@ -4,7 +4,7 @@ categorySlug: "scalr-terraform-provider"
 slug: "provider_resource_scalr_ssh_key"
 parentDocSlug: "provider_resources"
 hidden: false
-order: 21
+order: 23
 ---
 ## Resource: scalr_ssh_key
 

@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - **New resource:** `scalr_workload_identity_provider` ([#405](https://github.com/Scalr/terraform-provider-scalr/pull/405)
  - **New resource:** `scalr_assume_service_account_policy` ([#405](https://github.com/Scalr/terraform-provider-scalr/pull/405)
+ - **New resource:** `scalr_hook` ([#403](https://github.com/Scalr/terraform-provider-scalr/pull/403)
+ - **New resource:** `scalr_environment_hook` ([#403](https://github.com/Scalr/terraform-provider-scalr/pull/403)
+ - **New data source:** `scalr_hook` ([#403](https://github.com/Scalr/terraform-provider-scalr/pull/403)
 
 ### Changed
 
