@@ -134,20 +134,15 @@ func (r *environmentHookResource) Create(ctx context.Context, req resource.Creat
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	// Check for special "*" value and expand to all allowed events
-	if len(eventsSlice) == 1 && eventsSlice[0] == "*" {
-		eventsSlice = make([]string, len(allowedHookEvents))
-		copy(eventsSlice, allowedHookEvents)
-	}
-
-	// Deduplicate events - this is now handled by the validator, but keeping as a safety measure
-	eventsSlice = deduplicateEvents(eventsSlice)
-
 	opts := scalr.EnvironmentHookCreateOptions{
 		Hook:        &scalr.Hook{ID: plan.HookId.ValueString()},
 		Environment: &scalr.Environment{ID: plan.EnvironmentId.ValueString()},
-		Events:      eventsSlice,
+	}
+
+	if len(eventsSlice) == 1 && eventsSlice[0] == "*" {
+		opts.Events = allowedHookEvents
+	} else {
+		opts.Events = deduplicateEvents(eventsSlice)
 	}
 
 	link, err := r.Client.EnvironmentHooks.Create(ctx, opts)
@@ -253,30 +248,27 @@ func (r *environmentHookResource) Update(ctx context.Context, req resource.Updat
 		return
 	}
 
-	var eventsSlice []string
-	resp.Diagnostics.Append(plan.Events.ElementsAs(ctx, &eventsSlice, false)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	if !plan.Events.Equal(state.Events) {
+		var eventsSlice []string
+		resp.Diagnostics.Append(plan.Events.ElementsAs(ctx, &eventsSlice, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 
-	if len(eventsSlice) == 1 && eventsSlice[0] == "*" {
-		eventsSlice = make([]string, len(allowedHookEvents))
-		copy(eventsSlice, allowedHookEvents)
-	}
+		updateOpts := scalr.EnvironmentHookUpdateOptions{}
 
-	eventsSlice = deduplicateEvents(eventsSlice)
+		if len(eventsSlice) == 1 && eventsSlice[0] == "*" {
+			updateOpts.Events = &allowedHookEvents
+		} else {
+			eventsSlice = deduplicateEvents(eventsSlice)
+			updateOpts.Events = &eventsSlice
+		}
 
-	// Convert to pointer as required by the API
-	eventsPtr := &eventsSlice
-
-	updateOpts := scalr.EnvironmentHookUpdateOptions{
-		Events: eventsPtr,
-	}
-
-	_, err := r.Client.EnvironmentHooks.Update(ctx, state.Id.ValueString(), updateOpts)
-	if err != nil {
-		resp.Diagnostics.AddError("Error updating environment-hook link", err.Error())
-		return
+		_, err := r.Client.EnvironmentHooks.Update(ctx, state.Id.ValueString(), updateOpts)
+		if err != nil {
+			resp.Diagnostics.AddError("Error updating environment hook", err.Error())
+			return
+		}
 	}
 
 	plan.Id = state.Id
