@@ -44,7 +44,6 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "name", fmt.Sprintf("test-env-%d", rInt)),
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "status", "Active"),
-					resource.TestCheckResourceAttr("data.scalr_environment.test", "cost_estimation_enabled", "true"),
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "account_id", defaultAccount),
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "tags.#", "0"),
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.full_name"),
@@ -58,7 +57,6 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "name", fmt.Sprintf("test-env-%d", rInt)),
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "status", "Active"),
-					resource.TestCheckResourceAttr("data.scalr_environment.test", "cost_estimation_enabled", "true"),
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "account_id", defaultAccount),
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.email"),
@@ -70,7 +68,6 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "name", fmt.Sprintf("test-env-%d", rInt)),
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "status", "Active"),
-					resource.TestCheckResourceAttr("data.scalr_environment.test", "cost_estimation_enabled", "true"),
 					resource.TestCheckResourceAttr("data.scalr_environment.test", "account_id", defaultAccount),
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("data.scalr_environment.test", "created_by.0.email"),

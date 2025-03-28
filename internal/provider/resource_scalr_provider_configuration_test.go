@@ -827,7 +827,6 @@ func testAccScalrProviderConfigurationCustomConfigUpdated(name string) string {
 resource "scalr_environment" "test" {
   name                    = "test-provider-configuration-env"
   account_id              = "%s"
-  cost_estimation_enabled = false
 }
 resource "scalr_iam_team" "test" {
 	name        = "test-k8s-owner"
@@ -865,7 +864,6 @@ func testAccScalrProviderConfigurationCustomConfigAws(name string) string {
 resource "scalr_environment" "test" {
   name                    = "test-provider-configuration-env"
   account_id              = "%s"
-  cost_estimation_enabled = false
 }
 
 resource "scalr_provider_configuration" "custom_aws" {

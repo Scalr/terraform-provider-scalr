@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -28,13 +27,6 @@ func resourceScalrEnvironment() *schema.Resource {
 				Description: "Name of the environment.",
 				Type:        schema.TypeString,
 				Required:    true,
-			},
-			"cost_estimation_enabled": {
-				Description: "Set (true/false) to enable/disable cost estimation for the environment.",
-				Type:        schema.TypeBool,
-				Computed:    true,
-				Optional:    true,
-				Deprecated:  "Managing cost estimation is deprecated. Use Infracost integration instead.",
 			},
 			"status": {
 				Description: "The status of the environment.",
@@ -77,10 +69,7 @@ func resourceScalrEnvironment() *schema.Resource {
 				Description: "List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.",
 				Type:        schema.TypeList,
 				Computed:    true,
-				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Deprecated: "Managing policy groups linkage is deprecated. Use either `scalr_policy_group_linkage`" +
-					" or `environments` attribute of `scalr_policy_group` resource.",
 			},
 			"default_provider_configurations": {
 				Description: "List of IDs of provider configurations, used in the environment workspaces by default.",
@@ -113,39 +102,15 @@ func resourceScalrEnvironment() *schema.Resource {
 	}
 }
 
-func parsePolicyGroupDefinitions(d *schema.ResourceData) ([]*scalr.PolicyGroup, error) {
-	var policyGroups []*scalr.PolicyGroup
-
-	policyGroupIds := d.Get("policy_groups").([]interface{})
-	err := ValidateIDsDefinitions(policyGroupIds)
-	if err != nil {
-		return nil, fmt.Errorf("Got error during parsing policy groups: %s", err.Error())
-	}
-
-	for _, policyGroupID := range policyGroupIds {
-		policyGroups = append(policyGroups, &scalr.PolicyGroup{ID: policyGroupID.(string)})
-	}
-
-	return policyGroups, nil
-}
-
 func resourceScalrEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
 	name := d.Get("name").(string)
 	accountID := d.Get("account_id").(string)
-	policyGroups, err := parsePolicyGroupDefinitions(d)
-	if err != nil {
-		return diag.FromErr(err)
-	}
 
 	options := scalr.EnvironmentCreateOptions{
-		Name:         ptr(name),
-		Account:      &scalr.Account{ID: accountID},
-		PolicyGroups: policyGroups,
-	}
-	if costEstimationEnabled, ok := d.GetOkExists("cost_estimation_enabled"); ok { //nolint:staticcheck
-		options.CostEstimationEnabled = ptr(costEstimationEnabled.(bool))
+		Name:    ptr(name),
+		Account: &scalr.Account{ID: accountID},
 	}
 	if remoteBackend, ok := d.GetOkExists("remote_backend"); ok { //nolint:staticcheck
 		options.RemoteBackend = ptr(remoteBackend.(bool))
@@ -202,7 +167,6 @@ func resourceScalrEnvironmentRead(ctx context.Context, d *schema.ResourceData, m
 	// Update the configuration.
 	_ = d.Set("name", environment.Name)
 	_ = d.Set("account_id", environment.Account.ID)
-	_ = d.Set("cost_estimation_enabled", environment.CostEstimationEnabled)
 	_ = d.Set("remote_backend", environment.RemoteBackend)
 	_ = d.Set("mask_sensitive_output", environment.MaskSensitiveOutput)
 	_ = d.Set("status", environment.Status)
@@ -246,18 +210,10 @@ func resourceScalrEnvironmentUpdate(ctx context.Context, d *schema.ResourceData,
 	scalrClient := meta.(*scalr.Client)
 
 	var err error
-	policyGroups, err := parsePolicyGroupDefinitions(d)
-	if err != nil {
-		return diag.FromErr(err)
-	}
 
 	// Create a new options struct.
 	options := scalr.EnvironmentUpdateOptions{
-		Name:         ptr(d.Get("name").(string)),
-		PolicyGroups: policyGroups,
-	}
-	if costEstimationEnabled, ok := d.GetOkExists("cost_estimation_enabled"); ok { //nolint:staticcheck
-		options.CostEstimationEnabled = ptr(costEstimationEnabled.(bool))
+		Name: ptr(d.Get("name").(string)),
 	}
 
 	if maskOutput, ok := d.GetOkExists("mask_sensitive_output"); ok { //nolint:staticcheck
