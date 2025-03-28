@@ -97,7 +97,8 @@ func (r *hookResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 			"vcs_repo": schema.ListNestedBlock{
 				MarkdownDescription: "Source configuration of a VCS repository.",
 				Validators: []validator.List{
-					listvalidator.SizeBetween(1, 1),
+					listvalidator.IsRequired(),
+					listvalidator.SizeAtMost(1),
 				},
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
