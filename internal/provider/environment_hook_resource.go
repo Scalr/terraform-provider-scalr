@@ -158,7 +158,7 @@ func (r *environmentHookResource) Create(ctx context.Context, req resource.Creat
 
 	link, err := r.Client.EnvironmentHooks.Create(ctx, opts)
 	if err != nil {
-		resp.Diagnostics.AddError("Error creating environment-hook link", err.Error())
+		resp.Diagnostics.AddError("Error creating environment hook", err.Error())
 		return
 	}
 
