@@ -16,7 +16,7 @@ require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.35.0
 	github.com/hashicorp/terraform-plugin-testing v1.11.0
 	github.com/hashicorp/terraform-svchost v0.1.1
-	github.com/scalr/go-scalr v0.0.0-20250327140450-7431dfbc9263
+	github.com/scalr/go-scalr v0.0.0-20250401115733-2e583ad349b8
 )
 
 require (
