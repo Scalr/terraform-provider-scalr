@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/scalr/go-scalr"
 )
@@ -199,6 +200,34 @@ func TestAccScalrVariable_import(t *testing.T) {
 				ResourceName:      "scalr_variable.test",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccScalrVariable_UpgradeFromSDK(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"scalr": {
+						Source:            "registry.scalr.io/scalr/scalr",
+						VersionConstraint: "<=2.6.0",
+					},
+				},
+				Config: testAccScalrVariableOnAccountScopeImplicit(rInt),
+				Check:  resource.TestCheckResourceAttrSet("scalr_variable.test", "id"),
+			},
+			{
+				ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+				Config:                   testAccScalrVariableOnAccountScopeImplicit(rInt),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
 			},
 		},
 	})
