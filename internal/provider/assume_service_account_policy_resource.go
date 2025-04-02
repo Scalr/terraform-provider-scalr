@@ -140,12 +140,18 @@ func (r *assumeServiceAccountPolicyResource) Create(ctx context.Context, req res
 		return
 	}
 
-	policy, err := r.Client.AssumeServiceAccountPolicies.Create(ctx, plan.ServiceAccountID.ValueString(), scalr.AssumeServiceAccountPolicyCreateOptions{
-		Name:                   scalr.String(plan.Name.ValueString()),
-		Provider:               &scalr.WorkloadIdentityProvider{ID: plan.ProviderID.ValueString()},
-		MaximumSessionDuration: scalr.Int(int(plan.MaximumSessionDuration.ValueInt64())),
-		ClaimConditions:        claimConditions,
-	})
+	createOpts := scalr.AssumeServiceAccountPolicyCreateOptions{
+		Name:            scalr.String(plan.Name.ValueString()),
+		Provider:        &scalr.WorkloadIdentityProvider{ID: plan.ProviderID.ValueString()},
+		ClaimConditions: claimConditions,
+	}
+
+	if !plan.MaximumSessionDuration.IsNull() && !plan.MaximumSessionDuration.IsUnknown() {
+		createOpts.MaximumSessionDuration = scalr.Int(int(plan.MaximumSessionDuration.ValueInt64()))
+	}
+
+	policy, err := r.Client.AssumeServiceAccountPolicies.Create(ctx, plan.ServiceAccountID.ValueString(), createOpts)
+
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error creating Assume Service Account Policy",
@@ -216,11 +222,23 @@ func (r *assumeServiceAccountPolicyResource) Update(ctx context.Context, req res
 		return
 	}
 
-	policy, err := r.Client.AssumeServiceAccountPolicies.Update(ctx, plan.ServiceAccountID.ValueString(), plan.ID.ValueString(), scalr.AssumeServiceAccountPolicyUpdateOptions{
-		Name:                   scalr.String(plan.Name.ValueString()),
-		MaximumSessionDuration: scalr.Int(int(plan.MaximumSessionDuration.ValueInt64())),
-		ClaimConditions:        &claimConditions,
-	})
+	updateOpts := scalr.AssumeServiceAccountPolicyUpdateOptions{
+		Name:            scalr.String(plan.Name.ValueString()),
+		ClaimConditions: &claimConditions,
+	}
+
+	// Only set MaximumSessionDuration if it has a value
+	if !plan.MaximumSessionDuration.IsNull() && !plan.MaximumSessionDuration.IsUnknown() {
+		updateOpts.MaximumSessionDuration = scalr.Int(int(plan.MaximumSessionDuration.ValueInt64()))
+	}
+
+	policy, err := r.Client.AssumeServiceAccountPolicies.Update(
+		ctx,
+		plan.ServiceAccountID.ValueString(),
+		plan.ID.ValueString(),
+		updateOpts,
+	)
+
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error updating Assume Service Account Policy",

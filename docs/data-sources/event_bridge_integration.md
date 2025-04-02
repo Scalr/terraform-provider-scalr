@@ -4,7 +4,7 @@ categorySlug: "scalr-terraform-provider"
 slug: "provider_datasource_scalr_event_bridge_integration"
 parentDocSlug: "provider_datasources"
 hidden: false
-order: 7
+order: 8
 ---
 ## Data Source: scalr_event_bridge_integration
 
