@@ -1,0 +1,1 @@
+terraform import scalr_environment_hook.example hkenv-xxxxxxxxxx
