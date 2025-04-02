@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -18,6 +17,7 @@ import (
 	"github.com/scalr/go-scalr"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework/defaults"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/planmodifiers/stringmodifier"
 	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
 )
 
@@ -125,7 +125,8 @@ func variableResourceSchema() *schema.Schema {
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
+					stringmodifier.UseStateOrNullForUnknown(),
 				},
 			},
 			"environment_id": schema.StringAttribute{
@@ -133,7 +134,8 @@ func variableResourceSchema() *schema.Schema {
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
+					stringmodifier.UseStateOrNullForUnknown(),
 				},
 			},
 			"account_id": schema.StringAttribute{
@@ -157,9 +159,6 @@ func variableResourceSchema() *schema.Schema {
 				MarkdownDescription: "Details of the user that updated the variable last time.",
 				ElementType:         userElementType,
 				Computed:            true,
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
