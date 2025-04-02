@@ -25,7 +25,6 @@ var (
 	_ resource.ResourceWithConfigure        = &hookResource{}
 	_ resource.ResourceWithConfigValidators = &hookResource{}
 	_ resource.ResourceWithImportState      = &hookResource{}
-	_ resource.ResourceWithModifyPlan       = &hookResource{}
 )
 
 func newHookResource() resource.Resource {
@@ -98,6 +97,7 @@ func (r *hookResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				MarkdownDescription: "Source configuration of a VCS repository.",
 				Validators: []validator.List{
 					listvalidator.IsRequired(),
+					listvalidator.SizeAtLeast(1),
 					listvalidator.SizeAtMost(1),
 				},
 				NestedObject: schema.NestedBlockObject{
@@ -388,25 +388,4 @@ func (r *hookResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 
 func (r *hookResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
-}
-
-func (r *hookResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	if req.Plan.Raw.IsNull() {
-		return
-	}
-
-	var plan hookResourceModel
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	if plan.VcsRepo.IsNull() || len(plan.VcsRepo.Elements()) == 0 {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("vcs_repo"),
-			"Missing required block",
-			"The vcs_repo block is required for scalr_hook resource",
-		)
-		return
-	}
 }
