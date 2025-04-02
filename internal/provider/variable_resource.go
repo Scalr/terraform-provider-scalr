@@ -17,6 +17,7 @@ var (
 	_ resource.ResourceWithConfigure        = &variableResource{}
 	_ resource.ResourceWithConfigValidators = &variableResource{}
 	_ resource.ResourceWithImportState      = &variableResource{}
+	_ resource.ResourceWithUpgradeState     = &variableResource{}
 )
 
 func newVariableResource() resource.Resource {
@@ -184,4 +185,21 @@ func (r *variableResource) Delete(ctx context.Context, req resource.DeleteReques
 
 func (r *variableResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+func (r *variableResource) UpgradeState(_ context.Context) map[int64]resource.StateUpgrader {
+	return map[int64]resource.StateUpgrader{
+		0: {
+			PriorSchema:   variableResourceSchemaV0(),
+			StateUpgrader: upgradeVariableResourceStateV0toV3(r.Client),
+		},
+		1: {
+			PriorSchema:   variableResourceSchemaV1(),
+			StateUpgrader: upgradeVariableResourceStateV1toV3(r.Client),
+		},
+		2: {
+			PriorSchema:   variableResourceSchemaV2(),
+			StateUpgrader: upgradeVariableResourceStateV2toV3(r.Client),
+		},
+	}
 }

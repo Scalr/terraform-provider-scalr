@@ -59,6 +59,13 @@ func variableResourceSchema() *schema.Schema {
 				Default:             stringdefault.StaticString(""),
 				Sensitive:           true,
 			},
+			"readable_value": schema.StringAttribute{
+				Description: "A non-sensitive read-only copy of a variable value. Will be null if the variable is sensitive",
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					&syncReadableValueModifier{},
+				},
+			},
 			"category": schema.StringAttribute{
 				MarkdownDescription: "Indicates if this is a Terraform or shell variable. Allowed values are `terraform` or `shell`.",
 				Required:            true,
@@ -158,6 +165,160 @@ func variableResourceSchema() *schema.Schema {
 	}
 }
 
+func variableResourceSchemaV2() *schema.Schema {
+	return &schema.Schema{
+		Version: 2,
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				Computed: true,
+			},
+			"key": schema.StringAttribute{
+				Required: true,
+			},
+			"value": schema.StringAttribute{
+				Optional:  true,
+				Computed:  true,
+				Default:   stringdefault.StaticString(""),
+				Sensitive: true,
+			},
+			"category": schema.StringAttribute{
+				Required: true,
+			},
+			"hcl": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  booldefault.StaticBool(false),
+			},
+			"sensitive": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  booldefault.StaticBool(false),
+			},
+			"description": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  stringdefault.StaticString(""),
+			},
+			"final": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  booldefault.StaticBool(false),
+			},
+			"force": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  booldefault.StaticBool(false),
+			},
+			"workspace_id": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+			},
+			"environment_id": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+			},
+			"account_id": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  defaults.AccountIDRequired(),
+			},
+		},
+	}
+}
+
+func variableResourceSchemaV1() *schema.Schema {
+	return &schema.Schema{
+		Version: 1,
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				Computed: true,
+			},
+			"key": schema.StringAttribute{
+				Required: true,
+			},
+			"value": schema.StringAttribute{
+				Optional:  true,
+				Computed:  true,
+				Default:   stringdefault.StaticString(""),
+				Sensitive: true,
+			},
+			"category": schema.StringAttribute{
+				Required: true,
+			},
+			"hcl": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  booldefault.StaticBool(false),
+			},
+			"sensitive": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  booldefault.StaticBool(false),
+			},
+			"final": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  booldefault.StaticBool(false),
+			},
+			"force": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  booldefault.StaticBool(false),
+			},
+			"workspace_id": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+			},
+			"environment_id": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+			},
+			"account_id": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  defaults.AccountIDRequired(),
+			},
+		},
+	}
+}
+
+func variableResourceSchemaV0() *schema.Schema {
+	return &schema.Schema{
+		Version: 0,
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				Computed: true,
+			},
+			"key": schema.StringAttribute{
+				Required: true,
+			},
+			"value": schema.StringAttribute{
+				Optional:  true,
+				Computed:  true,
+				Default:   stringdefault.StaticString(""),
+				Sensitive: true,
+			},
+			"category": schema.StringAttribute{
+				Required: true,
+			},
+			"hcl": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  booldefault.StaticBool(false),
+			},
+			"sensitive": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  booldefault.StaticBool(false),
+			},
+			"workspace_id": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+			},
+		},
+	}
+}
+
 // Compile-time interface check
 var _ validator.Bool = categoryHCLValidator{}
 
@@ -187,5 +348,38 @@ func (v categoryHCLValidator) ValidateBool(ctx context.Context, req validator.Bo
 				"Setting 'hcl' attribute to 'true' for shell variable is now deprecated.",
 			),
 		)
+	}
+}
+
+// Compile-time interface check
+var _ planmodifier.String = syncReadableValueModifier{}
+
+type syncReadableValueModifier struct{}
+
+func (m syncReadableValueModifier) Description(_ context.Context) string {
+	return "Sync readable_value if the variable is not sensitive."
+}
+
+func (m syncReadableValueModifier) MarkdownDescription(ctx context.Context) string {
+	return m.Description(ctx)
+}
+
+func (m syncReadableValueModifier) PlanModifyString(ctx context.Context, req planmodifier.StringRequest, resp *planmodifier.StringResponse) {
+	var sensitive types.Bool
+	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("sensitive"), &sensitive)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if sensitive.ValueBool() {
+		resp.PlanValue = types.StringNull()
+	} else {
+		var value types.String
+		resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("value"), &value)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		resp.PlanValue = value
 	}
 }

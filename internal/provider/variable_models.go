@@ -13,6 +13,7 @@ type variableResourceModel struct {
 	Id             types.String `tfsdk:"id"`
 	Key            types.String `tfsdk:"key"`
 	Value          types.String `tfsdk:"value"`
+	ReadableValue  types.String `tfsdk:"readable_value"`
 	Category       types.String `tfsdk:"category"`
 	HCL            types.Bool   `tfsdk:"hcl"`
 	Sensitive      types.Bool   `tfsdk:"sensitive"`
@@ -34,6 +35,7 @@ func variableResourceModelFromAPI(ctx context.Context, v *scalr.Variable, existi
 		Id:             types.StringValue(v.ID),
 		Key:            types.StringValue(v.Key),
 		Value:          types.StringNull(),
+		ReadableValue:  types.StringNull(),
 		Category:       types.StringValue(string(v.Category)),
 		HCL:            types.BoolValue(v.HCL),
 		Sensitive:      types.BoolValue(v.Sensitive),
@@ -48,7 +50,7 @@ func variableResourceModelFromAPI(ctx context.Context, v *scalr.Variable, existi
 		UpdatedBy:      types.ListNull(userElementType),
 	}
 
-	if !existing.Force.IsUnknown() && !existing.Force.IsNull() {
+	if existing != nil && !existing.Force.IsUnknown() && !existing.Force.IsNull() {
 		model.Force = existing.Force
 	}
 
@@ -75,10 +77,11 @@ func variableResourceModelFromAPI(ctx context.Context, v *scalr.Variable, existi
 		model.UpdatedBy = updatedByValue
 	}
 
-	// Only set the value if it's not sensitive, as otherwise it will be empty.
+	// Only set the value if the variable is not sensitive, as otherwise it will be empty.
 	if !v.Sensitive {
 		model.Value = types.StringValue(v.Value)
-	} else {
+		model.ReadableValue = model.Value
+	} else if existing != nil {
 		model.Value = existing.Value
 	}
 
