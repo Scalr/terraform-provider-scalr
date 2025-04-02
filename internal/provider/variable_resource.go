@@ -13,11 +13,10 @@ import (
 
 // Compile-time interface checks
 var (
-	_ resource.Resource                     = &variableResource{}
-	_ resource.ResourceWithConfigure        = &variableResource{}
-	_ resource.ResourceWithConfigValidators = &variableResource{}
-	_ resource.ResourceWithImportState      = &variableResource{}
-	_ resource.ResourceWithUpgradeState     = &variableResource{}
+	_ resource.Resource                 = &variableResource{}
+	_ resource.ResourceWithConfigure    = &variableResource{}
+	_ resource.ResourceWithImportState  = &variableResource{}
+	_ resource.ResourceWithUpgradeState = &variableResource{}
 )
 
 func newVariableResource() resource.Resource {
@@ -35,12 +34,6 @@ func (r *variableResource) Metadata(_ context.Context, req resource.MetadataRequ
 
 func (r *variableResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = *variableResourceSchema()
-}
-
-func (r *variableResource) ConfigValidators(_ context.Context) []resource.ConfigValidator {
-	// If needed, add config validation logic here,
-	// or remove this method if no additional validation is needed.
-	return []resource.ConfigValidator{}
 }
 
 func (r *variableResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
