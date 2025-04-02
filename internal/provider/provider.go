@@ -164,5 +164,7 @@ func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataS
 		newProviderConfigurationDataSource,
 		newTagDataSource,
 		newIntegrationInfracostDataSource,
+		newWorkloadIdentityProviderDataSource,
+		newAssumeServiceAccountPolicyDataSource,
 	}
 }

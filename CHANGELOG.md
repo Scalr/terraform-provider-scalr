@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - **New resource:** `scalr_workload_identity_provider` ([#405](https://github.com/Scalr/terraform-provider-scalr/pull/405)
  - **New resource:** `scalr_assume_service_account_policy` ([#405](https://github.com/Scalr/terraform-provider-scalr/pull/405)
+ - `scalr_workspace.auto_queue_runs`: support `on_create_only` option ([#406](https://github.com/Scalr/terraform-provider-scalr/pull/406))
+
+ - **New data source:** `scalr_workload_identity_provider` ([#408](https://github.com/Scalr/terraform-provider-scalr/pull/408)
+ - **New data source:** `scalr_assume_service_account_policy` ([#408](https://github.com/Scalr/terraform-provider-scalr/pull/408)
 
 ### Changed
 

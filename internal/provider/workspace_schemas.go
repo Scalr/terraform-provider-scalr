@@ -143,10 +143,11 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 				},
 			},
 			"auto_queue_runs": schema.StringAttribute{
-				MarkdownDescription: "Indicates if runs have to be queued automatically when a new configuration version is uploaded. Supported values are `skip_first`, `always`, `never`:" +
+				MarkdownDescription: "Indicates if runs have to be queued automatically when a new configuration version is uploaded. Supported values are `skip_first`, `always`, `never`, `on_create_only`:" +
 					"\n  * `skip_first` - after the very first configuration version is uploaded into the workspace the run will not be triggered. But the following configurations will do. This is the default behavior." +
 					"\n  * `always` - runs will be triggered automatically on every upload of the configuration version." +
-					"\n  * `never` - configuration versions are uploaded into the workspace, but runs will not be triggered.",
+					"\n  * `never` - configuration versions are uploaded into the workspace, but runs will not be triggered." +
+					"\n  * `on_create_only` - single run will be triggered only when the workspace is created and the first configuration version is uploaded. Subsequent configurations will not trigger runs.",
 				Optional: true,
 				Computed: true,
 				Validators: []validator.String{
@@ -154,6 +155,7 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 						string(scalr.AutoQueueRunsModeSkipFirst),
 						string(scalr.AutoQueueRunsModeAlways),
 						string(scalr.AutoQueueRunsModeNever),
+						string(scalr.AutoQueueRunsModeOnCreateOnly),
 					),
 				},
 				PlanModifiers: []planmodifier.String{
