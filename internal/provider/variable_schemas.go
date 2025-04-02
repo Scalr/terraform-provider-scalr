@@ -60,7 +60,7 @@ func variableResourceSchema() *schema.Schema {
 				Sensitive:           true,
 			},
 			"readable_value": schema.StringAttribute{
-				Description: "A non-sensitive read-only copy of a variable value. Will be null if the variable is sensitive",
+				Description: "A non-sensitive read-only copy of a variable value. Will be null if the variable is sensitive.",
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					&syncReadableValueModifier{},

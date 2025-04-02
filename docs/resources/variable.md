@@ -53,6 +53,7 @@ resource "scalr_variable" "example2" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `readable_value` (String) A non-sensitive read-only copy of a variable value. Will be null if the variable is sensitive.
 - `updated_at` (String) Date/time the variable was updated.
 - `updated_by` (List of Object) Details of the user that updated the variable last time. (see [below for nested schema](#nestedatt--updated_by))
 - `updated_by_email` (String) Email of the user who updated the variable last time.
