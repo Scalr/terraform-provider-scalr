@@ -13,9 +13,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/scalr/go-scalr"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/planmodifiers"
 	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
 )
 
@@ -46,7 +47,7 @@ type environmentHookResourceModel struct {
 	Id            types.String `tfsdk:"id"`
 	HookId        types.String `tfsdk:"hook_id"`
 	EnvironmentId types.String `tfsdk:"environment_id"`
-	Events        types.List   `tfsdk:"events"`
+	Events        types.Set    `tfsdk:"events"`
 }
 
 func (r *environmentHookResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -85,17 +86,18 @@ func (r *environmentHookResource) Schema(_ context.Context, _ resource.SchemaReq
 					validation.StringIsNotWhiteSpace(),
 				},
 			},
-			"events": schema.ListAttribute{
-				MarkdownDescription: "List of events that trigger the hook execution. Valid values include: `pre-init`, `pre-plan`, `post-plan`, `pre-apply`, `post-apply`. Use `[\"*\"]` to select all events. Each event can only be specified once.",
+			"events": schema.SetAttribute{
+				MarkdownDescription: "Set of events that trigger the hook execution. Valid values include: `pre-init`, `pre-plan`, `post-plan`, `pre-apply`, `post-apply`. Use `set( [\"*\"] )` to select all events.",
 				Required:            true,
 				ElementType:         types.StringType,
-				Validators: []validator.List{
-					listvalidator.SizeAtLeast(1),
-					listvalidator.ValueStringsAre(
+				Validators: []validator.Set{
+					setvalidator.SizeAtLeast(1),
+					setvalidator.ValueStringsAre(
 						stringvalidator.OneOf(append([]string{"*"}, allowedHookEvents...)...),
 					),
-					// Ensure events are unique
-					listvalidator.UniqueValues(),
+				},
+				PlanModifiers: []planmodifier.Set{
+					planmodifiers.StringSliceAllEquivalent(allowedHookEvents),
 				},
 			},
 		},
@@ -185,58 +187,17 @@ func (r *environmentHookResource) Read(ctx context.Context, req resource.ReadReq
 		state.EnvironmentId = types.StringValue(link.Environment.ID)
 	}
 
-	// Check if API returned all possible events, and convert back to "*" if needed
-	if containsAllEvents(link.Events) {
-		// Get the events from state to see if "*" was originally configured
-		var eventsFromState []string
-		resp.Diagnostics.Append(state.Events.ElementsAs(ctx, &eventsFromState, false)...)
-
-		// If there was a "*" in the state or we have all events returned from API, use "*"
-		if len(eventsFromState) == 1 && eventsFromState[0] == "*" {
-			state.Events, _ = types.ListValueFrom(ctx, types.StringType, []string{"*"})
-		} else {
-			// Otherwise, use the actual list from API
-			eventsList, diags := types.ListValueFrom(ctx, types.StringType, link.Events)
-			resp.Diagnostics.Append(diags...)
-			if resp.Diagnostics.HasError() {
-				return
-			}
-			state.Events = eventsList
-		}
-	} else {
-		// Not all events, just use the list from API
-		eventsList, diags := types.ListValueFrom(ctx, types.StringType, link.Events)
-		resp.Diagnostics.Append(diags...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
-		state.Events = eventsList
+	eventsSet, diags := types.SetValueFrom(ctx, types.StringType, link.Events)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
+	state.Events = eventsSet
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-}
-
-// Helper function to check if the events slice contains all allowed events
-func containsAllEvents(events []string) bool {
-	if len(events) != len(allowedHookEvents) {
-		return false
-	}
-
-	eventMap := make(map[string]bool)
-	for _, event := range events {
-		eventMap[event] = true
-	}
-
-	for _, allowedEvent := range allowedHookEvents {
-		if !eventMap[allowedEvent] {
-			return false
-		}
-	}
-
-	return true
 }
 
 func (r *environmentHookResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {

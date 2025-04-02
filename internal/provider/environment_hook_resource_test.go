@@ -216,8 +216,7 @@ resource "scalr_hook" "test" {
   vcs_provider_id = scalr_vcs_provider.test.id
   
   vcs_repo {
-    //identifier = "scalr/terraform-provider-scalr"
-    identifier = "RomanMytsko/hooks"
+    identifier = "scalr/terraform-provider-scalr"
     branch     = "main"
   }
 }
