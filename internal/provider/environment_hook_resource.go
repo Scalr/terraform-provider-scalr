@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"errors"
+
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -142,7 +143,7 @@ func (r *environmentHookResource) Create(ctx context.Context, req resource.Creat
 	if len(eventsSlice) == 1 && eventsSlice[0] == "*" {
 		opts.Events = allowedHookEvents
 	} else {
-		opts.Events = deduplicateEvents(eventsSlice)
+		opts.Events = eventsSlice
 	}
 
 	link, err := r.Client.EnvironmentHooks.Create(ctx, opts)
