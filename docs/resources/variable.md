@@ -8,7 +8,7 @@ order: 23
 ---
 ## Resource: scalr_variable
 
-Manage the state of the variables in Scalr. Create, update and destroy.
+Manages the state of variables in Scalr.
 
 ## Example Usage
 
@@ -40,7 +40,7 @@ resource "scalr_variable" "example2" {
 
 ### Optional
 
-- `account_id` (String) The account that owns the variable, specified as an ID, in the format `acc-<RANDOM STRING>`.
+- `account_id` (String) ID of the account, in the format `acc-<RANDOM STRING>`.
 - `description` (String) Variable verbose description, defaults to empty string.
 - `environment_id` (String) The environment that owns the variable, specified as an ID, in the format `env-<RANDOM STRING>`.
 - `final` (Boolean) Set (true/false) to configure as final. Indicates whether the variable can be overridden on a lower scope down the Scalr organizational model. Default `false`.
@@ -53,6 +53,7 @@ resource "scalr_variable" "example2" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `readable_value` (String) A non-sensitive read-only copy of a variable value. Will be null if the variable is sensitive.
 - `updated_at` (String) Date/time the variable was updated.
 - `updated_by` (List of Object) Details of the user that updated the variable last time. (see [below for nested schema](#nestedatt--updated_by))
 - `updated_by_email` (String) Email of the user who updated the variable last time.
