@@ -2,7 +2,6 @@ package provider
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -15,7 +14,6 @@ func TestAccScalrEnvironmentHookResource_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
 		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
@@ -27,9 +25,12 @@ func TestAccScalrEnvironmentHookResource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "hook_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "environment_id"),
 					resource.TestCheckResourceAttr(resourceName, "events.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "events.0", "pre-plan"),
-					resource.TestCheckResourceAttr(resourceName, "events.1", "post-apply"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "events.*", "pre-plan"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "events.*", "post-apply"),
 				),
+			},
+			{
+				RefreshState: true,
 			},
 			{
 				ResourceName:      resourceName,
@@ -41,22 +42,21 @@ func TestAccScalrEnvironmentHookResource_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "events.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "events.0", "pre-init"),
-					resource.TestCheckResourceAttr(resourceName, "events.1", "post-plan"),
-					resource.TestCheckResourceAttr(resourceName, "events.2", "pre-apply"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "events.*", "pre-init"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "events.*", "post-plan"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "events.*", "pre-apply"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccScalrHookEnvironmentLinkResource_allEvents(t *testing.T) {
+func TestAccScalrEnvironmentHookResource_allEvents(t *testing.T) {
 	rName := acctest.RandomWithPrefix("test-hook-env-link-all")
 	resourceName := "scalr_environment_hook.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			t.Skip("Works with personal token but does not work with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},
 		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
@@ -68,26 +68,36 @@ func TestAccScalrHookEnvironmentLinkResource_allEvents(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "hook_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "environment_id"),
 					resource.TestCheckResourceAttr(resourceName, "events.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "events.0", "*"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "events.*", "*"),
 				),
 			},
-		},
-	})
-}
-
-func TestAccScalrHookEnvironmentLinkResource_uniqueEvents(t *testing.T) {
-	rName := acctest.RandomWithPrefix("test-hook-env-link-uniq")
-
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			t.Skip("Works with personal token but does not work with github action token.")
-			testVcsAccGithubTokenPreCheck(t)
-		},
-		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
-		Steps: []resource.TestStep{
 			{
-				Config:      testAccScalrEnvironmentHookConfigDuplicateEvents(rName),
-				ExpectError: regexp.MustCompile(`This attribute contains duplicate values`),
+				RefreshState: true,
+			},
+			{
+				Config: testAccScalrEnvironmentHookConfigAllEventsList(rName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "events.#", "5"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "events.*", "pre-init"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "events.*", "pre-plan"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "events.*", "post-plan"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "events.*", "pre-apply"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "events.*", "post-apply"),
+				),
+			},
+			{
+				RefreshState: true,
+			},
+			{
+				Config: testAccScalrEnvironmentHookConfigAllEvents(rName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "hook_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "environment_id"),
+					resource.TestCheckResourceAttr(resourceName, "events.#", "1"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "events.*", "*"),
+				),
 			},
 		},
 	})
@@ -195,7 +205,7 @@ resource "scalr_environment_hook" "test" {
 `, name, defaultAccount, githubToken)
 }
 
-func testAccScalrEnvironmentHookConfigDuplicateEvents(name string) string {
+func testAccScalrEnvironmentHookConfigAllEventsList(name string) string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
   name       = "%[1]s"
@@ -224,7 +234,7 @@ resource "scalr_hook" "test" {
 resource "scalr_environment_hook" "test" {
   hook_id        = scalr_hook.test.id
   environment_id = scalr_environment.test.id
-  events         = ["pre-plan", "pre-plan", "post-apply"]  # Duplicate event should cause validation error
+  events         = ["pre-init", "pre-plan", "post-plan", "pre-apply", "post-apply"]
 }
 `, name, defaultAccount, githubToken)
 }

@@ -4,6 +4,10 @@ import (
 	"context"
 	"errors"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -13,10 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/scalr/go-scalr"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
-	"github.com/scalr/terraform-provider-scalr/internal/framework/planmodifiers"
 	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
 )
 
@@ -37,6 +38,8 @@ var allowedHookEvents = []string{
 	"pre-init", "pre-plan", "post-plan", "pre-apply", "post-apply",
 }
 
+var asteriskSetValue = types.SetValueMust(types.StringType, []attr.Value{types.StringValue("*")})
+
 // environmentHookResource defines the resource implementation.
 type environmentHookResource struct {
 	framework.ResourceWithScalrClient
@@ -45,8 +48,8 @@ type environmentHookResource struct {
 // environmentHookResourceModel describes the resource data model.
 type environmentHookResourceModel struct {
 	Id            types.String `tfsdk:"id"`
-	HookId        types.String `tfsdk:"hook_id"`
-	EnvironmentId types.String `tfsdk:"environment_id"`
+	HookID        types.String `tfsdk:"hook_id"`
+	EnvironmentID types.String `tfsdk:"environment_id"`
 	Events        types.Set    `tfsdk:"events"`
 }
 
@@ -60,7 +63,7 @@ func (r *environmentHookResource) Schema(_ context.Context, _ resource.SchemaReq
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: "The ID of this link resource.",
+				MarkdownDescription: "The ID of this resource.",
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
@@ -87,17 +90,14 @@ func (r *environmentHookResource) Schema(_ context.Context, _ resource.SchemaReq
 				},
 			},
 			"events": schema.SetAttribute{
-				MarkdownDescription: "Set of events that trigger the hook execution. Valid values include: `pre-init`, `pre-plan`, `post-plan`, `pre-apply`, `post-apply`. Use `set( [\"*\"] )` to select all events.",
+				MarkdownDescription: "Set of events that trigger the hook execution. Valid values include: `pre-init`, `pre-plan`, `post-plan`, `pre-apply`, `post-apply`. Use `[\"*\"]` to select all events.",
 				Required:            true,
 				ElementType:         types.StringType,
 				Validators: []validator.Set{
 					setvalidator.SizeAtLeast(1),
 					setvalidator.ValueStringsAre(
-						stringvalidator.OneOf(append([]string{"*"}, allowedHookEvents...)...),
+						stringvalidator.OneOf(append(allowedHookEvents, "*")...),
 					),
-				},
-				PlanModifiers: []planmodifier.Set{
-					planmodifiers.StringSliceAllEquivalent(allowedHookEvents),
 				},
 			},
 		},
@@ -108,55 +108,48 @@ func (r *environmentHookResource) ConfigValidators(_ context.Context) []resource
 	return []resource.ConfigValidator{}
 }
 
-// Helper function to deduplicate events
-func deduplicateEvents(events []string) []string {
-	seen := make(map[string]struct{}, len(events))
-	result := make([]string, 0, len(events))
-
-	for _, event := range events {
-		if _, exists := seen[event]; !exists {
-			seen[event] = struct{}{}
-			result = append(result, event)
-		}
-	}
-
-	return result
-}
-
 func (r *environmentHookResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var cfg environmentHookResourceModel
 	var plan environmentHookResourceModel
 
 	// Read plan data
+	resp.Diagnostics.Append(req.Config.Get(ctx, &cfg)...)
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	var eventsSlice []string
-	resp.Diagnostics.Append(plan.Events.ElementsAs(ctx, &eventsSlice, false)...)
+	opts := scalr.EnvironmentHookCreateOptions{
+		Hook:        &scalr.Hook{ID: plan.HookID.ValueString()},
+		Environment: &scalr.Environment{ID: plan.EnvironmentID.ValueString()},
+	}
+
+	var events []string
+	resp.Diagnostics.Append(plan.Events.ElementsAs(ctx, &events, false)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	opts := scalr.EnvironmentHookCreateOptions{
-		Hook:        &scalr.Hook{ID: plan.HookId.ValueString()},
-		Environment: &scalr.Environment{ID: plan.EnvironmentId.ValueString()},
-	}
 
-	if len(eventsSlice) == 1 && eventsSlice[0] == "*" {
+	if len(events) == 1 && events[0] == "*" {
+		// Expand the "*" to all allowed events for the API call
 		opts.Events = allowedHookEvents
 	} else {
-		opts.Events = eventsSlice
+		opts.Events = events
 	}
 
-	link, err := r.Client.EnvironmentHooks.Create(ctx, opts)
+	envHook, err := r.Client.EnvironmentHooks.Create(ctx, opts)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating environment hook", err.Error())
 		return
 	}
 
-	plan.Id = types.StringValue(link.ID)
+	result, d := environmentHookResourceModelFromAPI(ctx, envHook, cfg.Events)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
-	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -169,75 +162,68 @@ func (r *environmentHookResource) Read(ctx context.Context, req resource.ReadReq
 		return
 	}
 
-	link, err := r.Client.EnvironmentHooks.Read(ctx, state.Id.ValueString())
+	envHook, err := r.Client.EnvironmentHooks.Read(ctx, state.Id.ValueString())
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
-		resp.Diagnostics.AddError("Error reading environment-hook link", err.Error())
+		resp.Diagnostics.AddError("Error reading environment hook", err.Error())
 		return
 	}
 
-	if link.Hook != nil {
-		state.HookId = types.StringValue(link.Hook.ID)
-	}
-
-	if link.Environment != nil {
-		state.EnvironmentId = types.StringValue(link.Environment.ID)
-	}
-
-	eventsSet, diags := types.SetValueFrom(ctx, types.StringType, link.Events)
-	resp.Diagnostics.Append(diags...)
+	result, d := environmentHookResourceModelFromAPI(ctx, envHook, state.Events)
+	resp.Diagnostics.Append(d...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state.Events = eventsSet
 
-	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 }
 
 func (r *environmentHookResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var cfg environmentHookResourceModel
 	var plan environmentHookResourceModel
 	var state environmentHookResourceModel
 
+	resp.Diagnostics.Append(req.Config.Get(ctx, &cfg)...)
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if !plan.Events.Equal(state.Events) {
-		var eventsSlice []string
-		resp.Diagnostics.Append(plan.Events.ElementsAs(ctx, &eventsSlice, false)...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
+	opts := scalr.EnvironmentHookUpdateOptions{}
 
-		updateOpts := scalr.EnvironmentHookUpdateOptions{}
-
-		if len(eventsSlice) == 1 && eventsSlice[0] == "*" {
-			updateOpts.Events = &allowedHookEvents
-		} else {
-			eventsSlice = deduplicateEvents(eventsSlice)
-			updateOpts.Events = &eventsSlice
-		}
-
-		_, err := r.Client.EnvironmentHooks.Update(ctx, state.Id.ValueString(), updateOpts)
-		if err != nil {
-			resp.Diagnostics.AddError("Error updating environment hook", err.Error())
-			return
-		}
+	var events []string
+	resp.Diagnostics.Append(plan.Events.ElementsAs(ctx, &events, false)...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
-	plan.Id = state.Id
-	plan.HookId = state.HookId
-	plan.EnvironmentId = state.EnvironmentId
+	if len(events) == 1 && events[0] == "*" {
+		// Expand the "*" to all allowed events for the API call
+		opts.Events = &allowedHookEvents
+	} else {
+		opts.Events = &events
+	}
 
-	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
+	envHook, err := r.Client.EnvironmentHooks.Update(ctx, state.Id.ValueString(), opts)
+	if err != nil {
+		resp.Diagnostics.AddError("Error updating environment hook", err.Error())
+		return
+	}
+
+	result, d := environmentHookResourceModelFromAPI(ctx, envHook, cfg.Events)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -252,11 +238,46 @@ func (r *environmentHookResource) Delete(ctx context.Context, req resource.Delet
 
 	err := r.Client.EnvironmentHooks.Delete(ctx, state.Id.ValueString())
 	if err != nil && !errors.Is(err, scalr.ErrResourceNotFound) {
-		resp.Diagnostics.AddError("Error deleting environment-hook link", err.Error())
+		resp.Diagnostics.AddError("Error deleting environment hook", err.Error())
 		return
 	}
 }
 
 func (r *environmentHookResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+func environmentHookResourceModelFromAPI(
+	ctx context.Context,
+	eh *scalr.EnvironmentHook,
+	cfgEventsValue types.Set,
+) (*environmentHookResourceModel, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	model := &environmentHookResourceModel{
+		Id:            types.StringValue(eh.ID),
+		HookID:        types.StringNull(),
+		EnvironmentID: types.StringNull(),
+		Events:        types.SetNull(types.StringType),
+	}
+
+	if eh.Hook != nil {
+		model.HookID = types.StringValue(eh.Hook.ID)
+	}
+	if eh.Environment != nil {
+		model.EnvironmentID = types.StringValue(eh.Environment.ID)
+	}
+
+	// If all events are selected, collapse the value to "*",
+	// but only if the value in config is set to "*" too.
+	if setsEqual(eh.Events, allowedHookEvents) && cfgEventsValue.Equal(asteriskSetValue) {
+		model.Events = asteriskSetValue
+	} else {
+		// Otherwise set the values as seen in the API response
+		eventValues, d := types.SetValueFrom(ctx, types.StringType, eh.Events)
+		diags.Append(d...)
+		model.Events = eventValues
+	}
+
+	return model, diags
 }

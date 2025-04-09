@@ -162,3 +162,24 @@ func diff[T comparable](old, new []T) (added, removed []T) {
 
 	return
 }
+
+// setsEqual reports whether two slices contain the same set of elements.
+// The order of elements does not matter, and each element must be unique in the slice.
+func setsEqual[T comparable](a, b []T) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	set := make(map[T]struct{}, len(a))
+	for _, v := range a {
+		set[v] = struct{}{}
+	}
+
+	for _, v := range b {
+		if _, ok := set[v]; !ok {
+			return false
+		}
+	}
+
+	return true
+}
