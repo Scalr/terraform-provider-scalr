@@ -32,12 +32,12 @@ resource "scalr_environment_hook" "test_link_all" {
 ### Required
 
 - `environment_id` (String) ID of the environment, in the format `env-<RANDOM STRING>`.
-- `events` (Set of String) Set of events that trigger the hook execution. Valid values include: `pre-init`, `pre-plan`, `post-plan`, `pre-apply`, `post-apply`. Use `set( ["*"] )` to select all events.
+- `events` (Set of String) Set of events that trigger the hook execution. Valid values include: `pre-init`, `pre-plan`, `post-plan`, `pre-apply`, `post-apply`. Use `["*"]` to select all events.
 - `hook_id` (String) ID of the hook, in the format `hook-<RANDOM STRING>`.
 
 ### Read-Only
 
-- `id` (String) The ID of this link resource.
+- `id` (String) The ID of this resource.
 
 ## Import
 
