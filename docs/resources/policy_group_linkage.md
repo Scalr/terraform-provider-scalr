@@ -4,7 +4,7 @@ categorySlug: "scalr-terraform-provider"
 slug: "provider_resource_scalr_policy_group_linkage"
 parentDocSlug: "provider_resources"
 hidden: false
-order: 12
+order: 14
 ---
 ## Resource: scalr_policy_group_linkage
 

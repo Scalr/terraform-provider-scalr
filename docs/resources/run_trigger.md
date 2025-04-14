@@ -4,7 +4,7 @@ categorySlug: "scalr-terraform-provider"
 slug: "provider_resource_scalr_run_trigger"
 parentDocSlug: "provider_resources"
 hidden: false
-order: 17
+order: 19
 ---
 ## Resource: scalr_run_trigger
 

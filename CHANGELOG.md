@@ -10,13 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `scalr_variable`: new attribute `readable_value` ([#409](https://github.com/Scalr/terraform-provider-scalr/pull/409))
+- **New resource:** `scalr_hook` ([#403](https://github.com/Scalr/terraform-provider-scalr/pull/403))
+- **New resource:** `scalr_environment_hook` ([#403](https://github.com/Scalr/terraform-provider-scalr/pull/403))
+- **New data source:** `scalr_hook` ([#403](https://github.com/Scalr/terraform-provider-scalr/pull/403))
 
 ## [3.0.0] - 2025-04-04
 
 ### Added
 
- - **New resource:** `scalr_workload_identity_provider` ([#405](https://github.com/Scalr/terraform-provider-scalr/pull/405)
- - **New resource:** `scalr_assume_service_account_policy` ([#405](https://github.com/Scalr/terraform-provider-scalr/pull/405)
+ - **New resource:** `scalr_workload_identity_provider` ([#405](https://github.com/Scalr/terraform-provider-scalr/pull/405))
+ - **New resource:** `scalr_assume_service_account_policy` ([#405](https://github.com/Scalr/terraform-provider-scalr/pull/405))
  - `scalr_workspace.auto_queue_runs`: support `on_create_only` option ([#406](https://github.com/Scalr/terraform-provider-scalr/pull/406))
  - **New data source:** `scalr_workload_identity_provider` ([#408](https://github.com/Scalr/terraform-provider-scalr/pull/408))
  - **New data source:** `scalr_assume_service_account_policy` ([#408](https://github.com/Scalr/terraform-provider-scalr/pull/408))
@@ -38,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `scalr_environment` and `data.scalr_environment`: new attribute `mask_sensitive_output` ([#389](https://github.com/Scalr/terraform-provider-scalr/pull/389))
-- **New resource:** `scalr_integration_infracost` ([#397](https://github.com/Scalr/terraform-provider-scalr/pull/397)
+- **New resource:** `scalr_integration_infracost` ([#397](https://github.com/Scalr/terraform-provider-scalr/pull/397))
 - **New data source:** `scalr_integration_infracost` ([#397](https://github.com/Scalr/terraform-provider-scalr/pull/397))
 
 ### Fixed
