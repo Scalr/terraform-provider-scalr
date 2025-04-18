@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 jobs:
   create_ticket:
-    runs-on: ["small-amd64-without-dind"]
+    runs-on: ubuntu-latest
     steps:
       - name: Generate GitHub Token
         id: generate_token
