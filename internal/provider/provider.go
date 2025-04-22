@@ -150,24 +150,25 @@ func (p *scalrProvider) Configure(ctx context.Context, req provider.ConfigureReq
 func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		newAgentPoolTokenResource,
-		newTagResource,
-		newWorkspaceResource,
-		newIntegrationInfracostResource,
-		newWorkloadIdentityProviderResource,
 		newAssumeServiceAccountPolicyResource,
-		newVariableResource,
-		newHookResource,
 		newEnvironmentHookResource,
+		newEnvironmentResource,
+		newHookResource,
+		newIntegrationInfracostResource,
+		newTagResource,
+		newVariableResource,
+		newWorkloadIdentityProviderResource,
+		newWorkspaceResource,
 	}
 }
 
 func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		newProviderConfigurationDataSource,
-		newTagDataSource,
-		newIntegrationInfracostDataSource,
-		newWorkloadIdentityProviderDataSource,
 		newAssumeServiceAccountPolicyDataSource,
 		newHookDataSource,
+		newIntegrationInfracostDataSource,
+		newProviderConfigurationDataSource,
+		newTagDataSource,
+		newWorkloadIdentityProviderDataSource,
 	}
 }

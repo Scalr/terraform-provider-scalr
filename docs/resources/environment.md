@@ -8,7 +8,7 @@ order: 6
 ---
 ## Resource: scalr_environment
 
-Manage the state of environments in Scalr. Creates, updates and destroys.
+Manages the state of environments in Scalr.
 
 ## Example Usage
 
@@ -29,7 +29,7 @@ resource "scalr_environment" "test" {
 
 ### Optional
 
-- `account_id` (String) ID of the environment account, in the format `acc-<RANDOM STRING>`.
+- `account_id` (String) ID of the account, in the format `acc-<RANDOM STRING>`.
 - `default_provider_configurations` (Set of String) List of IDs of provider configurations, used in the environment workspaces by default.
 - `mask_sensitive_output` (Boolean) Enable masking of the sensitive console output. Defaults to `true`.
 - `remote_backend` (Boolean) If Scalr exports the remote backend configuration and state storage for your infrastructure management. Disabling this feature will also prevent the ability to perform state locking, which ensures that concurrent operations do not conflict. Additionally, it will disable the capability to initiate CLI-driven runs through Scalr.
