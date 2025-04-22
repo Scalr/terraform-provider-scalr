@@ -31,6 +31,7 @@ resource "scalr_environment" "test" {
 
 - `account_id` (String) ID of the account, in the format `acc-<RANDOM STRING>`.
 - `default_provider_configurations` (Set of String) List of IDs of provider configurations, used in the environment workspaces by default.
+- `federated_environments` (Set of String) The list of environment identifiers that are allowed to access this environment. Use `["*"]` to share with all the environments within the account.
 - `mask_sensitive_output` (Boolean) Enable masking of the sensitive console output. Defaults to `true`.
 - `remote_backend` (Boolean) If Scalr exports the remote backend configuration and state storage for your infrastructure management. Disabling this feature will also prevent the ability to perform state locking, which ensures that concurrent operations do not conflict. Additionally, it will disable the capability to initiate CLI-driven runs through Scalr.
 - `tag_ids` (Set of String) List of tag IDs associated with the environment.

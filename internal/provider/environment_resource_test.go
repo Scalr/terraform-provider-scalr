@@ -135,6 +135,37 @@ func TestAccEnvironment_UpgradeFromSDK(t *testing.T) {
 	})
 }
 
+func TestAccEnvironment_Federated(t *testing.T) {
+	environment := &scalr.Environment{}
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrEnvironmentDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccEnvironmentWithFederatedConfig(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrEnvironmentExists("scalr_environment.test", environment),
+					resource.TestCheckResourceAttr(
+						"scalr_environment.test", "federated_environments.#", "2"),
+					testAccCheckScalrEnvironmentFederation("scalr_environment.test", false),
+				),
+			},
+			{
+				Config: testAccEnvironmentWithFederatedUpdatedConfig(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrEnvironmentExists("scalr_environment.test", environment),
+					resource.TestCheckResourceAttr(
+						"scalr_environment.test", "federated_environments.#", "1"),
+					testAccCheckScalrEnvironmentFederation("scalr_environment.test", true),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckScalrEnvironmentDestroy(s *terraform.State) error {
 	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
@@ -174,6 +205,33 @@ func testAccCheckScalrEnvironmentExists(n string, environment *scalr.Environment
 		}
 
 		*environment = *env
+
+		return nil
+	}
+}
+
+func testAccCheckScalrEnvironmentFederation(
+	n string, isFederated bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
+
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No instance ID is set")
+		}
+
+		env, err := scalrClient.Environments.Read(ctx, rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+
+		if env.IsFederatedToAccount != isFederated {
+			return fmt.Errorf("Expected IsFederatedToAccount %t, got %t", isFederated, env.IsFederatedToAccount)
+		}
 
 		return nil
 	}
@@ -320,5 +378,43 @@ resource "scalr_workspace" "test" {
 resource "scalr_environment" "test" {
   name       = "test-env-%d-patched"
   account_id = "%s"
+}`, rInt, defaultAccount)
+}
+
+func testAccEnvironmentWithFederatedConfig(rInt int) string {
+	return fmt.Sprintf(`
+resource "scalr_environment" "federated1" {
+  name       = "federated1-%[1]d"
+  account_id = "%[2]s"
+}
+
+resource "scalr_environment" "federated2" {
+  name       = "federated2-%[1]d"
+  account_id = "%[2]s"
+}
+
+resource "scalr_environment" "test" {
+  name       = "test-env-%[1]d"
+  account_id = "%[2]s"
+  federated_environments = [ scalr_environment.federated1.id, scalr_environment.federated2.id ]
+}`, rInt, defaultAccount)
+}
+
+func testAccEnvironmentWithFederatedUpdatedConfig(rInt int) string {
+	return fmt.Sprintf(`
+resource "scalr_environment" "federated1" {
+  name       = "federated1-%[1]d"
+  account_id = "%[2]s"
+}
+
+resource "scalr_environment" "federated2" {
+  name       = "federated2-%[1]d"
+  account_id = "%[2]s"
+}
+
+resource "scalr_environment" "test" {
+  name       = "test-env-%[1]d"
+  account_id = "%[2]s"
+  federated_environments = [ "*" ]
 }`, rInt, defaultAccount)
 }

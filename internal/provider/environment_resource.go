@@ -51,10 +51,11 @@ type environmentResourceModel struct {
 	TagIDs                        types.Set    `tfsdk:"tag_ids"`
 	RemoteBackend                 types.Bool   `tfsdk:"remote_backend"`
 	MaskSensitiveOutput           types.Bool   `tfsdk:"mask_sensitive_output"`
+	FederatedEnvironments         types.Set    `tfsdk:"federated_environments"`
 	AccountID                     types.String `tfsdk:"account_id"`
 }
 
-func environmentResourceModelFromAPI(ctx context.Context, env *scalr.Environment) (*environmentResourceModel, diag.Diagnostics) {
+func environmentResourceModelFromAPI(ctx context.Context, env *scalr.Environment, federatedEnvironments []string) (*environmentResourceModel, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	model := &environmentResourceModel{
@@ -67,6 +68,7 @@ func environmentResourceModelFromAPI(ctx context.Context, env *scalr.Environment
 		TagIDs:                        types.SetNull(types.StringType),
 		RemoteBackend:                 types.BoolValue(env.RemoteBackend),
 		MaskSensitiveOutput:           types.BoolValue(env.MaskSensitiveOutput),
+		FederatedEnvironments:         types.SetNull(types.StringType),
 		AccountID:                     types.StringValue(env.Account.ID),
 	}
 
@@ -100,6 +102,15 @@ func environmentResourceModelFromAPI(ctx context.Context, env *scalr.Environment
 	tagsValue, d := types.SetValueFrom(ctx, types.StringType, tags)
 	diags.Append(d...)
 	model.TagIDs = tagsValue
+
+	if env.IsFederatedToAccount {
+		federatedEnvironments = []string{"*"}
+	} else if federatedEnvironments == nil {
+		federatedEnvironments = []string{}
+	}
+	federatedValue, d := types.SetValueFrom(ctx, types.StringType, federatedEnvironments)
+	diags.Append(d...)
+	model.FederatedEnvironments = federatedValue
 
 	return model, diags
 }
@@ -189,6 +200,16 @@ func (r *environmentResource) Schema(ctx context.Context, _ resource.SchemaReque
 				Computed:            true,
 				Default:             booldefault.StaticBool(true),
 			},
+			"federated_environments": schema.SetAttribute{
+				MarkdownDescription: "The list of environment identifiers that are allowed to access this environment. Use `[\"*\"]` to share with all the environments within the account.",
+				ElementType:         types.StringType,
+				Optional:            true,
+				Computed:            true,
+				Default:             setdefault.StaticValue(emptyStringSet),
+				Validators: []validator.Set{
+					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
+				},
+			},
 			"account_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the account, in the format `acc-<RANDOM STRING>`.",
 				Optional:            true,
@@ -248,10 +269,33 @@ func (r *environmentResource) Create(ctx context.Context, req resource.CreateReq
 		opts.Tags = tags
 	}
 
+	federatedEnvironments := make([]*scalr.EnvironmentRelation, 0)
+	if !plan.FederatedEnvironments.IsUnknown() && !plan.FederatedEnvironments.IsNull() {
+		opts.IsFederatedToAccount = ptr(false)
+		var federatedIDs []string
+		resp.Diagnostics.Append(plan.FederatedEnvironments.ElementsAs(ctx, &federatedIDs, false)...)
+
+		if (len(federatedIDs) == 1) && (federatedIDs[0] == "*") {
+			opts.IsFederatedToAccount = ptr(true)
+		} else if len(federatedIDs) > 0 {
+			for _, envID := range federatedIDs {
+				federatedEnvironments = append(federatedEnvironments, &scalr.EnvironmentRelation{ID: envID})
+			}
+		}
+	}
+
 	environment, err := r.Client.Environments.Create(ctx, opts)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating environment", err.Error())
 		return
+	}
+
+	if len(federatedEnvironments) > 0 {
+		err = r.Client.FederatedEnvironments.Add(ctx, environment.ID, federatedEnvironments)
+		if err != nil {
+			resp.Diagnostics.AddError("Error adding federated environments", err.Error())
+			return
+		}
 	}
 
 	// Get refreshed resource state from API
@@ -261,7 +305,12 @@ func (r *environmentResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	result, diags := environmentResourceModelFromAPI(ctx, environment)
+	federated, err := getFederatedEnvironments(ctx, r.Client, environment.ID)
+	if err != nil {
+		resp.Diagnostics.AddError("Error retrieving federated environments", err.Error())
+	}
+
+	result, diags := environmentResourceModelFromAPI(ctx, environment, federated)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -293,7 +342,12 @@ func (r *environmentResource) Read(ctx context.Context, req resource.ReadRequest
 		return
 	}
 
-	result, diags := environmentResourceModelFromAPI(ctx, environment)
+	federated, err := getFederatedEnvironments(ctx, r.Client, environment.ID)
+	if err != nil {
+		resp.Diagnostics.AddError("Error retrieving federated environments", err.Error())
+	}
+
+	result, diags := environmentResourceModelFromAPI(ctx, environment, federated)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -339,6 +393,30 @@ func (r *environmentResource) Update(ctx context.Context, req resource.UpdateReq
 		opts.DefaultProviderConfigurations = defaultPcfgs
 	}
 
+	var federatedToAdd, federatedToRemove []string
+	if !plan.FederatedEnvironments.Equal(state.FederatedEnvironments) {
+		var planFederated []string
+		var stateFederated []string
+		resp.Diagnostics.Append(plan.FederatedEnvironments.ElementsAs(ctx, &planFederated, false)...)
+		resp.Diagnostics.Append(state.FederatedEnvironments.ElementsAs(ctx, &stateFederated, false)...)
+
+		opts.IsFederatedToAccount = ptr(false)
+
+		if len(planFederated) == 1 && planFederated[0] == "*" {
+			opts.IsFederatedToAccount = ptr(true)
+			planFederated = []string{}
+		}
+		if len(stateFederated) == 1 && stateFederated[0] == "*" {
+			stateFederated = []string{}
+		}
+
+		federatedToAdd, federatedToRemove = diff(stateFederated, planFederated)
+	}
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	// Update existing resource
 	_, err := r.Client.Environments.Update(ctx, plan.Id.ValueString(), opts)
 	if err != nil {
@@ -377,6 +455,27 @@ func (r *environmentResource) Update(ctx context.Context, req resource.UpdateReq
 		}
 	}
 
+	if len(federatedToAdd) > 0 {
+		e := make([]*scalr.EnvironmentRelation, len(federatedToAdd))
+		for i, env := range federatedToAdd {
+			e[i] = &scalr.EnvironmentRelation{ID: env}
+		}
+		err = r.Client.FederatedEnvironments.Add(ctx, plan.Id.ValueString(), e)
+		if err != nil {
+			resp.Diagnostics.AddError("Error adding federated environments", err.Error())
+		}
+	}
+	if len(federatedToRemove) > 0 {
+		e := make([]*scalr.EnvironmentRelation, len(federatedToRemove))
+		for i, env := range federatedToRemove {
+			e[i] = &scalr.EnvironmentRelation{ID: env}
+		}
+		err = r.Client.FederatedEnvironments.Delete(ctx, plan.Id.ValueString(), e)
+		if err != nil {
+			resp.Diagnostics.AddError("Error removing federated environments", err.Error())
+		}
+	}
+
 	// Get refreshed resource state from API
 	environment, err := r.Client.Environments.Read(ctx, plan.Id.ValueString())
 	if err != nil {
@@ -384,7 +483,12 @@ func (r *environmentResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
-	result, diags := environmentResourceModelFromAPI(ctx, environment)
+	federated, err := getFederatedEnvironments(ctx, r.Client, environment.ID)
+	if err != nil {
+		resp.Diagnostics.AddError("Error retrieving federated environments", err.Error())
+	}
+
+	result, diags := environmentResourceModelFromAPI(ctx, environment, federated)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -414,4 +518,24 @@ func (r *environmentResource) Delete(ctx context.Context, req resource.DeleteReq
 
 func (r *environmentResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+func getFederatedEnvironments(ctx context.Context, scalrClient *scalr.Client, envID string) (envs []string, err error) {
+	listOpts := scalr.ListOptions{}
+	for {
+		el, err := scalrClient.FederatedEnvironments.List(ctx, envID, listOpts)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, e := range el.Items {
+			envs = append(envs, e.ID)
+		}
+
+		if el.CurrentPage >= el.TotalPages {
+			break
+		}
+		listOpts.PageNumber = el.NextPage
+	}
+	return
 }
