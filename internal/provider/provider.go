@@ -166,6 +166,7 @@ func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataS
 	return []func() datasource.DataSource{
 		newAssumeServiceAccountPolicyDataSource,
 		newEnvironmentDataSource,
+		newEnvironmentsDataSource,
 		newHookDataSource,
 		newIntegrationInfracostDataSource,
 		newProviderConfigurationDataSource,

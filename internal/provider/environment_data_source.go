@@ -57,7 +57,7 @@ func (d *environmentDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: "The identifier of the environment.",
+				MarkdownDescription: "The environment ID, in the format `env-<RANDOM STRING>`.",
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
@@ -65,7 +65,7 @@ func (d *environmentDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "The name of the environment.",
+				MarkdownDescription: "Name of the environment.",
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
@@ -103,11 +103,11 @@ func (d *environmentDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 				Computed: true,
 			},
 			"mask_sensitive_output": schema.BoolAttribute{
-				MarkdownDescription: "Enable masking of the sensitive console output. Defaults to `true`.",
+				MarkdownDescription: "Enable masking of the sensitive console output.",
 				Computed:            true,
 			},
 			"federated_environments": schema.SetAttribute{
-				MarkdownDescription: "The list of environment identifiers that are allowed to access this environment. Use `[\"*\"]` to share with all the environments within the account.",
+				MarkdownDescription: "The list of environment identifiers that are allowed to access this environment, or `[\"*\"]` if shared with all environments.",
 				ElementType:         types.StringType,
 				Computed:            true,
 			},

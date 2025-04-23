@@ -40,7 +40,6 @@ func Provider(v string) *schema.Provider {
 			"scalr_agent_pool":               dataSourceScalrAgentPool(),
 			"scalr_current_account":          dataSourceScalrCurrentAccount(),
 			"scalr_current_run":              dataSourceScalrCurrentRun(),
-			"scalr_environments":             dataSourceScalrEnvironments(),
 			"scalr_iam_team":                 dataSourceScalrIamTeam(),
 			"scalr_iam_user":                 dataSourceScalrIamUser(),
 			"scalr_module_version":           dataSourceModuleVersion(),

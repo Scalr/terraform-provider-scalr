@@ -201,7 +201,7 @@ func (r *environmentResource) Schema(ctx context.Context, _ resource.SchemaReque
 				Default:             booldefault.StaticBool(true),
 			},
 			"federated_environments": schema.SetAttribute{
-				MarkdownDescription: "The list of environment identifiers that are allowed to access this environment. Use `[\"*\"]` to share with all the environments within the account.",
+				MarkdownDescription: "The list of environment identifiers that are allowed to access this environment. Use `[\"*\"]` to share with all environments.",
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
