@@ -168,7 +168,6 @@ func (r *environmentResource) Schema(ctx context.Context, _ resource.SchemaReque
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Default:             setdefault.StaticValue(emptyStringSet),
 				Validators: []validator.Set{
 					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
 				},
@@ -378,7 +377,7 @@ func (r *environmentResource) Update(ctx context.Context, req resource.UpdateReq
 		opts.MaskSensitiveOutput = plan.MaskSensitiveOutput.ValueBoolPointer()
 	}
 
-	if !plan.DefaultProviderConfigurations.IsNull() {
+	if !plan.DefaultProviderConfigurations.IsUnknown() && !plan.DefaultProviderConfigurations.IsNull() {
 		var defaultPcfgIDs []string
 		resp.Diagnostics.Append(plan.DefaultProviderConfigurations.ElementsAs(ctx, &defaultPcfgIDs, false)...)
 		if resp.Diagnostics.HasError() {
