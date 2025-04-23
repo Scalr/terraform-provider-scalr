@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `scalr_environment`: new attribute `federated_environments` ([#414](https://github.com/Scalr/terraform-provider-scalr/pull/414))
 - `scalr_variable`: new attribute `readable_value` ([#409](https://github.com/Scalr/terraform-provider-scalr/pull/409))
 - **New resource:** `scalr_hook` ([#403](https://github.com/Scalr/terraform-provider-scalr/pull/403))
 - **New resource:** `scalr_environment_hook` ([#403](https://github.com/Scalr/terraform-provider-scalr/pull/403))
