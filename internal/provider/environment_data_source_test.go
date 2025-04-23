@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccEnvironmentDataSource_basic(t *testing.T) {
+func TestAccScalrEnvironmentDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 	for {
 		if rInt >= 100 {
@@ -26,17 +26,17 @@ func TestAccEnvironmentDataSource_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      `data scalr_environment test {}`,
-				ExpectError: regexp.MustCompile("\"id\": one of `id,name` must be specified"),
+				ExpectError: regexp.MustCompile(`At least one of these attributes must be configured: \[id,name]`),
 				PlanOnly:    true,
 			},
 			{
 				Config:      `data scalr_environment test {id = ""}`,
-				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				ExpectError: regexp.MustCompile("Attribute id must not be empty"),
 				PlanOnly:    true,
 			},
 			{
 				Config:      `data scalr_environment test {name = ""}`,
-				ExpectError: regexp.MustCompile("expected \"name\" to not be an empty string or whitespace"),
+				ExpectError: regexp.MustCompile("Attribute name must not be empty"),
 				PlanOnly:    true,
 			},
 			{
