@@ -35,11 +35,11 @@ data "scalr_environments" "all" {
 
 ### Optional
 
-- `account_id` (String) ID of the account, in the format `acc-<RANDOM STRING>`.
+- `account_id` (String) The ID of the Scalr account, in the format `acc-<RANDOM STRING>`.
 - `name` (String) The query used in a Scalr environment name filter.
 - `tag_ids` (Set of String) List of tag IDs associated with the environment.
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) The identifier of this data source.
 - `ids` (Set of String) The list of environment IDs, in the format [`env-xxxxxxxxxxx`, `env-yyyyyyyyy`].
