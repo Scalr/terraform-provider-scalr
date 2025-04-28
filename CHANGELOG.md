@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [3.1.0] - 2025-04-25
+
 ### Added
 
 - `scalr_environment`: new attribute `federated_environments` ([#414](https://github.com/Scalr/terraform-provider-scalr/pull/414))
@@ -14,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **New resource:** `scalr_hook` ([#403](https://github.com/Scalr/terraform-provider-scalr/pull/403))
 - **New resource:** `scalr_environment_hook` ([#403](https://github.com/Scalr/terraform-provider-scalr/pull/403))
 - **New data source:** `scalr_hook` ([#403](https://github.com/Scalr/terraform-provider-scalr/pull/403))
+
+### Required
+
+- scalr-server >= 8.194.0
 
 ## [3.0.0] - 2025-04-04
 
@@ -990,7 +997,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.1.0...HEAD
+[3.1.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.1.0
 [3.0.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.0.0
 [2.6.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.6.0
 [2.5.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v2.5.0
