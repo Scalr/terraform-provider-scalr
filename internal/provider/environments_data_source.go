@@ -98,7 +98,7 @@ func (d *environmentsDataSource) Read(ctx context.Context, req datasource.ReadRe
 
 	id := strings.Builder{} // holds the string to build a unique resource id hash
 	id.WriteString(accID)
-	ids := make([]string, 0)
+	uniqueIDs := make(map[string]struct{})
 
 	opts := scalr.EnvironmentListOptions{
 		Filter: &scalr.EnvironmentFilter{
@@ -130,13 +130,18 @@ func (d *environmentsDataSource) Read(ctx context.Context, req datasource.ReadRe
 		}
 
 		for _, e := range el.Items {
-			ids = append(ids, e.ID)
+			uniqueIDs[e.ID] = struct{}{}
 		}
 
 		if el.CurrentPage >= el.TotalPages {
 			break
 		}
 		opts.PageNumber = el.NextPage
+	}
+
+	ids := make([]string, 0, len(uniqueIDs))
+	for id := range uniqueIDs {
+		ids = append(ids, id)
 	}
 
 	cfg.Id = types.StringValue(fmt.Sprintf("%d", framework.HashString(id.String())))
