@@ -105,16 +105,12 @@ func (r *hookResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 						"identifier": schema.StringAttribute{
 							MarkdownDescription: "The identifier of a VCS repository in the format `:org/:repo`.",
 							Required:            true,
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.RequiresReplace(),
-							},
 						},
 						"branch": schema.StringAttribute{
 							MarkdownDescription: "Repository branch name.",
 							Optional:            true,
 							Computed:            true,
 							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.RequiresReplace(),
 								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
