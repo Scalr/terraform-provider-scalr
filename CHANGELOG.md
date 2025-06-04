@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `scalr_hook`: attributes vcs_repo.identifier and vcs_repo.branch can now be updated in-place without recreating the resource ([#422](https://github.com/Scalr/terraform-provider-scalr/pull/422))
 
+### Deprecated
+
+- `scalr_role`: attribute `account_id` is deprecated and will be removed in the next major version ([#425](https://github.com/Scalr/terraform-provider-scalr/pull/425))
+
 ## [3.2.0] - 2025-05-09
 
 ### Added

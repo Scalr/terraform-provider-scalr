@@ -45,6 +45,8 @@ func resourceScalrRole() *schema.Resource {
 				Computed:    true,
 				DefaultFunc: scalrAccountIDDefaultFunc,
 				ForceNew:    true,
+				Deprecated: "Attribute `account_id` is deprecated, the account id is calculated from the " +
+					" API request context.",
 			},
 
 			"is_system": {
@@ -93,7 +95,6 @@ func resourceScalrRoleCreate(ctx context.Context, d *schema.ResourceData, meta i
 	// Get required options
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
-	accountID := d.Get("account_id").(string)
 
 	// Get optional attributes
 	permissions, err := parsePermissionDefinitions(d)
@@ -104,16 +105,15 @@ func resourceScalrRoleCreate(ctx context.Context, d *schema.ResourceData, meta i
 	// Create a new options struct
 	options := scalr.RoleCreateOptions{
 		Name:        ptr(name),
-		Account:     &scalr.Account{ID: accountID},
 		Description: ptr(description),
 		Permissions: permissions,
 	}
 
-	log.Printf("[DEBUG] Create role %s for account: %s", name, accountID)
+	log.Printf("[DEBUG] Creating role %s", name)
 	role, err := scalrClient.Roles.Create(ctx, options)
 	if err != nil {
 		return diag.Errorf(
-			"Error creating role %s for account %s: %v", name, accountID, err)
+			"Error creating role %s: %v", name, err)
 	}
 	d.SetId(role.ID)
 	return resourceScalrRoleRead(ctx, d, meta)

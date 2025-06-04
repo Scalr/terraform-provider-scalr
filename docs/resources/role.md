@@ -36,7 +36,7 @@ resource "scalr_role" "writer" {
 
 ### Optional
 
-- `account_id` (String) ID of the account.
+- `account_id` (String, Deprecated) ID of the account.
 - `description` (String) Verbose description of the role.
 
 ### Read-Only
