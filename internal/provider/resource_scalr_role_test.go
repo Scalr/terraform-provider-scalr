@@ -142,40 +142,37 @@ func testAccCheckScalrRoleDestroy(s *terraform.State) error {
 }
 
 func testAccScalrRoleBasic() string {
-	return fmt.Sprintf(`
+	return `
 resource "scalr_role" "test" {
   name           = "role-test"
   description    = "test basic"
-  account_id     = "%s"
   permissions    = [
 	 "*:read",
 	 "*:update"
   ]
-}`, defaultAccount)
+}`
 }
 
 func testAccScalrRoleUpdate() string {
-	return fmt.Sprintf(`
+	return `
 resource "scalr_role" "test" {
   name           = "role-updated"
-  account_id     = "%s"
   description    = "updated"
   permissions    = [
 	 "*:update",
 	 "*:delete"
   ]
-}`, defaultAccount)
+}`
 }
 
 func testAccScalrRoleUpdateEmptyPermission() string {
-	return fmt.Sprintf(`
+	return `
 resource "scalr_role" "test" {
   name           = "role-updated"
-  account_id     = "%s"
   description    = "updated"
   permissions    = [
 	  "*:update",
 	  ""
   ]
-}`, defaultAccount)
+}`
 }
