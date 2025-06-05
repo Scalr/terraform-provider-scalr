@@ -46,7 +46,7 @@ func resourceScalrRole() *schema.Resource {
 				DefaultFunc: scalrAccountIDDefaultFunc,
 				ForceNew:    true,
 				Deprecated: "Attribute `account_id` is deprecated, the account id is calculated from the " +
-					" API request context.",
+					"API request context.",
 			},
 
 			"is_system": {
