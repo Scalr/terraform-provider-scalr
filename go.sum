@@ -201,8 +201,8 @@ github.com/rogpeppe/go-internal v1.6.1 h1:/FiVV8dS/e+YqF2JvO3yXRFbBLTIuSDkuC7aBO
 github.com/rogpeppe/go-internal v1.6.1/go.mod h1:xXDCJY+GAPziupqXw64V24skbSoqbTEfhy4qGm1nDQc=
 github.com/russross/blackfriday v1.6.0 h1:KqfZb0pUVN2lYqZUYRddxF4OR8ZMURnJIG5Y3VRLtww=
 github.com/russross/blackfriday v1.6.0/go.mod h1:ti0ldHuxg49ri4ksnFxlkCfN+hvslNlmVHqNRXXJNAY=
-github.com/scalr/go-scalr v0.0.0-20250604141225-96f57295915d h1:mqnj5iJ1vqcJITkC1y4XVLkS2kFBjxYfnlaQpTsan8E=
-github.com/scalr/go-scalr v0.0.0-20250604141225-96f57295915d/go.mod h1:PKuZ6tEH/QfPk10pLtFCN7yYqYQ3przx/Yut1qbK48Q=
+github.com/scalr/go-scalr v0.0.0-20250606114604-f9ec18fb5ebf h1:FKSW4yx5mRp2hSy81PLV0d0KtyPFUTKHQvfPTh0ysy4=
+github.com/scalr/go-scalr v0.0.0-20250606114604-f9ec18fb5ebf/go.mod h1:PKuZ6tEH/QfPk10pLtFCN7yYqYQ3przx/Yut1qbK48Q=
 github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 h1:n661drycOFuPLCN3Uc8sB6B/s6Z4t2xvBgU1htSHuq8=
 github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3/go.mod h1:A0bzQcvG0E7Rwjx0REVgAGH58e96+X0MeOfepqsbeW4=
 github.com/shopspring/decimal v1.2.0/go.mod h1:DKyhrW/HYNuLGql+MJL6WCR6knT2jwCFRcu2hWCYk4o=
