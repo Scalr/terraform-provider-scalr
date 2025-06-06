@@ -228,12 +228,13 @@ Required:
 
 Optional:
 
-- `branch` (String) The repository branch where Terraform will be run from. If omitted, the repository default branch will be used.
+- `branch` (String) The repository branch where Terraform will be run from. If omitted, the repository default branch will be used. Conflicts with `version_constraint`.
 - `dry_runs_enabled` (Boolean) Set (true/false) to configure the VCS driven dry runs should run when pull request to configuration versions branch created. Default `true`.
 - `ingress_submodules` (Boolean) Designates whether to clone git submodules of the VCS repository.
 - `path` (String, Deprecated) The repository subdirectory that Terraform will execute from. If omitted or submitted as an empty string, this defaults to the repository's root.
 - `trigger_patterns` (String) The gitignore-style patterns for files, whose changes will trigger a run for the workspace using this binding when the CV is created. Conflicts with `trigger_prefixes`. If `trigger_prefixes` and `trigger_patterns` are omitted, any change in `path` will trigger a new run.
 - `trigger_prefixes` (List of String) List of paths (relative to `path`), whose changes will trigger a run for the workspace using this binding when the CV is created. Conflicts with `trigger_patterns`. If `trigger_prefixes` and `trigger_patterns` are omitted, any change in `path` will trigger a new run.
+- `version_constraint` (String) Terraform-like version constraint used to trigger a run for matching Git tags. Conflicts with `branch`.
 
 
 <a id="nestedatt--created_by"></a>
