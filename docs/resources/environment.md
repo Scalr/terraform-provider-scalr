@@ -34,6 +34,7 @@ resource "scalr_environment" "test" {
 - `federated_environments` (Set of String) The list of environment identifiers that are allowed to access this environment. Use `["*"]` to share with all environments.
 - `mask_sensitive_output` (Boolean) Enable masking of the sensitive console output. Defaults to `true`.
 - `remote_backend` (Boolean) If Scalr exports the remote backend configuration and state storage for your infrastructure management. Disabling this feature will also prevent the ability to perform state locking, which ensures that concurrent operations do not conflict. Additionally, it will disable the capability to initiate CLI-driven runs through Scalr.
+- `storage_profile_id` (String) The storage profile for this environment. If not set, the account's default storage profile will be used.
 - `tag_ids` (Set of String) List of tag IDs associated with the environment.
 
 ### Read-Only

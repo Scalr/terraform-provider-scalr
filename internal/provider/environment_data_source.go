@@ -45,6 +45,7 @@ type environmentDataSourceModel struct {
 	MaskSensitiveOutput           types.Bool   `tfsdk:"mask_sensitive_output"`
 	FederatedEnvironments         types.Set    `tfsdk:"federated_environments"`
 	AccountID                     types.String `tfsdk:"account_id"`
+	StorageProfileID              types.String `tfsdk:"storage_profile_id"`
 }
 
 func (d *environmentDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -114,6 +115,10 @@ func (d *environmentDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 			"account_id": schema.StringAttribute{
 				MarkdownDescription: "The ID of the Scalr account, in the format `acc-<RANDOM STRING>`.",
 				Optional:            true,
+				Computed:            true,
+			},
+			"storage_profile_id": schema.StringAttribute{
+				MarkdownDescription: "The storage profile for this environment.",
 				Computed:            true,
 			},
 		},
@@ -227,6 +232,10 @@ func (d *environmentDataSource) Read(ctx context.Context, req datasource.ReadReq
 	federatedValue, diags := types.SetValueFrom(ctx, types.StringType, federatedEnvironments)
 	resp.Diagnostics.Append(diags...)
 	cfg.FederatedEnvironments = federatedValue
+
+	if environment.StorageProfile != nil {
+		cfg.StorageProfileID = types.StringValue(environment.StorageProfile.ID)
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &cfg)...)
 }

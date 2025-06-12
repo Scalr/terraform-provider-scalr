@@ -1,0 +1,1 @@
+terraform import scalr_storage_profile.example sp-xxxxxxxxxx

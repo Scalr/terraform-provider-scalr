@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `scalr_workspace`: new attribute `vcs_repo.version_constraint` ([#424](https://github.com/Scalr/terraform-provider-scalr/pull/424))
+- **New resource:** `scalr_storage_profile` ([#426](https://github.com/Scalr/terraform-provider-scalr/pull/426))
+- **New data source:** `scalr_storage_profile` ([#426](https://github.com/Scalr/terraform-provider-scalr/pull/426))
+- `scalr_environment` and `data.scalr_environment`: new attribute `storage_profile_id` ([#426](https://github.com/Scalr/terraform-provider-scalr/pull/426))
 
 ### Changed
 
