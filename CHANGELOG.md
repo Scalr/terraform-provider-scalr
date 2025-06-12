@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **New resource:** `scalr_storage_profile` ([#426](https://github.com/Scalr/terraform-provider-scalr/pull/426))
+- **New data source:** `scalr_storage_profile` ([#426](https://github.com/Scalr/terraform-provider-scalr/pull/426))
+- `scalr_environment` and `data.scalr_environment`: new attribute `storage_profile_id` ([#426](https://github.com/Scalr/terraform-provider-scalr/pull/426))
+
 ### Changed
 
 - `scalr_hook`: attributes vcs_repo.identifier and vcs_repo.branch can now be updated in-place without recreating the resource ([#422](https://github.com/Scalr/terraform-provider-scalr/pull/422))
