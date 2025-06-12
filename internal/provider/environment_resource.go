@@ -53,6 +53,7 @@ type environmentResourceModel struct {
 	MaskSensitiveOutput           types.Bool   `tfsdk:"mask_sensitive_output"`
 	FederatedEnvironments         types.Set    `tfsdk:"federated_environments"`
 	AccountID                     types.String `tfsdk:"account_id"`
+	StorageProfileID              types.String `tfsdk:"storage_profile_id"`
 }
 
 func environmentResourceModelFromAPI(ctx context.Context, env *scalr.Environment, federatedEnvironments []string) (*environmentResourceModel, diag.Diagnostics) {
@@ -70,6 +71,7 @@ func environmentResourceModelFromAPI(ctx context.Context, env *scalr.Environment
 		MaskSensitiveOutput:           types.BoolValue(env.MaskSensitiveOutput),
 		FederatedEnvironments:         types.SetNull(types.StringType),
 		AccountID:                     types.StringValue(env.Account.ID),
+		StorageProfileID:              types.StringNull(),
 	}
 
 	if env.CreatedBy != nil {
@@ -111,6 +113,10 @@ func environmentResourceModelFromAPI(ctx context.Context, env *scalr.Environment
 	federatedValue, d := types.SetValueFrom(ctx, types.StringType, federatedEnvironments)
 	diags.Append(d...)
 	model.FederatedEnvironments = federatedValue
+
+	if env.StorageProfile != nil {
+		model.StorageProfileID = types.StringValue(env.StorageProfile.ID)
+	}
 
 	return model, diags
 }
@@ -218,6 +224,10 @@ func (r *environmentResource) Schema(ctx context.Context, _ resource.SchemaReque
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"storage_profile_id": schema.StringAttribute{
+				MarkdownDescription: "The storage profile for this environment. If not set, the account's default storage profile will be used.",
+				Optional:            true,
+			},
 		},
 	}
 }
@@ -281,6 +291,10 @@ func (r *environmentResource) Create(ctx context.Context, req resource.CreateReq
 				federatedEnvironments = append(federatedEnvironments, &scalr.EnvironmentRelation{ID: envID})
 			}
 		}
+	}
+
+	if !plan.StorageProfileID.IsUnknown() && !plan.StorageProfileID.IsNull() {
+		opts.StorageProfile = &scalr.StorageProfile{ID: plan.StorageProfileID.ValueString()}
 	}
 
 	environment, err := r.Client.Environments.Create(ctx, opts)
@@ -414,6 +428,10 @@ func (r *environmentResource) Update(ctx context.Context, req resource.UpdateReq
 
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	if !plan.StorageProfileID.IsUnknown() && !plan.StorageProfileID.IsNull() {
+		opts.StorageProfile = &scalr.StorageProfile{ID: plan.StorageProfileID.ValueString()}
 	}
 
 	// Update existing resource
