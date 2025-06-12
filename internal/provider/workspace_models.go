@@ -19,6 +19,7 @@ var (
 			"path":               types.StringType,
 			"trigger_patterns":   types.StringType,
 			"trigger_prefixes":   types.ListType{ElemType: types.StringType},
+			"version_constraint": types.StringType,
 		},
 	}
 	terragruntElementType = types.ObjectType{
@@ -90,6 +91,7 @@ type vcsRepoModel struct {
 	Path              types.String `tfsdk:"path"`
 	TriggerPatterns   types.String `tfsdk:"trigger_patterns"`
 	TriggerPrefixes   types.List   `tfsdk:"trigger_prefixes"`
+	VersionConstraint types.String `tfsdk:"version_constraint"`
 }
 
 type providerConfigurationModel struct {
@@ -173,7 +175,6 @@ func workspaceResourceModelFromAPI(
 	if ws.VCSRepo != nil {
 		repo := vcsRepoModel{
 			Identifier:        types.StringValue(ws.VCSRepo.Identifier),
-			Branch:            types.StringValue(ws.VCSRepo.Branch),
 			Path:              types.StringValue(ws.VCSRepo.Path),
 			TriggerPrefixes:   types.ListNull(types.StringType),
 			TriggerPatterns:   types.StringValue(ws.VCSRepo.TriggerPatterns),
@@ -185,6 +186,16 @@ func workspaceResourceModelFromAPI(
 			prefixes, d := types.ListValueFrom(ctx, types.StringType, ws.VCSRepo.TriggerPrefixes)
 			diags.Append(d...)
 			repo.TriggerPrefixes = prefixes
+		}
+
+		if ws.VCSRepo.Branch != "" {
+			branch := types.StringValue(ws.VCSRepo.Branch)
+			repo.Branch = branch
+		}
+
+		if ws.VCSRepo.VersionConstraint != "" {
+			versionConstraint := types.StringValue(ws.VCSRepo.VersionConstraint)
+			repo.VersionConstraint = versionConstraint
 		}
 
 		repoValue, d := types.ListValueFrom(ctx, vcsRepoElementType, []vcsRepoModel{repo})

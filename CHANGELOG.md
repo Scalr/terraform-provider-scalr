@@ -9,13 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `scalr_workspace`: new attribute `vcs_repo.version_constraint` ([#424](https://github.com/Scalr/terraform-provider-scalr/pull/424))
 - **New resource:** `scalr_storage_profile` ([#426](https://github.com/Scalr/terraform-provider-scalr/pull/426))
 - **New data source:** `scalr_storage_profile` ([#426](https://github.com/Scalr/terraform-provider-scalr/pull/426))
 - `scalr_environment` and `data.scalr_environment`: new attribute `storage_profile_id` ([#426](https://github.com/Scalr/terraform-provider-scalr/pull/426))
 
 ### Changed
 
-- `scalr_hook`: attributes vcs_repo.identifier and vcs_repo.branch can now be updated in-place without recreating the resource ([#422](https://github.com/Scalr/terraform-provider-scalr/pull/422))
+- `scalr_hook`: attributes `vcs_repo.identifier` and `vcs_repo.branch` can now be updated in-place without recreating the resource ([#422](https://github.com/Scalr/terraform-provider-scalr/pull/422))
 
 ### Deprecated
 
@@ -53,7 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `scalr_workspace.auto_queue_runs`: support `on_create_only` option ([#406](https://github.com/Scalr/terraform-provider-scalr/pull/406))
  - **New data source:** `scalr_workload_identity_provider` ([#408](https://github.com/Scalr/terraform-provider-scalr/pull/408))
  - **New data source:** `scalr_assume_service_account_policy` ([#408](https://github.com/Scalr/terraform-provider-scalr/pull/408))
- 
+
 ### Changed
 
 - `scalr_environment`: attribute `policy_groups` became read-only ([#395](https://github.com/Scalr/terraform-provider-scalr/pull/395))

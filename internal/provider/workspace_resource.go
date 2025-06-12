@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 	"errors"
-
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -132,6 +131,10 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 
 			if !repo.Branch.IsUnknown() && !repo.Branch.IsNull() {
 				opts.VCSRepo.Branch = repo.Branch.ValueStringPointer()
+			}
+
+			if !repo.VersionConstraint.IsUnknown() && !repo.VersionConstraint.IsNull() {
+				opts.VCSRepo.VersionConstraint = repo.VersionConstraint.ValueStringPointer()
 			}
 
 			if !repo.TriggerPrefixes.IsUnknown() && !repo.TriggerPrefixes.IsNull() {
@@ -404,6 +407,10 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 
 			if !repo.Branch.IsUnknown() && !repo.Branch.IsNull() {
 				opts.VCSRepo.Branch = repo.Branch.ValueStringPointer()
+			}
+
+			if !repo.VersionConstraint.IsUnknown() && !repo.VersionConstraint.IsNull() {
+				opts.VCSRepo.VersionConstraint = repo.VersionConstraint.ValueStringPointer()
 			}
 
 			if !repo.TriggerPrefixes.IsUnknown() && !repo.TriggerPrefixes.IsNull() {
@@ -682,6 +689,17 @@ func (r *workspaceResource) ModifyPlan(ctx context.Context, req resource.ModifyP
 			resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("operations"), false)...)
 		} else {
 			resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("operations"), true)...)
+		}
+	}
+
+	var vcsRepo []vcsRepoModel
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("vcs_repo"), &vcsRepo)...)
+	if len(vcsRepo) > 0 {
+		repo := vcsRepo[0]
+		if !repo.VersionConstraint.IsNull() && !repo.VersionConstraint.IsUnknown() {
+			resp.Diagnostics.Append(
+				resp.Plan.SetAttribute(ctx, path.Root("vcs_repo").AtListIndex(0).AtName("branch"), types.StringNull())...,
+			)
 		}
 	}
 }

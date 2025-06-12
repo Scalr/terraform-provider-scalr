@@ -266,11 +266,18 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 							Required:            true,
 						},
 						"branch": schema.StringAttribute{
-							MarkdownDescription: "The repository branch where Terraform will be run from. If omitted, the repository default branch will be used.",
+							MarkdownDescription: "The repository branch where Terraform will be run from. If omitted, the repository default branch will be used. Conflicts with `version_constraint`.",
 							Optional:            true,
 							Computed:            true,
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
+						"version_constraint": schema.StringAttribute{
+							MarkdownDescription: "Terraform-like version constraint used to trigger a run for matching Git tags. Conflicts with `branch`.",
+							Optional:            true,
+							Validators: []validator.String{
+								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("branch")),
 							},
 						},
 						"path": schema.StringAttribute{
