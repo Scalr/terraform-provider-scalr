@@ -27,7 +27,7 @@ jobs:
           ref: master
 
       - name: Run Dependabot Alerts Checker
-        uses: ./actions/dependabot-jira-ticket@master
+        uses: ./actions/dependabot-jira-ticket
         with:
           github_repository: ${{ github.repository }}
           github_token: ${{ steps.generate_token.outputs.token }}
