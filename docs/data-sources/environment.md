@@ -42,6 +42,7 @@ data "scalr_environment" "example2" {
 - `policy_groups` (List of String) List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.
 - `remote_backend` (Boolean) If Scalr exports the remote backend configuration and state storage for your infrastructure management. Disabling this feature will also prevent the ability to perform state locking, which ensures that concurrent operations do not conflict. Additionally, it will disable the capability to initiate CLI-driven runs through Scalr.
 - `status` (String) The status of an environment.
+- `storage_profile_id` (String) The storage profile for this environment.
 - `tag_ids` (List of String) List of tag IDs associated with the environment.
 
 <a id="nestedatt--created_by"></a>
