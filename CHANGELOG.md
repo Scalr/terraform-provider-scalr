@@ -7,12 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.0] - 2025-06-20
+
 ### Added
 
 - `scalr_workspace`: new attribute `vcs_repo.version_constraint` ([#424](https://github.com/Scalr/terraform-provider-scalr/pull/424))
 - **New resource:** `scalr_storage_profile` ([#426](https://github.com/Scalr/terraform-provider-scalr/pull/426))
 - **New data source:** `scalr_storage_profile` ([#426](https://github.com/Scalr/terraform-provider-scalr/pull/426))
 - `scalr_environment` and `data.scalr_environment`: new attribute `storage_profile_id` ([#426](https://github.com/Scalr/terraform-provider-scalr/pull/426))
+
+### Required
+
+-scalr-server >= 8.210.0
 
 ### Changed
 
@@ -1020,7 +1026,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.2.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.3.0...HEAD
+[3.3.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.3.0
 [3.2.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.2.0
 [3.1.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.1.0
 [3.0.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.0.0
