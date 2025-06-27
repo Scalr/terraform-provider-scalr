@@ -139,15 +139,13 @@ resource "scalr_environment" "test" {
 
 resource "scalr_agent_pool" "test" {
   name           = "agent_pool-test-%d"
-  account_id     = "%s"
   environment_id = scalr_environment.test.id
-}`, rInt, defaultAccount, rInt, defaultAccount)
+}`, rInt, defaultAccount, rInt)
 }
 
 func testAccScalrAgentPoolUpdate() string {
-	return fmt.Sprintf(`
+	return `
 resource "scalr_agent_pool" "test" {
   name           = "agent_pool-updated"
-  account_id     = "%s"
-}`, defaultAccount)
+}`
 }
