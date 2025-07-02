@@ -157,8 +157,7 @@ func createPool(t *testing.T) scalr.AgentPool {
 	}
 
 	r, err := scalrClient.AgentPools.Create(ctx, scalr.AgentPoolCreateOptions{
-		Name:    ptr(name),
-		Account: &scalr.Account{ID: defaultAccount},
+		Name: ptr(name),
 	})
 
 	if err != nil {
