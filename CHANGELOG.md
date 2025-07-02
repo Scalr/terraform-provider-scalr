@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `scalr_provider_configuration.aws`: new attribute `default_tags` ([#432](https://github.com/Scalr/terraform-provider-scalr/pull/432))
+
 ### Deprecated
 
 - `scalr_agent_pool`: attribute `account_id` is deprecated and will be removed in the next major version ([#429](https://github.com/Scalr/terraform-provider-scalr/pull/429))
