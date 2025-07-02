@@ -227,6 +227,51 @@ func TestAccProviderConfiguration_aws(t *testing.T) {
 	})
 }
 
+func TestAccProviderConfiguration_aws_tags(t *testing.T) {
+	var providerConfiguration scalr.ProviderConfiguration
+	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	//rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	accessKeyId, secretAccessKey, _, _ := getAwsTestingCreds(t)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProviderConfigurationResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrProviderConfigurationAwsConfigWithTags(rName, accessKeyId, secretAccessKey),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.aws", &providerConfiguration),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.default_tags.#", "1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.default_tags.0.strategy", "update"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.default_tags.0.tags.%", "2"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.default_tags.0.tags.Tag1", "Value1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.default_tags.0.tags.Tag2", "Value2"),
+				),
+			},
+			{
+				Config: testAccScalrProviderConfigurationAwsConfigWithTagsUpdated(rName, accessKeyId, secretAccessKey),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.aws", &providerConfiguration),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.default_tags.#", "1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.default_tags.0.strategy", "skip"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.default_tags.0.tags.%", "3"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.default_tags.0.tags.Tag1", "NewValue1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.default_tags.0.tags.NewTag2", "Value2"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.default_tags.0.tags.Tag3", "Value3"),
+				),
+			},
+			{
+				Config: testAccScalrProviderConfigurationAwsConfigWithTagsRemove(rName, accessKeyId, secretAccessKey),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.aws", &providerConfiguration),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.default_tags.#", "0"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccProviderConfiguration_scalr(t *testing.T) {
 	var providerConfiguration scalr.ProviderConfiguration
 	scalrHostname := os.Getenv(client.HostnameEnvVar)
@@ -916,6 +961,69 @@ resource "scalr_provider_configuration" "aws" {
   }
 }
 `, name, defaultAccount, accessKeyId, secretAccessKey, roleArn, externalId)
+}
+
+func testAccScalrProviderConfigurationAwsConfigWithTags(name, accessKeyId, secretAccessKey string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "aws" {
+  name                   = "%s"
+  account_id             = "%s"
+  export_shell_variables = false
+  aws {
+    account_type        = "regular"
+    credentials_type    = "access_keys"
+    access_key          = "%s"
+    secret_key          = "%s"
+	default_tags {
+      tags = {
+        "Tag1" = "Value1",
+        "Tag2" = "Value2"
+      }
+      strategy = "update"
+	}
+  }
+}
+`, name, defaultAccount, accessKeyId, secretAccessKey)
+}
+
+func testAccScalrProviderConfigurationAwsConfigWithTagsUpdated(name, accessKeyId, secretAccessKey string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "aws" {
+  name                   = "%s"
+  account_id             = "%s"
+  export_shell_variables = false
+  aws {
+    account_type        = "regular"
+    credentials_type    = "access_keys"
+    access_key          = "%s"
+    secret_key          = "%s"
+	default_tags {
+      tags = {
+        "Tag1"    = "NewValue1",
+        "NewTag2" = "Value2",
+        "Tag3"    = "Value3"
+      }
+      strategy = "skip"
+	}
+  }
+}
+`, name, defaultAccount, accessKeyId, secretAccessKey)
+}
+
+func testAccScalrProviderConfigurationAwsConfigWithTagsRemove(name, accessKeyId, secretAccessKey string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "aws" {
+  name                   = "%s"
+  account_id             = "%s"
+  export_shell_variables = false
+  aws {
+    account_type        = "regular"
+    credentials_type    = "access_keys"
+    access_key          = "%s"
+    secret_key          = "%s"
+  }
+}
+`, name, defaultAccount, accessKeyId, secretAccessKey)
 }
 
 func testAccScalrProviderConfigurationAwsUpdatedConfig(name, accessKeyId, secretAccessKey, roleArn, externalId string) string {
