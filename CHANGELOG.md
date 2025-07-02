@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Deprecated
+
+- `scalr_agent_pool`: attribute `account_id` is deprecated and will be removed in the next major version ([#429](https://github.com/Scalr/terraform-provider-scalr/pull/429))
+
 ## [3.3.0] - 2025-06-20
 
 ### Added
