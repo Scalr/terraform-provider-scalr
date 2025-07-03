@@ -69,6 +69,12 @@ func TestAccScalrSSHKeyDataSource_basic(t *testing.T) {
 
 func testAccScalrSSHKeyDataSourceConfig(rInt string) string {
 	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name       = "test-env-%s"
+  account_id = "%s"
+  remote_backend = false
+}
+
 resource "scalr_ssh_key" "test" {
   name         = "ssh-key-test-%s"
   private_key  = <<EOF
@@ -77,17 +83,23 @@ MC4CAQAwBQYDK2VwBCIEIBvMDyNaYtWK2TmJIfFhmPZeGxK0bWnNDhjlTZ+V6e4x
 -----END PRIVATE KEY-----
 EOF
   account_id   = "%s"
-  environments = ["env-svrcnchebt61e30"]
+  environments = [scalr_environment.test.id]
 }
 
 data "scalr_ssh_key" "test" {
   id         = scalr_ssh_key.test.id
   account_id = scalr_ssh_key.test.account_id
-}`, rInt, defaultAccount)
+}`, rInt, defaultAccount, rInt, defaultAccount)
 }
 
 func testAccScalrSSHKeyDataSourceAccessByNameConfig(rInt string) string {
 	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name       = "test-env-%s"
+  account_id = "%s"
+  remote_backend = false
+}
+
 resource "scalr_ssh_key" "test" {
   name         = "ssh-key-test-%s"
   private_key  = <<EOF
@@ -96,13 +108,13 @@ MC4CAQAwBQYDK2VwBCIEICNioyJgilYaHbT8pgDXn3haYU0dsl6KJTIvrZm+nIU6
 -----END PRIVATE KEY-----
 EOF
   account_id   = "%s"
-  environments = ["env-svrcnchebt61e30"]
+  environments = [scalr_environment.test.id]
 }
 
 data "scalr_ssh_key" "test_by_name" {
   name       = scalr_ssh_key.test.name
   account_id = scalr_ssh_key.test.account_id
-}`, rInt, defaultAccount)
+}`, rInt, defaultAccount, rInt, defaultAccount)
 }
 
 func testAccScalrSSHKeyDataSourceNotFoundByNameConfig() string {
@@ -115,6 +127,12 @@ data scalr_ssh_key test {
 
 func testAccScalrSSHKeyDataSourceMismatchIDNameConfig(rInt string) string {
 	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name       = "test-env-%s"
+  account_id = "%s"
+  remote_backend = false
+}
+
 resource "scalr_ssh_key" "test" {
   name         = "ssh-key-test-%s"
   private_key  = <<EOF
@@ -123,12 +141,12 @@ MC4CAQAwBQYDK2VwBCIEICNioyJgilYaHbT8pgDXn3haYU0dsl6KJTIvrZm+nIU6
 -----END PRIVATE KEY-----
 EOF
   account_id   = "%s"
-  environments = ["env-svrcnchebt61e30"]
+  environments = [scalr_environment.test.id]
 }
 
 data "scalr_ssh_key" "test_mismatch" {
   id         = scalr_ssh_key.test.id
   name       = "incorrect-name"
   account_id = scalr_ssh_key.test.account_id
-}`, rInt, defaultAccount)
+}`, rInt, defaultAccount, rInt, defaultAccount)
 }
