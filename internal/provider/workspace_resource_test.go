@@ -1084,7 +1084,7 @@ resource "scalr_workspace" "test" {
   var_files                      = [ "test1.tfvars", "test2.tfvars" ]
   operations					 = false
   execution_mode				 = "local"
-  terraform_version  			 = "1.8.5"
+  terraform_version  			 = "1.9.0"
   iac_platform 					 = "opentofu"
   working_directory				 = "workdir"
   auto_queue_runs                = "always"
