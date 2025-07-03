@@ -148,7 +148,7 @@ func (r *variableResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
-	result, diags := variableResourceModelFromAPI(ctx, variable, &state)
+	result, diags := variableResourceModelFromAPI(ctx, variable, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
