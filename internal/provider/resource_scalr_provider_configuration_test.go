@@ -974,7 +974,7 @@ resource "scalr_provider_configuration" "aws" {
     credentials_type    = "access_keys"
     access_key          = "%s"
     secret_key          = "%s"
-	default_tags {
+    default_tags {
       tags = {
         "Tag1" = "Value1",
         "Tag2" = "Value2"
