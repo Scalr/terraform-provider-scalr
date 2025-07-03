@@ -35,6 +35,8 @@ func resourceScalrAgentPool() *schema.Resource {
 				Computed:    true,
 				DefaultFunc: scalrAccountIDDefaultFunc,
 				ForceNew:    true,
+				Deprecated: "Attribute `account_id` is deprecated, the account id is calculated from the " +
+					"API request context.",
 			},
 			"environment_id": {
 				Description: "ID of the environment.",
@@ -59,13 +61,11 @@ func resourceScalrAgentPoolCreate(ctx context.Context, d *schema.ResourceData, m
 
 	// Get required options
 	name := d.Get("name").(string)
-	accountID := d.Get("account_id").(string)
 	vcsEnabled := d.Get("vcs_enabled").(bool)
 
 	// Create a new options struct
 	options := scalr.AgentPoolCreateOptions{
 		Name:       ptr(name),
-		Account:    &scalr.Account{ID: accountID},
 		VcsEnabled: ptr(vcsEnabled),
 	}
 
@@ -75,11 +75,11 @@ func resourceScalrAgentPoolCreate(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	log.Printf("[DEBUG] Create agent pool %s for account: %s environment: %s", name, accountID, envID)
+	log.Printf("[DEBUG] Creating agent pool %s. Environment: %s", name, envID)
 	agentPool, err := scalrClient.AgentPools.Create(ctx, options)
 	if err != nil {
 		return diag.Errorf(
-			"Error creating agent pool %s for account %s environment %s: %v", name, accountID, envID, err)
+			"Error creating agent pool %s. Environment %s: %v", name, envID, err)
 	}
 	d.SetId(agentPool.ID)
 	return resourceScalrAgentPoolRead(ctx, d, meta)
