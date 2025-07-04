@@ -7,9 +7,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/scalr/go-scalr"
 )
 
@@ -120,6 +122,48 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 							Description: "The value of the `aud` claim for the identity token. This option is required with `oidc` credentials type.",
 							Type:        schema.TypeString,
 							Optional:    true,
+						},
+						"default_tags": {
+							Description: "AWS default tags settings.",
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"tags": {
+										Description: "Default tags to be applied to all resources created by this provider configuration.",
+										Type:        schema.TypeMap,
+										Optional:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										ValidateDiagFunc: func(v interface{}, p cty.Path) diag.Diagnostics {
+											if m, ok := v.(map[string]interface{}); ok && len(m) == 0 {
+												return diag.Diagnostics{
+													diag.Diagnostic{
+														Severity: diag.Error,
+														Summary:  "Empty tags map is not allowed",
+														Detail:   "You must specify at least one key-value pair when setting 'tags'.",
+													},
+												}
+											}
+											return nil
+										},
+									},
+									"strategy": {
+										Description: "On duplicate key behaviour for default tags. Available options:" +
+											"\n - `skip`: the existing tags will not be changed" +
+											"\n - `update`: the existing tags will be replaced with the new one",
+										Type:     schema.TypeString,
+										Optional: true,
+										ValidateDiagFunc: validation.ToDiagFunc(
+											validation.StringInSlice(
+												[]string{string(scalr.AwsDefaultTagsStrategySkip), string(scalr.AwsDefaultTagsStrategyUpdate)},
+												false,
+											),
+										),
+										AtLeastOneOf: []string{"aws.0.default_tags.0.tags", "aws.0.default_tags.0.strategy"},
+									},
+								},
+							},
 						},
 					},
 				},
@@ -376,6 +420,22 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 			return diag.Errorf("'access_key' and 'secret_key' fields are required for 'access_keys' credentials type of aws provider configuration")
 		}
 
+		if _, defaultTagsExists := d.GetOk("aws.0.default_tags"); defaultTagsExists {
+			if strategyI, strategyExists := d.GetOk("aws.0.default_tags.0.strategy"); strategyExists {
+				strategy := strategyI.(string)
+				configurationOptions.AwsDefaultTagsStrategy = ptr(scalr.AwsDefaultTagsStrategy(strategy))
+			}
+
+			if tagsI, tagsExists := d.GetOk("aws.0.default_tags.0.tags"); tagsExists {
+				tags := tagsI.(map[string]interface{})
+				tagsValue := make(map[string]string)
+				for k, v := range tags {
+					tagsValue[k] = v.(string)
+				}
+				configurationOptions.AwsDefaultTags = &tagsValue
+			}
+		}
+
 	} else if _, ok := d.GetOk("google"); ok {
 		configurationOptions.ProviderName = ptr("google")
 		configurationOptions.GoogleAuthType = ptr(d.Get("google.0.auth_type").(string))
@@ -600,6 +660,22 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 				aws["audience"] = providerConfiguration.AwsAudience
 			}
 
+			var tags map[string]string
+			var strategy string
+			if providerConfiguration.AwsDefaultTags != nil {
+				tags = *providerConfiguration.AwsDefaultTags
+			}
+			if len(providerConfiguration.AwsDefaultTagsStrategy) > 0 {
+				strategy = string(providerConfiguration.AwsDefaultTagsStrategy)
+			}
+			if len(tags) > 0 || len(strategy) > 0 {
+				defaultTags := map[string]interface{}{
+					"tags":     tags,
+					"strategy": strategy,
+				}
+				aws["default_tags"] = []map[string]interface{}{defaultTags}
+			}
+
 			_ = d.Set("aws", []map[string]interface{}{aws})
 		case "google":
 			google := make(map[string]interface{})
@@ -752,6 +828,22 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 				return diag.Errorf("unknown aws provider configuration credentials type: %s, allowed: 'role_delegation', 'access_keys', 'oidc'", *configurationOptions.AwsCredentialsType)
 			} else if !accessKeyIdExists || !accessSecretKeyExists {
 				return diag.Errorf("'access_key' and 'secret_key' fields are required for 'access_keys' credentials type of aws provider configuration")
+			}
+
+			if _, defaultTagsExists := d.GetOk("aws.0.default_tags"); defaultTagsExists {
+				if strategyI, strategyExists := d.GetOk("aws.0.default_tags.0.strategy"); strategyExists {
+					strategy := strategyI.(string)
+					configurationOptions.AwsDefaultTagsStrategy = ptr(scalr.AwsDefaultTagsStrategy(strategy))
+				}
+
+				if tagsI, tagsExists := d.GetOk("aws.0.default_tags.0.tags"); tagsExists {
+					tags := tagsI.(map[string]interface{})
+					tagsValue := make(map[string]string)
+					for k, v := range tags {
+						tagsValue[k] = v.(string)
+					}
+					configurationOptions.AwsDefaultTags = &tagsValue
+				}
 			}
 		} else if _, ok := d.GetOk("google"); ok {
 			configurationOptions.GoogleAuthType = ptr(d.Get("google.0.auth_type").(string))

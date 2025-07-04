@@ -57,6 +57,27 @@ resource "scalr_provider_configuration" "oidc" {
 }
 ```
 
+```terraform
+resource "scalr_provider_configuration" "aws_tags" {
+  name         = "aws_stage_us_east_1"
+  account_id   = "acc-xxxxxxxxxx"
+  environments = ["*"]
+  aws {
+    account_type     = "regular"
+    credentials_type = "access_keys"
+    secret_key       = "my-secret-key"
+    access_key       = "my-access-key"
+    default_tags {
+      tags = {
+        Environment = "Staging"
+        Owner       = "QATeam"
+      }
+      strategy = "update"
+    }
+  }
+}
+```
+
 To get into more advanced AWS usage please refer to the official [AWS module](https://github.com/Scalr/terraform-scalr-provider-configuration-aws).
 
 ### AzureRM provider
@@ -175,10 +196,22 @@ Optional:
 - `access_key` (String) AWS access key. This option is required with `access_keys` credentials type.
 - `account_type` (String) The type of AWS account, available options: `regular`, `gov-cloud`, `cn-cloud`.
 - `audience` (String) The value of the `aud` claim for the identity token. This option is required with `oidc` credentials type.
+- `default_tags` (Block List, Max: 1) AWS default tags settings. (see [below for nested schema](#nestedblock--aws--default_tags))
 - `external_id` (String) External identifier to use when assuming the role. This option is required with `role_delegation` credentials type and `aws_account` trusted entity type.
 - `role_arn` (String) Amazon Resource Name (ARN) of the IAM Role to assume. This option is required with the `role_delegation` and `oidc` credentials type.
 - `secret_key` (String, Sensitive) AWS secret key. This option is required with `access_keys` credentials type.
 - `trusted_entity_type` (String) Trusted entity type, available options: `aws_account`, `aws_service`. This option is required with `role_delegation` credentials type.
+
+<a id="nestedblock--aws--default_tags"></a>
+### Nested Schema for `aws.default_tags`
+
+Optional:
+
+- `strategy` (String) On duplicate key behaviour for default tags. Available options:
+ - `skip`: the existing tags will not be changed
+ - `update`: the existing tags will be replaced with the new one
+- `tags` (Map of String) Default tags to be applied to all resources created by this provider configuration.
+
 
 
 <a id="nestedblock--azurerm"></a>
