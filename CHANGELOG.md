@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `scalr_provider_configuration.aws`: new attribute `default_tags` ([#432](https://github.com/Scalr/terraform-provider-scalr/pull/432))
+- `scalr_environment` and `data.scalr_environment`: new attribute `default_workspace_agent_pool_id` ([#434](https://github.com/Scalr/terraform-provider-scalr/pull/434))
 
 ### Deprecated
 

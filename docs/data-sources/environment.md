@@ -37,6 +37,7 @@ data "scalr_environment" "example2" {
 
 - `created_by` (List of Object) Details of the user that created the environment. (see [below for nested schema](#nestedatt--created_by))
 - `default_provider_configurations` (List of String) List of IDs of provider configurations, used in the environment workspaces by default.
+- `default_workspace_agent_pool_id` (String) Default agent pool that will be set for the entire environment. It will be used by a workspace if no other pool is explicitly linked.
 - `federated_environments` (Set of String) The list of environment identifiers that are allowed to access this environment, or `["*"]` if shared with all environments.
 - `mask_sensitive_output` (Boolean) Enable masking of the sensitive console output.
 - `policy_groups` (List of String) List of the environment policy-groups IDs, in the format `pgrp-<RANDOM STRING>`.
