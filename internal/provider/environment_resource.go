@@ -54,6 +54,7 @@ type environmentResourceModel struct {
 	FederatedEnvironments         types.Set    `tfsdk:"federated_environments"`
 	AccountID                     types.String `tfsdk:"account_id"`
 	StorageProfileID              types.String `tfsdk:"storage_profile_id"`
+	DefaultWorkspaceAgentPoolID   types.String `tfsdk:"default_workspace_agent_pool_id"`
 }
 
 func environmentResourceModelFromAPI(ctx context.Context, env *scalr.Environment, federatedEnvironments []string) (*environmentResourceModel, diag.Diagnostics) {
@@ -72,6 +73,7 @@ func environmentResourceModelFromAPI(ctx context.Context, env *scalr.Environment
 		FederatedEnvironments:         types.SetNull(types.StringType),
 		AccountID:                     types.StringValue(env.Account.ID),
 		StorageProfileID:              types.StringNull(),
+		DefaultWorkspaceAgentPoolID:   types.StringNull(),
 	}
 
 	if env.CreatedBy != nil {
@@ -116,6 +118,10 @@ func environmentResourceModelFromAPI(ctx context.Context, env *scalr.Environment
 
 	if env.StorageProfile != nil {
 		model.StorageProfileID = types.StringValue(env.StorageProfile.ID)
+	}
+
+	if env.DefaultWorkspaceAgentPool != nil {
+		model.DefaultWorkspaceAgentPoolID = types.StringValue(env.DefaultWorkspaceAgentPool.ID)
 	}
 
 	return model, diags
@@ -228,6 +234,10 @@ func (r *environmentResource) Schema(ctx context.Context, _ resource.SchemaReque
 				MarkdownDescription: "The storage profile for this environment. If not set, the account's default storage profile will be used.",
 				Optional:            true,
 			},
+			"default_workspace_agent_pool_id": schema.StringAttribute{
+				MarkdownDescription: "Default agent pool that will be set for the entire environment. It will be used by a workspace if no other pool is explicitly linked.",
+				Optional:            true,
+			},
 		},
 	}
 }
@@ -295,6 +305,10 @@ func (r *environmentResource) Create(ctx context.Context, req resource.CreateReq
 
 	if !plan.StorageProfileID.IsUnknown() && !plan.StorageProfileID.IsNull() {
 		opts.StorageProfile = &scalr.StorageProfile{ID: plan.StorageProfileID.ValueString()}
+	}
+
+	if !plan.DefaultWorkspaceAgentPoolID.IsUnknown() && !plan.DefaultWorkspaceAgentPoolID.IsNull() {
+		opts.DefaultWorkspaceAgentPool = &scalr.AgentPool{ID: plan.DefaultWorkspaceAgentPoolID.ValueString()}
 	}
 
 	environment, err := r.Client.Environments.Create(ctx, opts)
@@ -432,6 +446,10 @@ func (r *environmentResource) Update(ctx context.Context, req resource.UpdateReq
 
 	if !plan.StorageProfileID.IsUnknown() && !plan.StorageProfileID.IsNull() {
 		opts.StorageProfile = &scalr.StorageProfile{ID: plan.StorageProfileID.ValueString()}
+	}
+
+	if !plan.DefaultWorkspaceAgentPoolID.IsUnknown() && !plan.DefaultWorkspaceAgentPoolID.IsNull() {
+		opts.DefaultWorkspaceAgentPool = &scalr.AgentPool{ID: plan.DefaultWorkspaceAgentPoolID.ValueString()}
 	}
 
 	// Update existing resource

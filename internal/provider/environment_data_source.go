@@ -46,6 +46,7 @@ type environmentDataSourceModel struct {
 	FederatedEnvironments         types.Set    `tfsdk:"federated_environments"`
 	AccountID                     types.String `tfsdk:"account_id"`
 	StorageProfileID              types.String `tfsdk:"storage_profile_id"`
+	DefaultWorkspaceAgentPoolID   types.String `tfsdk:"default_workspace_agent_pool_id"`
 }
 
 func (d *environmentDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -119,6 +120,10 @@ func (d *environmentDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 			},
 			"storage_profile_id": schema.StringAttribute{
 				MarkdownDescription: "The storage profile for this environment.",
+				Computed:            true,
+			},
+			"default_workspace_agent_pool_id": schema.StringAttribute{
+				MarkdownDescription: "Default agent pool that will be set for the entire environment. It will be used by a workspace if no other pool is explicitly linked.",
 				Computed:            true,
 			},
 		},
@@ -235,6 +240,10 @@ func (d *environmentDataSource) Read(ctx context.Context, req datasource.ReadReq
 
 	if environment.StorageProfile != nil {
 		cfg.StorageProfileID = types.StringValue(environment.StorageProfile.ID)
+	}
+
+	if environment.DefaultWorkspaceAgentPool != nil {
+		cfg.DefaultWorkspaceAgentPoolID = types.StringValue(environment.DefaultWorkspaceAgentPool.ID)
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &cfg)...)
