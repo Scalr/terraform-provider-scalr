@@ -35,4 +35,4 @@ data "scalr_workspace_ids" "all" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-- `ids` (Map of String) A map of workspace names and their opaque IDs, in the format `env_id/name`.
+- `ids` (Map of String) A map of workspace names and their opaque IDs, in the format `id/name`.
