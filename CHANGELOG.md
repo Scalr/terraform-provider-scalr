@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `scalr_wokspace_ids` data source must request only those attributes it uses. ([#437](https://github.com/Scalr/terraform-provider-scalr/pull/437))
 
+### Added
+
+- `scalr_agent_pool`: new attribute `environments` ([#438](https://github.com/Scalr/terraform-provider-scalr/pull/438))
+
 ## [3.4.0] - 2025-07-11
 
 ### Added

@@ -59,6 +59,13 @@ func dataSourceScalrAgentPool() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+
+			"environments": {
+				Description: "The list of the environment identifiers that the agent pool is shared to, or `[\"*\"]` if shared with all environments.",
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -114,6 +121,16 @@ func dataSourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, m
 
 		log.Printf("[DEBUG] agent pool %s workspaces: %+v", agentPool.ID, workspaces)
 		_ = d.Set("workspace_ids", workspaces)
+	}
+
+	if agentPool.IsShared {
+		_ = d.Set("environments", []string{"*"})
+	} else {
+		environmentIDs := make([]string, 0)
+		for _, environment := range agentPool.Environments {
+			environmentIDs = append(environmentIDs, environment.ID)
+		}
+		_ = d.Set("environments", environmentIDs)
 	}
 	_ = d.Set("vcs_enabled", agentPool.VcsEnabled)
 	_ = d.Set("name", agentPool.Name)

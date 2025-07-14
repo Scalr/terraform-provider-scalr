@@ -26,6 +26,7 @@ func TestAccScalrAgentPool_basic(t *testing.T) {
 						"scalr_agent_pool.test", "name", fmt.Sprintf("agent_pool-test-%d", rInt),
 					),
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "account_id", defaultAccount),
+					resource.TestCheckResourceAttr("scalr_agent_pool.test", "environments.0", "*"),
 				),
 			},
 		},
@@ -131,16 +132,9 @@ func testAccCheckScalrAgentPoolDestroy(s *terraform.State) error {
 
 func testAccScalrAgentPoolBasic(rInt int) string {
 	return fmt.Sprintf(`
-resource "scalr_environment" "test" {
-  name           = "agent_pool-test-%d"
-  account_id     = "%s"
-
-}
-
 resource "scalr_agent_pool" "test" {
   name           = "agent_pool-test-%d"
-  environment_id = scalr_environment.test.id
-}`, rInt, defaultAccount, rInt)
+}`, rInt)
 }
 
 func testAccScalrAgentPoolUpdate() string {
