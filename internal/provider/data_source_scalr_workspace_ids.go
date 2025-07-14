@@ -30,7 +30,7 @@ func dataSourceScalrWorkspaceIDs() *schema.Resource {
 			},
 
 			"ids": {
-				Description: "A map of workspace names and their opaque IDs, in the format `env_id/name`.",
+				Description: "A map of workspace names and their opaque IDs, in the format `id/name`.",
 				Type:        schema.TypeMap,
 				Computed:    true,
 			},
@@ -57,6 +57,7 @@ func dataSourceScalrWorkspaceIDsRead(ctx context.Context, d *schema.ResourceData
 
 	options := scalr.WorkspaceListOptions{
 		Filter: &scalr.WorkspaceFilter{Environment: &environmentID},
+		Fields: &scalr.WorkspaceSparseFields{Workspaces: "id,name"},
 	}
 	for {
 		wl, err := scalrClient.Workspaces.List(ctx, options)
