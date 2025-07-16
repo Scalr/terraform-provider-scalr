@@ -58,6 +58,9 @@ func resourceScalrAgentPool() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
+				DefaultFunc: func() (interface{}, error) {
+					return []string{"*"}, nil
+				},
 			},
 		},
 	}
@@ -194,7 +197,7 @@ func resourceScalrAgentPoolUpdate(ctx context.Context, d *schema.ResourceData, m
 		}
 
 	} else {
-		options.IsShared = ptr(true)
+		options.IsShared = ptr(false)
 		options.Environments = make([]*scalr.Environment, 0)
 	}
 
