@@ -37,4 +37,5 @@ data "scalr_agent_pool" "example2" {
 
 ### Read-Only
 
+- `environments` (Set of String) The list of the environment identifiers that the agent pool is shared to, or `["*"]` if shared with all environments.
 - `workspace_ids` (List of String) The list of IDs of linked workspaces.

@@ -35,6 +35,13 @@ func TestAccScalrAgentPoolDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.scalr_agent_pool.test", "id"),
 					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "name", "ds-agent_pool-test-acc"),
 					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "account_id", defaultAccount),
+					resource.TestCheckResourceAttr(
+						"data.scalr_agent_pool.test", "environments.#", "1"),
+					resource.TestCheckResourceAttrPair(
+						"data.scalr_agent_pool.test",
+						"environments.0",
+						"scalr_environment.test-new",
+						"id"),
 				),
 			},
 			{
@@ -77,9 +84,14 @@ func TestAccScalrAgentPoolDataSource_basic_env(t *testing.T) {
 }
 
 var testAccScalrAgentPoolAccountDataSourceByIDConfig = fmt.Sprintf(`
+resource scalr_environment test-new {
+  name       = "test-env-new-for-pool"
+  account_id = "%s"
+}
+
 resource "scalr_agent_pool" "test" {
   name       = "ds-agent_pool-test-acc"
-  account_id = "%s"
+  environments = [scalr_environment.test-new.id]
 }
 
 data "scalr_agent_pool" "test" {

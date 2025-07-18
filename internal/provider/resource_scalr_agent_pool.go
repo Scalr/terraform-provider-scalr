@@ -51,6 +51,17 @@ func resourceScalrAgentPool() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
+
+			"environments": {
+				Description: "The list of the environment identifiers that the agent pool is shared to. Use `[\"*\"]` to share with all environments.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				DefaultFunc: func() (interface{}, error) {
+					return []string{"*"}, nil
+				},
+			},
 		},
 	}
 }
@@ -69,9 +80,34 @@ func resourceScalrAgentPoolCreate(ctx context.Context, d *schema.ResourceData, m
 		VcsEnabled: ptr(vcsEnabled),
 	}
 
-	if envID, ok := d.GetOk("environment_id"); ok {
+	if v, ok := d.GetOk("environment_id"); ok {
+		envID = v.(string)
 		options.Environment = &scalr.Environment{
-			ID: envID.(string),
+			ID: v.(string),
+		}
+	}
+
+	if environmentsI, ok := d.GetOk("environments"); ok {
+		environments := environmentsI.(*schema.Set).List()
+		if (len(environments) == 1) && (environments[0].(string) == "*") {
+			options.IsShared = ptr(true)
+		} else if len(environments) > 0 {
+			environmentValues := make([]*scalr.Environment, 0)
+			for _, env := range environments {
+				if env.(string) == "*" {
+					return diag.Errorf(
+						"You cannot simultaneously enable the agent poool for all and a limited list of environments. Please remove either wildcard or environment identifiers.",
+					)
+				}
+				environmentValues = append(environmentValues, &scalr.Environment{ID: env.(string)})
+			}
+			options.Environments = environmentValues
+			options.IsShared = ptr(false)
+			if envID != "" {
+				return diag.Errorf(
+					"Environmnet scope agent pool cannot have environments linkage.",
+				)
+			}
 		}
 	}
 
@@ -109,6 +145,16 @@ func resourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, met
 	} else {
 		_ = d.Set("environment_id", nil)
 	}
+
+	if agentPool.IsShared {
+		_ = d.Set("environments", []string{"*"})
+	} else {
+		environmentIDs := make([]string, 0)
+		for _, environment := range agentPool.Environments {
+			environmentIDs = append(environmentIDs, environment.ID)
+		}
+		_ = d.Set("environments", environmentIDs)
+	}
 	return nil
 }
 
@@ -121,18 +167,45 @@ func resourceScalrAgentPoolUpdate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("Error updating agentPool %s: %v", id, "vcs_enabled attribute is readonly.")
 	}
 
-	if d.HasChange("name") {
-		// Create a new options struct
-		options := scalr.AgentPoolUpdateOptions{
-			Name: ptr(d.Get("name").(string)),
+	options := scalr.AgentPoolUpdateOptions{
+		Name: ptr(d.Get("name").(string)),
+	}
+
+	if environmentsI, ok := d.GetOk("environments"); ok {
+		environments := environmentsI.(*schema.Set).List()
+		if (len(environments) == 1) && (environments[0].(string) == "*") {
+			options.IsShared = ptr(true)
+			options.Environments = make([]*scalr.Environment, 0)
+		} else {
+			options.IsShared = ptr(false)
+			environmentValues := make([]*scalr.Environment, 0)
+			for _, env := range environments {
+				if env.(string) == "*" {
+					return diag.Errorf(
+						"You cannot simultaneously enable the agent pool for all and a limited list of environments. Please remove either wildcard or environment identifiers.",
+					)
+				}
+				environmentValues = append(environmentValues, &scalr.Environment{ID: env.(string)})
+			}
+			options.Environments = environmentValues
 		}
 
-		log.Printf("[DEBUG] Update agent pool %s", id)
-		_, err := scalrClient.AgentPools.Update(ctx, id, options)
-		if err != nil {
+		if _, ok := d.GetOk("environment_id"); ok {
 			return diag.Errorf(
-				"Error updating agentPool %s: %v", id, err)
+				"Environmnet scope agent pool cannot have environments linkage.",
+			)
 		}
+
+	} else {
+		options.IsShared = ptr(false)
+		options.Environments = make([]*scalr.Environment, 0)
+	}
+
+	log.Printf("[DEBUG] Update agent pool %s", id)
+	_, err := scalrClient.AgentPools.Update(ctx, id, options)
+	if err != nil {
+		return diag.Errorf(
+			"Error updating agentPool %s: %v", id, err)
 	}
 
 	return resourceScalrAgentPoolRead(ctx, d, meta)

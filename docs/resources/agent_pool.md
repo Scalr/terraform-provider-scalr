@@ -30,6 +30,7 @@ resource "scalr_agent_pool" "default" {
 
 - `account_id` (String, Deprecated) ID of the account.
 - `environment_id` (String, Deprecated) ID of the environment.
+- `environments` (Set of String) The list of the environment identifiers that the agent pool is shared to. Use `["*"]` to share with all environments.
 - `vcs_enabled` (Boolean) Indicates whether the VCS support is enabled for agents in the pool.
 
 ### Read-Only
