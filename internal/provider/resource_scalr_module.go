@@ -78,18 +78,28 @@ func resourceScalrModule() *schema.Resource {
 				ForceNew:    true,
 			},
 			"account_id": {
-				Description: "The identifier of the account in the format `acc-<RANDOM STRING>`. If it is not specified the module will be registered globally and available across the whole installation.",
+				Description: "The identifier of the account in the format `acc-<RANDOM STRING>`. If it is not specified the module will be registered globally and available across the whole installation. **Deprecated:** Use `namespace_id` instead.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				DefaultFunc: scalrAccountIDDefaultFunc,
 				ForceNew:    true,
+				Deprecated:  "Use namespace_id instead",
 			},
 			"environment_id": {
-				Description: "The identifier of an environment in the format `env-<RANDOM STRING>`. If it is not specified the module will be registered at the account level and available across all environments within the account specified in `account_id` attribute.",
+				Description: "The identifier of an environment in the format `env-<RANDOM STRING>`. If it is not specified the module will be registered at the account level and available across all environments within the account specified in `account_id` attribute. **Deprecated:** Use `namespace_id` instead.",
 				Type:        schema.TypeString,
 				ForceNew:    true,
 				Optional:    true,
+				Deprecated:  "Use namespace_id instead",
+			},
+			"namespace_id": {
+				Description:   "The identifier of a module namespace in the format `modns-<RANDOM STRING>`. If specified, the module will be registered in this namespace. Conflicts with `environment_id`.",
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"environment_id"},
 			},
 		},
 	}
@@ -119,6 +129,10 @@ func resourceScalrModuleCreate(ctx context.Context, d *schema.ResourceData, meta
 		opt.Environment = &scalr.Environment{ID: envID.(string)}
 	}
 
+	if namespaceID, ok := d.GetOk("namespace_id"); ok {
+		opt.Namespace = &scalr.ModuleNamespace{ID: namespaceID.(string)}
+	}
+
 	m, err := scalrClient.Modules.Create(ctx, opt)
 	if err != nil {
 		return diag.Errorf("Error creating module: %v", err)
@@ -132,7 +146,7 @@ func resourceScalrModuleRead(ctx context.Context, d *schema.ResourceData, meta i
 	scalrClient := meta.(*scalr.Client)
 	id := d.Id()
 	log.Printf("[DEBUG] Read configuration of module: %s", id)
-	m, err := scalrClient.Modules.Read(ctx, id)
+	m, err := scalrClient.Modules.Read(ctx, id, scalr.ModuleReadOptions{})
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			log.Printf("[DEBUG] Module %s no longer exists", id)
@@ -159,6 +173,9 @@ func resourceScalrModuleRead(ctx context.Context, d *schema.ResourceData, meta i
 	}
 	if m.Environment != nil {
 		_ = d.Set("environment_id", m.Environment.ID)
+	}
+	if m.Namespace != nil {
+		_ = d.Set("namespace_id", m.Namespace.ID)
 	}
 
 	return nil
