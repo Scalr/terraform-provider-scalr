@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `scalr_service_account_token`: new attribute `name` ([#442](https://github.com/Scalr/terraform-provider-scalr/pull/442))
+- `scalr_service_account_token`: new attribute `expires_in` ([#442](https://github.com/Scalr/terraform-provider-scalr/pull/442))
+
 ## [3.5.0] - 2025-07-18
 
 ### Fixed
