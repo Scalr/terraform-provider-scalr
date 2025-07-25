@@ -82,8 +82,6 @@ func resourceScalrModule() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				DefaultFunc: scalrAccountIDDefaultFunc,
-				ForceNew:    true,
 				Deprecated:  "Use namespace_id instead",
 			},
 			"environment_id": {
@@ -120,7 +118,6 @@ func resourceScalrModuleCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	opt := scalr.ModuleCreateOptions{
-		Account:     &scalr.Account{ID: d.Get("account_id").(string)},
 		VCSRepo:     vcsOpt,
 		VcsProvider: &scalr.VcsProvider{ID: d.Get("vcs_provider_id").(string)},
 	}
