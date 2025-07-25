@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `scalr_wokspace_ids` data source must request only those attributes it uses. ([#437](https://github.com/Scalr/terraform-provider-scalr/pull/437))
+- `scalr_agent_pool`: warning misfire for attribute `account_id`. ([#443](https://github.com/Scalr/terraform-provider-scalr/pull/443))
 
 ### Added
 
