@@ -36,6 +36,17 @@ func resourceScalrServiceAccountToken() *schema.Resource {
 				Computed:    true,
 				Sensitive:   true,
 			},
+			"name": {
+				Description: "Name of the token.",
+				Type:        schema.TypeString,
+				Optional:    true,
+			},
+			"expires_in": {
+				Description: "Number of minutes until the token expires.",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+			},
 		},
 	}
 }
@@ -48,6 +59,12 @@ func resourceScalrServiceAccountTokenCreate(ctx context.Context, d *schema.Resou
 	options := scalr.AccessTokenCreateOptions{}
 	if desc, ok := d.GetOk("description"); ok {
 		options.Description = ptr(desc.(string))
+	}
+	if name, ok := d.GetOk("name"); ok {
+		options.Name = ptr(name.(string))
+	}
+	if expiresIn, ok := d.GetOk("expires_in"); ok {
+		options.ExpiresIn = ptr(expiresIn.(int))
 	}
 
 	log.Printf("[DEBUG] Create access token for service account: %s", saID)
@@ -92,6 +109,8 @@ func resourceScalrServiceAccountTokenRead(ctx context.Context, d *schema.Resourc
 		for _, at := range atl.Items {
 			if at.ID == id {
 				_ = d.Set("description", at.Description)
+				_ = d.Set("name", at.Name)
+				_ = d.Set("expires_in", at.ExpiresIn)
 				return nil
 			}
 		}
@@ -115,11 +134,13 @@ func resourceScalrServiceAccountTokenUpdate(ctx context.Context, d *schema.Resou
 
 	id := d.Id()
 
-	if d.HasChange("description") {
+	if d.HasChange("description") || d.HasChange("name") {
 		desc := d.Get("description").(string)
+		name := d.Get("name").(string)
 
 		options := scalr.AccessTokenUpdateOptions{
 			Description: ptr(desc),
+			Name:        ptr(name),
 		}
 
 		log.Printf("[DEBUG] Update service account access token %s", id)

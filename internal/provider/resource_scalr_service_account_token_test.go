@@ -23,6 +23,12 @@ func TestAccScalrServiceAccountToken_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_service_account_token.test", "description", fmt.Sprintf("desc-%d", rInt),
 					),
+					resource.TestCheckResourceAttr(
+						"scalr_service_account_token.test", "name", fmt.Sprintf("name-%d", rInt),
+					),
+					resource.TestCheckResourceAttr(
+						"scalr_service_account_token.test", "expires_in", "42",
+					),
 					resource.TestCheckResourceAttrPair(
 						"scalr_service_account_token.test", "service_account_id",
 						"scalr_service_account.test", "id",
@@ -44,14 +50,24 @@ func TestAccScalrServiceAccountToken_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccScalrServiceAccountTokenBasicConfig(rInt),
-				Check: resource.TestCheckResourceAttr(
-					"scalr_service_account_token.test", "description", fmt.Sprintf("desc-%d", rInt),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"scalr_service_account_token.test", "description", fmt.Sprintf("desc-%d", rInt),
+					),
+					resource.TestCheckResourceAttr(
+						"scalr_service_account_token.test", "name", fmt.Sprintf("name-%d", rInt),
+					),
 				),
 			},
 			{
 				Config: testAccScalrServiceAccountTokenUpdateConfig(rInt),
-				Check: resource.TestCheckResourceAttr(
-					"scalr_service_account_token.test", "description", fmt.Sprintf("desc-updated-%d", rInt),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"scalr_service_account_token.test", "description", fmt.Sprintf("desc-updated-%d", rInt),
+					),
+					resource.TestCheckResourceAttr(
+						"scalr_service_account_token.test", "name", fmt.Sprintf("name-updated-%d", rInt),
+					),
 				),
 			},
 		},
@@ -86,6 +102,8 @@ resource scalr_service_account test {
 resource scalr_service_account_token test {
   service_account_id = scalr_service_account.test.id
   description        = "desc-%[1]d"
+  name               = "name-%[1]d"
+  expires_in         = 42
 }`, rInt)
 }
 
@@ -97,5 +115,6 @@ resource scalr_service_account test {
 resource scalr_service_account_token test {
   service_account_id = scalr_service_account.test.id
   description        = "desc-updated-%[1]d"
+  name               = "name-updated-%[1]d"
 }`, rInt)
 }
