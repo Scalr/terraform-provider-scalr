@@ -157,6 +157,40 @@ resource "scalr_provider_configuration" "kubernetes" {
       value     = "my-password"
       sensitive = true
     }
+    argument {
+      name  = "config_path"
+      value = "~/.kube/config"
+      hcl   = false
+    }
+  }
+}
+```
+
+### Elasticsearch provider
+
+```terraform
+resource "scalr_provider_configuration" "elasticstack" {
+  name       = "elastic"
+  account_id = "acc-xxxxxxxxxx"
+  custom {
+    provider_name = "elasticstack"
+    argument {
+      name        = "endpoints"
+      value       = "[\"https://elasticsearch.example.com:9200\", \"https://elasticsearch2.example.com:9200\"]"
+      description = "List of Elasticsearch endpoints."
+      hcl         = true
+    }
+    argument {
+      name        = "username"
+      value       = "elastic"
+      description = "Username for Elasticsearch authentication."
+    }
+    argument {
+      name        = "password"
+      value       = "my-elastic-password"
+      sensitive   = true
+      description = "Password for Elasticsearch authentication."
+    }
   }
 }
 ```
@@ -248,6 +282,7 @@ Required:
 Optional:
 
 - `description` (String) The description of the provider configuration argument.
+- `hcl` (Boolean) Set (true/false) to configure as HCL. When true, the value is treated as a string from which an arbitrary HCL type (list, map, etc.) will be extracted. Default `false`.
 - `sensitive` (Boolean) Set (true/false) to configure as sensitive. Default `false`.
 - `value` (String) The value of the provider configuration argument.
 

@@ -66,6 +66,7 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 						map[string]string{
 							"name":        "host",
 							"sensitive":   "false",
+							"hcl":         "true",
 							"description": "",
 							"value":       "my-host",
 						},
@@ -76,6 +77,7 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 						map[string]string{
 							"name":        "client_certificate",
 							"sensitive":   "true",
+							"hcl":         "false",
 							"description": "",
 							"value":       "-----BEGIN CERTIFICATE-----\nMIIB9TCCAWACAQAwgbgxG",
 						},
@@ -86,6 +88,7 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 						map[string]string{
 							"name":        "config_path",
 							"sensitive":   "false",
+							"hcl":         "false",
 							"description": "A path to a kube config file. some typo...",
 							"value":       "~/.kube/config",
 						},
@@ -114,6 +117,7 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 						map[string]string{
 							"name":        "host",
 							"sensitive":   "false",
+							"hcl":         "false",
 							"description": "",
 							"value":       "my-host",
 						},
@@ -125,6 +129,7 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 							"name":        "config_path",
 							"description": "A path to a kube config file.",
 							"sensitive":   "true",
+							"hcl":         "false",
 							"value":       "~/.kube/config",
 						},
 					),
@@ -134,6 +139,7 @@ func TestAccProviderConfiguration_custom(t *testing.T) {
 						map[string]string{
 							"name":        "username",
 							"sensitive":   "false",
+							"hcl":         "false",
 							"description": "",
 							"value":       "my-username",
 						},
@@ -824,6 +830,7 @@ resource "scalr_provider_configuration" "kubernetes" {
       name        = "config_path"
       value       = "~/.kube/config"
       sensitive   = false
+      hcl         = false
       description = "A path to a kube config file. some typo..."
     }
     argument {
@@ -834,6 +841,7 @@ resource "scalr_provider_configuration" "kubernetes" {
     argument {
       name  = "host"
       value = "my-host"
+      hcl   = true
     }
   }
 }`, name, defaultAccount)
@@ -851,6 +859,7 @@ resource "scalr_provider_configuration" "kubernetes" {
       name        = "config_path"
       value       = "~/.kube/config"
       sensitive   = false
+      hcl         = false
       description = "A path to a kube config file. some typo..."
     }
     argument {
@@ -889,11 +898,13 @@ resource "scalr_provider_configuration" "kubernetes" {
       name        = "config_path"
       value       = "~/.kube/config"
       sensitive   = true
+      hcl         = false
       description = "A path to a kube config file."
     }
     argument {
       name  = "host"
       value = "my-host"
+      hcl   = false
     }
     argument {
       name  = "username"
