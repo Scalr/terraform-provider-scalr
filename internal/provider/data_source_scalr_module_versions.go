@@ -66,7 +66,7 @@ func dataSourceModuleVersionsRead(ctx context.Context, d *schema.ResourceData, m
 	if moduleID != "" {
 		log.Printf("[DEBUG] Read module with ID: %s", moduleID)
 		var err error
-		module, err = scalrClient.Modules.Read(ctx, moduleID)
+		module, err = scalrClient.Modules.Read(ctx, moduleID, scalr.ModuleReadOptions{})
 		if err != nil {
 			if errors.Is(err, scalr.ErrResourceNotFound) {
 				return diag.Errorf("Could not find module with ID '%s'", moduleID)

@@ -14,8 +14,7 @@ Manages the state of a module in the Private Modules Registry. Create and destro
 
 ```terraform
 resource "scalr_module" "example" {
-  account_id      = "acc-xxxxxxxxxx"
-  environment_id  = "env-xxxxxxxxxx"
+  namespace_id    = scalr_module_namespace.shared.id
   vcs_provider_id = "vcs-xxxxxxxxxx"
   vcs_repo {
     identifier = "org/repo"
@@ -35,8 +34,9 @@ resource "scalr_module" "example" {
 
 ### Optional
 
-- `account_id` (String) The identifier of the account in the format `acc-<RANDOM STRING>`. If it is not specified the module will be registered globally and available across the whole installation.
-- `environment_id` (String) The identifier of an environment in the format `env-<RANDOM STRING>`. If it is not specified the module will be registered at the account level and available across all environments within the account specified in `account_id` attribute.
+- `account_id` (String, Deprecated) The identifier of the account in the format `acc-<RANDOM STRING>`. If it is not specified the module will be registered globally and available across the whole installation. **Deprecated:** Use `namespace_id` instead.
+- `environment_id` (String, Deprecated) The identifier of an environment in the format `env-<RANDOM STRING>`. If it is not specified the module will be registered at the account level and available across all environments within the account specified in `account_id` attribute. **Deprecated:** Use `namespace_id` instead.
+- `namespace_id` (String) The identifier of a module namespace in the format `modns-<RANDOM STRING>`. If specified, the module will be registered in this namespace. Conflicts with `environment_id`.
 
 ### Read-Only
 

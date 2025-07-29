@@ -75,7 +75,7 @@ func waitForModuleVersions(environmentName string) func() {
 		var mID = ml.Items[0].ID
 
 		for i := 0; i < 60; i++ {
-			m, err := scalrClient.Modules.Read(ctx, mID)
+			m, err := scalrClient.Modules.Read(ctx, mID, scalr.ModuleReadOptions{})
 			if err != nil {
 				log.Fatalf("Error polling module  %s: %v", mID, err)
 			}

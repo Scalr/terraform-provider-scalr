@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **New resource:** `scalr_module_namespace` ([#441](https://github.com/Scalr/terraform-provider-scalr/pull/441))
+- **New data source:** `scalr_module_namespace` ([#441](https://github.com/Scalr/terraform-provider-scalr/pull/441))
+- `scalr_module`: new attribute `namespace_id` ([#441](https://github.com/Scalr/terraform-provider-scalr/pull/441))
+
+### Deprecated
+
+- `scalr_module`: attributes `account_id` and `environment_id` are deprecated and will be removed in the next major version ([#441](https://github.com/Scalr/terraform-provider-scalr/pull/441))
+
 ## [3.5.0] - 2025-07-18
 
 ### Fixed

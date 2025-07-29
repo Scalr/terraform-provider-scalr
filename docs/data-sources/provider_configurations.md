@@ -4,7 +4,7 @@ categorySlug: "scalr-terraform-provider"
 slug: "provider_datasource_scalr_provider_configurations"
 parentDocSlug: "provider_datasources"
 hidden: false
-order: 17
+order: 18
 ---
 ## Data Source: scalr_provider_configurations
 
