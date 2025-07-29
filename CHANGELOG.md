@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **New resource:** `scalr_module_namespace` ([#441](https://github.com/Scalr/terraform-provider-scalr/pull/441))
 - **New data source:** `scalr_module_namespace` ([#441](https://github.com/Scalr/terraform-provider-scalr/pull/441))
 - `scalr_module`: new attribute `namespace_id` ([#441](https://github.com/Scalr/terraform-provider-scalr/pull/441))
+- `scalr_provider_configuration.custom.argument`: new attribute `hcl` to configure HCL values ([#445](https://github.com/Scalr/terraform-provider-scalr/pull/445))
 
 ### Deprecated
 
