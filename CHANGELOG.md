@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scalr_module`: new attribute `namespace_id` ([#441](https://github.com/Scalr/terraform-provider-scalr/pull/441))
 - `scalr_service_account_token`: new attribute `name` ([#442](https://github.com/Scalr/terraform-provider-scalr/pull/442))
 - `scalr_service_account_token`: new attribute `expires_in` ([#442](https://github.com/Scalr/terraform-provider-scalr/pull/442))
+- `scalr_provider_configuration.custom.argument`: new attribute `hcl` to configure HCL values ([#445](https://github.com/Scalr/terraform-provider-scalr/pull/445))
 
 ### Deprecated
 

@@ -17,5 +17,10 @@ resource "scalr_provider_configuration" "kubernetes" {
       value     = "my-password"
       sensitive = true
     }
+    argument {
+      name  = "config_path"
+      value = "~/.kube/config"
+      hcl   = false
+    }
   }
 }
