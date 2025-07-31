@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **New resource:** `scalr_module_namespace` ([#441](https://github.com/Scalr/terraform-provider-scalr/pull/441))
 - **New data source:** `scalr_module_namespace` ([#441](https://github.com/Scalr/terraform-provider-scalr/pull/441))
 - `scalr_module`: new attribute `namespace_id` ([#441](https://github.com/Scalr/terraform-provider-scalr/pull/441))
+- `scalr_service_account_token`: new attribute `name` ([#442](https://github.com/Scalr/terraform-provider-scalr/pull/442))
+- `scalr_service_account_token`: new attribute `expires_in` ([#442](https://github.com/Scalr/terraform-provider-scalr/pull/442))
 
 ### Deprecated
 

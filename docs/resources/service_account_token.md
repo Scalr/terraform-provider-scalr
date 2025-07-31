@@ -29,6 +29,8 @@ resource "scalr_service_account_token" "default" {
 ### Optional
 
 - `description` (String) Description of the token.
+- `expires_in` (Number) Number of minutes until the token expires.
+- `name` (String) Name of the token.
 
 ### Read-Only
 
