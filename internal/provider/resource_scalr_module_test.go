@@ -83,6 +83,25 @@ func TestAccScalrModule_import(t *testing.T) {
 	})
 }
 
+func TestAccScalrModule_withNamespace(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testVcsAccGithubTokenPreCheck(t)
+		},
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrModuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrModuleWithNamespace(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrModuleExists("scalr_module.test", &scalr.Module{}),
+					resource.TestCheckResourceAttrSet("scalr_module.test", "namespace_id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckScalrModuleExists(moduleId string, module *scalr.Module) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
@@ -97,7 +116,7 @@ func testAccCheckScalrModuleExists(moduleId string, module *scalr.Module) resour
 		}
 
 		// Get the module
-		m, err := scalrClient.Modules.Read(ctx, rs.Primary.ID)
+		m, err := scalrClient.Modules.Read(ctx, rs.Primary.ID, scalr.ModuleReadOptions{})
 		if err != nil {
 			return err
 		}
@@ -120,7 +139,7 @@ func testAccCheckScalrModuleDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := scalrClient.Modules.Read(ctx, rs.Primary.ID)
+		_, err := scalrClient.Modules.Read(ctx, rs.Primary.ID, scalr.ModuleReadOptions{})
 		if err == nil {
 			return fmt.Errorf("Module %s still exists", rs.Primary.ID)
 		}
@@ -189,4 +208,28 @@ func testAccScalrModulesOnAllScopes() string {
 		  vcs_provider_id = scalr_vcs_provider.test.id
 		}
 `, rInd, string(scalr.Github), githubToken, defaultAccount)
+}
+
+func testAccScalrModuleWithNamespace() string {
+	rInd := GetRandomInteger()
+
+	return fmt.Sprintf(`
+		resource scalr_vcs_provider test {
+		  name       = "test-github-provider-namespace-%[1]d"
+		  vcs_type   = "%s"
+		  token      = "%s"
+		}
+		
+		resource scalr_module_namespace test {
+		  name = "test-namespace-%[1]d"
+		}
+		
+		resource "scalr_module" "test" {
+		  namespace_id = scalr_module_namespace.test.id
+		  vcs_repo {
+			identifier = "Scalr/terraform-scalr-revizor"
+		  }
+		  vcs_provider_id = scalr_vcs_provider.test.id
+		}
+`, rInd, string(scalr.Github), githubToken)
 }

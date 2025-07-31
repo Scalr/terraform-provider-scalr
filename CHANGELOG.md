@@ -9,14 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **New resource:** `scalr_module_namespace` ([#441](https://github.com/Scalr/terraform-provider-scalr/pull/441))
+- **New data source:** `scalr_module_namespace` ([#441](https://github.com/Scalr/terraform-provider-scalr/pull/441))
+- `scalr_module`: new attribute `namespace_id` ([#441](https://github.com/Scalr/terraform-provider-scalr/pull/441))
 - `scalr_service_account_token`: new attribute `name` ([#442](https://github.com/Scalr/terraform-provider-scalr/pull/442))
 - `scalr_service_account_token`: new attribute `expires_in` ([#442](https://github.com/Scalr/terraform-provider-scalr/pull/442))
+
+### Deprecated
+
+- `scalr_module`: attributes `account_id` and `environment_id` are deprecated and will be removed in the next major version ([#441](https://github.com/Scalr/terraform-provider-scalr/pull/441))
 
 ## [3.5.0] - 2025-07-18
 
 ### Fixed
 
 - `scalr_wokspace_ids` data source must request only those attributes it uses. ([#437](https://github.com/Scalr/terraform-provider-scalr/pull/437))
+- `scalr_agent_pool`: warning misfire for attribute `account_id`. ([#443](https://github.com/Scalr/terraform-provider-scalr/pull/443))
 
 ### Added
 

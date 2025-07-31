@@ -1,6 +1,5 @@
 resource "scalr_module" "example" {
-  account_id      = "acc-xxxxxxxxxx"
-  environment_id  = "env-xxxxxxxxxx"
+  namespace_id    = scalr_module_namespace.shared.id
   vcs_provider_id = "vcs-xxxxxxxxxx"
   vcs_repo {
     identifier = "org/repo"
