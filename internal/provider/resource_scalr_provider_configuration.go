@@ -319,6 +319,12 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 										Type:        schema.TypeString,
 										Optional:    true,
 									},
+									"hcl": {
+										Description: "Set (true/false) to configure as HCL. When true, the value is treated as a string from which an arbitrary HCL type (list, map, etc.) will be extracted. Default `false`.",
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+									},
 								},
 							},
 						},
@@ -523,6 +529,9 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 			if v, ok := argument["sensitive"]; ok {
 				createArgumentOption.Sensitive = ptr(v.(bool))
 			}
+			if v, ok := argument["hcl"]; ok {
+				createArgumentOption.HCL = ptr(v.(bool))
+			}
 
 			createArgumentOptions = append(createArgumentOptions, createArgumentOption)
 		}
@@ -606,6 +615,7 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 						"sensitive":   argument.Sensitive,
 						"value":       argument.Value,
 						"description": argument.Description,
+						"hcl":         argument.HCL,
 					}
 
 					if stateValue, ok := stateValues[argument.Key]; argument.Sensitive && ok {
@@ -622,6 +632,7 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 					"sensitive":   argument.Sensitive,
 					"value":       argument.Value,
 					"description": argument.Description,
+					"hcl":         argument.HCL,
 				}
 				currentArguments = append(currentArguments, currentArgument)
 			}
@@ -955,6 +966,9 @@ func syncArguments(ctx context.Context, providerConfigurationId string, custom m
 		if v, ok := configArgument["description"]; ok {
 			parameterCreateOption.Description = ptr(v.(string))
 		}
+		if v, ok := configArgument["hcl"]; ok {
+			parameterCreateOption.HCL = ptr(v.(bool))
+		}
 		configArgumentsCreateOptions[name] = parameterCreateOption
 	}
 
@@ -983,12 +997,13 @@ func syncArguments(ctx context.Context, providerConfigurationId string, custom m
 		currentArgument, exists := currentArguments[name]
 		if !exists || currentArgument.Sensitive && !(*configArgumentCreateOption.Sensitive) {
 			toCreate = append(toCreate, configArgumentCreateOption)
-		} else if currentArgument.Value != *configArgumentCreateOption.Value || currentArgument.Sensitive != *configArgumentCreateOption.Sensitive || currentArgument.Description != *configArgumentCreateOption.Description {
+		} else if currentArgument.Value != *configArgumentCreateOption.Value || currentArgument.Sensitive != *configArgumentCreateOption.Sensitive || currentArgument.Description != *configArgumentCreateOption.Description || currentArgument.HCL != *configArgumentCreateOption.HCL {
 			toUpdate = append(toUpdate, scalr.ProviderConfigurationParameterUpdateOptions{
 				ID:          currentArgument.ID,
 				Sensitive:   configArgumentCreateOption.Sensitive,
 				Value:       configArgumentCreateOption.Value,
 				Description: configArgumentCreateOption.Description,
+				HCL:         configArgumentCreateOption.HCL,
 			})
 		}
 	}
