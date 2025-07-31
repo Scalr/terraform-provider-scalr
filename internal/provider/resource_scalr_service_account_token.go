@@ -134,6 +134,10 @@ func resourceScalrServiceAccountTokenUpdate(ctx context.Context, d *schema.Resou
 
 	id := d.Id()
 
+	if d.HasChange("expires_in") {
+		return diag.Errorf("Error updating service account %s: %v", id, "expires_in attribute is readonly.")
+	}
+
 	if d.HasChange("description") || d.HasChange("name") {
 		desc := d.Get("description").(string)
 		name := d.Get("name").(string)
