@@ -33,7 +33,6 @@ func resourceScalrAgentPool() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				DefaultFunc: scalrAccountIDDefaultFunc,
 				ForceNew:    true,
 				Deprecated: "Attribute `account_id` is deprecated, the account id is calculated from the " +
 					"API request context.",
