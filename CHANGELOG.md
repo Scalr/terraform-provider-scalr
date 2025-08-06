@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.0] - 2025-08-08
+
+### Fixed
+
+- `scalr_agent_pool`: warning misfire for attribute `account_id`. ([#447](https://github.com/Scalr/terraform-provider-scalr/pull/447))
+- `scalr_role`: warning misfire for attribute `account_id`. ([#443](https://github.com/Scalr/terraform-provider-scalr/pull/443))
+
 ### Added
 
 - **New resource:** `scalr_module_namespace` ([#441](https://github.com/Scalr/terraform-provider-scalr/pull/441))
@@ -20,13 +27,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `scalr_module`: attributes `account_id` and `environment_id` are deprecated and will be removed in the next major version ([#441](https://github.com/Scalr/terraform-provider-scalr/pull/441))
 
+### Required
+
+- scalr-server >= v2508.5.0
+
 ## [3.5.0] - 2025-07-18
 
 ### Fixed
 
-- `scalr_agent_pool`: warning misfire for attribute `account_id`. ([#447](https://github.com/Scalr/terraform-provider-scalr/pull/447))
 - `scalr_wokspace_ids` data source must request only those attributes it uses. ([#437](https://github.com/Scalr/terraform-provider-scalr/pull/437))
-- `scalr_role`: warning misfire for attribute `account_id`. ([#443](https://github.com/Scalr/terraform-provider-scalr/pull/443))
+
 
 ### Added
 
@@ -1070,7 +1080,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.5.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.6.0...HEAD
+[3.6.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.6.0
 [3.5.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.5.0
 [3.4.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.4.0
 [3.3.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.3.0
