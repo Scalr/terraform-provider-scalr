@@ -83,6 +83,11 @@ func dataSourceScalrAgentPool() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 						},
+						"sensitive": {
+							Description: "Whether the header value is a secret.",
+							Type:        schema.TypeBool,
+							Computed:    true,
+						},
 					},
 				},
 			},
@@ -166,8 +171,9 @@ func dataSourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, m
 		if agentPool.WebhookHeaders != nil {
 			for _, header := range agentPool.WebhookHeaders {
 				headers = append(headers, map[string]interface{}{
-					"name":  header.Name,
-					"value": header.Value,
+					"name":      header.Name,
+					"value":     header.Value,
+					"sensitive": header.Sensitive,
 				})
 			}
 		}

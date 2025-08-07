@@ -30,6 +30,7 @@ func TestAccScalrAgentPool_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "api_gateway_url", "https://example.com"),
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.name", "Authorization"),
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.value", "1234567890"),
+					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.sensitive", "true"),
 				),
 			},
 		},
@@ -63,6 +64,7 @@ func TestAccScalrAgentPool_update(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "api_gateway_url", "https://example.com/new"),
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.name", "Authorization"),
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.value", "1234567890new"),
+					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.sensitive", "true"),
 				),
 			},
 		},
@@ -144,6 +146,7 @@ resource "scalr_agent_pool" "test" {
   header {
   	name = "Authorization"
     value = "1234567890"
+	sensitive = true
   }
 }`, rInt)
 }
@@ -156,6 +159,7 @@ resource "scalr_agent_pool" "test" {
   header {
   	name = "Authorization"
     value = "1234567890new"
+	sensitive = true
   }
 }`
 }

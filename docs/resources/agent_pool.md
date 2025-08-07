@@ -47,6 +47,10 @@ Required:
 - `name` (String) The name of the header.
 - `value` (String) The value of the header.
 
+Optional:
+
+- `sensitive` (Boolean) Whether the header value is a secret.
+
 ## Import
 
 Import is supported using the following syntax:

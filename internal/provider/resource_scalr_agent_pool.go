@@ -75,6 +75,11 @@ func resourceScalrAgentPool() *schema.Resource {
 							Required:     true,
 							ValidateFunc: validation.StringIsNotWhiteSpace,
 						},
+						"sensitive": {
+							Description: "Whether the header value is a secret.",
+							Type:        schema.TypeBool,
+							Optional:    true,
+						},
 					},
 				},
 			},
@@ -98,8 +103,9 @@ func parsePoolHeaders(d *schema.ResourceData) []*scalr.AgentPoolHeader {
 	for _, headerI := range headers.List() {
 		header := headerI.(map[string]interface{})
 		headerValues = append(headerValues, &scalr.AgentPoolHeader{
-			Name:  header["name"].(string),
-			Value: header["value"].(string),
+			Name:      header["name"].(string),
+			Value:     header["value"].(string),
+			Sensitive: header["sensitive"].(bool),
 		})
 	}
 	return headerValues
@@ -208,10 +214,21 @@ func resourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, met
 		_ = d.Set("api_gateway_url", agentPool.WebhookUrl)
 		headers := make([]map[string]interface{}, 0)
 		if agentPool.WebhookHeaders != nil {
+			_, doesConfigHasHeaders := d.GetOk("header")
 			for _, header := range agentPool.WebhookHeaders {
+				if header.Sensitive && doesConfigHasHeaders {
+					for _, headerI := range d.Get("header").(*schema.Set).List() {
+						configHeader := headerI.(map[string]interface{})
+						if header.Name == configHeader["name"] {
+							header.Value = configHeader["value"].(string)
+						}
+					}
+				}
+
 				headers = append(headers, map[string]interface{}{
-					"name":  header.Name,
-					"value": header.Value,
+					"name":      header.Name,
+					"value":     header.Value,
+					"sensitive": header.Sensitive,
 				})
 			}
 		}

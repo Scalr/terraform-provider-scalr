@@ -48,4 +48,5 @@ data "scalr_agent_pool" "example2" {
 Read-Only:
 
 - `name` (String)
+- `sensitive` (Boolean)
 - `value` (String)
