@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"errors"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -50,7 +51,33 @@ func resourceScalrAgentPool() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
-
+			"api_gateway_url": {
+				Description:      "HTTP(s) destination URL for pool webhook.",
+				Type:             schema.TypeString,
+				Optional:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validation.StringIsNotWhiteSpace),
+			},
+			"header": {
+				Description: "Additional headers to set in the agent pool webhook request.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Description:  "The name of the header.",
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringIsNotWhiteSpace,
+						},
+						"value": {
+							Description:  "The value of the header.",
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.StringIsNotWhiteSpace,
+						},
+					},
+				},
+			},
 			"environments": {
 				Description: "The list of the environment identifiers that the agent pool is shared to. Use `[\"*\"]` to share with all environments.",
 				Type:        schema.TypeSet,
@@ -63,6 +90,19 @@ func resourceScalrAgentPool() *schema.Resource {
 			},
 		},
 	}
+}
+
+func parsePoolHeaders(d *schema.ResourceData) []*scalr.AgentPoolHeader {
+	headers := d.Get("header").(*schema.Set)
+	headerValues := make([]*scalr.AgentPoolHeader, 0)
+	for _, headerI := range headers.List() {
+		header := headerI.(map[string]interface{})
+		headerValues = append(headerValues, &scalr.AgentPoolHeader{
+			Name:  header["name"].(string),
+			Value: header["value"].(string),
+		})
+	}
+	return headerValues
 }
 
 func resourceScalrAgentPoolCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -84,6 +124,11 @@ func resourceScalrAgentPoolCreate(ctx context.Context, d *schema.ResourceData, m
 		options.Environment = &scalr.Environment{
 			ID: v.(string),
 		}
+	}
+
+	if v, ok := d.GetOk("api_gateway_url"); ok {
+		options.WebhookUrl = ptr(v.(string))
+		options.WebhookEnabled = ptr(true)
 	}
 
 	if environmentsI, ok := d.GetOk("environments"); ok {
@@ -108,6 +153,10 @@ func resourceScalrAgentPoolCreate(ctx context.Context, d *schema.ResourceData, m
 				)
 			}
 		}
+	}
+
+	if _, ok := d.GetOk("header"); ok {
+		options.WebhookHeaders = parsePoolHeaders(d)
 	}
 
 	log.Printf("[DEBUG] Creating agent pool %s. Environment: %s", name, envID)
@@ -154,6 +203,21 @@ func resourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, met
 		}
 		_ = d.Set("environments", environmentIDs)
 	}
+
+	if agentPool.WebhookEnabled {
+		_ = d.Set("api_gateway_url", agentPool.WebhookUrl)
+		headers := make([]map[string]interface{}, 0)
+		if agentPool.WebhookHeaders != nil {
+			for _, header := range agentPool.WebhookHeaders {
+				headers = append(headers, map[string]interface{}{
+					"name":  header.Name,
+					"value": header.Value,
+				})
+			}
+		}
+		_ = d.Set("header", headers)
+	}
+
 	return nil
 }
 
@@ -198,6 +262,15 @@ func resourceScalrAgentPoolUpdate(ctx context.Context, d *schema.ResourceData, m
 	} else {
 		options.IsShared = ptr(false)
 		options.Environments = make([]*scalr.Environment, 0)
+	}
+
+	if d.HasChange("api_gateway_url") {
+		options.WebhookUrl = ptr(d.Get("api_gateway_url").(string))
+		options.WebhookEnabled = ptr(true)
+	}
+
+	if d.HasChange("header") {
+		options.WebhookHeaders = parsePoolHeaders(d)
 	}
 
 	log.Printf("[DEBUG] Update agent pool %s", id)

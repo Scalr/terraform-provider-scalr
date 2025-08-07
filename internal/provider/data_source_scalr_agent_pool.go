@@ -66,6 +66,31 @@ func dataSourceScalrAgentPool() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+
+			"header": {
+				Description: "Additional headers to set in the pool webhook request.",
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Description: "The name of the header.",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+						"value": {
+							Description: "The value of the header.",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+					},
+				},
+			},
+			"api_gateway_url": {
+				Description: "HTTP(s) destination URL for pool webhook.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 		},
 	}
 }
@@ -134,6 +159,20 @@ func dataSourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, m
 	}
 	_ = d.Set("vcs_enabled", agentPool.VcsEnabled)
 	_ = d.Set("name", agentPool.Name)
+	if agentPool.WebhookEnabled {
+		_ = d.Set("api_gateway_url", agentPool.WebhookUrl)
+
+		headers := make([]map[string]interface{}, 0)
+		if agentPool.WebhookHeaders != nil {
+			for _, header := range agentPool.WebhookHeaders {
+				headers = append(headers, map[string]interface{}{
+					"name":  header.Name,
+					"value": header.Value,
+				})
+			}
+		}
+		_ = d.Set("header", headers)
+	}
 	d.SetId(agentPool.ID)
 
 	return nil
