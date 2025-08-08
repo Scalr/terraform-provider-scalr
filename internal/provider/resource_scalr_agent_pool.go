@@ -79,6 +79,7 @@ func resourceScalrAgentPool() *schema.Resource {
 							Description: "Whether the header value is a secret.",
 							Type:        schema.TypeBool,
 							Optional:    true,
+							Default:     false,
 						},
 					},
 				},
