@@ -27,6 +27,10 @@ func TestAccScalrAgentPool_basic(t *testing.T) {
 					),
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "account_id", defaultAccount),
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "environments.0", "*"),
+					resource.TestCheckResourceAttr("scalr_agent_pool.test", "api_gateway_url", "https://example.com"),
+					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.name", "Authorization"),
+					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.value", "1234567890"),
+					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.sensitive", "false"),
 				),
 			},
 		},
@@ -57,6 +61,10 @@ func TestAccScalrAgentPool_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrAgentPoolExists("scalr_agent_pool.test", pool),
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "name", "agent_pool-updated"),
+					resource.TestCheckResourceAttr("scalr_agent_pool.test", "api_gateway_url", "https://example.com/new"),
+					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.name", "Authorization"),
+					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.value", "1234567890new"),
+					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.sensitive", "true"),
 				),
 			},
 		},
@@ -134,6 +142,11 @@ func testAccScalrAgentPoolBasic(rInt int) string {
 	return fmt.Sprintf(`
 resource "scalr_agent_pool" "test" {
   name           = "agent_pool-test-%d"
+  api_gateway_url = "https://example.com"
+  header {
+  	name = "Authorization"
+    value = "1234567890"
+  }
 }`, rInt)
 }
 
@@ -141,5 +154,11 @@ func testAccScalrAgentPoolUpdate() string {
 	return `
 resource "scalr_agent_pool" "test" {
   name           = "agent_pool-updated"
+  api_gateway_url = "https://example.com/new"
+  header {
+  	name = "Authorization"
+    value = "1234567890new"
+	sensitive = true
+  }
 }`
 }

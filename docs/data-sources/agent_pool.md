@@ -37,5 +37,16 @@ data "scalr_agent_pool" "example2" {
 
 ### Read-Only
 
+- `api_gateway_url` (String) HTTP(s) destination URL for pool webhook.
 - `environments` (Set of String) The list of the environment identifiers that the agent pool is shared to, or `["*"]` if shared with all environments.
+- `header` (Set of Object) Additional headers to set in the pool webhook request. (see [below for nested schema](#nestedatt--header))
 - `workspace_ids` (List of String) The list of IDs of linked workspaces.
+
+<a id="nestedatt--header"></a>
+### Nested Schema for `header`
+
+Read-Only:
+
+- `name` (String)
+- `sensitive` (Boolean)
+- `value` (String)
