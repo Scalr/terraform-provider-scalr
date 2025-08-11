@@ -3,8 +3,9 @@ package provider
 import (
 	"context"
 	"errors"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
@@ -283,8 +284,10 @@ func resourceScalrAgentPoolUpdate(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	if d.HasChange("api_gateway_url") {
-		options.WebhookUrl = ptr(d.Get("api_gateway_url").(string))
-		options.WebhookEnabled = ptr(true)
+		url := d.Get("api_gateway_url").(string)
+		options.WebhookUrl = ptr(url)
+		options.WebhookEnabled = ptr(len(url) > 0)
+
 	}
 
 	if d.HasChange("header") {
