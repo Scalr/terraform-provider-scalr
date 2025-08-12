@@ -29,13 +29,27 @@ resource "scalr_agent_pool" "default" {
 ### Optional
 
 - `account_id` (String, Deprecated) ID of the account.
+- `api_gateway_url` (String) HTTP(s) destination URL for pool webhook.
 - `environment_id` (String, Deprecated) ID of the environment.
 - `environments` (Set of String) The list of the environment identifiers that the agent pool is shared to. Use `["*"]` to share with all environments.
+- `header` (Block Set) Additional headers to set in the agent pool webhook request. (see [below for nested schema](#nestedblock--header))
 - `vcs_enabled` (Boolean) Indicates whether the VCS support is enabled for agents in the pool.
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+
+<a id="nestedblock--header"></a>
+### Nested Schema for `header`
+
+Required:
+
+- `name` (String) The name of the header.
+- `value` (String) The value of the header.
+
+Optional:
+
+- `sensitive` (Boolean) Whether the header value is a secret.
 
 ## Import
 

@@ -33,8 +33,11 @@ func TestAccScalrAgentPoolDataSource_basic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckEqualID("data.scalr_agent_pool.test", "scalr_agent_pool.test"),
 					resource.TestCheckResourceAttrSet("data.scalr_agent_pool.test", "id"),
-					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "name", "ds-agent_pool-test-acc"),
+					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "name", "ds-agent_pool-test-env"),
 					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "account_id", defaultAccount),
+					resource.TestCheckResourceAttr("scalr_agent_pool.test", "api_gateway_url", "https://example.com"),
+					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.name", "Authorization"),
+					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.value", "1234567890"),
 					resource.TestCheckResourceAttr(
 						"data.scalr_agent_pool.test", "environments.#", "1"),
 					resource.TestCheckResourceAttrPair(
@@ -47,7 +50,7 @@ func TestAccScalrAgentPoolDataSource_basic(t *testing.T) {
 			{
 				Config: testAccScalrAgentPoolAccountDataSourceByNameConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckEqualID("data.scalr_agent_pool.test", "scalr_agent_pool.test"),
+					testAccCheckEqualID("data.scalr_agent_pool.test", "scalr_agent_pool.test-by-name"),
 					resource.TestCheckResourceAttrSet("data.scalr_agent_pool.test", "id"),
 					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "name", "ds-agent_pool-test-acc"),
 					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "account_id", defaultAccount),
@@ -58,7 +61,7 @@ func TestAccScalrAgentPoolDataSource_basic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckEqualID("data.scalr_agent_pool.test", "scalr_agent_pool.test"),
 					resource.TestCheckResourceAttrSet("data.scalr_agent_pool.test", "id"),
-					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "name", "ds-agent_pool-test-acc"),
+					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "name", "ds-agent_pool-test-acc-id-and-name"),
 					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "account_id", defaultAccount),
 				),
 			},
@@ -90,8 +93,13 @@ resource scalr_environment test-new {
 }
 
 resource "scalr_agent_pool" "test" {
-  name       = "ds-agent_pool-test-acc"
+  name       = "ds-agent_pool-test-env"
   environments = [scalr_environment.test-new.id]
+  api_gateway_url = "https://example.com"
+  header {
+  	name = "Authorization"
+    value = "1234567890"
+  }
 }
 
 data "scalr_agent_pool" "test" {
@@ -100,19 +108,19 @@ data "scalr_agent_pool" "test" {
 }`, defaultAccount)
 
 var testAccScalrAgentPoolAccountDataSourceByNameConfig = fmt.Sprintf(`
-resource "scalr_agent_pool" "test" {
+resource "scalr_agent_pool" "test-by-name" {
   name       = "ds-agent_pool-test-acc"
   account_id = "%s"
 }
 
 data "scalr_agent_pool" "test" {
-  name       = scalr_agent_pool.test.name
-  account_id = scalr_agent_pool.test.account_id
+  name       = scalr_agent_pool.test-by-name.name
+  account_id = scalr_agent_pool.test-by-name.account_id
 }`, defaultAccount)
 
 var testAccScalrAgentPoolAccountDataSourceByIDAndNameConfig = fmt.Sprintf(`
 resource "scalr_agent_pool" "test" {
-  name       = "ds-agent_pool-test-acc"
+  name       = "ds-agent_pool-test-acc-id-and-name"
   account_id = "%s"
 }
 
