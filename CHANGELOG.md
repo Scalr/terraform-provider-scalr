@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `scalr_agent_pool`: new arguments `api_gateway_url` and `header`. ([#450](https://github.com/Scalr/terraform-provider-scalr/pull/450))
-- **New resource:** `scalr_checkov_integration` ([#](https://github.com/Scalr/terraform-provider-scalr/pull/))
+- **New resource:** `scalr_checkov_integration` ([#451](https://github.com/Scalr/terraform-provider-scalr/pull/451))
 
 ## [3.6.0] - 2025-08-08
 

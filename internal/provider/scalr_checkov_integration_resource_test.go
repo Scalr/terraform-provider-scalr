@@ -101,23 +101,23 @@ func TestCheckovIntegrationResource_ImportState(t *testing.T) {
 }
 
 func testAccScalrCheckovIntegrationConfig() string {
-	return fmt.Sprintf(`
+	return `
 resource "scalr_checkov_integration" "test" {
   name         = "test-checkov-integration"
   environments = ["*"]
   cli_args     = "--quiet"
-}`)
+}`
 }
 
 func testAccScalrCheckovIntegrationConfigMissedVcsProvider() string {
-	return fmt.Sprintf(`
+	return `
 resource "scalr_checkov_integration" "test" {
   name         = "test-checkov-integration"
   vcs_repo {
    identifier = "TestRepo/local"
    branch     = "main"
   }
-}`)
+}`
 }
 
 func testAccScalrCheckovIntegrationConfigUpdate(name string) string {
