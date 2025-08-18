@@ -4,7 +4,7 @@ categorySlug: "scalr-terraform-provider"
 slug: "provider_resource_scalr_workspace_run_schedule"
 parentDocSlug: "provider_resources"
 hidden: false
-order: 32
+order: 33
 ---
 ## Resource: scalr_workspace_run_schedule
 
