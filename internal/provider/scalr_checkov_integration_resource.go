@@ -103,6 +103,8 @@ func (r *checkovIntegrationResource) Schema(_ context.Context, _ resource.Schema
 			"cli_args": schema.StringAttribute{
 				MarkdownDescription: "CLI parameters to be passed to checkov command.",
 				Optional:            true,
+				Computed:            true,
+				Default:             stringdefault.StaticString(""),
 			},
 			"environments": schema.SetAttribute{
 				MarkdownDescription: "List of environments this integration is linked to. Use `[\"*\"]` to allow in all environments.",
