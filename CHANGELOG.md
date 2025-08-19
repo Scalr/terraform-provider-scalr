@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
- - `scalr_agent_pool`: new arguments `api_gateway_url` and `header`. ([#450](https://github.com/Scalr/terraform-provider-scalr/pull/450))
+- `scalr_agent_pool`: new arguments `api_gateway_url` and `header`. ([#450](https://github.com/Scalr/terraform-provider-scalr/pull/450))
+- `scalr_environment` and `data.scalr_environment`: new attribute `remote_backend_overridable` ([#452](https://github.com/Scalr/terraform-provider-scalr/pull/452))
+- `scalr_workspace` and `data.scalr_workspace`: new attribute `remote_backend` ([#452](https://github.com/Scalr/terraform-provider-scalr/pull/452))
 
 ## [3.6.0] - 2025-08-08
 

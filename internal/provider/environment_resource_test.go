@@ -26,6 +26,7 @@ func TestAccEnvironment_basic(t *testing.T) {
 					testAccCheckScalrEnvironmentAttributes(environment, rInt),
 					resource.TestCheckResourceAttr("scalr_environment.test", "name", fmt.Sprintf("test-env-%d", rInt)),
 					resource.TestCheckResourceAttr("scalr_environment.test", "remote_backend", "false"),
+					resource.TestCheckResourceAttr("scalr_environment.test", "remote_backend_overridable", "false"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "status", "Active"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "account_id", defaultAccount),
 					resource.TestCheckResourceAttr("scalr_environment.test", "policy_groups.%", "0"),
@@ -54,6 +55,7 @@ func TestAccEnvironment_update(t *testing.T) {
 					testAccCheckScalrEnvironmentAttributes(environment, rInt),
 					resource.TestCheckResourceAttr("scalr_environment.test", "name", fmt.Sprintf("test-env-%d", rInt)),
 					resource.TestCheckResourceAttr("scalr_environment.test", "status", "Active"),
+					resource.TestCheckResourceAttr("scalr_environment.test", "remote_backend_overridable", "false"),
 					resource.TestCheckResourceAttr("scalr_environment.test", "account_id", defaultAccount),
 					resource.TestCheckResourceAttr("scalr_environment.test", "policy_groups.%", "0"),
 					resource.TestCheckResourceAttrSet("scalr_environment.test", "created_by.0.full_name"),
@@ -67,6 +69,7 @@ func TestAccEnvironment_update(t *testing.T) {
 					testAccCheckScalrEnvironmentExists("scalr_environment.test", environment),
 					testAccCheckScalrEnvironmentAttributesUpdate(environment, rInt),
 					resource.TestCheckResourceAttr("scalr_environment.test", "name", fmt.Sprintf("test-env-%d-patched", rInt)),
+					resource.TestCheckResourceAttr("scalr_environment.test", "remote_backend_overridable", "true"),
 				),
 			},
 		},
@@ -309,17 +312,19 @@ func testAccCheckScalrEnvironmentProviderConfigurationsDefaultRemoved(environmen
 func testAccEnvironmentConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
-  name       = "test-env-%d"
-  account_id = "%s"
-  remote_backend = false
+  name                       = "test-env-%d"
+  account_id                 = "%s"
+  remote_backend             = false
+  remote_backend_overridable = false
 }`, rInt, defaultAccount)
 }
 
 func testAccEnvironmentUpdateConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
-  name       = "test-env-%d-patched"
-  account_id = "%s"
+  name                       = "test-env-%d-patched"
+  remote_backend_overridable = true
+  account_id                 = "%s"
 }`, rInt, defaultAccount)
 }
 

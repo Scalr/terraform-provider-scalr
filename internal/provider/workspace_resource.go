@@ -96,6 +96,10 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 		opts.RunOperationTimeout = ptr(int(plan.RunOperationTimeout.ValueInt32()))
 	}
 
+	if !plan.RemoteBackend.IsUnknown() && !plan.RemoteBackend.IsNull() {
+		opts.RemoteBackend = ptr(plan.RemoteBackend.ValueBool())
+	}
+
 	if !plan.VCSProviderID.IsUnknown() && !plan.VCSProviderID.IsNull() {
 		opts.VcsProvider = &scalr.VcsProvider{
 			ID: plan.VCSProviderID.ValueString(),

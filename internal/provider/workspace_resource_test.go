@@ -34,6 +34,8 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "deletion_protection_enabled", "false"),
 					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "remote_backend", "true"),
+					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "type", "unmapped"),
@@ -136,6 +138,7 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_workspace.test", "name", "workspace-test"),
 					resource.TestCheckResourceAttr("scalr_workspace.test", "auto_apply", "true"),
 					resource.TestCheckResourceAttr("scalr_workspace.test", "deletion_protection_enabled", "false"),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "remote_backend", "true"),
 					resource.TestCheckResourceAttr("scalr_workspace.test", "operations", "true"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "execution_mode", string(scalr.WorkspaceExecutionModeRemote)),
@@ -171,6 +174,8 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 						"scalr_workspace.test", "auto_apply", "false"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "deletion_protection_enabled", "true"),
+					resource.TestCheckResourceAttr(
+						"scalr_workspace.test", "remote_backend", "false"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "operations", "false"),
 					resource.TestCheckResourceAttr(
@@ -729,6 +734,7 @@ resource scalr_workspace test {
   auto_queue_runs                = "always"
   deletion_protection_enabled    = false
   type                           = "unmapped"
+  remote_backend                 = true
   hooks {
     pre_init   = "./scripts/pre-init.sh"
     pre_plan   = "./scripts/pre-plan.sh"
@@ -763,6 +769,7 @@ resource "scalr_workspace" "test" {
   deletion_protection_enabled   = true
   var_files                     = ["test1updated.tfvars", "test2updated.tfvars"]
   type                          = "staging"
+  remote_backend                = false
   hooks {
     pre_init   = "./scripts/pre-init_updated.sh"
     pre_plan   = "./scripts/pre-plan_updated.sh"

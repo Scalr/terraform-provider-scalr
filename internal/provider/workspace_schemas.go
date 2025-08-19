@@ -215,6 +215,18 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 					setplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"remote_backend": schema.BoolAttribute{
+				MarkdownDescription: "Manages if Scalr exports the remote backend configuration and state storage for your" +
+					" infrastructure management. Disabling this feature will also prevent the ability to perform state locking," +
+					" which ensures that concurrent operations do not conflict. Additionally, it will disable the capability to" +
+					" initiate CLI-driven runs through Scalr.",
+				Optional: true,
+				Computed: true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.RequiresReplace(),
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
 		},
 		Blocks: map[string]schema.Block{
 			"hooks": schema.ListNestedBlock{

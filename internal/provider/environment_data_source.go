@@ -42,6 +42,7 @@ type environmentDataSourceModel struct {
 	TagIDs                        types.List   `tfsdk:"tag_ids"`
 	DefaultProviderConfigurations types.List   `tfsdk:"default_provider_configurations"`
 	RemoteBackend                 types.Bool   `tfsdk:"remote_backend"`
+	RemoteBackendOverridable      types.Bool   `tfsdk:"remote_backend_overridable"`
 	MaskSensitiveOutput           types.Bool   `tfsdk:"mask_sensitive_output"`
 	FederatedEnvironments         types.Set    `tfsdk:"federated_environments"`
 	AccountID                     types.String `tfsdk:"account_id"`
@@ -103,6 +104,10 @@ func (d *environmentDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 					" Disabling this feature will also prevent the ability to perform state locking, which ensures that concurrent operations do not conflict." +
 					" Additionally, it will disable the capability to initiate CLI-driven runs through Scalr.",
 				Computed: true,
+			},
+			"remote_backend_overridable": schema.BoolAttribute{
+				MarkdownDescription: "Indicates if the remote backend configuration can be overridden on the workspace level.",
+				Computed:            true,
 			},
 			"mask_sensitive_output": schema.BoolAttribute{
 				MarkdownDescription: "Enable masking of the sensitive console output.",
@@ -191,6 +196,7 @@ func (d *environmentDataSource) Read(ctx context.Context, req datasource.ReadReq
 	cfg.Name = types.StringValue(environment.Name)
 	cfg.Status = types.StringValue(string(environment.Status))
 	cfg.RemoteBackend = types.BoolValue(environment.RemoteBackend)
+	cfg.RemoteBackendOverridable = types.BoolValue(environment.RemoteBackendOverridable)
 	cfg.MaskSensitiveOutput = types.BoolValue(environment.MaskSensitiveOutput)
 	cfg.AccountID = types.StringValue(environment.Account.ID)
 

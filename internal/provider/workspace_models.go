@@ -64,6 +64,7 @@ type workspaceResourceModel struct {
 	Name                      types.String `tfsdk:"name"`
 	Operations                types.Bool   `tfsdk:"operations"`
 	ProviderConfiguration     types.Set    `tfsdk:"provider_configuration"`
+	RemoteBackend             types.Bool   `tfsdk:"remote_backend"`
 	RemoteStateConsumers      types.Set    `tfsdk:"remote_state_consumers"`
 	RunOperationTimeout       types.Int32  `tfsdk:"run_operation_timeout"`
 	SSHKeyID                  types.String `tfsdk:"ssh_key_id"`
@@ -71,9 +72,9 @@ type workspaceResourceModel struct {
 	TerraformVersion          types.String `tfsdk:"terraform_version"`
 	Terragrunt                types.List   `tfsdk:"terragrunt"`
 	Type                      types.String `tfsdk:"type"`
+	VarFiles                  types.List   `tfsdk:"var_files"`
 	VCSProviderID             types.String `tfsdk:"vcs_provider_id"`
 	VCSRepo                   types.List   `tfsdk:"vcs_repo"`
-	VarFiles                  types.List   `tfsdk:"var_files"`
 	WorkingDirectory          types.String `tfsdk:"working_directory"`
 }
 
@@ -133,6 +134,7 @@ func workspaceResourceModelFromAPI(
 		Name:                      types.StringValue(ws.Name),
 		Operations:                types.BoolValue(ws.Operations),
 		ProviderConfiguration:     types.SetNull(providerConfigurationElementType),
+		RemoteBackend:             types.BoolValue(ws.RemoteBackend),
 		RemoteStateConsumers:      types.SetNull(types.StringType),
 		RunOperationTimeout:       types.Int32Null(),
 		SSHKeyID:                  types.StringNull(),
@@ -140,9 +142,9 @@ func workspaceResourceModelFromAPI(
 		TerraformVersion:          types.StringValue(ws.TerraformVersion),
 		Terragrunt:                types.ListNull(terragruntElementType),
 		Type:                      types.StringValue(string(ws.EnvironmentType)),
+		VarFiles:                  types.ListNull(types.StringType),
 		VCSProviderID:             types.StringNull(),
 		VCSRepo:                   types.ListNull(vcsRepoElementType),
-		VarFiles:                  types.ListNull(types.StringType),
 		WorkingDirectory:          types.StringValue(ws.WorkingDirectory),
 	}
 
