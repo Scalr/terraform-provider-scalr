@@ -203,7 +203,7 @@ func (r *checkovIntegrationResource) Create(ctx context.Context, req resource.Cr
 		}
 	}
 
-	if !plan.VCSRepo.IsUnknown() && !plan.VCSRepo.IsNull() {
+	if !plan.VCSRepo.IsNull() {
 		var vcsRepo []checkovVcsRepoModel
 		resp.Diagnostics.Append(plan.VCSRepo.ElementsAs(ctx, &vcsRepo, false)...)
 
@@ -251,6 +251,23 @@ func (r *checkovIntegrationResource) Create(ctx context.Context, req resource.Cr
 	plan.Version = types.StringValue(checkovIntegration.Version)
 	plan.CliArgs = types.StringValue(checkovIntegration.CliArgs)
 
+	plan.VCSProviderID = types.StringNull()
+	if checkovIntegration.VcsProvider != nil {
+		plan.VCSProviderID = types.StringValue(checkovIntegration.VcsProvider.ID)
+	}
+
+	plan.VCSRepo = types.ListNull(checkovVcsRepoElementType)
+	if checkovIntegration.VCSRepo != nil {
+		repo := checkovVcsRepoModel{
+			Identifier: types.StringValue(checkovIntegration.VCSRepo.Identifier),
+			Branch:     types.StringValue(checkovIntegration.VCSRepo.Branch),
+			Path:       types.StringValue(checkovIntegration.VCSRepo.Path),
+		}
+
+		repoValue, d := types.ListValueFrom(ctx, checkovVcsRepoElementType, []checkovVcsRepoModel{repo})
+		resp.Diagnostics.Append(d...)
+		plan.VCSRepo = repoValue
+	}
 	envs := make([]string, len(checkovIntegration.Environments))
 	for i, env := range checkovIntegration.Environments {
 		envs[i] = env.ID
@@ -303,12 +320,8 @@ func (r *checkovIntegrationResource) Read(ctx context.Context, req resource.Read
 	if checkovIntegration.VCSRepo != nil {
 		repo := checkovVcsRepoModel{
 			Identifier: types.StringValue(checkovIntegration.VCSRepo.Identifier),
+			Branch:     types.StringValue(checkovIntegration.VCSRepo.Branch),
 			Path:       types.StringValue(checkovIntegration.VCSRepo.Path),
-		}
-
-		if checkovIntegration.VCSRepo.Branch != "" {
-			branch := types.StringValue(checkovIntegration.VCSRepo.Branch)
-			repo.Branch = branch
 		}
 
 		repoValue, d := types.ListValueFrom(ctx, checkovVcsRepoElementType, []checkovVcsRepoModel{repo})
@@ -423,12 +436,29 @@ func (r *checkovIntegrationResource) Update(ctx context.Context, req resource.Up
 	plan.Name = types.StringValue(checkovIntegration.Name)
 	plan.Version = types.StringValue(checkovIntegration.Version)
 	plan.CliArgs = types.StringValue(checkovIntegration.CliArgs)
+	plan.ExternalChecksEnabled = types.BoolValue(checkovIntegration.ExternalChecksEnabled)
+
+	if checkovIntegration.VcsProvider != nil {
+		plan.VCSProviderID = types.StringValue(checkovIntegration.VcsProvider.ID)
+	}
+
+	if checkovIntegration.VCSRepo != nil {
+		repo := checkovVcsRepoModel{
+			Identifier: types.StringValue(checkovIntegration.VCSRepo.Identifier),
+			Branch:     types.StringValue(checkovIntegration.VCSRepo.Branch),
+			Path:       types.StringValue(checkovIntegration.VCSRepo.Path),
+		}
+
+		repoValue, d := types.ListValueFrom(ctx, checkovVcsRepoElementType, []checkovVcsRepoModel{repo})
+		resp.Diagnostics.Append(d...)
+		plan.VCSRepo = repoValue
+	}
 
 	if checkovIntegration.IsShared {
 		envs := []string{"*"}
 		envsValues, d := types.SetValueFrom(ctx, types.StringType, envs)
 		resp.Diagnostics.Append(d...)
-		state.Environments = envsValues
+		plan.Environments = envsValues
 	} else {
 		envs := make([]string, len(checkovIntegration.Environments))
 		for i, env := range checkovIntegration.Environments {
@@ -436,7 +466,7 @@ func (r *checkovIntegrationResource) Update(ctx context.Context, req resource.Up
 		}
 		envsValues, d := types.SetValueFrom(ctx, types.StringType, envs)
 		resp.Diagnostics.Append(d...)
-		state.Environments = envsValues
+		plan.Environments = envsValues
 	}
 
 	// Set refreshed state
