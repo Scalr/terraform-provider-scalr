@@ -127,7 +127,7 @@ func TestAccEnvironment_UpgradeFromSDK(t *testing.T) {
 			},
 			{
 				ProtoV5ProviderFactories: protoV5ProviderFactories(t),
-				Config:                   testAccEnvironmentConfig(rInt),
+				Config:                   testAccEnvironmentImportConfig(rInt),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectEmptyPlan(),
