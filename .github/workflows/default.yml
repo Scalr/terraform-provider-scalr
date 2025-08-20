@@ -97,14 +97,14 @@ jobs:
             const repo = "fatmouse";
             const targetBranch = "${{ github.head_ref || github.ref_name }}";
             const default_branch = "master";
-  
+
             try {
               const { data: branch } = await github.request('GET /repos/{owner}/{repo}/branches/{branch}', {
                 owner: owner,
                 repo: repo,
                 branch: targetBranch
               });
-  
+
               console.log(`Branch found in the ${repo} repository: ${branch.name}`);
               core.setOutput('branch', branch.name);
             } catch (error) {
@@ -156,12 +156,12 @@ jobs:
           TEST_ARM_TENANT_ID: ${{ secrets.TEST_ARM_TENANT_ID }}
           TEST_ARM_SUBSCRIPTION_ID: ${{ secrets.TEST_ARM_SUBSCRIPTION_ID }}
         run: make testacc
-      - name: Install Goveralls
-        run: go install github.com/mattn/goveralls@latest
-      - name: Send Coverage
-        env:
-          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: goveralls -coverprofile=covprofile -service=github
+      # - name: Install Goveralls
+      #   run: go install github.com/mattn/goveralls@latest
+      # - name: Send Coverage
+      #   env:
+      #     COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: goveralls -coverprofile=covprofile -service=github
       - name: Delete Container
         id: delete
         working-directory: fatmouse
