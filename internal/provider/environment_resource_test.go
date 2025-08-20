@@ -122,7 +122,7 @@ func TestAccEnvironment_UpgradeFromSDK(t *testing.T) {
 						VersionConstraint: "<=3.0.0",
 					},
 				},
-				Config: testAccEnvironmentConfig(rInt),
+				Config: testAccEnvironmentImportConfig(rInt),
 				Check:  resource.TestCheckResourceAttrSet("scalr_environment.test", "id"),
 			},
 			{
@@ -421,5 +421,13 @@ resource "scalr_environment" "test" {
   name       = "test-env-%[1]d"
   account_id = "%[2]s"
   federated_environments = [ "*" ]
+}`, rInt, defaultAccount)
+}
+
+func testAccEnvironmentImportConfig(rInt int) string {
+	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name                       = "test-env-%d"
+  account_id                 = "%s"
 }`, rInt, defaultAccount)
 }
