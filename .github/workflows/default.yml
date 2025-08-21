@@ -67,7 +67,7 @@ jobs:
       - name: Preview
         uses: readmeio/rdme@v10
         with:
-          rdme: docs ./docs --key=${{ secrets.README_API_KEY }} --version=${{ env.RDME_VERSION }} --dryRun
+          rdme: docs upload ./docs --key=${{ secrets.README_API_KEY }} --branch=${{ env.RDME_VERSION }} --dry-run
 
   acc-tests:
     runs-on: ubuntu-latest
