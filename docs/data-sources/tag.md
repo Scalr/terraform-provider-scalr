@@ -1,10 +1,13 @@
 ---
-title: "scalr_tag"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_datasource_scalr_tag"
-parentDocSlug: "provider_datasources"
-hidden: false
-order: 23
+title: scalr_tag
+slug: provider_datasource_scalr_tag
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_datasources
+privacy:
+  view: public
+position: 23
 ---
 ## Data Source: scalr_tag
 

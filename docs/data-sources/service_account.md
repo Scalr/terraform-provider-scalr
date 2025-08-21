@@ -1,10 +1,13 @@
 ---
-title: "scalr_service_account"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_datasource_scalr_service_account"
-parentDocSlug: "provider_datasources"
-hidden: false
-order: 20
+title: scalr_service_account
+slug: provider_datasource_scalr_service_account
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_datasources
+privacy:
+  view: public
+position: 20
 ---
 ## Data Source: scalr_service_account
 

@@ -1,10 +1,13 @@
 ---
-title: "scalr_agent_pool"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_agent_pool"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 3
+title: scalr_agent_pool
+slug: provider_resource_scalr_agent_pool
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 3
 ---
 ## Resource: scalr_agent_pool
 

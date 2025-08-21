@@ -1,10 +1,13 @@
 ---
-title: "scalr_slack_integration"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_slack_integration"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 23
+title: scalr_slack_integration
+slug: provider_resource_scalr_slack_integration
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 24
 ---
 ## Resource: scalr_slack_integration
 

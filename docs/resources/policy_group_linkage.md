@@ -1,10 +1,13 @@
 ---
-title: "scalr_policy_group_linkage"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_policy_group_linkage"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 15
+title: scalr_policy_group_linkage
+slug: provider_resource_scalr_policy_group_linkage
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 16
 ---
 ## Resource: scalr_policy_group_linkage
 

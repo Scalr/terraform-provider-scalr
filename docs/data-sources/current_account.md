@@ -1,10 +1,13 @@
 ---
-title: "scalr_current_account"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_datasource_scalr_current_account"
-parentDocSlug: "provider_datasources"
-hidden: false
-order: 4
+title: scalr_current_account
+slug: provider_datasource_scalr_current_account
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_datasources
+privacy:
+  view: public
+position: 4
 ---
 ## Data Source: scalr_current_account
 

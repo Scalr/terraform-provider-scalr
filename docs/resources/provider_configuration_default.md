@@ -1,10 +1,13 @@
 ---
-title: "scalr_provider_configuration_default"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_provider_configuration_default"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 17
+title: scalr_provider_configuration_default
+slug: provider_resource_scalr_provider_configuration_default
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 18
 ---
 ## Resource: scalr_provider_configuration_default
 

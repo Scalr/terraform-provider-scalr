@@ -1,10 +1,13 @@
 ---
-title: "scalr_webhook"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_webhook"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 29
+title: scalr_webhook
+slug: provider_resource_scalr_webhook
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 30
 ---
 ## Resource: scalr_webhook
 

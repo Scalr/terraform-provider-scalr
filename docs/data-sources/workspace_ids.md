@@ -1,10 +1,13 @@
 ---
-title: "scalr_workspace_ids"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_datasource_scalr_workspace_ids"
-parentDocSlug: "provider_datasources"
-hidden: false
-order: 30
+title: scalr_workspace_ids
+slug: provider_datasource_scalr_workspace_ids
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_datasources
+privacy:
+  view: public
+position: 30
 ---
 ## Data Source: scalr_workspace_ids
 
