@@ -28,9 +28,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	order := 1
+	position := 1
 	for _, f := range files {
-		fmt.Printf("> Processing %q, order = %d...\n", filepath.Base(f), order)
+		fmt.Printf("> Processing %q, order = %d...\n", filepath.Base(f), position)
 
 		bytes, err := os.ReadFile(f)
 		if err != nil {
@@ -44,11 +44,11 @@ func main() {
 			if l == "---" {
 				if frontMatterFound {
 					// This is the closing Front Matter delimiter.
-					// No `order: ` records were found,
+					// No `position: ` records were found,
 					// so we insert a new one.
 					lines = append(lines[:j+1], lines[j:]...)
-					lines[j] = fmt.Sprintf("order: %d", order)
-					order++
+					lines[j] = fmt.Sprintf("position: %d", position)
+					position++
 					fmt.Println("  * Added order record.")
 					break
 				} else {
@@ -56,10 +56,10 @@ func main() {
 					continue
 				}
 			}
-			if frontMatterFound && strings.HasPrefix(l, "order:") {
-				lines[j] = fmt.Sprintf("order: %d", order)
-				order++
-				fmt.Println("  * Updated order record.")
+			if frontMatterFound && strings.HasPrefix(l, "position:") {
+				lines[j] = fmt.Sprintf("position: %d", position)
+				position++
+				fmt.Println("  * Updated position record.")
 				break
 			}
 		}

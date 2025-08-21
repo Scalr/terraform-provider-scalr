@@ -1,10 +1,13 @@
 ---
-title: "scalr_run_trigger"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_run_trigger"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 20
+title: scalr_run_trigger
+slug: provider_resource_scalr_run_trigger
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 21
 ---
 ## Resource: scalr_run_trigger
 

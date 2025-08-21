@@ -1,10 +1,13 @@
 ---
-title: "scalr_vcs_provider"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_vcs_provider"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 28
+title: scalr_vcs_provider
+slug: provider_resource_scalr_vcs_provider
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 29
 ---
 ## Resource: scalr_vcs_provider
 

@@ -1,10 +1,13 @@
 ---
-title: "scalr_variable"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_datasource_scalr_variable"
-parentDocSlug: "provider_datasources"
-hidden: false
-order: 24
+title: scalr_variable
+slug: provider_datasource_scalr_variable
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_datasources
+privacy:
+  view: public
+position: 24
 ---
 ## Data Source: scalr_variable
 

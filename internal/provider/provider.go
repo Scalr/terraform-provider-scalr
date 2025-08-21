@@ -151,6 +151,7 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 	return []func() resource.Resource{
 		newAgentPoolTokenResource,
 		newAssumeServiceAccountPolicyResource,
+		newCheckovIntegrationResource,
 		newEnvironmentHookResource,
 		newEnvironmentResource,
 		newHookResource,

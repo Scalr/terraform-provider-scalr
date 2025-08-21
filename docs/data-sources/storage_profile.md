@@ -1,10 +1,13 @@
 ---
-title: "scalr_storage_profile"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_datasource_scalr_storage_profile"
-parentDocSlug: "provider_datasources"
-hidden: false
-order: 22
+title: scalr_storage_profile
+slug: provider_datasource_scalr_storage_profile
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_datasources
+privacy:
+  view: public
+position: 22
 ---
 ## Data Source: scalr_storage_profile
 

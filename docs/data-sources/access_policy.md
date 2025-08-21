@@ -1,10 +1,13 @@
 ---
-title: "scalr_access_policy"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_datasource_scalr_access_policy"
-parentDocSlug: "provider_datasources"
-hidden: false
-order: 1
+title: scalr_access_policy
+slug: provider_datasource_scalr_access_policy
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_datasources
+privacy:
+  view: public
+position: 1
 ---
 ## Data Source: scalr_access_policy
 
