@@ -50,6 +50,7 @@ type environmentResourceModel struct {
 	DefaultProviderConfigurations types.Set    `tfsdk:"default_provider_configurations"`
 	TagIDs                        types.Set    `tfsdk:"tag_ids"`
 	RemoteBackend                 types.Bool   `tfsdk:"remote_backend"`
+	RemoteBackendOverridable      types.Bool   `tfsdk:"remote_backend_overridable"`
 	MaskSensitiveOutput           types.Bool   `tfsdk:"mask_sensitive_output"`
 	FederatedEnvironments         types.Set    `tfsdk:"federated_environments"`
 	AccountID                     types.String `tfsdk:"account_id"`
@@ -69,6 +70,7 @@ func environmentResourceModelFromAPI(ctx context.Context, env *scalr.Environment
 		DefaultProviderConfigurations: types.SetNull(types.StringType),
 		TagIDs:                        types.SetNull(types.StringType),
 		RemoteBackend:                 types.BoolValue(env.RemoteBackend),
+		RemoteBackendOverridable:      types.BoolValue(env.RemoteBackendOverridable),
 		MaskSensitiveOutput:           types.BoolValue(env.MaskSensitiveOutput),
 		FederatedEnvironments:         types.SetNull(types.StringType),
 		AccountID:                     types.StringValue(env.Account.ID),
@@ -205,6 +207,12 @@ func (r *environmentResource) Schema(ctx context.Context, _ resource.SchemaReque
 					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"remote_backend_overridable": schema.BoolAttribute{
+				MarkdownDescription: "Indicates if the remote backend configuration can be overridden on the workspace level.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(true),
+			},
 			"mask_sensitive_output": schema.BoolAttribute{
 				MarkdownDescription: "Enable masking of the sensitive console output. Defaults to `true`.",
 				Optional:            true,
@@ -252,9 +260,10 @@ func (r *environmentResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	opts := scalr.EnvironmentCreateOptions{
-		Name:                plan.Name.ValueStringPointer(),
-		Account:             &scalr.Account{ID: plan.AccountID.ValueString()},
-		MaskSensitiveOutput: plan.MaskSensitiveOutput.ValueBoolPointer(),
+		Name:                     plan.Name.ValueStringPointer(),
+		Account:                  &scalr.Account{ID: plan.AccountID.ValueString()},
+		MaskSensitiveOutput:      plan.MaskSensitiveOutput.ValueBoolPointer(),
+		RemoteBackendOverridable: plan.RemoteBackendOverridable.ValueBoolPointer(),
 	}
 
 	if !plan.RemoteBackend.IsUnknown() && !plan.RemoteBackend.IsNull() {
@@ -403,6 +412,10 @@ func (r *environmentResource) Update(ctx context.Context, req resource.UpdateReq
 
 	if !plan.MaskSensitiveOutput.Equal(state.MaskSensitiveOutput) {
 		opts.MaskSensitiveOutput = plan.MaskSensitiveOutput.ValueBoolPointer()
+	}
+
+	if !plan.RemoteBackendOverridable.Equal(state.RemoteBackendOverridable) {
+		opts.RemoteBackendOverridable = plan.RemoteBackendOverridable.ValueBoolPointer()
 	}
 
 	if !plan.DefaultProviderConfigurations.IsUnknown() && !plan.DefaultProviderConfigurations.IsNull() {

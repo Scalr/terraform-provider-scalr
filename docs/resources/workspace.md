@@ -167,6 +167,7 @@ resource "scalr_workspace" "example-b" {
 - `module_version_id` (String) The identifier of a module version in the format `modver-<RANDOM STRING>`. This attribute conflicts with `vcs_provider_id` and `vcs_repo` attributes.
 - `operations` (Boolean, Deprecated) Set (true/false) to configure workspace remote execution. When `false` workspace is only used to store state. Defaults to `true`.
 - `provider_configuration` (Block Set) Provider configurations used in workspace runs. (see [below for nested schema](#nestedblock--provider_configuration))
+- `remote_backend` (Boolean) Manages if Scalr exports the remote backend configuration and state storage for your infrastructure management. Disabling this feature will also prevent the ability to perform state locking, which ensures that concurrent operations do not conflict. Additionally, it will disable the capability to initiate CLI-driven runs through Scalr.
 - `remote_state_consumers` (Set of String) The list of workspace identifiers that are allowed to access the state of this workspace. Use `["*"]` to share the state with all the workspaces within the environment (default).
 - `run_operation_timeout` (Number) The number of minutes run operation can be executed before termination.
 - `ssh_key_id` (String) The identifier of the SSH key to use for the workspace.

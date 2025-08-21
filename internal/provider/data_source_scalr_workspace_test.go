@@ -49,6 +49,8 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.test", "deletion_protection_enabled", "true"),
 					resource.TestCheckResourceAttr(
+						"data.scalr_workspace.test", "remote_backend", "false"),
+					resource.TestCheckResourceAttr(
 						"data.scalr_workspace.test", "type", "production"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "environment_id"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "has_resources"),
@@ -122,6 +124,7 @@ resource scalr_workspace test {
   iac_platform          = "terraform"
   working_directory     = "terraform/test"
   type                  = "production"
+  remote_backend        = false
   hooks {
     pre_init   = "./scripts/pre-init.sh"
     pre_plan   = "./scripts/pre-plan.sh"

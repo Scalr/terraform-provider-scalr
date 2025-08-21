@@ -77,6 +77,15 @@ func dataSourceScalrWorkspace() *schema.Resource {
 				Computed:    true,
 			},
 
+			"remote_backend": {
+				Description: "Manages if Scalr exports the remote backend configuration and state storage for your" +
+					" infrastructure management. Disabling this feature will also prevent the ability to perform state locking," +
+					" which ensures that concurrent operations do not conflict. Additionally, it will disable the capability to" +
+					" initiate CLI-driven runs through Scalr.",
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+
 			"operations": {
 				Description: "Boolean indicates if the workspace is being used for remote execution.",
 				Type:        schema.TypeBool,
@@ -303,6 +312,7 @@ func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, m
 	_ = d.Set("working_directory", workspace.WorkingDirectory)
 	_ = d.Set("has_resources", workspace.HasResources)
 	_ = d.Set("auto_queue_runs", workspace.AutoQueueRuns)
+	_ = d.Set("remote_backend", workspace.RemoteBackend)
 
 	if workspace.ModuleVersion != nil {
 		_ = d.Set("module_version_id", workspace.ModuleVersion.ID)
