@@ -65,7 +65,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Preview
-        uses: readmeio/rdme@v8
+        uses: readmeio/rdme@v10
         with:
           rdme: docs ./docs --key=${{ secrets.README_API_KEY }} --version=${{ env.RDME_VERSION }} --dryRun
 
@@ -97,14 +97,14 @@ jobs:
             const repo = "fatmouse";
             const targetBranch = "${{ github.head_ref || github.ref_name }}";
             const default_branch = "master";
-  
+
             try {
               const { data: branch } = await github.request('GET /repos/{owner}/{repo}/branches/{branch}', {
                 owner: owner,
                 repo: repo,
                 branch: targetBranch
               });
-  
+
               console.log(`Branch found in the ${repo} repository: ${branch.name}`);
               core.setOutput('branch', branch.name);
             } catch (error) {
