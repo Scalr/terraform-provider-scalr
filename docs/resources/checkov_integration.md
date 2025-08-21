@@ -1,10 +1,13 @@
 ---
-title: "scalr_checkov_integration"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_checkov_integration"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 6
+title: scalr_checkov_integration
+slug: provider_resource_scalr_checkov_integration
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 6
 ---
 ## Resource: scalr_checkov_integration
 

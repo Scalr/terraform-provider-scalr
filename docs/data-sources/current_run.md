@@ -1,10 +1,13 @@
 ---
-title: "scalr_current_run"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_datasource_scalr_current_run"
-parentDocSlug: "provider_datasources"
-hidden: false
-order: 5
+title: scalr_current_run
+slug: provider_datasource_scalr_current_run
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_datasources
+privacy:
+  view: public
+position: 5
 ---
 ## Data Source: scalr_current_run
 

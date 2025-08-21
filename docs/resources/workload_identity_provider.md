@@ -1,10 +1,13 @@
 ---
-title: "scalr_workload_identity_provider"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_workload_identity_provider"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 31
+title: scalr_workload_identity_provider
+slug: provider_resource_scalr_workload_identity_provider
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 31
 ---
 ## Resource: scalr_workload_identity_provider
 

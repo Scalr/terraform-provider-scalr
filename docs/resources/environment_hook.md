@@ -1,10 +1,13 @@
 ---
-title: "scalr_environment_hook"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_environment_hook"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 8
+title: scalr_environment_hook
+slug: provider_resource_scalr_environment_hook
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 8
 ---
 ## Resource: scalr_environment_hook
 

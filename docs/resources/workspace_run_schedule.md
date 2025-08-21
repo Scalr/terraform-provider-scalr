@@ -1,10 +1,13 @@
 ---
-title: "scalr_workspace_run_schedule"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_workspace_run_schedule"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 33
+title: scalr_workspace_run_schedule
+slug: provider_resource_scalr_workspace_run_schedule
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 33
 ---
 ## Resource: scalr_workspace_run_schedule
 

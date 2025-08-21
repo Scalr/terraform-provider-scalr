@@ -1,10 +1,13 @@
 ---
-title: "scalr_agent_pool_token"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_agent_pool_token"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 4
+title: scalr_agent_pool_token
+slug: provider_resource_scalr_agent_pool_token
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 4
 ---
 ## Resource: scalr_agent_pool_token
 

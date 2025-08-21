@@ -1,10 +1,13 @@
 ---
-title: "scalr_account_allowed_ips"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_account_allowed_ips"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 2
+title: scalr_account_allowed_ips
+slug: provider_resource_scalr_account_allowed_ips
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 2
 ---
 ## Resource: scalr_account_allowed_ips
 

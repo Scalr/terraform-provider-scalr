@@ -1,10 +1,13 @@
 ---
-title: "scalr_service_account_token"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_service_account_token"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 23
+title: scalr_service_account_token
+slug: provider_resource_scalr_service_account_token
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 23
 ---
 ## Resource: scalr_service_account_token
 

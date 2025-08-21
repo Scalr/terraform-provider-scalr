@@ -1,10 +1,13 @@
 ---
-title: "scalr_module_versions"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_datasource_scalr_module_versions"
-parentDocSlug: "provider_datasources"
-hidden: false
-order: 15
+title: scalr_module_versions
+slug: provider_datasource_scalr_module_versions
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_datasources
+privacy:
+  view: public
+position: 15
 ---
 ## Data Source: scalr_module_versions
 

@@ -1,10 +1,13 @@
 ---
-title: "scalr_environment"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_datasource_scalr_environment"
-parentDocSlug: "provider_datasources"
-hidden: false
-order: 6
+title: scalr_environment
+slug: provider_datasource_scalr_environment
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_datasources
+privacy:
+  view: public
+position: 6
 ---
 ## Data Source: scalr_environment
 

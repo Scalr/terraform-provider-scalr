@@ -1,10 +1,13 @@
 ---
-title: "scalr_iam_user"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_datasource_scalr_iam_user"
-parentDocSlug: "provider_datasources"
-hidden: false
-order: 11
+title: scalr_iam_user
+slug: provider_datasource_scalr_iam_user
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_datasources
+privacy:
+  view: public
+position: 11
 ---
 ## Data Source: scalr_iam_user
 

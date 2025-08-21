@@ -1,10 +1,13 @@
 ---
-title: "scalr_event_bridge_integration"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_event_bridge_integration"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 9
+title: scalr_event_bridge_integration
+slug: provider_resource_scalr_event_bridge_integration
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 9
 ---
 ## Resource: scalr_event_bridge_integration
 

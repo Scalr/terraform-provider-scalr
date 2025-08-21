@@ -1,10 +1,13 @@
 ---
-title: "scalr_hook"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_datasource_scalr_hook"
-parentDocSlug: "provider_datasources"
-hidden: false
-order: 9
+title: scalr_hook
+slug: provider_datasource_scalr_hook
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_datasources
+privacy:
+  view: public
+position: 9
 ---
 ## Data Source: scalr_hook
 

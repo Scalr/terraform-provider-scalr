@@ -1,10 +1,13 @@
 ---
-title: "scalr_ssh_key"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_ssh_key"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 25
+title: scalr_ssh_key
+slug: provider_resource_scalr_ssh_key
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 25
 ---
 ## Resource: scalr_ssh_key
 

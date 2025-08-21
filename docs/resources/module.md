@@ -1,10 +1,13 @@
 ---
-title: "scalr_module"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_module"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 13
+title: scalr_module
+slug: provider_resource_scalr_module
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 13
 ---
 ## Resource: scalr_module
 

@@ -1,10 +1,13 @@
 ---
-title: "scalr_policy_group"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_policy_group"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 15
+title: scalr_policy_group
+slug: provider_resource_scalr_policy_group
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 15
 ---
 ## Resource: scalr_policy_group
 

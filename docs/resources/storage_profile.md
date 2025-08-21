@@ -1,10 +1,13 @@
 ---
-title: "scalr_storage_profile"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_storage_profile"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 26
+title: scalr_storage_profile
+slug: provider_resource_scalr_storage_profile
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 26
 ---
 ## Resource: scalr_storage_profile
 

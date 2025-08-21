@@ -1,10 +1,13 @@
 ---
-title: "scalr_workspace"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_resource_scalr_workspace"
-parentDocSlug: "provider_resources"
-hidden: false
-order: 32
+title: scalr_workspace
+slug: provider_resource_scalr_workspace
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_resources
+privacy:
+  view: public
+position: 32
 ---
 ## Resource: scalr_workspace
 

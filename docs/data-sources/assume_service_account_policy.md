@@ -1,10 +1,13 @@
 ---
-title: "scalr_assume_service_account_policy"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_datasource_scalr_assume_service_account_policy"
-parentDocSlug: "provider_datasources"
-hidden: false
-order: 3
+title: scalr_assume_service_account_policy
+slug: provider_datasource_scalr_assume_service_account_policy
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_datasources
+privacy:
+  view: public
+position: 3
 ---
 ## Data Source: scalr_assume_service_account_policy
 

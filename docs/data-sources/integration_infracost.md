@@ -1,10 +1,13 @@
 ---
-title: "scalr_integration_infracost"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_datasource_scalr_integration_infracost"
-parentDocSlug: "provider_datasources"
-hidden: false
-order: 12
+title: scalr_integration_infracost
+slug: provider_datasource_scalr_integration_infracost
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_datasources
+privacy:
+  view: public
+position: 12
 ---
 ## Data Source: scalr_integration_infracost
 

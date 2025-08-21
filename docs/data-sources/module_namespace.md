@@ -1,10 +1,13 @@
 ---
-title: "scalr_module_namespace"
-categorySlug: "scalr-terraform-provider"
-slug: "provider_datasource_scalr_module_namespace"
-parentDocSlug: "provider_datasources"
-hidden: false
-order: 13
+title: scalr_module_namespace
+slug: provider_datasource_scalr_module_namespace
+category:
+  uri: scalr-terraform-provider
+parent:
+  uri: provider_datasources
+privacy:
+  view: public
+position: 13
 ---
 ## Data Source: scalr_module_namespace
 
