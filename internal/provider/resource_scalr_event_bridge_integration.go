@@ -59,6 +59,7 @@ func resourceScalrEventBridgeIntegration() *schema.Resource {
 
 func resourceScalrEventBridgeIntegrationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
+	var diags diag.Diagnostics
 	// Get attributes.
 	name := d.Get("name").(string)
 	awsAccountID := d.Get("aws_account_id").(string)
@@ -77,7 +78,18 @@ func resourceScalrEventBridgeIntegrationCreate(ctx context.Context, d *schema.Re
 	}
 	d.SetId(integration.ID)
 
-	return resourceScalrEventBridgeIntegrationRead(ctx, d, meta)
+	readError := resourceScalrEventBridgeIntegrationRead(ctx, d, meta)
+	if readError != nil {
+		return readError
+	}
+
+	diags = append(diags, diag.Diagnostic{
+		Severity: diag.Warning,
+		Summary:  "Manual action required",
+		Detail:   "Created AWS Event Bridge event source should be associated with Bus in order for integration to became active and start streaming events",
+	})
+
+	return diags
 }
 
 func resourceScalrEventBridgeIntegrationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
