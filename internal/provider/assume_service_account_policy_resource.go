@@ -105,7 +105,7 @@ func (r *assumeServiceAccountPolicyResource) Schema(_ context.Context, _ resourc
 							Required:            true,
 						},
 						"operator": schema.StringAttribute{
-							MarkdownDescription: "The operator to use for matching the claim value. Must be one of: 'eq', 'like', 'startswith', or 'endswith'.",
+							MarkdownDescription: "The operator to use for matching the claim value. Must be one of: 'eq', 'contains', 'startswith', or 'endswith'.",
 							Optional:            true,
 							Computed:            true,
 							Validators: []validator.String{
