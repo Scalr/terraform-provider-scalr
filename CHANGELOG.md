@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scalr_environment` and `data.scalr_environment`: new attribute `remote_backend_overridable` ([#452](https://github.com/Scalr/terraform-provider-scalr/pull/452))
 - `scalr_workspace` and `data.scalr_workspace`: new attribute `remote_backend` ([#452](https://github.com/Scalr/terraform-provider-scalr/pull/452))
 
+### Changed
+
+- The `claim_condition.operator` attribute in the `scalr_assume_service_account_policy` resource now accepts `contains` instead of `like`. ([#455](https://github.com/Scalr/terraform-provider-scalr/pull/455))
+
 ## [3.6.0] - 2025-08-08
 
 ### Fixed

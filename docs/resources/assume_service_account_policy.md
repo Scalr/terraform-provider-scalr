@@ -88,4 +88,4 @@ Required:
 
 Optional:
 
-- `operator` (String) The operator to use for matching the claim value. Must be one of: 'eq', 'like', 'startswith', or 'endswith'.
+- `operator` (String) The operator to use for matching the claim value. Must be one of: 'eq', 'contains', 'startswith', or 'endswith'.
