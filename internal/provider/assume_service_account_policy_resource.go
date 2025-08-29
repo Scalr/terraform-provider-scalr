@@ -109,7 +109,7 @@ func (r *assumeServiceAccountPolicyResource) Schema(_ context.Context, _ resourc
 							Optional:            true,
 							Computed:            true,
 							Validators: []validator.String{
-								stringvalidator.OneOf("eq", "like", "startswith", "endswith"),
+								stringvalidator.OneOf("eq", "contains", "startswith", "endswith"),
 							},
 						},
 					},
