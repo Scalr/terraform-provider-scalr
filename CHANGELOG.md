@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.7.0] - 2025-08-29
+
 ### Added
 
 - **New resource:** `scalr_checkov_integration` ([#451](https://github.com/Scalr/terraform-provider-scalr/pull/451))
@@ -1092,6 +1094,7 @@ Requires Scalr 8.0.1-beta.20200625 at least
 - Initial release.
 
 [Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.6.0...HEAD
+[3.7.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.7.0
 [3.6.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.6.0
 [3.5.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.5.0
 [3.4.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.4.0
