@@ -41,5 +41,5 @@ Retrieves information about a Scalr Assume Service Account Policy.
 Read-Only:
 
 - `claim` (String) The claim to match against.
-- `operator` (String) The operator to use for matching ('eq', 'like', 'startswith', or 'endswith').
+- `operator` (String) The operator to use for matching ('eq', 'contains', 'startswith', or 'endswith').
 - `value` (String) The value to match against.
