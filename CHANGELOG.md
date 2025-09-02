@@ -7,7 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [3.7.0] - 2025-08-29
+## [3.8.0] - 2025-09-02
+
+### Changed
+
+- The `claim_condition.operator` attribute in the `scalr_assume_service_account_policy` resource now accepts `contains` instead of `like`. ([#455](https://github.com/Scalr/terraform-provider-scalr/pull/455))
+
+### Required
+
+- scalr-server >= v2508.26.4
+
+
+## [3.7.1] - 2025-08-29
 
 ### Added
 
@@ -16,9 +27,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scalr_environment` and `data.scalr_environment`: new attribute `remote_backend_overridable` ([#452](https://github.com/Scalr/terraform-provider-scalr/pull/452))
 - `scalr_workspace` and `data.scalr_workspace`: new attribute `remote_backend` ([#452](https://github.com/Scalr/terraform-provider-scalr/pull/452))
 
-### Changed
-
-- The `claim_condition.operator` attribute in the `scalr_assume_service_account_policy` resource now accepts `contains` instead of `like`. ([#455](https://github.com/Scalr/terraform-provider-scalr/pull/455))
 
 ## [3.6.0] - 2025-08-08
 
@@ -1093,8 +1101,9 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.6.0...HEAD
-[3.7.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.7.0
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.7.0...HEAD
+[3.8.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.8.0
+[3.7.1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.7.1
 [3.6.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.6.0
 [3.5.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.5.0
 [3.4.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.4.0
