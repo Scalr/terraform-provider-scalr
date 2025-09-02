@@ -2,7 +2,7 @@
 title: scalr_ssh_key
 slug: provider_resource_scalr_ssh_key
 category:
-  uri: scalr-terraform-provider
+  uri: Scalr Terraform Provider
 parent:
   uri: provider_resources
 privacy:

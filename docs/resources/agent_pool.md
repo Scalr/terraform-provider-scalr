@@ -2,7 +2,7 @@
 title: scalr_agent_pool
 slug: provider_resource_scalr_agent_pool
 category:
-  uri: scalr-terraform-provider
+  uri: Scalr Terraform Provider
 parent:
   uri: provider_resources
 privacy:

@@ -2,7 +2,7 @@
 title: scalr_account_allowed_ips
 slug: provider_resource_scalr_account_allowed_ips
 category:
-  uri: scalr-terraform-provider
+  uri: Scalr Terraform Provider
 parent:
   uri: provider_resources
 privacy:

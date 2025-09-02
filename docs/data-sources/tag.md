@@ -2,7 +2,7 @@
 title: scalr_tag
 slug: provider_datasource_scalr_tag
 category:
-  uri: scalr-terraform-provider
+  uri: Scalr Terraform Provider
 parent:
   uri: provider_datasources
 privacy:

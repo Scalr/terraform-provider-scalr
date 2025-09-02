@@ -2,7 +2,7 @@
 title: scalr_assume_service_account_policy
 slug: provider_datasource_scalr_assume_service_account_policy
 category:
-  uri: scalr-terraform-provider
+  uri: Scalr Terraform Provider
 parent:
   uri: provider_datasources
 privacy:

@@ -2,7 +2,7 @@
 title: scalr_webhook
 slug: provider_resource_scalr_webhook
 category:
-  uri: scalr-terraform-provider
+  uri: Scalr Terraform Provider
 parent:
   uri: provider_resources
 privacy:

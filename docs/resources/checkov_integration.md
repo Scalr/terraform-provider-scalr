@@ -2,7 +2,7 @@
 title: scalr_checkov_integration
 slug: provider_resource_scalr_checkov_integration
 category:
-  uri: scalr-terraform-provider
+  uri: Scalr Terraform Provider
 parent:
   uri: provider_resources
 privacy:

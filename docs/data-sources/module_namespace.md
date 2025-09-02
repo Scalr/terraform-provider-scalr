@@ -2,7 +2,7 @@
 title: scalr_module_namespace
 slug: provider_datasource_scalr_module_namespace
 category:
-  uri: scalr-terraform-provider
+  uri: Scalr Terraform Provider
 parent:
   uri: provider_datasources
 privacy:

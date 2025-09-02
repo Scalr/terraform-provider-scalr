@@ -2,7 +2,7 @@
 title: scalr_hook
 slug: provider_resource_scalr_hook
 category:
-  uri: scalr-terraform-provider
+  uri: Scalr Terraform Provider
 parent:
   uri: provider_resources
 privacy:
