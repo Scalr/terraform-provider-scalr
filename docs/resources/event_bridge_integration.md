@@ -2,7 +2,7 @@
 title: scalr_event_bridge_integration
 slug: provider_resource_scalr_event_bridge_integration
 category:
-  uri: scalr-terraform-provider
+  uri: Scalr Terraform Provider
 parent:
   uri: provider_resources
 privacy:

@@ -2,7 +2,7 @@
 title: Overview
 slug: provider_overview
 category:
-  uri: scalr-terraform-provider
+  uri: Scalr Terraform Provider
 position: 0
 privacy:
   view: public

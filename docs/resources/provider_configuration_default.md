@@ -2,7 +2,7 @@
 title: scalr_provider_configuration_default
 slug: provider_resource_scalr_provider_configuration_default
 category:
-  uri: scalr-terraform-provider
+  uri: Scalr Terraform Provider
 parent:
   uri: provider_resources
 privacy:

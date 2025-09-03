@@ -2,7 +2,7 @@
 title: scalr_integration_infracost
 slug: provider_resource_scalr_integration_infracost
 category:
-  uri: scalr-terraform-provider
+  uri: Scalr Terraform Provider
 parent:
   uri: provider_resources
 privacy:

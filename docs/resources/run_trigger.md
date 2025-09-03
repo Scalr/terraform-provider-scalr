@@ -2,7 +2,7 @@
 title: scalr_run_trigger
 slug: provider_resource_scalr_run_trigger
 category:
-  uri: scalr-terraform-provider
+  uri: Scalr Terraform Provider
 parent:
   uri: provider_resources
 privacy:

@@ -2,7 +2,7 @@
 title: scalr_storage_profile
 slug: provider_resource_scalr_storage_profile
 category:
-  uri: scalr-terraform-provider
+  uri: Scalr Terraform Provider
 parent:
   uri: provider_resources
 privacy:

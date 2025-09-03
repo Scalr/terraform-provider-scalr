@@ -2,7 +2,7 @@
 title: scalr_workspace_run_schedule
 slug: provider_resource_scalr_workspace_run_schedule
 category:
-  uri: scalr-terraform-provider
+  uri: Scalr Terraform Provider
 parent:
   uri: provider_resources
 privacy:

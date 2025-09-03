@@ -23,4 +23,4 @@ jobs:
       - name: Publish
         uses: readmeio/rdme@v8
         with:
-          rdme: docs ./docs --key=${{ secrets.README_API_KEY }} --version=${{ inputs.version }} ${{ inputs.dry == true && '--dryRun' || '' }}
+          rdme: docs upload ./docs --key=${{ secrets.README_API_KEY }} --branch=${{ inputs.version }} ${{ inputs.dry == true && '--dryRun' || '' }}
