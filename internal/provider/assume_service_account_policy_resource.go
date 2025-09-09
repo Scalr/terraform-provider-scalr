@@ -105,11 +105,17 @@ func (r *assumeServiceAccountPolicyResource) Schema(_ context.Context, _ resourc
 							Required:            true,
 						},
 						"operator": schema.StringAttribute{
-							MarkdownDescription: "The operator to use for matching the claim value. Must be one of: 'eq', 'contains', 'startswith', or 'endswith'.",
-							Optional:            true,
-							Computed:            true,
+							MarkdownDescription: "The operation to perform to evaluate the claim's value against the specified condition. " +
+								"Supported values: \"eq\": checks if the claim value is equal to the specified value; " +
+								"\"contains\": checks if the claim value contains the specified value as a substring; " +
+								"\"startswith\": checks if the claim value starts with the specified value; " +
+								"\"endswith\": checks if the claim value ends with the specified value; " +
+								"\"like\": checks whether the claim value matches a specified pattern using shell-style wildcards " +
+								"(* any string, ? any char, [seq] any in seq, [!seq] any not in seq).",
+							Optional: true,
+							Computed: true,
 							Validators: []validator.String{
-								stringvalidator.OneOf("eq", "contains", "startswith", "endswith"),
+								stringvalidator.OneOf("eq", "contains", "startswith", "endswith", "like"),
 							},
 						},
 					},
