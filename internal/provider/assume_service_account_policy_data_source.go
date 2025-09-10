@@ -92,7 +92,7 @@ func (d *assumeServiceAccountPolicyDataSource) Schema(_ context.Context, _ datas
 							Computed:    true,
 						},
 						"operator": schema.StringAttribute{
-							Description: "The operator to use for matching ('eq', 'contains', 'startswith', or 'endswith').",
+							Description: "The operator to use for matching ('eq', 'contains', 'startswith', 'like', or 'endswith').",
 							Computed:    true,
 						},
 					},
