@@ -139,16 +139,19 @@ func resourceScalrRoleRead(ctx context.Context, d *schema.ResourceData, meta int
 	_ = d.Set("account_id", role.Account.ID)
 	_ = d.Set("is_system", role.IsSystem)
 
-	schemaPermissions := make([]string, 0)
+	uniqueSchemaPermissions := []string{}
 	if value, ok := d.GetOk("permissions"); ok {
-		permissionNames := value.([]interface{})
-
-		for _, id := range permissionNames {
-			schemaPermissions = append(schemaPermissions, id.(string))
+		schemaSet := make(map[string]struct{}, len(value.([]interface{})))
+		for _, id := range value.([]interface{}) {
+			p := id.(string)
+			schemaSet[p] = struct{}{}
 		}
-		sort.Strings(schemaPermissions)
+		for p := range schemaSet {
+			uniqueSchemaPermissions = append(uniqueSchemaPermissions, p)
+		}
+		sort.Strings(uniqueSchemaPermissions)
 	}
-	log.Printf("[DEBUG] schema permissions: %+v", schemaPermissions)
+	log.Printf("[DEBUG] unique schema permissions: %+v", uniqueSchemaPermissions)
 
 	remotePermissions := make([]string, 0)
 	if len(role.Permissions) != 0 {
@@ -157,11 +160,10 @@ func resourceScalrRoleRead(ctx context.Context, d *schema.ResourceData, meta int
 		}
 		sort.Strings(remotePermissions)
 	}
-
 	log.Printf("[DEBUG] remote permissions: %+v", remotePermissions)
 
 	// ignore permission ordering from the remote server
-	if !reflect.DeepEqual(remotePermissions, schemaPermissions) {
+	if !reflect.DeepEqual(remotePermissions, uniqueSchemaPermissions) {
 		_ = d.Set("permissions", remotePermissions)
 	}
 
