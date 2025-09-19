@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.9.0] - 2025-09-19
+
 ### Changed
 
 - The `claim_condition.operator` attribute in the `scalr_assume_service_account_policy` resource accepts `like` which can be used for shell-style wilcard patterns. ([#461](https://github.com/Scalr/terraform-provider-scalr/pull/461))
@@ -14,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `scalr_role`: false positive diffs when `permissions` in the configuration contain duplicates. ([#462](https://github.com/Scalr/terraform-provider-scalr/pull/462))
+
+### Required
+
+- scalr-server >= v2509.12.0
 
 ## [3.8.0] - 2025-09-02
 
@@ -1109,7 +1115,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.8.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.9.0...HEAD
+[3.9.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.9.0
 [3.8.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.8.0
 [3.7.1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.7.1
 [3.6.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.6.0
