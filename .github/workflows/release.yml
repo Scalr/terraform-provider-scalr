@@ -83,9 +83,15 @@ jobs:
         with:
           github-token: ${{steps.generate_token.outputs.token}}
           script: |
+            const tag = '${{ github.ref_name }}';
+            const providerVersion = `provider/${tag.replace(/^v/, '')}`;
+
             await github.rest.actions.createWorkflowDispatch({
               owner: 'Scalr',
               repo: 'fatmouse',
               workflow_id: 'e2e-provider-release.yml',
               ref: 'master',
+              inputs: {
+                version: providerVersion
+              }
             })
