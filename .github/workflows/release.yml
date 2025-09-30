@@ -87,11 +87,11 @@ jobs:
             const providerVersion = `provider/${tag.replace(/^v/, '')}`;
 
             await github.rest.actions.createWorkflowDispatch({
-                owner: 'Scalr',
-                repo: 'fatmouse',
-                workflow_id: 'e2e-provider-release.yml',
-                ref: 'master',
-                inputs: {
-                  version: providerVersion
-                }
-              })
+              owner: 'Scalr',
+              repo: 'fatmouse',
+              workflow_id: 'e2e-provider-release.yml',
+              ref: 'master',
+              inputs: {
+                version: providerVersion
+              }
+            })
