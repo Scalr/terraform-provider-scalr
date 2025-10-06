@@ -193,6 +193,18 @@ func workspaceResourceModelFromAPI(
 		if ws.VCSRepo.Branch != "" {
 			branch := types.StringValue(ws.VCSRepo.Branch)
 			repo.Branch = branch
+		} else if existing != nil && !existing.VCSRepo.IsNull() {
+			// Preserve branch from existing state/config when API returns empty
+			var existingRepo []vcsRepoModel
+			if elemDiags := existing.VCSRepo.ElementsAs(ctx, &existingRepo, false); elemDiags == nil && len(existingRepo) > 0 {
+				if !existingRepo[0].Branch.IsNull() {
+					repo.Branch = existingRepo[0].Branch
+				} else {
+					repo.Branch = types.StringNull()
+				}
+			} else {
+				repo.Branch = types.StringNull()
+			}
 		} else {
 			repo.Branch = types.StringNull()
 		}
