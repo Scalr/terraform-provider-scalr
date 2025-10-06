@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `scalr_workspace`: fixed "Provider produced invalid plan" error when workspace VCS repo `branch` attribute is specified in configuration but API returns empty string.
+- `scalr_workspace`: fixed "Provider produced invalid plan" error when workspace VCS repo `branch` or `version_constraint` attributes are specified in configuration but API returns empty/null due to mutual exclusivity (when one is set externally, the other becomes null).
 
 ## [3.9.0] - 2025-09-19
 

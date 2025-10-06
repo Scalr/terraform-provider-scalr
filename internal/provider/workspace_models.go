@@ -212,6 +212,18 @@ func workspaceResourceModelFromAPI(
 		if ws.VCSRepo.VersionConstraint != "" {
 			versionConstraint := types.StringValue(ws.VCSRepo.VersionConstraint)
 			repo.VersionConstraint = versionConstraint
+		} else if existing != nil && !existing.VCSRepo.IsNull() {
+			// Preserve version_constraint from existing state/config when API returns empty
+			var existingRepo []vcsRepoModel
+			if elemDiags := existing.VCSRepo.ElementsAs(ctx, &existingRepo, false); elemDiags == nil && len(existingRepo) > 0 {
+				if !existingRepo[0].VersionConstraint.IsNull() {
+					repo.VersionConstraint = existingRepo[0].VersionConstraint
+				} else {
+					repo.VersionConstraint = types.StringNull()
+				}
+			} else {
+				repo.VersionConstraint = types.StringNull()
+			}
 		} else {
 			repo.VersionConstraint = types.StringNull()
 		}
