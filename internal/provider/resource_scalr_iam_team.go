@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
@@ -138,6 +139,7 @@ func resourceScalrIamTeamRead(ctx context.Context, d *schema.ResourceData, meta 
 		for _, u := range t.Users {
 			users = append(users, u.ID)
 		}
+		sort.Strings(users)
 	}
 	_ = d.Set("users", users)
 
