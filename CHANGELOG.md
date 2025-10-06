@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `scalr_workspace`: fixed "Provider produced invalid plan" error when workspace VCS repo `branch` attribute is specified in configuration but API returns empty string.
+
 ## [3.9.0] - 2025-09-19
 
 ### Changed

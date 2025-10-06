@@ -193,11 +193,15 @@ func workspaceResourceModelFromAPI(
 		if ws.VCSRepo.Branch != "" {
 			branch := types.StringValue(ws.VCSRepo.Branch)
 			repo.Branch = branch
+		} else {
+			repo.Branch = types.StringNull()
 		}
 
 		if ws.VCSRepo.VersionConstraint != "" {
 			versionConstraint := types.StringValue(ws.VCSRepo.VersionConstraint)
 			repo.VersionConstraint = versionConstraint
+		} else {
+			repo.VersionConstraint = types.StringNull()
 		}
 
 		repoValue, d := types.ListValueFrom(ctx, vcsRepoElementType, []vcsRepoModel{repo})
