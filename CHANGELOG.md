@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `scalr_provider_configuration`: Service account email is no longer required when using OIDC credentials in the Google provider configuration. ([#469](https://github.com/Scalr/terraform-provider-scalr/pull/469))
+
 ## [3.9.0] - 2025-09-19
 
 ### Changed
