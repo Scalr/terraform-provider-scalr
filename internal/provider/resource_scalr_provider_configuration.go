@@ -463,13 +463,15 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 			}
 			configurationOptions.GoogleCredentials = ptr(googleCredentials.(string))
 		} else if *configurationOptions.GoogleAuthType == "oidc" {
-			if !serviceAccountEmailExists || !workloadProviderNameExists {
-				return diag.Errorf("'service_account_email' and 'workload_provider_name' fields are required for 'oidc' auth type of google provider configuration")
+			if !workloadProviderNameExists {
+				return diag.Errorf("'workload_provider_name' field is required for 'oidc' auth type of google provider configuration")
 			}
 			if googleCredentialsExists {
 				return diag.Errorf("'credentials' field of google provider configuration can be used only with 'service-account-key' auth type")
 			}
-			configurationOptions.GoogleServiceAccountEmail = ptr(serviceAccountEmail.(string))
+			if serviceAccountEmailExists {
+				configurationOptions.GoogleServiceAccountEmail = ptr(serviceAccountEmail.(string))
+			}
 			configurationOptions.GoogleWorkloadProviderName = ptr(workloadProviderName.(string))
 		} else {
 			return diag.Errorf("unknown google provider configuration auth type: '%s', allowed: 'service-account-key', 'oidc'", *configurationOptions.GoogleAuthType)
@@ -876,8 +878,8 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 				}
 				configurationOptions.GoogleCredentials = ptr(googleCredentials.(string))
 			} else if *configurationOptions.GoogleAuthType == "oidc" {
-				if !serviceAccountEmailExists || !workloadProviderNameExists {
-					return diag.Errorf("'service_account_email' and 'workload_provider_name' fields are required for 'oidc' auth type of google provider configuration")
+				if !workloadProviderNameExists {
+					return diag.Errorf("'workload_provider_name' field is required for 'oidc' auth type of google provider configuration")
 				}
 				if googleCredentialsExists {
 					return diag.Errorf("'credentials' field of google provider configuration can be used only with 'service-account-key' auth type")
