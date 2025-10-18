@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -211,6 +212,7 @@ func (d *environmentDataSource) Read(ctx context.Context, req datasource.ReadReq
 	for i, group := range environment.PolicyGroups {
 		policyGroups[i] = group.ID
 	}
+	sort.Strings(policyGroups)
 	policyGroupsValue, diags := types.ListValueFrom(ctx, types.StringType, policyGroups)
 	resp.Diagnostics.Append(diags...)
 	cfg.PolicyGroups = policyGroupsValue
@@ -219,6 +221,7 @@ func (d *environmentDataSource) Read(ctx context.Context, req datasource.ReadReq
 	for i, pcfg := range environment.DefaultProviderConfigurations {
 		defaultPcfgs[i] = pcfg.ID
 	}
+	sort.Strings(defaultPcfgs)
 	defaultPcfgsValue, diags := types.ListValueFrom(ctx, types.StringType, defaultPcfgs)
 	resp.Diagnostics.Append(diags...)
 	cfg.DefaultProviderConfigurations = defaultPcfgsValue
@@ -227,6 +230,7 @@ func (d *environmentDataSource) Read(ctx context.Context, req datasource.ReadReq
 	for i, tag := range environment.Tags {
 		tags[i] = tag.ID
 	}
+	sort.Strings(tags)
 	tagsValue, diags := types.ListValueFrom(ctx, types.StringType, tags)
 	resp.Diagnostics.Append(diags...)
 	cfg.TagIDs = tagsValue

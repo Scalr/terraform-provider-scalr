@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"errors"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -89,6 +90,7 @@ func environmentResourceModelFromAPI(ctx context.Context, env *scalr.Environment
 	for i, group := range env.PolicyGroups {
 		policyGroups[i] = group.ID
 	}
+	sort.Strings(policyGroups)
 	policyGroupsValue, d := types.ListValueFrom(ctx, types.StringType, policyGroups)
 	diags.Append(d...)
 	model.PolicyGroups = policyGroupsValue

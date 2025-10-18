@@ -53,7 +53,7 @@ func resourceScalrWebhook() *schema.Resource {
 
 			"events": {
 				Description: "List of event IDs.",
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 					ValidateDiagFunc: validation.ToDiagFunc(
@@ -143,7 +143,7 @@ func resourceScalrWebhook() *schema.Resource {
 func parseEventDefinitions(d *schema.ResourceData) ([]*scalr.EventDefinition, error) {
 	eventDefinitions := make([]*scalr.EventDefinition, 0)
 
-	eventIds := d.Get("events").([]interface{})
+	eventIds := d.Get("events").(*schema.Set).List()
 	err := ValidateIDsDefinitions(eventIds)
 	if err != nil {
 		return nil, fmt.Errorf("Got error during parsing events: %s", err.Error())

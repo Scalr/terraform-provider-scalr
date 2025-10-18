@@ -47,7 +47,7 @@ resource "scalr_access_policy" "team_read_all_on_acc_scope" {
 
 ### Required
 
-- `role_ids` (List of String) The list of the role IDs.
+- `role_ids` (Set of String) The list of the role IDs.
 - `scope` (Block List, Min: 1, Max: 1) Defines the scope where access policy is applied. (see [below for nested schema](#nestedblock--scope))
 - `subject` (Block List, Min: 1, Max: 1) Defines the subject of the access policy. (see [below for nested schema](#nestedblock--subject))
 

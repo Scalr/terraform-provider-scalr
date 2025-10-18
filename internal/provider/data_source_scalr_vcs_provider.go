@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -118,6 +119,7 @@ func dataSourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData,
 	for _, env := range vcsProvider.Environments {
 		envIds = append(envIds, env.ID)
 	}
+	sort.Strings(envIds)
 
 	// Update the configuration.
 	_ = d.Set("vcs_type", vcsProvider.VcsType)

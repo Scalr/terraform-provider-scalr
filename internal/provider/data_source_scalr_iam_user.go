@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"log"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -103,6 +104,7 @@ func dataSourceScalrIamUserRead(ctx context.Context, d *schema.ResourceData, met
 		for _, idp := range u.IdentityProviders {
 			idps = append(idps, idp.ID)
 		}
+		sort.Strings(idps)
 	}
 	_ = d.Set("identity_providers", idps)
 
@@ -111,6 +113,7 @@ func dataSourceScalrIamUserRead(ctx context.Context, d *schema.ResourceData, met
 		for _, t := range u.Teams {
 			teams = append(teams, t.ID)
 		}
+		sort.Strings(teams)
 	}
 	_ = d.Set("teams", teams)
 

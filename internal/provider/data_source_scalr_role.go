@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"log"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -111,6 +112,8 @@ func dataSourceScalrRoleRead(ctx context.Context, d *schema.ResourceData, meta i
 		for _, permission := range role.Permissions {
 			permissionNames = append(permissionNames, permission.ID)
 		}
+		sort.Strings(permissionNames)
+
 		_ = d.Set("permissions", permissionNames)
 	}
 

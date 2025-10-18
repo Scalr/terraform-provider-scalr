@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"log"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -170,6 +171,7 @@ func dataSourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, met
 		for _, event := range webhook.Events {
 			events = append(events, event.ID)
 		}
+		sort.Strings(events)
 	}
 	_ = d.Set("events", events)
 

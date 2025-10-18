@@ -51,7 +51,7 @@ func resourceScalrIamTeam() *schema.Resource {
 			},
 			"users": {
 				Description: "A list of the user identifiers to add to the team.",
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Optional:    true,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
@@ -63,7 +63,7 @@ func resourceScalrIamTeam() *schema.Resource {
 func parseUserDefinitions(d *schema.ResourceData) ([]*scalr.User, error) {
 	var users []*scalr.User
 
-	userIDs := d.Get("users").([]interface{})
+	userIDs := d.Get("users").(*schema.Set).List()
 	err := ValidateIDsDefinitions(userIDs)
 	if err != nil {
 		return nil, fmt.Errorf("Got error during parsing users: %s", err.Error())

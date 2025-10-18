@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -78,6 +79,7 @@ func dataSourceScalrProviderConfigurationsRead(ctx context.Context, d *schema.Re
 		// Update the page number to get the next page.
 		options.PageNumber = providerConfigurations.NextPage
 	}
+	sort.Strings(ids)
 
 	_ = d.Set("ids", ids)
 	d.SetId(fmt.Sprintf("%d", schema.HashString(accountID+name+providerName)))

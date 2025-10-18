@@ -118,7 +118,7 @@ func resourceScalrAccessPolicy() *schema.Resource {
 			},
 			"role_ids": {
 				Description: "The list of the role IDs.",
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Required:    true,
 				MinItems:    1,
 				MaxItems:    128,
@@ -131,7 +131,7 @@ func resourceScalrAccessPolicy() *schema.Resource {
 func parseRoleIdDefinitions(d *schema.ResourceData) ([]*scalr.Role, error) {
 	roles := make([]*scalr.Role, 0)
 
-	roleIds := d.Get("role_ids").([]interface{})
+	roleIds := d.Get("role_ids").(*schema.Set).List()
 	err := ValidateIDsDefinitions(roleIds)
 	if err != nil {
 		return nil, fmt.Errorf("Got error during parsing role ids: %s", err.Error())

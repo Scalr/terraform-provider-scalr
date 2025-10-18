@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -372,6 +373,7 @@ func dataSourceScalrWorkspaceRead(ctx context.Context, d *schema.ResourceData, m
 		for _, tag := range workspace.Tags {
 			tags = append(tags, tag.ID)
 		}
+		sort.Strings(tags)
 	}
 	_ = d.Set("tag_ids", tags)
 

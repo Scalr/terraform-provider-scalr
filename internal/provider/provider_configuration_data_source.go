@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -144,6 +145,7 @@ func (r *providerConfigurationDataSource) Read(ctx context.Context, req datasour
 	for i, owner := range providerConfiguration.Owners {
 		owners[i] = owner.ID
 	}
+	sort.Strings(owners)
 	ownersValue, d := types.ListValueFrom(ctx, types.StringType, owners)
 	resp.Diagnostics.Append(d...)
 	cfg.Owners = ownersValue
@@ -156,6 +158,7 @@ func (r *providerConfigurationDataSource) Read(ctx context.Context, req datasour
 		for i, environment := range providerConfiguration.Environments {
 			environments[i] = environment.ID
 		}
+		sort.Strings(environments)
 	}
 	environmentsValue, d := types.ListValueFrom(ctx, types.StringType, environments)
 	resp.Diagnostics.Append(d...)

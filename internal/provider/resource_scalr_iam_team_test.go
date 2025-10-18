@@ -57,7 +57,7 @@ func TestAccScalrIamTeam_update(t *testing.T) {
 					),
 					resource.TestCheckResourceAttr("scalr_iam_team.test", "description", "Test team"),
 					resource.TestCheckResourceAttr("scalr_iam_team.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("scalr_iam_team.test", "users.0", testUser),
+					resource.TestCheckTypeSetElemAttr("scalr_iam_team.test", "users.*", testUser),
 				),
 			},
 			{
@@ -67,12 +67,12 @@ func TestAccScalrIamTeam_update(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_iam_team.test", "name", "team-updated"),
 					resource.TestCheckResourceAttr("scalr_iam_team.test", "description", "updated"),
 					resource.TestCheckResourceAttr("scalr_iam_team.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("scalr_iam_team.test", "users.0", testUser),
+					resource.TestCheckTypeSetElemAttr("scalr_iam_team.test", "users.*", testUser),
 				),
 			},
 			{
 				Config:      testAccScalrIamTeamUpdateEmptyUser(),
-				ExpectError: regexp.MustCompile("Got error during parsing users: 1-th value is empty"),
+				ExpectError: regexp.MustCompile("Got error during parsing users: 0-th value is empty"),
 			},
 		},
 	})
