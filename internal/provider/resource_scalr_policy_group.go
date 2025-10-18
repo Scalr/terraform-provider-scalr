@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"log"
-	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -116,7 +115,7 @@ func resourceScalrPolicyGroup() *schema.Resource {
 			"environments": {
 				Description: "A list of the environments the policy group is linked to. Use `[\"*\"]` to enforce in all environments. " +
 					"To manage a linkage use either this attribute or the `scalr_policy_group_linkage` resource.",
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -154,7 +153,7 @@ func resourceScalrPolicyGroupCreate(ctx context.Context, d *schema.ResourceData,
 
 	environments := make([]*scalr.Environment, 0)
 	if environmentsI, ok := d.GetOk("environments"); ok {
-		environmentsIDs := environmentsI.([]interface{})
+		environmentsIDs := environmentsI.(*schema.Set).List()
 		if (len(environmentsIDs) == 1) && environmentsIDs[0].(string) == "*" {
 			opts.IsEnforced = ptr(true)
 		} else if len(environmentsIDs) > 0 {
@@ -255,7 +254,6 @@ func resourceScalrPolicyGroupRead(ctx context.Context, d *schema.ResourceData, m
 		for _, environment := range pg.Environments {
 			environmentIDs = append(environmentIDs, environment.ID)
 		}
-		sort.Strings(environmentIDs)
 		_ = d.Set("environments", environmentIDs)
 	}
 
@@ -301,7 +299,7 @@ func resourceScalrPolicyGroupUpdate(ctx context.Context, d *schema.ResourceData,
 
 		environments := make([]*scalr.Environment, 0)
 		if environmentsI, ok := d.GetOk("environments"); ok {
-			environmentsIDs := environmentsI.([]interface{})
+			environmentsIDs := environmentsI.(*schema.Set).List()
 			if (len(environmentsIDs) == 1) && environmentsIDs[0].(string) == "*" {
 				opts.IsEnforced = ptr(true)
 			} else if len(environmentsIDs) > 0 {

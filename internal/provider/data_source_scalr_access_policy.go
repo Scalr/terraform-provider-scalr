@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -124,10 +125,11 @@ func dataSourceScalrAccessPolicyRead(ctx context.Context, d *schema.ResourceData
 	scope[0] = scopeEl
 	_ = d.Set("scope", scope)
 
-	roleIds := make([]interface{}, 0)
+	roleIds := make([]string, 0)
 	for _, role := range ap.Roles {
 		roleIds = append(roleIds, role.ID)
 	}
+	sort.Strings(roleIds)
 
 	_ = d.Set("role_ids", roleIds)
 	_ = d.Set("is_system", ap.IsSystem)

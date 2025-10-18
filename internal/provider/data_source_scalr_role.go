@@ -113,6 +113,7 @@ func dataSourceScalrRoleRead(ctx context.Context, d *schema.ResourceData, meta i
 			permissionNames = append(permissionNames, permission.ID)
 		}
 		sort.Strings(permissionNames)
+
 		_ = d.Set("permissions", permissionNames)
 	}
 

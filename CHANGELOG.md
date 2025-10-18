@@ -10,12 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `scalr_provider_configuration`: Service account email is no longer required when using OIDC credentials in the Google provider configuration. ([#469](https://github.com/Scalr/terraform-provider-scalr/pull/469))
-
-### Fixed
-
-- `scalr_iam_team`: add sorting `users` to prevent false positive diffs. ([#466](https://github.com/Scalr/terraform-provider-scalr/pull/466))
-- `scalr_policy_group`: add sorting `environments` to prevent false positive diffs. ([#466](https://github.com/Scalr/terraform-provider-scalr/pull/466))
-- `scalr_environment`: add sorting `policy_groups` to prevent false positive diffs. ([#466](https://github.com/Scalr/terraform-provider-scalr/pull/466))
+- `scalr_access_policy`: changed type of `role_ids` attribute from TypeList to TypeSet. ([#466](https://github.com/Scalr/terraform-provider-scalr/pull/466))
+- `scalr_iam_team`: changed type of `users` attribute from TypeList to TypeSet. ([#466](https://github.com/Scalr/terraform-provider-scalr/pull/466))
+- `scalr_policy_group`: changed type of `environments` attribute from TypeList to TypeSet. ([#466](https://github.com/Scalr/terraform-provider-scalr/pull/466))
+- `scalr_webhook`: changed type of `events` attribute from TypeList to TypeSet. ([#466](https://github.com/Scalr/terraform-provider-scalr/pull/466))
+- Added sorting for computed attributes with List of String type in resources and data sources. ([#466](https://github.com/Scalr/terraform-provider-scalr/pull/466))
 
 ## [3.9.0] - 2025-09-19
 

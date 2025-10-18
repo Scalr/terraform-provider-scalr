@@ -221,6 +221,7 @@ func (d *environmentDataSource) Read(ctx context.Context, req datasource.ReadReq
 	for i, pcfg := range environment.DefaultProviderConfigurations {
 		defaultPcfgs[i] = pcfg.ID
 	}
+	sort.Strings(defaultPcfgs)
 	defaultPcfgsValue, diags := types.ListValueFrom(ctx, types.StringType, defaultPcfgs)
 	resp.Diagnostics.Append(diags...)
 	cfg.DefaultProviderConfigurations = defaultPcfgsValue
@@ -229,6 +230,7 @@ func (d *environmentDataSource) Read(ctx context.Context, req datasource.ReadReq
 	for i, tag := range environment.Tags {
 		tags[i] = tag.ID
 	}
+	sort.Strings(tags)
 	tagsValue, diags := types.ListValueFrom(ctx, types.StringType, tags)
 	resp.Diagnostics.Append(diags...)
 	cfg.TagIDs = tagsValue
