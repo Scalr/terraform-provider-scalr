@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -98,6 +99,7 @@ func dataSourceScalrWorkspacesRead(ctx context.Context, d *schema.ResourceData, 
 		}
 		options.PageNumber = wl.NextPage
 	}
+	sort.Strings(ids)
 
 	_ = d.Set("ids", ids)
 	d.SetId(fmt.Sprintf("%d", schema.HashString(id.String())))

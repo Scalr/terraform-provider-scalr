@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"log"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -197,6 +198,7 @@ func dataSourceScalrPolicyGroupRead(ctx context.Context, d *schema.ResourceData,
 		for _, env := range pg.Environments {
 			envs = append(envs, env.ID)
 		}
+		sort.Strings(envs)
 		_ = d.Set("environments", envs)
 	}
 

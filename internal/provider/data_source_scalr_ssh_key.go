@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -97,6 +98,7 @@ func dataSourceScalrSSHKeyRead(ctx context.Context, d *schema.ResourceData, meta
 		for _, environment := range sshKey.Environments {
 			environmentIDs = append(environmentIDs, environment.ID)
 		}
+		sort.Strings(environmentIDs)
 		_ = d.Set("environments", environmentIDs)
 	}
 

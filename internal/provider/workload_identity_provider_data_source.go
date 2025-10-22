@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -155,7 +156,7 @@ func (r *workloadIdentityProviderDataSource) Read(ctx context.Context, req datas
 	} else {
 		cfg.CreatedByEmail = types.StringNull()
 	}
-
+	sort.Strings(provider.AllowedAudiences)
 	audiences, diags := types.ListValueFrom(context.Background(), types.StringType, provider.AllowedAudiences)
 	if diags.HasError() {
 		return
@@ -166,6 +167,7 @@ func (r *workloadIdentityProviderDataSource) Read(ctx context.Context, req datas
 	for i, policy := range provider.AssumeServiceAccountPolicies {
 		policies[i] = policy.ID
 	}
+	sort.Strings(policies)
 	policiesValue, diags := types.ListValueFrom(context.Background(), types.StringType, policies)
 	if diags.HasError() {
 		return
