@@ -7,7 +7,7 @@ parent:
   uri: provider_datasources
 privacy:
   view: public
-position: 9
+position: 10
 ---
 ## Data Source: scalr_hook
 

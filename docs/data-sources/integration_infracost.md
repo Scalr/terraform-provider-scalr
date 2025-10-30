@@ -7,7 +7,7 @@ parent:
   uri: provider_datasources
 privacy:
   view: public
-position: 12
+position: 13
 ---
 ## Data Source: scalr_integration_infracost
 
