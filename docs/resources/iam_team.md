@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 11
+position: 12
 ---
 ## Resource: scalr_iam_team
 

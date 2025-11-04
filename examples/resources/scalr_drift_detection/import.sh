@@ -1,0 +1,1 @@
+terraform import scalr_drift_detection.example dds-xxxxxxxxxx

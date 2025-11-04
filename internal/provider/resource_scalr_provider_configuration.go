@@ -150,8 +150,8 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 									},
 									"strategy": {
 										Description: "On duplicate key behaviour for default tags. Available options:" +
-											"\n - `skip`: the existing tags will not be changed" +
-											"\n - `update`: the existing tags will be replaced with the new one",
+											"\n  - `skip`: the existing tags will not be changed" +
+											"\n  - `update`: the existing tags will be replaced with the new one",
 										Type:     schema.TypeString,
 										Optional: true,
 										ValidateDiagFunc: validation.ToDiagFunc(

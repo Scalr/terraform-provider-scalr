@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 17
+position: 18
 ---
 ## Resource: scalr_provider_configuration
 
@@ -255,8 +255,8 @@ Optional:
 Optional:
 
 - `strategy` (String) On duplicate key behaviour for default tags. Available options:
- - `skip`: the existing tags will not be changed
- - `update`: the existing tags will be replaced with the new one
+  - `skip`: the existing tags will not be changed
+  - `update`: the existing tags will be replaced with the new one
 - `tags` (Map of String) Default tags to be applied to all resources created by this provider configuration.
 
 

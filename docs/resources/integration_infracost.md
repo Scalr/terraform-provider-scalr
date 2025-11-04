@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 12
+position: 13
 ---
 ## Resource: scalr_integration_infracost
 

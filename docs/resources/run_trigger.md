@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 21
+position: 22
 ---
 ## Resource: scalr_run_trigger
 

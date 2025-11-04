@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 29
+position: 30
 ---
 ## Resource: scalr_vcs_provider
 

@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 14
+position: 15
 ---
 ## Resource: scalr_module_namespace
 
