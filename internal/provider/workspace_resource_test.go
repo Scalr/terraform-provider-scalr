@@ -597,7 +597,7 @@ func testAccCheckScalrWorkspaceProviderConfigurations(
 			)
 		}
 		if aliases, ok := pcfgNameToAliases["kubernetes"]; ok {
-			if !(len(aliases) == 1 && (aliases[0] == nil || *aliases[0] == "")) {
+			if len(aliases) != 1 || (aliases[0] != nil && *aliases[0] != "") {
 				return fmt.Errorf("Bad kubernetes link aliases: %v", aliases)
 			}
 		} else {
@@ -651,7 +651,7 @@ func testAccCheckScalrWorkspaceProviderConfigurationsUpdated(
 			)
 		}
 		if aliases, ok := pcfgNameToAliases["kubernetes"]; ok {
-			if !(len(aliases) == 1 && (aliases[0] == nil || *aliases[0] == "")) {
+			if len(aliases) != 1 || (aliases[0] != nil && *aliases[0] != "") {
 				return fmt.Errorf("Bad kubernetes link aliases: %v", aliases)
 			}
 		} else {

@@ -11,10 +11,7 @@ import (
 
 func TestAccScalrEnvironmentDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
-	for {
-		if rInt >= 100 {
-			break
-		}
+	for rInt < 100 {
 		rInt = GetRandomInteger()
 	}
 

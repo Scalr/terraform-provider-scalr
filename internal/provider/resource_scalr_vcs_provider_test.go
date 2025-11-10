@@ -107,7 +107,7 @@ func testAccCheckScalrVcsProviderExists(resId string, vcsProvider *scalr.VcsProv
 		}
 
 		if rs.Primary.ID == "" {
-			return noInstanceIdErr
+			return errNoInstanceId
 		}
 
 		// Get the role
@@ -131,7 +131,7 @@ func testAccCheckScalrVcsProviderDestroy(s *terraform.State) error {
 		}
 
 		if rs.Primary.ID == "" {
-			return noInstanceIdErr
+			return errNoInstanceId
 		}
 
 		_, err := scalrClient.VcsProviders.Read(ctx, rs.Primary.ID)

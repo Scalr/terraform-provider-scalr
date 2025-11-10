@@ -9,6 +9,8 @@ linters:
     - errcheck
   exclusions:
     rules:
+      - linters: [staticcheck]
+        text: "ST1005" # Incorrectly formatted error string.
       - path: testing.go
         linters:
           - unused
