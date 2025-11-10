@@ -1,15 +1,17 @@
-linters:
+version: "2"
+
+formatters:
   enable:
     - gofmt
+
+linters:
   disable:
     - errcheck
-issues:
-  exclude-rules:
-    - path: testing.go
-      linters:
-        - deadcode
-        - unused
-    - path: client_mock.go
-      linters:
-        - deadcode
-        - unused
+  exclusions:
+    rules:
+      - path: testing.go
+        linters:
+          - unused
+      - path: client_mock.go
+        linters:
+          - unused

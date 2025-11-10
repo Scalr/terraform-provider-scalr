@@ -33,9 +33,9 @@ jobs:
           cache: false
       - uses: hashicorp/setup-terraform@v3
       - name: Lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v8
         with:
-          version: v1.62.0
+          version: v2.6.1
           args: --timeout 2m
       - name: Validate Generated Code
         run: |
