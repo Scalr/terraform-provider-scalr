@@ -5,10 +5,12 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/scalr/go-scalr"
+
+	scalrV2 "github.com/scalr/go-scalr/v2/scalr"
+	"github.com/scalr/go-scalr/v2/scalr/ops/workspace"
 )
 
-func upgradeWorkspaceResourceStateV0toV4(c *scalr.Client) func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
+func upgradeWorkspaceResourceStateV0toV4(c *scalrV2.Client) func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
 	return func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
 		type workspaceModelV0 struct {
 			Id               types.String `tfsdk:"id"`
@@ -30,7 +32,9 @@ func upgradeWorkspaceResourceStateV0toV4(c *scalr.Client) func(ctx context.Conte
 			return
 		}
 
-		ws, err := c.Workspaces.ReadByID(ctx, dataV0.Id.ValueString())
+		ws, err := c.Workspace.GetWorkspace(ctx, dataV0.Id.ValueString(), &workspace.GetWorkspaceOptions{
+			Include: []string{"created-by"},
+		})
 		if err != nil {
 			resp.Diagnostics.AddError("Error reading workspace", err.Error())
 			return
@@ -56,7 +60,7 @@ func upgradeWorkspaceResourceStateV0toV4(c *scalr.Client) func(ctx context.Conte
 	}
 }
 
-func upgradeWorkspaceResourceStateV1toV4(c *scalr.Client) func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
+func upgradeWorkspaceResourceStateV1toV4(c *scalrV2.Client) func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
 	return func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
 		type workspaceModelV1 struct {
 			Id               types.String `tfsdk:"id"`
@@ -77,7 +81,9 @@ func upgradeWorkspaceResourceStateV1toV4(c *scalr.Client) func(ctx context.Conte
 			return
 		}
 
-		ws, err := c.Workspaces.ReadByID(ctx, dataV1.Id.ValueString())
+		ws, err := c.Workspace.GetWorkspace(ctx, dataV1.Id.ValueString(), &workspace.GetWorkspaceOptions{
+			Include: []string{"created-by"},
+		})
 		if err != nil {
 			resp.Diagnostics.AddError("Error reading workspace", err.Error())
 			return
@@ -103,7 +109,7 @@ func upgradeWorkspaceResourceStateV1toV4(c *scalr.Client) func(ctx context.Conte
 	}
 }
 
-func upgradeWorkspaceResourceStateV2toV4(c *scalr.Client) func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
+func upgradeWorkspaceResourceStateV2toV4(c *scalrV2.Client) func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
 	return func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
 		type workspaceModelV2 struct {
 			Id               types.String `tfsdk:"id"`
@@ -124,7 +130,9 @@ func upgradeWorkspaceResourceStateV2toV4(c *scalr.Client) func(ctx context.Conte
 			return
 		}
 
-		ws, err := c.Workspaces.ReadByID(ctx, dataV2.Id.ValueString())
+		ws, err := c.Workspace.GetWorkspace(ctx, dataV2.Id.ValueString(), &workspace.GetWorkspaceOptions{
+			Include: []string{"created-by"},
+		})
 		if err != nil {
 			resp.Diagnostics.AddError("Error reading workspace", err.Error())
 			return
@@ -150,7 +158,7 @@ func upgradeWorkspaceResourceStateV2toV4(c *scalr.Client) func(ctx context.Conte
 	}
 }
 
-func upgradeWorkspaceResourceStateV3toV4(c *scalr.Client) func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
+func upgradeWorkspaceResourceStateV3toV4(c *scalrV2.Client) func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
 	return func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
 		type workspaceModelV3 struct {
 			Id                    types.String `tfsdk:"id"`
@@ -178,7 +186,9 @@ func upgradeWorkspaceResourceStateV3toV4(c *scalr.Client) func(ctx context.Conte
 			return
 		}
 
-		ws, err := c.Workspaces.ReadByID(ctx, dataV3.Id.ValueString())
+		ws, err := c.Workspace.GetWorkspace(ctx, dataV3.Id.ValueString(), &workspace.GetWorkspaceOptions{
+			Include: []string{"created-by"},
+		})
 		if err != nil {
 			resp.Diagnostics.AddError("Error reading workspace", err.Error())
 			return

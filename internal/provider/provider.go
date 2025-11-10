@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/scalr/terraform-provider-scalr/internal/client"
+	"github.com/scalr/terraform-provider-scalr/internal/framework"
 )
 
 // Compile-time interface check
@@ -129,7 +130,7 @@ func (p *scalrProvider) Configure(ctx context.Context, req provider.ConfigureReq
 
 	tflog.Debug(ctx, "Creating Scalr client...")
 
-	scalrClient, err := client.Configure(hostname, token, p.version)
+	scalrClient, scalrClientV2, err := client.Configure(hostname, token, p.version)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to create Scalr API client",
@@ -142,7 +143,10 @@ func (p *scalrProvider) Configure(ctx context.Context, req provider.ConfigureReq
 
 	// Make the Scalr client available during DataSource and Resource Configure methods.
 	resp.DataSourceData = scalrClient
-	resp.ResourceData = scalrClient
+	resp.ResourceData = &framework.Clients{
+		Client:   scalrClient,
+		ClientV2: scalrClientV2,
+	}
 
 	tflog.Info(ctx, "Scalr provider configured.")
 }

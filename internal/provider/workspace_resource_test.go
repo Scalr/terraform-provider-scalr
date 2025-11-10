@@ -6,13 +6,18 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/scalr/go-scalr"
+
+	scalrV2 "github.com/scalr/go-scalr/v2/scalr"
+	"github.com/scalr/go-scalr/v2/scalr/ops/provider_configuration_link"
+	"github.com/scalr/go-scalr/v2/scalr/schemas"
 )
 
-func TestAccScalrWorkspace_basic(t *testing.T) {
+func TestAccScalrWorkspaceResource_basic(t *testing.T) {
 	workspace := &scalr.Workspace{}
 	rInt := GetRandomInteger()
 
@@ -70,7 +75,7 @@ func TestAccScalrWorkspace_basic(t *testing.T) {
 	})
 }
 
-func TestAccScalrWorkspace_create_missed_vcs_attr(t *testing.T) {
+func TestAccScalrWorkspaceResource_create_missed_vcs_attr(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
@@ -89,7 +94,7 @@ func TestAccScalrWorkspace_create_missed_vcs_attr(t *testing.T) {
 	})
 }
 
-func TestAccScalrWorkspace_monorepo(t *testing.T) {
+func TestAccScalrWorkspaceResource_monorepo(t *testing.T) {
 	workspace := &scalr.Workspace{}
 	rInt := GetRandomInteger()
 
@@ -121,7 +126,7 @@ func TestAccScalrWorkspace_monorepo(t *testing.T) {
 	})
 }
 
-func TestAccScalrWorkspace_update(t *testing.T) {
+func TestAccScalrWorkspaceResource_update(t *testing.T) {
 	workspace := &scalr.Workspace{}
 	rInt := GetRandomInteger()
 
@@ -244,7 +249,7 @@ func TestAccScalrWorkspace_update(t *testing.T) {
 	})
 }
 
-func TestAccScalrWorkspace_import(t *testing.T) {
+func TestAccScalrWorkspaceResource_import(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
@@ -265,7 +270,7 @@ func TestAccScalrWorkspace_import(t *testing.T) {
 	})
 }
 
-func TestAccScalrWorkspace_providerConfiguration(t *testing.T) {
+func TestAccScalrWorkspaceResource_providerConfiguration(t *testing.T) {
 	workspace := &scalr.Workspace{}
 	rInt := GetRandomInteger()
 
@@ -298,7 +303,7 @@ func TestAccScalrWorkspace_providerConfiguration(t *testing.T) {
 	})
 }
 
-func TestAccScalrWorkspaceSSHKey(t *testing.T) {
+func TestAccScalrWorkspaceResource_SSHKey(t *testing.T) {
 	workspace := &scalr.Workspace{}
 	sshKey := &scalr.SSHKey{}
 	rInt := GetRandomInteger()
@@ -323,7 +328,7 @@ func TestAccScalrWorkspaceSSHKey(t *testing.T) {
 	})
 }
 
-func TestAccScalrWorkspaceStateConsumers(t *testing.T) {
+func TestAccScalrWorkspaceResource_StateConsumers(t *testing.T) {
 	workspace := &scalr.Workspace{}
 	rInt := GetRandomInteger()
 
@@ -377,7 +382,7 @@ func testAccCheckScalrSSHKeyExists(n string, sshKey *scalr.SSHKey) resource.Test
 	}
 }
 
-func TestAccScalrWorkspace_emptyHooks(t *testing.T) {
+func TestAccScalrWorkspaceResource_emptyHooks(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
@@ -392,7 +397,7 @@ func TestAccScalrWorkspace_emptyHooks(t *testing.T) {
 	})
 }
 
-func TestAccScalrWorkspace_UpgradeFromSDK(t *testing.T) {
+func TestAccScalrWorkspaceResource_UpgradeFromSDK(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
@@ -422,7 +427,7 @@ func TestAccScalrWorkspace_UpgradeFromSDK(t *testing.T) {
 	})
 }
 
-func TestAccScalrWorkspace_SCALRCORE_34129(t *testing.T) {
+func TestAccScalrWorkspaceResource_SCALRCORE_34129(t *testing.T) {
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
@@ -445,6 +450,35 @@ func TestAccScalrWorkspace_SCALRCORE_34129(t *testing.T) {
 				Config: testAccScalrWorkspace_SCALRCORE_34129_update2(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckNoResourceAttr("scalr_workspace.test", "run_operation_timeout"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccScalrWorkspaceResource_SCALRCORE_36088(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testVcsAccGithubTokenPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrWorkspace_SCALRCORE_36088(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("scalr_workspace.test", "id"),
+				),
+			},
+			{
+				Config: testAccScalrWorkspace_SCALRCORE_36088_update1(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("scalr_workspace.test", "id"),
+				),
+			},
+			{
+				Config: testAccScalrWorkspace_SCALRCORE_36088_update2(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("scalr_workspace.test", "id"),
 				),
 			},
 		},
@@ -545,9 +579,9 @@ func testAccCheckScalrWorkspaceAttributesUpdated(
 func testAccCheckScalrWorkspaceProviderConfigurations(
 	workspace *scalr.Workspace) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
+		scalrClient := createScalrClientV2()
 
-		links, err := getProviderConfigurationWorkspaceLinks(ctx, scalrClient, workspace.ID)
+		links, err := getProviderConfigurationWorkspaceLinksWithPcfg(ctx, scalrClient, workspace.ID)
 		if err != nil {
 			return fmt.Errorf("Error retrieving provider configuration links: %v", err)
 		}
@@ -556,14 +590,14 @@ func testAccCheckScalrWorkspaceProviderConfigurations(
 			return fmt.Errorf("Bad provider configurations: %v", links)
 		}
 
-		pcfgNameToAliases := make(map[string][]string)
+		pcfgNameToAliases := make(map[string][]*string)
 		for _, currentLink := range links {
-			pcfgNameToAliases[currentLink.ProviderConfiguration.Name] = append(
-				pcfgNameToAliases[currentLink.ProviderConfiguration.Name], currentLink.Alias,
+			pcfgNameToAliases[currentLink.Relationships.ProviderConfiguration.Attributes.Name] = append(
+				pcfgNameToAliases[currentLink.Relationships.ProviderConfiguration.Attributes.Name], currentLink.Attributes.Alias,
 			)
 		}
 		if aliases, ok := pcfgNameToAliases["kubernetes"]; ok {
-			if !(len(aliases) == 1 && aliases[0] == "") {
+			if !(len(aliases) == 1 && (aliases[0] == nil || *aliases[0] == "")) {
 				return fmt.Errorf("Bad kubernetes link aliases: %v", aliases)
 			}
 		} else {
@@ -574,11 +608,11 @@ func testAccCheckScalrWorkspaceProviderConfigurations(
 			if len(aliases) != 2 {
 				return fmt.Errorf("Bad consul provider configuration link aliases: %v", aliases)
 			}
-			expected := []string{"dev", ""}
+			expected := []*string{ptr("dev"), nil}
 			for _, expectedAlias := range expected {
 				found := false
 				for _, gotAlias := range aliases {
-					if expectedAlias == gotAlias {
+					if cmp.Equal(expectedAlias, gotAlias) {
 						found = true
 						break
 					}
@@ -599,9 +633,9 @@ func testAccCheckScalrWorkspaceProviderConfigurations(
 func testAccCheckScalrWorkspaceProviderConfigurationsUpdated(
 	workspace *scalr.Workspace) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
+		scalrClient := createScalrClientV2()
 
-		links, err := getProviderConfigurationWorkspaceLinks(ctx, scalrClient, workspace.ID)
+		links, err := getProviderConfigurationWorkspaceLinksWithPcfg(ctx, scalrClient, workspace.ID)
 		if err != nil {
 			return fmt.Errorf("Error retrieving provider configuration links: %v", err)
 		}
@@ -610,14 +644,14 @@ func testAccCheckScalrWorkspaceProviderConfigurationsUpdated(
 			return fmt.Errorf("Bad provider configurations: %v", links)
 		}
 
-		pcfgNameToAliases := make(map[string][]string)
+		pcfgNameToAliases := make(map[string][]*string)
 		for _, currentLink := range links {
-			pcfgNameToAliases[currentLink.ProviderConfiguration.Name] = append(
-				pcfgNameToAliases[currentLink.ProviderConfiguration.Name], currentLink.Alias,
+			pcfgNameToAliases[currentLink.Relationships.ProviderConfiguration.Attributes.Name] = append(
+				pcfgNameToAliases[currentLink.Relationships.ProviderConfiguration.Attributes.Name], currentLink.Attributes.Alias,
 			)
 		}
 		if aliases, ok := pcfgNameToAliases["kubernetes"]; ok {
-			if !(len(aliases) == 1 && aliases[0] == "") {
+			if !(len(aliases) == 1 && (aliases[0] == nil || *aliases[0] == "")) {
 				return fmt.Errorf("Bad kubernetes link aliases: %v", aliases)
 			}
 		} else {
@@ -629,11 +663,11 @@ func testAccCheckScalrWorkspaceProviderConfigurationsUpdated(
 				return fmt.Errorf("Bad consul provider configuration link aliases: %v", aliases)
 			}
 
-			expected := []string{"dev", "dev2"}
+			expected := []*string{ptr("dev"), ptr("dev2")}
 			for _, expectedAlias := range expected {
 				found := false
 				for _, gotAlias := range aliases {
-					if expectedAlias == gotAlias {
+					if cmp.Equal(expectedAlias, gotAlias) {
 						found = true
 						break
 					}
@@ -724,7 +758,17 @@ resource scalr_workspace test {
 }
 
 func testAccScalrWorkspaceBasic(rInt int) string {
-	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, `
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount, fmt.Sprintf(`
+resource "scalr_tag" "tag1" {
+  name       = "tag1-%[1]d"
+  account_id = "%[2]s"
+}
+
+resource "scalr_tag" "tag2" {
+  name       = "tag2-%[1]d"
+  account_id = "%[2]s"
+}
+
 resource scalr_workspace test {
   name                           = "workspace-test"
   environment_id                 = scalr_environment.test.id
@@ -735,6 +779,7 @@ resource scalr_workspace test {
   deletion_protection_enabled    = false
   type                           = "unmapped"
   remote_backend                 = true
+  tag_ids                        = [ scalr_tag.tag1.id ]
   hooks {
     pre_init   = "./scripts/pre-init.sh"
     pre_plan   = "./scripts/pre-plan.sh"
@@ -742,7 +787,7 @@ resource scalr_workspace test {
     pre_apply  = "./scripts/pre-apply.sh"
     post_apply = "./scripts/post-apply.sh"
   }
-}`)
+}`, rInt, defaultAccount))
 }
 
 func testAccScalrWorkspaceMonorepo(rInt int) string {
@@ -758,11 +803,21 @@ resource "scalr_workspace" "test" {
 func testAccScalrWorkspaceUpdate(rInt int) string {
 	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount,
 		fmt.Sprintf(`
+resource "scalr_tag" "tag1" {
+  name       = "tag1-%[1]d"
+  account_id = "%[2]s"
+}
+
+resource "scalr_tag" "tag2" {
+  name       = "tag2-%[1]d"
+  account_id = "%[2]s"
+}
+
 resource "scalr_workspace" "test" {
   name                          = "workspace-updated"
   environment_id 		        = scalr_environment.test.id
   auto_apply                    = false
-  execution_mode                = "%s"
+  execution_mode                = "local"
   terraform_version             = "1.5.7"
   working_directory             = "terraform/test"
   run_operation_timeout         = 200
@@ -770,6 +825,7 @@ resource "scalr_workspace" "test" {
   var_files                     = ["test1updated.tfvars", "test2updated.tfvars"]
   type                          = "staging"
   remote_backend                = false
+  tag_ids                       = [ scalr_tag.tag2.id ]
   hooks {
     pre_init   = "./scripts/pre-init_updated.sh"
     pre_plan   = "./scripts/pre-plan_updated.sh"
@@ -777,7 +833,7 @@ resource "scalr_workspace" "test" {
     pre_apply  = "./scripts/pre-apply_updated.sh"
     post_apply = "./scripts/post-apply_updated.sh"
   }
-}`, scalr.WorkspaceExecutionModeLocal),
+}`, rInt, defaultAccount),
 	)
 }
 
@@ -1160,4 +1216,113 @@ resource scalr_workspace test {
   environment_id                 = scalr_environment.test.id
 }`, rInt),
 	)
+}
+
+func testAccScalrWorkspace_SCALRCORE_36088(rInt int) string {
+	return fmt.Sprintf(
+		testAccScalrWorkspaceCommonConfig,
+		rInt,
+		defaultAccount,
+		fmt.Sprintf(`
+resource "scalr_vcs_provider" "test" {
+  name       = "vcs-%[1]d"
+  vcs_type   = "github"
+  token      = "%[3]s"
+  account_id = "%[2]s"
+}
+
+resource scalr_workspace test {
+  name            = "ws-%[1]d"
+  environment_id  = scalr_environment.test.id
+  vcs_provider_id = scalr_vcs_provider.test.id
+  vcs_repo {
+    identifier = "scalr/terraform-provider-scalr"
+    branch     = "master"
+  }
+
+  lifecycle {
+    ignore_changes = [vcs_repo[0].version_constraint]
+  }
+}`, rInt, defaultAccount, githubToken),
+	)
+}
+
+func testAccScalrWorkspace_SCALRCORE_36088_update1(rInt int) string {
+	return fmt.Sprintf(
+		testAccScalrWorkspaceCommonConfig,
+		rInt,
+		defaultAccount,
+		fmt.Sprintf(`
+resource "scalr_vcs_provider" "test" {
+  name       = "vcs-%[1]d"
+  vcs_type   = "github"
+  token      = "%[3]s"
+  account_id = "%[2]s"
+}
+
+resource scalr_workspace test {
+  name            = "ws-%[1]d"
+  environment_id  = scalr_environment.test.id
+  vcs_provider_id = scalr_vcs_provider.test.id
+  vcs_repo {
+    identifier         = "scalr/terraform-provider-scalr"
+    version_constraint = ">= 1.0.1"
+  }
+
+  lifecycle {
+    ignore_changes = [vcs_repo[0].version_constraint]
+  }
+}`, rInt, defaultAccount, githubToken),
+	)
+}
+
+func testAccScalrWorkspace_SCALRCORE_36088_update2(rInt int) string {
+	return fmt.Sprintf(
+		testAccScalrWorkspaceCommonConfig,
+		rInt,
+		defaultAccount,
+		fmt.Sprintf(`
+resource "scalr_vcs_provider" "test" {
+  name       = "vcs-%[1]d"
+  vcs_type   = "github"
+  token      = "%[3]s"
+  account_id = "%[2]s"
+}
+
+resource scalr_workspace test {
+  name            = "ws-%[1]d"
+  environment_id  = scalr_environment.test.id
+  vcs_provider_id = scalr_vcs_provider.test.id
+  vcs_repo {
+    identifier = "scalr/terraform-provider-scalr"
+    branch     = "master"
+  }
+
+  lifecycle {
+    ignore_changes = [vcs_repo[0].version_constraint]
+  }
+}`, rInt, defaultAccount, githubToken),
+	)
+}
+
+func getProviderConfigurationWorkspaceLinksWithPcfg(
+	ctx context.Context, scalrClient *scalrV2.Client, workspaceId string,
+) (workspaceLinks []*schemas.ProviderConfigurationLink, err error) {
+	for link, err := range scalrClient.ProviderConfigurationLink.ListProviderConfigurationLinksIter(
+		ctx,
+		workspaceId,
+		&provider_configuration_link.ListProviderConfigurationLinksOptions{
+			Include: []string{"provider-configuration"},
+		},
+	) {
+		if err != nil {
+			return nil, err
+		}
+
+		if link.Relationships.Workspace != nil {
+			workspaceLinks = append(workspaceLinks, &link)
+		}
+	}
+
+	return
 }

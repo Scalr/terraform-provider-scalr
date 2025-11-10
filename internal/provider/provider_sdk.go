@@ -91,7 +91,8 @@ func providerConfigure(v string) func(ctx context.Context, d *schema.ResourceDat
 		h := d.Get("hostname").(string)
 		t := d.Get("token").(string)
 
-		scalrClient, err := client.Configure(h, t, v)
+		// We don't create Client v2 for legacy SDKv2 resources
+		scalrClient, _, err := client.Configure(h, t, v)
 		if err != nil {
 			return nil, diag.FromErr(err)
 		}
