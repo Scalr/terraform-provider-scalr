@@ -31,9 +31,9 @@ jobs:
           CLEAN_BRANCH=$(echo "$BRANCH" | sed 's/[\/]/-/g')
           git tag v1.0.0-rc-$CLEAN_BRANCH
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
-          go-version: "1.23"
+          go-version-file: '.go-version'
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
