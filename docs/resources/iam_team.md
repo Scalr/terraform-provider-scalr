@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 11
+position: 12
 ---
 ## Resource: scalr_iam_team
 
@@ -37,7 +37,7 @@ resource "scalr_iam_team" "example" {
 - `account_id` (String) An identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.
 - `description` (String) A verbose description of the team.
 - `identity_provider_id` (String) An identifier of the login identity provider, in the format `idp-<RANDOM STRING>`. This is required when `account_id` is not specified.
-- `users` (List of String) A list of the user identifiers to add to the team.
+- `users` (Set of String) A list of the user identifiers to add to the team.
 
 ### Read-Only
 

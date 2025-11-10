@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -107,6 +108,7 @@ func dataSourceScalrIamTeamRead(ctx context.Context, d *schema.ResourceData, met
 		for _, u := range team.Users {
 			users = append(users, u.ID)
 		}
+		sort.Strings(users)
 	}
 	_ = d.Set("users", users)
 

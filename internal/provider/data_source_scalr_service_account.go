@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"log"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -136,6 +137,8 @@ func dataSourceScalrServiceAccountRead(ctx context.Context, d *schema.ResourceDa
 	for _, owner := range sa.Owners {
 		owners = append(owners, owner.ID)
 	}
+	sort.Strings(owners)
+
 	_ = d.Set("owners", owners)
 
 	_ = d.Set("name", sa.Name)

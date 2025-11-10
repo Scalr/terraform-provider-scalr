@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -148,6 +149,7 @@ func dataSourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, m
 		for _, workspace := range agentPool.Workspaces {
 			workspaces = append(workspaces, workspace.ID)
 		}
+		sort.Strings(workspaces)
 
 		log.Printf("[DEBUG] agent pool %s workspaces: %+v", agentPool.ID, workspaces)
 		_ = d.Set("workspace_ids", workspaces)

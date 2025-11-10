@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 30
+position: 31
 ---
 ## Resource: scalr_webhook
 
@@ -51,7 +51,7 @@ resource "scalr_webhook" "example2" {
 
 ### Required
 
-- `events` (List of String) List of event IDs.
+- `events` (Set of String) List of event IDs.
 - `name` (String) Name of the webhook.
 - `url` (String) Endpoint URL. Required if `endpoint_id` is not set.
 

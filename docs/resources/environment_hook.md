@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 8
+position: 9
 ---
 ## Resource: scalr_environment_hook
 
