@@ -23,7 +23,7 @@ Usually this means implementing a terraform resource with CRUD operations and a 
 
 The main steps to follow when adding a resource are:
 - implement resource structs and CRUD methods in [Scalr Go Client](https://github.com/Scalr/go-scalr/) [^1]
-- pin `go-scalr` dependency to proper commit: `go get github.com/Scalr/go-scalr@<commit-sha>` [^1]
+- pin `go-scalr` dependency to proper commit: `go get github.com/scalr/go-scalr@<commit-sha>` [^1]
 - add `scalr/resource_scalr_<name>.go`, `scalr/datasource_scalr_<name>.go`, implement schemas and methods
   
 > [!IMPORTANT]

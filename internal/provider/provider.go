@@ -162,6 +162,7 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 		newVariableResource,
 		newWorkloadIdentityProviderResource,
 		newWorkspaceResource,
+		newDriftDetectionResource,
 	}
 }
 

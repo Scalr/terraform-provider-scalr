@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 24
+position: 25
 ---
 ## Resource: scalr_slack_integration
 

@@ -1,0 +1,1 @@
+terraform import scalr_checkov_integration.example in-xxxxxxxxxx

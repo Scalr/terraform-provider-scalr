@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 33
+position: 34
 ---
 ## Resource: scalr_workspace_run_schedule
 
