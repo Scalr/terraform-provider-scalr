@@ -35,11 +35,11 @@ resource "scalr_role" "writer" {
 ### Required
 
 - `name` (String) Name of the role.
-- `permissions` (List of String) Array of permission names.
+- `permissions` (Set of String) Array of permission names.
 
 ### Optional
 
-- `account_id` (String, Deprecated) ID of the account.
+- `account_id` (String, Deprecated) ID of the account, in the format `acc-<RANDOM STRING>`.
 - `description` (String) Verbose description of the role.
 
 ### Read-Only
