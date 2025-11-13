@@ -8,6 +8,8 @@ import (
 
 	"github.com/scalr/go-scalr"
 
+	scalrV2 "github.com/scalr/go-scalr/v2/scalr"
+
 	"github.com/scalr/terraform-provider-scalr/internal/client"
 )
 
@@ -54,4 +56,8 @@ func createScalrClient() (*scalr.Client, error) {
 	config.Address = fmt.Sprintf("https://%s", os.Getenv(client.HostnameEnvVar))
 	scalrClient, err := scalr.NewClient(config)
 	return scalrClient, err
+}
+
+func createScalrClientV2() *scalrV2.Client {
+	return scalrV2.NewClient(os.Getenv(client.HostnameEnvVar), os.Getenv(client.TokenEnvVar))
 }

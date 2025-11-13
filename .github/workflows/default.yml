@@ -27,15 +27,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
-          go-version: "1.23"
+          go-version-file: '.go-version'
           cache: false
       - uses: hashicorp/setup-terraform@v3
       - name: Lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v8
         with:
-          version: v1.62.0
+          version: v2.6.1
           args: --timeout 2m
       - name: Validate Generated Code
         run: |
@@ -52,9 +52,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
-          go-version: "1.23"
+          go-version-file: '.go-version'
       - name: Run unit tests
         run: make test
 
@@ -84,9 +84,9 @@ jobs:
           installation_id: ${{vars.SUDO_GHA_APP_INSTALLATION_ID}}
           private_key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
-          go-version: "1.23"
+          go-version-file: '.go-version'
       - name: Check if Same Branch Exists in Fatmouse Repo
         id: check-branch
         uses: actions/github-script@v7
@@ -236,9 +236,9 @@ jobs:
           CLEAN_BRANCH=$(echo "$BRANCH" | sed 's/[\/]/-/g')
           git tag v1.0.0-rc-$CLEAN_BRANCH
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
-          go-version: "1.23"
+          go-version-file: '.go-version'
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:

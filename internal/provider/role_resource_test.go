@@ -5,13 +5,13 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	"github.com/scalr/go-scalr"
 )
 
-func TestAccScalrRole_basic(t *testing.T) {
-	role := &scalr.Role{}
+func TestAccScalrRoleResource_basic(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-role")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -19,23 +19,24 @@ func TestAccScalrRole_basic(t *testing.T) {
 		CheckDestroy:             testAccCheckScalrRoleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrRoleBasic(),
+				Config: testAccScalrRoleBasic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrRoleExists("scalr_role.test", role),
-					resource.TestCheckResourceAttr("scalr_role.test", "name", "role-test"),
+					testAccCheckScalrRoleExists("scalr_role.test"),
+					resource.TestCheckResourceAttr("scalr_role.test", "name", name),
 					resource.TestCheckResourceAttr("scalr_role.test", "description", "test basic"),
 					resource.TestCheckResourceAttr("scalr_role.test", "is_system", "false"),
 					resource.TestCheckResourceAttr("scalr_role.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("scalr_role.test", "permissions.0", "*:read"),
-					resource.TestCheckResourceAttr("scalr_role.test", "permissions.1", "*:update"),
+					resource.TestCheckTypeSetElemAttr("scalr_role.test", "permissions.*", "*:update"),
+					resource.TestCheckTypeSetElemAttr("scalr_role.test", "permissions.*", "*:read"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccScalrRole_update(t *testing.T) {
-	role := &scalr.Role{}
+func TestAccScalrRoleResource_update(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-role")
+	newName := acctest.RandomWithPrefix("test-role")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -43,39 +44,51 @@ func TestAccScalrRole_update(t *testing.T) {
 		CheckDestroy:             testAccCheckScalrRoleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrRoleBasic(),
+				Config: testAccScalrRoleBasic(name),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("scalr_role.test", "name", "role-test"),
+					resource.TestCheckResourceAttr("scalr_role.test", "name", name),
 					resource.TestCheckResourceAttr("scalr_role.test", "description", "test basic"),
 					resource.TestCheckResourceAttr("scalr_role.test", "is_system", "false"),
 					resource.TestCheckResourceAttr("scalr_role.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("scalr_role.test", "permissions.0", "*:read"),
-					resource.TestCheckResourceAttr("scalr_role.test", "permissions.1", "*:update"),
+					resource.TestCheckTypeSetElemAttr("scalr_role.test", "permissions.*", "*:read"),
+					resource.TestCheckTypeSetElemAttr("scalr_role.test", "permissions.*", "*:update"),
 				),
 			},
 
 			{
-				Config: testAccScalrRoleUpdate(),
+				Config: testAccScalrRoleUpdate(newName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrRoleExists("scalr_role.test", role),
-					resource.TestCheckResourceAttr("scalr_role.test", "name", "role-updated"),
+					testAccCheckScalrRoleExists("scalr_role.test"),
+					resource.TestCheckResourceAttr("scalr_role.test", "name", newName),
 					resource.TestCheckResourceAttr("scalr_role.test", "description", "updated"),
 					resource.TestCheckResourceAttr("scalr_role.test", "is_system", "false"),
 					resource.TestCheckResourceAttr("scalr_role.test", "account_id", defaultAccount),
-					resource.TestCheckResourceAttr("scalr_role.test", "permissions.0", "*:update"),
-					resource.TestCheckResourceAttr("scalr_role.test", "permissions.1", "*:delete"),
+					resource.TestCheckTypeSetElemAttr("scalr_role.test", "permissions.*", "*:update"),
+					resource.TestCheckTypeSetElemAttr("scalr_role.test", "permissions.*", "*:delete"),
 				),
-			},
-
-			{
-				Config:      testAccScalrRoleUpdateEmptyPermission(),
-				ExpectError: regexp.MustCompile("Got error during parsing permissions: 1-th value is empty"),
 			},
 		},
 	})
 }
 
-func TestAccScalrRole_import(t *testing.T) {
+func TestAccScalrRoleResource_validation(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-role")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccScalrRoleWithEmptyPermission(name),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile("must not be empty"),
+			},
+		},
+	})
+}
+
+func TestAccScalrRoleResource_import(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-role")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -83,9 +96,8 @@ func TestAccScalrRole_import(t *testing.T) {
 		CheckDestroy:             testAccCheckScalrRoleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrRoleBasic(),
+				Config: testAccScalrRoleBasic(name),
 			},
-
 			{
 				ResourceName:      "scalr_role.test",
 				ImportState:       true,
@@ -95,9 +107,9 @@ func TestAccScalrRole_import(t *testing.T) {
 	})
 }
 
-func testAccCheckScalrRoleExists(resId string, role *scalr.Role) resource.TestCheckFunc {
+func testAccCheckScalrRoleExists(resId string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
+		scalrClient := createScalrClientV2()
 
 		rs, ok := s.RootModule().Resources[resId]
 		if !ok {
@@ -109,19 +121,17 @@ func testAccCheckScalrRoleExists(resId string, role *scalr.Role) resource.TestCh
 		}
 
 		// Get the role
-		r, err := scalrClient.Roles.Read(ctx, rs.Primary.ID)
+		_, err := scalrClient.Role.GetRole(ctx, rs.Primary.ID, nil)
 		if err != nil {
 			return err
 		}
-
-		*role = *r
 
 		return nil
 	}
 }
 
 func testAccCheckScalrRoleDestroy(s *terraform.State) error {
-	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
+	scalrClient := createScalrClientV2()
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_role" {
@@ -132,7 +142,7 @@ func testAccCheckScalrRoleDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := scalrClient.Roles.Read(ctx, rs.Primary.ID)
+		_, err := scalrClient.Role.GetRole(ctx, rs.Primary.ID, nil)
 		if err == nil {
 			return fmt.Errorf("Role %s still exists", rs.Primary.ID)
 		}
@@ -141,38 +151,38 @@ func testAccCheckScalrRoleDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccScalrRoleBasic() string {
-	return `
+func testAccScalrRoleBasic(name string) string {
+	return fmt.Sprintf(`
 resource "scalr_role" "test" {
-  name           = "role-test"
+  name           = "%s"
   description    = "test basic"
   permissions    = [
 	 "*:read",
 	 "*:update"
   ]
-}`
+}`, name)
 }
 
-func testAccScalrRoleUpdate() string {
-	return `
+func testAccScalrRoleUpdate(name string) string {
+	return fmt.Sprintf(`
 resource "scalr_role" "test" {
-  name           = "role-updated"
+  name           = "%s"
   description    = "updated"
   permissions    = [
 	 "*:update",
 	 "*:delete"
   ]
-}`
+}`, name)
 }
 
-func testAccScalrRoleUpdateEmptyPermission() string {
-	return `
+func testAccScalrRoleWithEmptyPermission(name string) string {
+	return fmt.Sprintf(`
 resource "scalr_role" "test" {
-  name           = "role-updated"
+  name           = "%s"
   description    = "updated"
   permissions    = [
 	  "*:update",
 	  ""
   ]
-}`
+}`, name)
 }
