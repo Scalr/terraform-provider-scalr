@@ -11,7 +11,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/scalr/go-scalr"
+
+	"github.com/scalr/go-scalr/v2/scalr/client"
+	"github.com/scalr/go-scalr/v2/scalr/schemas"
+	"github.com/scalr/go-scalr/v2/scalr/value"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
 	"github.com/scalr/terraform-provider-scalr/internal/framework/defaults"
@@ -91,19 +94,18 @@ func (r *tagResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
-	opts := scalr.TagCreateOptions{
-		Name:    plan.Name.ValueStringPointer(),
-		Account: &scalr.Account{ID: plan.AccountID.ValueString()},
+	opts := schemas.TagRequest{
+		Attributes: schemas.TagAttributesRequest{Name: value.Set(plan.Name.ValueString())},
 	}
-	tag, err := r.Client.Tags.Create(ctx, opts)
+	tag, err := r.ClientV2.Tag.CreateTag(ctx, &opts)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating tag", err.Error())
 		return
 	}
 
 	plan.Id = types.StringValue(tag.ID)
-	plan.Name = types.StringValue(tag.Name)
-	plan.AccountID = types.StringValue(tag.Account.ID)
+	plan.Name = types.StringValue(tag.Attributes.Name)
+	plan.AccountID = types.StringValue(tag.Relationships.Account.ID)
 
 	// Set state to fully populated data
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
@@ -121,9 +123,9 @@ func (r *tagResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	}
 
 	// Get refreshed resource state from API
-	tag, err := r.Client.Tags.Read(ctx, state.Id.ValueString())
+	tag, err := r.ClientV2.Tag.GetTag(ctx, state.Id.ValueString())
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
+		if errors.Is(err, client.ErrNotFound) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -132,8 +134,8 @@ func (r *tagResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	}
 
 	// Overwrite attributes with refreshed values
-	state.Name = types.StringValue(tag.Name)
-	state.AccountID = types.StringValue(tag.Account.ID)
+	state.Name = types.StringValue(tag.Attributes.Name)
+	state.AccountID = types.StringValue(tag.Relationships.Account.ID)
 
 	// Set refreshed state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
@@ -150,20 +152,20 @@ func (r *tagResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		return
 	}
 
-	opts := scalr.TagUpdateOptions{
-		Name: plan.Name.ValueStringPointer(),
+	opts := schemas.TagRequest{
+		Attributes: schemas.TagAttributesRequest{Name: value.Set(plan.Name.ValueString())},
 	}
 
 	// Update existing resource
-	tag, err := r.Client.Tags.Update(ctx, plan.Id.ValueString(), opts)
+	tag, err := r.ClientV2.Tag.UpdateTag(ctx, plan.Id.ValueString(), &opts)
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating tag", err.Error())
 		return
 	}
 
 	// Overwrite attributes with refreshed values
-	plan.Name = types.StringValue(tag.Name)
-	plan.AccountID = types.StringValue(tag.Account.ID)
+	plan.Name = types.StringValue(tag.Attributes.Name)
+	plan.AccountID = types.StringValue(tag.Relationships.Account.ID)
 
 	// Set refreshed state
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
@@ -180,8 +182,8 @@ func (r *tagResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 		return
 	}
 
-	err := r.Client.Tags.Delete(ctx, state.Id.ValueString())
-	if err != nil && !errors.Is(err, scalr.ErrResourceNotFound) {
+	err := r.ClientV2.Tag.DeleteTag(ctx, state.Id.ValueString())
+	if err != nil && !errors.Is(err, client.ErrNotFound) {
 		resp.Diagnostics.AddError("Error deleting tag", err.Error())
 		return
 	}

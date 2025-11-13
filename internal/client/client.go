@@ -9,7 +9,11 @@ import (
 
 	"github.com/hashicorp/terraform-svchost"
 	"github.com/hashicorp/terraform-svchost/disco"
+
 	"github.com/scalr/go-scalr"
+
+	scalrV2 "github.com/scalr/go-scalr/v2/scalr"
+	clientV2 "github.com/scalr/go-scalr/v2/scalr/client"
 
 	"github.com/scalr/terraform-provider-scalr/internal/logging"
 )
@@ -17,11 +21,11 @@ import (
 var scalrServiceIDs = []string{"iacp.v3"}
 
 // Configure configures and returns a new Scalr client.
-func Configure(h, t, v string) (*scalr.Client, error) {
+func Configure(h, t, v string) (*scalr.Client, *scalrV2.Client, error) {
 	// Parse the hostname for comparison
 	hostname, err := svchost.ForComparison(h)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	providerUaString := fmt.Sprintf("terraform-provider-scalr/%s", v)
@@ -48,7 +52,7 @@ func Configure(h, t, v string) (*scalr.Client, error) {
 	// Discover the address.
 	host, err := services.Discover(hostname)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Get the full service address.
@@ -57,7 +61,7 @@ func Configure(h, t, v string) (*scalr.Client, error) {
 	for _, scalrServiceID := range scalrServiceIDs {
 		service, err := host.ServiceURL(scalrServiceID)
 		if _, ok := err.(*disco.ErrVersionNotSupported); !ok && err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		// If discoErr is nil we save the first error. When multiple services
 		// are checked, and we found one that didn't give an error we need to
@@ -74,7 +78,7 @@ func Configure(h, t, v string) (*scalr.Client, error) {
 	// When we don't have any constraints errors, also check for discovery
 	// errors before we continue.
 	if discoErr != nil {
-		return nil, discoErr
+		return nil, nil, discoErr
 	}
 
 	// Only try to get to the token from the credentials source if no token
@@ -91,7 +95,7 @@ func Configure(h, t, v string) (*scalr.Client, error) {
 
 	// If we still don't have a token at this point, we return an error.
 	if t == "" {
-		return nil, errors.New("required token could not be found")
+		return nil, nil, errors.New("required token could not be found")
 	}
 
 	httpClient := scalr.DefaultConfig().HTTPClient
@@ -111,9 +115,18 @@ func Configure(h, t, v string) (*scalr.Client, error) {
 	// Create a new Scalr client.
 	scalrClient, err := scalr.NewClient(cfg)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	scalrClient.RetryServerErrors(true)
-	return scalrClient, nil
+
+	// Client v2
+	scalrClientV2 := scalrV2.NewClient(
+		h,
+		t,
+		clientV2.WithRetryServerErrors(true),
+		clientV2.WithAppInfo("terraform-provider-scalr", v),
+	)
+
+	return scalrClient, scalrClientV2, nil
 }

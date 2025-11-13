@@ -3,7 +3,9 @@ package provider
 import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+
 	"github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr/v2/scalr/schemas"
 )
 
 var userElementType = types.ObjectType{
@@ -25,5 +27,13 @@ func userModelFromAPI(u *scalr.User) *userModel {
 		Username: types.StringValue(u.Username),
 		Email:    types.StringValue(u.Email),
 		FullName: types.StringValue(u.FullName),
+	}
+}
+
+func userModelFromAPIv2(u *schemas.User) *userModel {
+	return &userModel{
+		Username: types.StringValue(u.Attributes.Username),
+		Email:    types.StringValue(u.Attributes.Email),
+		FullName: types.StringPointerValue(u.Attributes.FullName),
 	}
 }

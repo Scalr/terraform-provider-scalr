@@ -14,7 +14,7 @@ import (
 )
 
 var testAccProviderSDK *schema.Provider
-var noInstanceIdErr = fmt.Errorf("No instance ID is set")
+var errNoInstanceId = fmt.Errorf("No instance ID is set")
 var githubToken = os.Getenv("githubToken")
 
 // ctx is used as default context.Context when making API calls.
