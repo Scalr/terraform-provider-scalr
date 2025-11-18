@@ -7,11 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-
 ### Added
 
 - **New resource:** `scalr_drift_detection` ([#473](https://github.com/Scalr/terraform-provider-scalr/pull/473))
 
+### Fixed
+
+- Plugin crash when attempting to import system `scalr_role` ([#476](https://github.com/Scalr/terraform-provider-scalr/pull/476))
+
+### Required
+
+- scalr-server >= 2511.18.0
 
 ## [3.10.0] - 2025-10-23
 

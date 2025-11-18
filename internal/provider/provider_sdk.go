@@ -69,7 +69,6 @@ func Provider(v string) *schema.Provider {
 			"scalr_policy_group_linkage":           resourceScalrPolicyGroupLinkage(),
 			"scalr_provider_configuration":         resourceScalrProviderConfiguration(),
 			"scalr_provider_configuration_default": resourceScalrProviderConfigurationDefault(),
-			"scalr_role":                           resourceScalrRole(),
 			"scalr_run_trigger":                    resourceScalrRunTrigger(),
 			"scalr_service_account":                resourceScalrServiceAccount(),
 			"scalr_service_account_token":          resourceScalrServiceAccountToken(),
@@ -91,7 +90,8 @@ func providerConfigure(v string) func(ctx context.Context, d *schema.ResourceDat
 		h := d.Get("hostname").(string)
 		t := d.Get("token").(string)
 
-		scalrClient, err := client.Configure(h, t, v)
+		// We don't create Client v2 for legacy SDKv2 resources
+		scalrClient, _, err := client.Configure(h, t, v)
 		if err != nil {
 			return nil, diag.FromErr(err)
 		}

@@ -454,7 +454,8 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 		workloadProviderName, workloadProviderNameExists := d.GetOk("google.0.workload_provider_name")
 		workloadProviderNameExists = workloadProviderNameExists && len(workloadProviderName.(string)) > 0
 
-		if *configurationOptions.GoogleAuthType == "service-account-key" {
+		switch *configurationOptions.GoogleAuthType {
+		case "service-account-key":
 			if !googleCredentialsExists {
 				return diag.Errorf("'credentials' field is required for 'service-account-key' auth type of google provider configuration")
 			}
@@ -462,7 +463,7 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 				return diag.Errorf("'service_account_email' and 'workload_provider_name' fields of google provider configuration can be used only with 'oidc' auth type")
 			}
 			configurationOptions.GoogleCredentials = ptr(googleCredentials.(string))
-		} else if *configurationOptions.GoogleAuthType == "oidc" {
+		case "oidc":
 			if !workloadProviderNameExists {
 				return diag.Errorf("'workload_provider_name' field is required for 'oidc' auth type of google provider configuration")
 			}
@@ -473,7 +474,7 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 				configurationOptions.GoogleServiceAccountEmail = ptr(serviceAccountEmail.(string))
 			}
 			configurationOptions.GoogleWorkloadProviderName = ptr(workloadProviderName.(string))
-		} else {
+		default:
 			return diag.Errorf("unknown google provider configuration auth type: '%s', allowed: 'service-account-key', 'oidc'", *configurationOptions.GoogleAuthType)
 		}
 
@@ -488,21 +489,22 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 		configurationOptions.AzurermTenantId = ptr(d.Get("azurerm.0.tenant_id").(string))
 
 		authType := d.Get("azurerm.0.auth_type").(string)
-		if authType == "oidc" {
+		switch authType {
+		case "oidc":
 			audience, audienceExists := d.GetOk("azurerm.0.audience")
 			if !audienceExists {
 				return diag.Errorf("'audience' field is required for 'oidc' auth type of azurerm provider configuration")
 			}
 			configurationOptions.AzurermAudience = ptr(audience.(string))
 			configurationOptions.AzurermAuthType = ptr("oidc")
-		} else if authType == "client-secrets" {
-			client_secret, secretExists := d.GetOk("azurerm.0.client_secret")
+		case "client-secrets":
+			clientSecret, secretExists := d.GetOk("azurerm.0.client_secret")
 			if !secretExists {
 				return diag.Errorf("'client_secret' field is required for 'client-secrets' auth type of azurerm provider configuration")
 			}
-			configurationOptions.AzurermClientSecret = ptr(client_secret.(string))
+			configurationOptions.AzurermClientSecret = ptr(clientSecret.(string))
 			configurationOptions.AzurermAuthType = ptr("client-secrets")
-		} else {
+		default:
 			return diag.Errorf("unknown azurerm provider configuration auth type: '%s', allowed: 'client-secrets', 'oidc'", authType)
 		}
 
@@ -869,7 +871,8 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 			workloadProviderName, workloadProviderNameExists := d.GetOk("google.0.workload_provider_name")
 			workloadProviderNameExists = workloadProviderNameExists && len(workloadProviderName.(string)) > 0
 
-			if *configurationOptions.GoogleAuthType == "service-account-key" {
+			switch *configurationOptions.GoogleAuthType {
+			case "service-account-key":
 				if !googleCredentialsExists {
 					return diag.Errorf("'credentials' field is required for 'service-account-key' auth type of google provider configuration")
 				}
@@ -877,7 +880,7 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 					return diag.Errorf("'service_account_email' and 'workload_provider_name' fields of google provider configuration can be used only with 'oidc' auth type")
 				}
 				configurationOptions.GoogleCredentials = ptr(googleCredentials.(string))
-			} else if *configurationOptions.GoogleAuthType == "oidc" {
+			case "oidc":
 				if !workloadProviderNameExists {
 					return diag.Errorf("'workload_provider_name' field is required for 'oidc' auth type of google provider configuration")
 				}
@@ -886,7 +889,7 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 				}
 				configurationOptions.GoogleServiceAccountEmail = ptr(serviceAccountEmail.(string))
 				configurationOptions.GoogleWorkloadProviderName = ptr(workloadProviderName.(string))
-			} else {
+			default:
 				return diag.Errorf("unknown google provider configuration auth type: '%s', allowed: 'service-account-key', 'oidc'", *configurationOptions.GoogleAuthType)
 			}
 
@@ -902,21 +905,22 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 			configurationOptions.AzurermTenantId = ptr(d.Get("azurerm.0.tenant_id").(string))
 
 			authType := d.Get("azurerm.0.auth_type").(string)
-			if authType == "oidc" {
+			switch authType {
+			case "oidc":
 				audience, audienceExists := d.GetOk("azurerm.0.audience")
 				if !audienceExists {
 					return diag.Errorf("'audience' field is required for 'oidc' auth type of azurerm provider configuration")
 				}
 				configurationOptions.AzurermAudience = ptr(audience.(string))
 				configurationOptions.AzurermAuthType = ptr("oidc")
-			} else if authType == "client-secrets" {
-				client_secret, secretExists := d.GetOk("azurerm.0.client_secret")
+			case "client-secrets":
+				clientSecret, secretExists := d.GetOk("azurerm.0.client_secret")
 				if !secretExists {
 					return diag.Errorf("'client_secret' field is required for 'client-secrets' auth type of azurerm provider configuration")
 				}
-				configurationOptions.AzurermClientSecret = ptr(client_secret.(string))
+				configurationOptions.AzurermClientSecret = ptr(clientSecret.(string))
 				configurationOptions.AzurermAuthType = ptr("client-secrets")
-			} else {
+			default:
 				return diag.Errorf("unknown azurerm provider configuration auth type: '%s', allowed: 'client-secrets', 'oidc'", authType)
 			}
 
