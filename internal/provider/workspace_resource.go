@@ -449,18 +449,19 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 					TriggerPatterns:   value.Set(repo.TriggerPatterns.ValueString()),
 					DryRunsEnabled:    value.Set(repo.DryRunsEnabled.ValueBool()),
 					IngressSubmodules: value.Set(repo.IngressSubmodules.ValueBool()),
+					// Branch and VersionConstraint are optional and mutually exclusive.
+					// API requires one to be explicitly set to null if another is set,
+					// Pre-nullify the values so neither is left Unset.
+					Branch:            value.Null[string](),
+					VersionConstraint: value.Null[string](),
 				}
 
-				// Branch or VersionConstraint should be explicitly nulled
-				// when the other is defined
 				if !repo.Branch.IsUnknown() && !repo.Branch.IsNull() {
 					vcsRepoOpts.Branch = value.Set(repo.Branch.ValueString())
-					vcsRepoOpts.VersionConstraint = value.Null[string]()
 				}
 
 				if !repo.VersionConstraint.IsUnknown() && !repo.VersionConstraint.IsNull() {
 					vcsRepoOpts.VersionConstraint = value.Set(repo.VersionConstraint.ValueString())
-					vcsRepoOpts.Branch = value.Null[string]()
 				}
 
 				if !repo.TriggerPrefixes.IsUnknown() && !repo.TriggerPrefixes.IsNull() {
