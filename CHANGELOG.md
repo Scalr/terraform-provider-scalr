@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `scalr_workspace`: `vcs_repo.branch` and `vcs_repo.version_constraint` attributes not properly nulled on update while being mutually exclusive. ([#475](https://github.com/Scalr/terraform-provider-scalr/pull/475))
+- Plugin crash when attempting to import system `scalr_role` ([#476](https://github.com/Scalr/terraform-provider-scalr/pull/476))
+
+### Required
+
+- scalr-server >= 2511.18.0
 
 ## [3.10.0] - 2025-10-23
 

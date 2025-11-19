@@ -69,7 +69,6 @@ func Provider(v string) *schema.Provider {
 			"scalr_policy_group_linkage":           resourceScalrPolicyGroupLinkage(),
 			"scalr_provider_configuration":         resourceScalrProviderConfiguration(),
 			"scalr_provider_configuration_default": resourceScalrProviderConfigurationDefault(),
-			"scalr_role":                           resourceScalrRole(),
 			"scalr_run_trigger":                    resourceScalrRunTrigger(),
 			"scalr_service_account":                resourceScalrServiceAccount(),
 			"scalr_service_account_token":          resourceScalrServiceAccountToken(),
