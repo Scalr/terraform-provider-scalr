@@ -19,7 +19,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/scalr/go-scalr"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
 )
@@ -101,12 +100,9 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 				MarkdownDescription: "Which execution mode to use. Valid values are `remote` and `local`. When set to `local`, the workspace will be used for state storage only. Defaults to `remote`.",
 				Optional:            true,
 				Computed:            true,
-				Default:             stringdefault.StaticString(string(scalr.WorkspaceExecutionModeRemote)),
+				Default:             stringdefault.StaticString("remote"),
 				Validators: []validator.String{
-					stringvalidator.OneOf(
-						string(scalr.WorkspaceExecutionModeRemote),
-						string(scalr.WorkspaceExecutionModeLocal),
-					),
+					stringvalidator.OneOf("remote", "local"),
 				},
 			},
 			"terraform_version": schema.StringAttribute{
@@ -121,12 +117,9 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 				MarkdownDescription: "The IaC platform to use for this workspace. Valid values are `terraform` and `opentofu`. Defaults to `terraform`.",
 				Optional:            true,
 				Computed:            true,
-				Default:             stringdefault.StaticString(string(scalr.WorkspaceIaCPlatformTerraform)),
+				Default:             stringdefault.StaticString("terraform"),
 				Validators: []validator.String{
-					stringvalidator.OneOf(
-						string(scalr.WorkspaceIaCPlatformTerraform),
-						string(scalr.WorkspaceIaCPlatformOpenTofu),
-					),
+					stringvalidator.OneOf("terraform", "opentofu"),
 				},
 			},
 			"working_directory": schema.StringAttribute{
@@ -152,10 +145,10 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 				Computed: true,
 				Validators: []validator.String{
 					stringvalidator.OneOf(
-						string(scalr.AutoQueueRunsModeSkipFirst),
-						string(scalr.AutoQueueRunsModeAlways),
-						string(scalr.AutoQueueRunsModeNever),
-						string(scalr.AutoQueueRunsModeOnCreateOnly),
+						"skip_first",
+						"always",
+						"never",
+						"on_create_only",
 					),
 				},
 				PlanModifiers: []planmodifier.String{
@@ -178,14 +171,14 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 				MarkdownDescription: "The type of the Scalr Workspace environment, available options: `production`, `staging`, `testing`, `development`, `unmapped`.",
 				Optional:            true,
 				Computed:            true,
-				Default:             stringdefault.StaticString(string(scalr.WorkspaceEnvironmentTypeUnmapped)),
+				Default:             stringdefault.StaticString("unmapped"),
 				Validators: []validator.String{
 					stringvalidator.OneOf(
-						string(scalr.WorkspaceEnvironmentTypeProduction),
-						string(scalr.WorkspaceEnvironmentTypeStaging),
-						string(scalr.WorkspaceEnvironmentTypeTesting),
-						string(scalr.WorkspaceEnvironmentTypeDevelopment),
-						string(scalr.WorkspaceEnvironmentTypeUnmapped),
+						"production",
+						"staging",
+						"testing",
+						"development",
+						"unmapped",
 					),
 				},
 			},
@@ -281,9 +274,6 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 							MarkdownDescription: "The repository branch where Terraform will be run from. If omitted, the repository default branch will be used. Conflicts with `version_constraint`.",
 							Optional:            true,
 							Computed:            true,
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
 						},
 						"version_constraint": schema.StringAttribute{
 							MarkdownDescription: "Terraform-like version constraint used to trigger a run for matching Git tags. Conflicts with `branch`.",

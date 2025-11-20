@@ -6,7 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/scalr/go-scalr"
+
+	"github.com/scalr/go-scalr/v2/scalr/schemas"
 )
 
 var (
@@ -110,8 +111,8 @@ type hooksModel struct {
 
 func workspaceResourceModelFromAPI(
 	ctx context.Context,
-	ws *scalr.Workspace,
-	pcfgLinks []*scalr.ProviderConfigurationLink,
+	ws *schemas.Workspace,
+	pcfgLinks []*schemas.ProviderConfigurationLink,
 	stateConsumers []string,
 	existing *workspaceResourceModel,
 ) (*workspaceResourceModel, diag.Diagnostics) {
@@ -120,84 +121,76 @@ func workspaceResourceModelFromAPI(
 	model := &workspaceResourceModel{
 		Id:                        types.StringValue(ws.ID),
 		AgentPoolID:               types.StringNull(),
-		AutoApply:                 types.BoolValue(ws.AutoApply),
-		AutoQueueRuns:             types.StringValue(string(ws.AutoQueueRuns)),
+		AutoApply:                 types.BoolValue(ws.Attributes.AutoApply),
+		AutoQueueRuns:             types.StringValue(ws.Attributes.AutoQueueRuns),
 		CreatedBy:                 types.ListNull(userElementType),
-		DeletionProtectionEnabled: types.BoolValue(ws.DeletionProtectionEnabled),
-		EnvironmentID:             types.StringValue(ws.Environment.ID),
-		ExecutionMode:             types.StringValue(string(ws.ExecutionMode)),
-		ForceLatestRun:            types.BoolValue(ws.ForceLatestRun),
-		HasResources:              types.BoolValue(ws.HasResources),
+		DeletionProtectionEnabled: types.BoolValue(ws.Attributes.DeletionProtectionEnabled),
+		EnvironmentID:             types.StringValue(ws.Relationships.Environment.ID),
+		ExecutionMode:             types.StringValue(ws.Attributes.ExecutionMode),
+		ForceLatestRun:            types.BoolValue(ws.Attributes.ForceLatestRun),
+		HasResources:              types.BoolValue(ws.Attributes.HasResources),
 		Hooks:                     types.ListNull(hooksElementType),
-		IaCPlatform:               types.StringValue(string(ws.IaCPlatform)),
+		IaCPlatform:               types.StringValue(ws.Attributes.IacPlatform),
 		ModuleVersionID:           types.StringNull(),
-		Name:                      types.StringValue(ws.Name),
-		Operations:                types.BoolValue(ws.Operations),
+		Name:                      types.StringValue(ws.Attributes.Name),
+		Operations:                types.BoolValue(ws.Attributes.Operations),
 		ProviderConfiguration:     types.SetNull(providerConfigurationElementType),
-		RemoteBackend:             types.BoolValue(ws.RemoteBackend),
+		RemoteBackend:             types.BoolValue(ws.Attributes.RemoteBackend),
 		RemoteStateConsumers:      types.SetNull(types.StringType),
 		RunOperationTimeout:       types.Int32Null(),
 		SSHKeyID:                  types.StringNull(),
 		TagIDs:                    types.SetNull(types.StringType),
-		TerraformVersion:          types.StringValue(ws.TerraformVersion),
+		TerraformVersion:          types.StringValue(ws.Attributes.TerraformVersion),
 		Terragrunt:                types.ListNull(terragruntElementType),
-		Type:                      types.StringValue(string(ws.EnvironmentType)),
+		Type:                      types.StringValue(ws.Attributes.EnvironmentType),
 		VarFiles:                  types.ListNull(types.StringType),
 		VCSProviderID:             types.StringNull(),
 		VCSRepo:                   types.ListNull(vcsRepoElementType),
-		WorkingDirectory:          types.StringValue(ws.WorkingDirectory),
+		WorkingDirectory:          types.StringPointerValue(ws.Attributes.WorkingDirectory),
 	}
 
-	if ws.VarFiles != nil {
-		varFiles, d := types.ListValueFrom(ctx, types.StringType, ws.VarFiles)
+	if ws.Attributes.VarFiles != nil {
+		varFiles, d := types.ListValueFrom(ctx, types.StringType, *ws.Attributes.VarFiles)
 		diags.Append(d...)
 		model.VarFiles = varFiles
 	}
 
-	if ws.RunOperationTimeout != nil {
-		model.RunOperationTimeout = types.Int32Value(int32(*ws.RunOperationTimeout))
+	if ws.Attributes.RunOperationTimeout != nil {
+		model.RunOperationTimeout = types.Int32Value(int32(*ws.Attributes.RunOperationTimeout))
 	}
 
-	if ws.VcsProvider != nil {
-		model.VCSProviderID = types.StringValue(ws.VcsProvider.ID)
+	if ws.Relationships.VcsProvider != nil {
+		model.VCSProviderID = types.StringValue(ws.Relationships.VcsProvider.ID)
 	}
 
-	if ws.ModuleVersion != nil {
-		model.ModuleVersionID = types.StringValue(ws.ModuleVersion.ID)
+	if ws.Relationships.ModuleVersion != nil {
+		model.ModuleVersionID = types.StringValue(ws.Relationships.ModuleVersion.ID)
 	}
 
-	if ws.SSHKey != nil {
-		model.SSHKeyID = types.StringValue(ws.SSHKey.ID)
+	if ws.Relationships.SshKey != nil {
+		model.SSHKeyID = types.StringValue(ws.Relationships.SshKey.ID)
 	}
 
-	if ws.AgentPool != nil {
-		model.AgentPoolID = types.StringValue(ws.AgentPool.ID)
+	if ws.Relationships.AgentPool != nil {
+		model.AgentPoolID = types.StringValue(ws.Relationships.AgentPool.ID)
 	}
 
-	if ws.VCSRepo != nil {
+	if ws.Attributes.VcsRepo != nil {
 		repo := vcsRepoModel{
-			Identifier:        types.StringValue(ws.VCSRepo.Identifier),
-			Path:              types.StringValue(ws.VCSRepo.Path),
+			Identifier:        types.StringValue(ws.Attributes.VcsRepo.Identifier),
+			Branch:            types.StringPointerValue(ws.Attributes.VcsRepo.Branch),
+			Path:              types.StringPointerValue(ws.Attributes.VcsRepo.Path),
+			TriggerPatterns:   types.StringPointerValue(ws.Attributes.VcsRepo.TriggerPatterns),
+			DryRunsEnabled:    types.BoolValue(ws.Attributes.VcsRepo.DryRunsEnabled),
+			IngressSubmodules: types.BoolValue(ws.Attributes.VcsRepo.IngressSubmodules),
+			VersionConstraint: types.StringPointerValue(ws.Attributes.VcsRepo.VersionConstraint),
 			TriggerPrefixes:   types.ListNull(types.StringType),
-			TriggerPatterns:   types.StringValue(ws.VCSRepo.TriggerPatterns),
-			DryRunsEnabled:    types.BoolValue(ws.VCSRepo.DryRunsEnabled),
-			IngressSubmodules: types.BoolValue(ws.VCSRepo.IngressSubmodules),
 		}
 
-		if ws.VCSRepo.TriggerPrefixes != nil {
-			prefixes, d := types.ListValueFrom(ctx, types.StringType, ws.VCSRepo.TriggerPrefixes)
+		if ws.Attributes.VcsRepo.TriggerPrefixes != nil {
+			prefixes, d := types.ListValueFrom(ctx, types.StringType, ws.Attributes.VcsRepo.TriggerPrefixes)
 			diags.Append(d...)
 			repo.TriggerPrefixes = prefixes
-		}
-
-		if ws.VCSRepo.Branch != "" {
-			branch := types.StringValue(ws.VCSRepo.Branch)
-			repo.Branch = branch
-		}
-
-		if ws.VCSRepo.VersionConstraint != "" {
-			versionConstraint := types.StringValue(ws.VCSRepo.VersionConstraint)
-			repo.VersionConstraint = versionConstraint
 		}
 
 		repoValue, d := types.ListValueFrom(ctx, vcsRepoElementType, []vcsRepoModel{repo})
@@ -205,32 +198,32 @@ func workspaceResourceModelFromAPI(
 		model.VCSRepo = repoValue
 	}
 
-	if ws.Terragrunt != nil {
+	if ws.Attributes.Terragrunt != nil {
 		terragrunt := terragruntModel{
-			Version:                     types.StringValue(ws.Terragrunt.Version),
-			UseRunAll:                   types.BoolValue(ws.Terragrunt.UseRunAll),
-			IncludeExternalDependencies: types.BoolValue(ws.Terragrunt.IncludeExternalDependencies),
+			Version:                     types.StringValue(ws.Attributes.Terragrunt.Version),
+			UseRunAll:                   types.BoolValue(ws.Attributes.Terragrunt.UseRunAll),
+			IncludeExternalDependencies: types.BoolValue(ws.Attributes.Terragrunt.IncludeExternalDependencies),
 		}
 		terragruntValue, d := types.ListValueFrom(ctx, terragruntElementType, []terragruntModel{terragrunt})
 		diags.Append(d...)
 		model.Terragrunt = terragruntValue
 	}
 
-	if ws.CreatedBy != nil {
-		createdBy := []userModel{*userModelFromAPI(ws.CreatedBy)}
+	if ws.Relationships.CreatedBy != nil {
+		createdBy := []userModel{*userModelFromAPIv2(ws.Relationships.CreatedBy)}
 		createdByValue, d := types.ListValueFrom(ctx, userElementType, createdBy)
 		diags.Append(d...)
 		model.CreatedBy = createdByValue
 	}
 
 	var hooks []hooksModel
-	if ws.Hooks != nil {
+	if ws.Attributes.Hooks != nil {
 		hooks = []hooksModel{{
-			PreInit:   types.StringValue(ws.Hooks.PreInit),
-			PrePlan:   types.StringValue(ws.Hooks.PrePlan),
-			PostPlan:  types.StringValue(ws.Hooks.PostPlan),
-			PreApply:  types.StringValue(ws.Hooks.PreApply),
-			PostApply: types.StringValue(ws.Hooks.PostApply),
+			PreInit:   types.StringPointerValue(ws.Attributes.Hooks.PreInit),
+			PrePlan:   types.StringPointerValue(ws.Attributes.Hooks.PrePlan),
+			PostPlan:  types.StringPointerValue(ws.Attributes.Hooks.PostPlan),
+			PreApply:  types.StringPointerValue(ws.Attributes.Hooks.PreApply),
+			PostApply: types.StringPointerValue(ws.Attributes.Hooks.PostApply),
 		}}
 	} else if existing != nil && !existing.Hooks.IsNull() {
 		hooks = []hooksModel{{
@@ -247,8 +240,8 @@ func workspaceResourceModelFromAPI(
 		model.Hooks = hooksValue
 	}
 
-	tags := make([]string, len(ws.Tags))
-	for i, tag := range ws.Tags {
+	tags := make([]string, len(ws.Relationships.Tags))
+	for i, tag := range ws.Relationships.Tags {
 		tags[i] = tag.ID
 	}
 	tagsValue, d := types.SetValueFrom(ctx, types.StringType, tags)
@@ -259,8 +252,13 @@ func workspaceResourceModelFromAPI(
 		pcfg := make([]providerConfigurationModel, len(pcfgLinks))
 		for i, pcfgLink := range pcfgLinks {
 			pcfg[i] = providerConfigurationModel{
-				ID:    types.StringValue(pcfgLink.ProviderConfiguration.ID),
-				Alias: types.StringValue(pcfgLink.Alias),
+				ID: types.StringValue(pcfgLink.Relationships.ProviderConfiguration.ID),
+				// Set default value to empty string to keep the same behaviour as before
+				// (old client would unmarshal into "" even when it is 'null' in the response)
+				Alias: types.StringValue(""),
+			}
+			if pcfgLink.Attributes.Alias != nil {
+				pcfg[i].Alias = types.StringValue(*pcfgLink.Attributes.Alias)
 			}
 		}
 		pcfgValue, d := types.SetValueFrom(ctx, providerConfigurationElementType, pcfg)
@@ -268,7 +266,7 @@ func workspaceResourceModelFromAPI(
 		model.ProviderConfiguration = pcfgValue
 	}
 
-	if ws.RemoteStateSharing {
+	if ws.Attributes.RemoteStateSharing {
 		stateConsumers = []string{"*"}
 	} else if stateConsumers == nil {
 		stateConsumers = []string{}

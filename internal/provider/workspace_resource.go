@@ -3,11 +3,17 @@ package provider
 import (
 	"context"
 	"errors"
+
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/scalr/go-scalr"
+
+	scalrV2 "github.com/scalr/go-scalr/v2/scalr"
+	"github.com/scalr/go-scalr/v2/scalr/client"
+	"github.com/scalr/go-scalr/v2/scalr/ops/workspace"
+	"github.com/scalr/go-scalr/v2/scalr/schemas"
+	"github.com/scalr/go-scalr/v2/scalr/value"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
 )
@@ -68,54 +74,58 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 	var varFiles []string
 	resp.Diagnostics.Append(plan.VarFiles.ElementsAs(ctx, &varFiles, false)...)
 
-	opts := scalr.WorkspaceCreateOptions{
-		AutoApply:                 plan.AutoApply.ValueBoolPointer(),
-		DeletionProtectionEnabled: plan.DeletionProtectionEnabled.ValueBoolPointer(),
-		EnvironmentType:           ptr(scalr.WorkspaceEnvironmentType(plan.Type.ValueString())),
-		ExecutionMode:             ptr(scalr.WorkspaceExecutionMode(plan.ExecutionMode.ValueString())),
-		ForceLatestRun:            plan.ForceLatestRun.ValueBoolPointer(),
-		IacPlatform:               ptr(scalr.WorkspaceIaCPlatform(plan.IaCPlatform.ValueString())),
-		Name:                      plan.Name.ValueStringPointer(),
-		Operations:                plan.Operations.ValueBoolPointer(),
-		VarFiles:                  varFiles,
-		WorkingDirectory:          plan.WorkingDirectory.ValueStringPointer(),
-		Environment: &scalr.Environment{
-			ID: plan.EnvironmentID.ValueString(),
+	opts := schemas.WorkspaceRequest{
+		Attributes: schemas.WorkspaceAttributesRequest{
+			AutoApply:                 value.SetPtrMaybe(plan.AutoApply.ValueBoolPointer()),
+			DeletionProtectionEnabled: value.SetPtrMaybe(plan.DeletionProtectionEnabled.ValueBoolPointer()),
+			EnvironmentType:           value.Set(plan.Type.ValueString()),
+			ExecutionMode:             value.Set(plan.ExecutionMode.ValueString()),
+			ForceLatestRun:            value.SetPtrMaybe(plan.ForceLatestRun.ValueBoolPointer()),
+			IacPlatform:               value.Set(plan.IaCPlatform.ValueString()),
+			Name:                      value.Set(plan.Name.ValueString()),
+			Operations:                value.SetPtrMaybe(plan.Operations.ValueBoolPointer()),
+			VarFiles:                  value.Set(varFiles),
+			WorkingDirectory:          value.SetPtrMaybe(plan.WorkingDirectory.ValueStringPointer()),
+		},
+		Relationships: schemas.WorkspaceRelationshipsRequest{
+			Environment: value.Set(schemas.Environment{
+				ID: plan.EnvironmentID.ValueString(),
+			}),
 		},
 	}
 
 	if !plan.AutoQueueRuns.IsUnknown() && !plan.AutoQueueRuns.IsNull() {
-		opts.AutoQueueRuns = ptr(scalr.WorkspaceAutoQueueRuns(plan.AutoQueueRuns.ValueString()))
+		opts.Attributes.AutoQueueRuns = value.Set(plan.AutoQueueRuns.ValueString())
 	}
 
 	if !plan.TerraformVersion.IsUnknown() && !plan.TerraformVersion.IsNull() {
-		opts.TerraformVersion = plan.TerraformVersion.ValueStringPointer()
+		opts.Attributes.TerraformVersion = value.Set(plan.TerraformVersion.ValueString())
 	}
 
 	if !plan.RunOperationTimeout.IsUnknown() && !plan.RunOperationTimeout.IsNull() {
-		opts.RunOperationTimeout = ptr(int(plan.RunOperationTimeout.ValueInt32()))
+		opts.Attributes.RunOperationTimeout = value.Set(int(plan.RunOperationTimeout.ValueInt32()))
 	}
 
 	if !plan.RemoteBackend.IsUnknown() && !plan.RemoteBackend.IsNull() {
-		opts.RemoteBackend = ptr(plan.RemoteBackend.ValueBool())
+		opts.Attributes.RemoteBackend = value.Set(plan.RemoteBackend.ValueBool())
 	}
 
 	if !plan.VCSProviderID.IsUnknown() && !plan.VCSProviderID.IsNull() {
-		opts.VcsProvider = &scalr.VcsProvider{
+		opts.Relationships.VcsProvider = value.Set(schemas.VcsProvider{
 			ID: plan.VCSProviderID.ValueString(),
-		}
+		})
 	}
 
 	if !plan.ModuleVersionID.IsUnknown() && !plan.ModuleVersionID.IsNull() {
-		opts.ModuleVersion = &scalr.ModuleVersion{
+		opts.Relationships.ModuleVersion = value.Set(schemas.ModuleVersion{
 			ID: plan.ModuleVersionID.ValueString(),
-		}
+		})
 	}
 
 	if !plan.AgentPoolID.IsUnknown() && !plan.AgentPoolID.IsNull() {
-		opts.AgentPool = &scalr.AgentPool{
+		opts.Relationships.AgentPool = value.Set(schemas.AgentPool{
 			ID: plan.AgentPoolID.ValueString(),
-		}
+		})
 	}
 
 	if !plan.VCSRepo.IsUnknown() && !plan.VCSRepo.IsNull() {
@@ -125,27 +135,29 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 		if len(vcsRepo) > 0 {
 			repo := vcsRepo[0]
 
-			opts.VCSRepo = &scalr.WorkspaceVCSRepoOptions{
-				Identifier:        repo.Identifier.ValueStringPointer(),
-				Path:              repo.Path.ValueStringPointer(),
-				TriggerPatterns:   repo.TriggerPatterns.ValueStringPointer(),
-				DryRunsEnabled:    repo.DryRunsEnabled.ValueBoolPointer(),
-				IngressSubmodules: repo.IngressSubmodules.ValueBoolPointer(),
+			vcsRepoOpts := schemas.WorkspaceVcsRepoRequest{
+				Identifier:        value.Set(repo.Identifier.ValueString()),
+				Path:              value.Set(repo.Path.ValueString()),
+				TriggerPatterns:   value.Set(repo.TriggerPatterns.ValueString()),
+				DryRunsEnabled:    value.Set(repo.DryRunsEnabled.ValueBool()),
+				IngressSubmodules: value.Set(repo.IngressSubmodules.ValueBool()),
 			}
 
 			if !repo.Branch.IsUnknown() && !repo.Branch.IsNull() {
-				opts.VCSRepo.Branch = repo.Branch.ValueStringPointer()
+				vcsRepoOpts.Branch = value.Set(repo.Branch.ValueString())
 			}
 
 			if !repo.VersionConstraint.IsUnknown() && !repo.VersionConstraint.IsNull() {
-				opts.VCSRepo.VersionConstraint = repo.VersionConstraint.ValueStringPointer()
+				vcsRepoOpts.VersionConstraint = value.Set(repo.VersionConstraint.ValueString())
 			}
 
 			if !repo.TriggerPrefixes.IsUnknown() && !repo.TriggerPrefixes.IsNull() {
 				var prefixes []string
 				resp.Diagnostics.Append(repo.TriggerPrefixes.ElementsAs(ctx, &prefixes, false)...)
-				opts.VCSRepo.TriggerPrefixes = &prefixes
+				vcsRepoOpts.TriggerPrefixes = value.Set(prefixes)
 			}
+
+			opts.Attributes.VcsRepo = value.Set(vcsRepoOpts)
 		}
 	}
 
@@ -155,11 +167,11 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 
 		if len(terragrunt) > 0 {
 			terr := terragrunt[0]
-			opts.Terragrunt = &scalr.WorkspaceTerragruntOptions{
-				Version:                     terr.Version.ValueString(),
-				UseRunAll:                   terr.UseRunAll.ValueBoolPointer(),
-				IncludeExternalDependencies: terr.IncludeExternalDependencies.ValueBoolPointer(),
-			}
+			opts.Attributes.Terragrunt = value.Set(schemas.WorkspaceTerragruntRequest{
+				Version:                     value.Set(terr.Version.ValueString()),
+				UseRunAll:                   value.SetPtrMaybe(terr.UseRunAll.ValueBoolPointer()),
+				IncludeExternalDependencies: value.SetPtrMaybe(terr.IncludeExternalDependencies.ValueBoolPointer()),
+			})
 		}
 	}
 
@@ -169,13 +181,13 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 
 		if len(hooks) > 0 {
 			hook := hooks[0]
-			opts.Hooks = &scalr.HooksOptions{
-				PreInit:   hook.PreInit.ValueStringPointer(),
-				PrePlan:   hook.PrePlan.ValueStringPointer(),
-				PostPlan:  hook.PostPlan.ValueStringPointer(),
-				PreApply:  hook.PreApply.ValueStringPointer(),
-				PostApply: hook.PostApply.ValueStringPointer(),
-			}
+			opts.Attributes.Hooks = value.Set(schemas.WorkspaceHooksRequest{
+				PreInit:   value.SetPtrMaybe(hook.PreInit.ValueStringPointer()),
+				PrePlan:   value.SetPtrMaybe(hook.PrePlan.ValueStringPointer()),
+				PostPlan:  value.SetPtrMaybe(hook.PostPlan.ValueStringPointer()),
+				PreApply:  value.SetPtrMaybe(hook.PreApply.ValueStringPointer()),
+				PostApply: value.SetPtrMaybe(hook.PostApply.ValueStringPointer()),
+			})
 		}
 	}
 
@@ -183,25 +195,25 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 		var tagIDs []string
 		resp.Diagnostics.Append(plan.TagIDs.ElementsAs(ctx, &tagIDs, false)...)
 
-		tags := make([]*scalr.Tag, len(tagIDs))
+		tags := make([]schemas.Tag, len(tagIDs))
 		for i, tagID := range tagIDs {
-			tags[i] = &scalr.Tag{ID: tagID}
+			tags[i] = schemas.Tag{ID: tagID}
 		}
 
-		opts.Tags = tags
+		opts.Relationships.Tags = value.Set(tags)
 	}
 
-	remoteStateConsumers := make([]*scalr.WorkspaceRelation, 0)
+	remoteStateConsumers := make([]schemas.Workspace, 0)
 	if !plan.RemoteStateConsumers.IsUnknown() && !plan.RemoteStateConsumers.IsNull() {
-		opts.RemoteStateSharing = ptr(false)
+		opts.Attributes.RemoteStateSharing = value.Set(false)
 		var consumerIDs []string
 		resp.Diagnostics.Append(plan.RemoteStateConsumers.ElementsAs(ctx, &consumerIDs, false)...)
 
 		if (len(consumerIDs) == 1) && (consumerIDs[0] == "*") {
-			opts.RemoteStateSharing = ptr(true)
+			opts.Attributes.RemoteStateSharing = value.Set(true)
 		} else if len(consumerIDs) > 0 {
 			for _, consumerID := range consumerIDs {
-				remoteStateConsumers = append(remoteStateConsumers, &scalr.WorkspaceRelation{ID: consumerID})
+				remoteStateConsumers = append(remoteStateConsumers, schemas.Workspace{ID: consumerID})
 			}
 		}
 	}
@@ -210,7 +222,7 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	workspace, err := r.Client.Workspaces.Create(ctx, opts)
+	ws, err := r.ClientV2.Workspace.CreateWorkspace(ctx, &opts)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating workspace", err.Error())
 		return
@@ -224,13 +236,15 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 		}
 
 		for _, pcfg := range pcfgs {
-			pcfgOpts := scalr.ProviderConfigurationLinkCreateOptions{
-				ProviderConfiguration: &scalr.ProviderConfiguration{ID: pcfg.ID.ValueString()},
+			pcfgOpts := schemas.ProviderConfigurationLinkRequest{
+				Relationships: schemas.ProviderConfigurationLinkRelationshipsRequest{
+					ProviderConfiguration: value.Set(schemas.ProviderConfiguration{ID: pcfg.ID.ValueString()}),
+				},
 			}
 			if !pcfg.Alias.IsUnknown() && len(pcfg.Alias.ValueString()) > 0 {
-				pcfgOpts.Alias = pcfg.Alias.ValueStringPointer()
+				pcfgOpts.Attributes.Alias = value.Set(pcfg.Alias.ValueString())
 			}
-			_, err = r.Client.ProviderConfigurationLinks.Create(ctx, workspace.ID, pcfgOpts)
+			_, err = r.ClientV2.ProviderConfigurationLink.CreateProviderConfigurationLink(ctx, ws.ID, &pcfgOpts)
 			if err != nil {
 				resp.Diagnostics.AddError("Error creating provider configuration link", err.Error())
 				return
@@ -239,7 +253,11 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 	}
 
 	if !plan.SSHKeyID.IsUnknown() && !plan.SSHKeyID.IsNull() {
-		_, err = r.Client.SSHKeysLinks.Create(ctx, workspace.ID, plan.SSHKeyID.ValueString())
+		_, err = r.ClientV2.Misc.CreateWorkspaceSshKeyLink(
+			ctx,
+			ws.ID,
+			&schemas.WorkspaceSSHKeyLinkRequest{SshKey: plan.SSHKeyID.ValueString()},
+		)
 		if err != nil {
 			resp.Diagnostics.AddError("Error creating SSH key link", err.Error())
 			return
@@ -247,7 +265,7 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 	}
 
 	if len(remoteStateConsumers) > 0 {
-		err = r.Client.RemoteStateConsumers.Add(ctx, workspace.ID, remoteStateConsumers)
+		err = r.ClientV2.Workspace.AddRemoteStateConsumers(ctx, ws.ID, remoteStateConsumers)
 		if err != nil {
 			resp.Diagnostics.AddError("Error adding remote state consumers", err.Error())
 			return
@@ -255,23 +273,25 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 	}
 
 	// Get refreshed resource state from API
-	workspace, err = r.Client.Workspaces.ReadByID(ctx, workspace.ID)
+	ws, err = r.ClientV2.Workspace.GetWorkspace(ctx, ws.ID, &workspace.GetWorkspaceOptions{
+		Include: []string{"created-by"},
+	})
 	if err != nil {
 		resp.Diagnostics.AddError("Error retrieving workspace", err.Error())
 		return
 	}
 
-	pcfgLinks, err := getProviderConfigurationWorkspaceLinks(ctx, r.Client, workspace.ID)
+	pcfgLinks, err := getProviderConfigurationWorkspaceLinks(ctx, r.ClientV2, ws.ID)
 	if err != nil {
 		resp.Diagnostics.AddError("Error retrieving provider configuration links", err.Error())
 	}
 
-	stateConsumers, err := getRemoteStateConsumers(ctx, r.Client, workspace.ID)
+	stateConsumers, err := getRemoteStateConsumers(ctx, r.ClientV2, ws.ID)
 	if err != nil {
 		resp.Diagnostics.AddError("Error retrieving remote state consumers", err.Error())
 	}
 
-	result, diags := workspaceResourceModelFromAPI(ctx, workspace, pcfgLinks, stateConsumers, &plan)
+	result, diags := workspaceResourceModelFromAPI(ctx, ws, pcfgLinks, stateConsumers, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -291,9 +311,11 @@ func (r *workspaceResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	workspace, err := r.Client.Workspaces.ReadByID(ctx, state.Id.ValueString())
+	ws, err := r.ClientV2.Workspace.GetWorkspace(ctx, state.Id.ValueString(), &workspace.GetWorkspaceOptions{
+		Include: []string{"created-by"},
+	})
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
+		if errors.Is(err, client.ErrNotFound) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -301,17 +323,17 @@ func (r *workspaceResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	pcfgLinks, err := getProviderConfigurationWorkspaceLinks(ctx, r.Client, state.Id.ValueString())
+	pcfgLinks, err := getProviderConfigurationWorkspaceLinks(ctx, r.ClientV2, state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error retrieving provider configuration links", err.Error())
 	}
 
-	stateConsumers, err := getRemoteStateConsumers(ctx, r.Client, workspace.ID)
+	stateConsumers, err := getRemoteStateConsumers(ctx, r.ClientV2, ws.ID)
 	if err != nil {
 		resp.Diagnostics.AddError("Error retrieving remote state consumers", err.Error())
 	}
 
-	result, diags := workspaceResourceModelFromAPI(ctx, workspace, pcfgLinks, stateConsumers, &state)
+	result, diags := workspaceResourceModelFromAPI(ctx, ws, pcfgLinks, stateConsumers, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -332,141 +354,173 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	opts := scalr.WorkspaceUpdateOptions{}
+	opts := schemas.WorkspaceRequest{}
 
 	if !plan.Name.Equal(state.Name) {
-		opts.Name = plan.Name.ValueStringPointer()
+		opts.Attributes.Name = value.Set(plan.Name.ValueString())
 	}
 
 	if !plan.AutoApply.Equal(state.AutoApply) {
-		opts.AutoApply = plan.AutoApply.ValueBoolPointer()
+		opts.Attributes.AutoApply = value.Set(plan.AutoApply.ValueBool())
 	}
 
 	if !plan.AutoQueueRuns.Equal(state.AutoQueueRuns) {
-		opts.AutoQueueRuns = ptr(scalr.WorkspaceAutoQueueRuns(plan.AutoQueueRuns.ValueString()))
+		opts.Attributes.AutoQueueRuns = framework.SetIfKnownString(plan.AutoQueueRuns)
 	}
 
 	if !plan.DeletionProtectionEnabled.Equal(state.DeletionProtectionEnabled) {
-		opts.DeletionProtectionEnabled = plan.DeletionProtectionEnabled.ValueBoolPointer()
+		opts.Attributes.DeletionProtectionEnabled = value.Set(plan.DeletionProtectionEnabled.ValueBool())
 	}
 
 	if !plan.ExecutionMode.Equal(state.ExecutionMode) {
-		opts.ExecutionMode = ptr(scalr.WorkspaceExecutionMode(plan.ExecutionMode.ValueString()))
+		opts.Attributes.ExecutionMode = value.Set(plan.ExecutionMode.ValueString())
 	}
 
 	if !plan.ForceLatestRun.Equal(state.ForceLatestRun) {
-		opts.ForceLatestRun = plan.ForceLatestRun.ValueBoolPointer()
+		opts.Attributes.ForceLatestRun = value.Set(plan.ForceLatestRun.ValueBool())
 	}
 
 	if !plan.IaCPlatform.Equal(state.IaCPlatform) {
-		opts.IacPlatform = ptr(scalr.WorkspaceIaCPlatform(plan.IaCPlatform.ValueString()))
+		opts.Attributes.IacPlatform = value.Set(plan.IaCPlatform.ValueString())
 	}
 
 	if !plan.Operations.Equal(state.Operations) {
-		opts.Operations = plan.Operations.ValueBoolPointer()
+		opts.Attributes.Operations = value.Set(plan.Operations.ValueBool())
 	}
 
-	if !plan.RunOperationTimeout.IsNull() {
-		opts.RunOperationTimeout = ptr(int(plan.RunOperationTimeout.ValueInt32()))
+	if !plan.RunOperationTimeout.Equal(state.RunOperationTimeout) {
+		if plan.RunOperationTimeout.IsNull() {
+			// RunOperationTimeout can be explicitly set to null via API
+			opts.Attributes.RunOperationTimeout = value.Null[int]()
+		} else {
+			opts.Attributes.RunOperationTimeout = value.Set(int(plan.RunOperationTimeout.ValueInt32()))
+		}
 	}
 
-	if !plan.TerraformVersion.Equal(state.TerraformVersion) && !plan.TerraformVersion.IsNull() {
-		opts.TerraformVersion = plan.TerraformVersion.ValueStringPointer()
+	if !plan.TerraformVersion.Equal(state.TerraformVersion) {
+		opts.Attributes.TerraformVersion = framework.SetIfKnownString(plan.TerraformVersion)
 	}
 
 	if !plan.Type.Equal(state.Type) {
-		opts.EnvironmentType = ptr(scalr.WorkspaceEnvironmentType(plan.Type.ValueString()))
+		opts.Attributes.EnvironmentType = value.Set(plan.Type.ValueString())
 	}
 
 	if !plan.WorkingDirectory.Equal(state.WorkingDirectory) {
-		opts.WorkingDirectory = plan.WorkingDirectory.ValueStringPointer()
+		opts.Attributes.WorkingDirectory = value.Set(plan.WorkingDirectory.ValueString())
 	}
 
-	if !plan.VCSProviderID.IsNull() {
-		opts.VcsProvider = &scalr.VcsProvider{ID: plan.VCSProviderID.ValueString()}
+	if !plan.VCSProviderID.Equal(state.VCSProviderID) {
+		if plan.VCSProviderID.IsNull() {
+			opts.Relationships.VcsProvider = value.Null[schemas.VcsProvider]()
+		} else {
+			opts.Relationships.VcsProvider = value.Set(schemas.VcsProvider{ID: plan.VCSProviderID.ValueString()})
+		}
 	}
 
-	if !plan.ModuleVersionID.IsNull() {
-		opts.ModuleVersion = &scalr.ModuleVersion{ID: plan.ModuleVersionID.ValueString()}
+	if !plan.ModuleVersionID.Equal(state.ModuleVersionID) {
+		if plan.ModuleVersionID.IsNull() {
+			opts.Relationships.ModuleVersion = value.Null[schemas.ModuleVersion]()
+		} else {
+			opts.Relationships.ModuleVersion = value.Set(schemas.ModuleVersion{ID: plan.ModuleVersionID.ValueString()})
+		}
 	}
 
-	if !plan.AgentPoolID.IsNull() {
-		opts.AgentPool = &scalr.AgentPool{ID: plan.AgentPoolID.ValueString()}
+	if !plan.AgentPoolID.Equal(state.AgentPoolID) {
+		if plan.AgentPoolID.IsNull() {
+			opts.Relationships.AgentPool = value.Null[schemas.AgentPool]()
+		} else {
+			opts.Relationships.AgentPool = value.Set(schemas.AgentPool{ID: plan.AgentPoolID.ValueString()})
+		}
 	}
 
-	if !plan.VCSRepo.IsNull() {
-		var vcsRepo []vcsRepoModel
-		resp.Diagnostics.Append(plan.VCSRepo.ElementsAs(ctx, &vcsRepo, false)...)
+	if !plan.VCSRepo.Equal(state.VCSRepo) {
+		if plan.VCSRepo.IsNull() {
+			opts.Attributes.VcsRepo = value.Null[schemas.WorkspaceVcsRepoRequest]()
+		} else {
+			var vcsRepo []vcsRepoModel
+			resp.Diagnostics.Append(plan.VCSRepo.ElementsAs(ctx, &vcsRepo, false)...)
 
-		if len(vcsRepo) > 0 {
-			repo := vcsRepo[0]
+			if len(vcsRepo) > 0 {
+				repo := vcsRepo[0]
 
-			opts.VCSRepo = &scalr.WorkspaceVCSRepoOptions{
-				Identifier:        repo.Identifier.ValueStringPointer(),
-				Path:              repo.Path.ValueStringPointer(),
-				TriggerPatterns:   repo.TriggerPatterns.ValueStringPointer(),
-				DryRunsEnabled:    repo.DryRunsEnabled.ValueBoolPointer(),
-				IngressSubmodules: repo.IngressSubmodules.ValueBoolPointer(),
-			}
+				vcsRepoOpts := schemas.WorkspaceVcsRepoRequest{
+					Identifier:        value.Set(repo.Identifier.ValueString()),
+					Path:              value.Set(repo.Path.ValueString()),
+					TriggerPatterns:   value.Set(repo.TriggerPatterns.ValueString()),
+					DryRunsEnabled:    value.Set(repo.DryRunsEnabled.ValueBool()),
+					IngressSubmodules: value.Set(repo.IngressSubmodules.ValueBool()),
+					// Branch and VersionConstraint are optional and mutually exclusive.
+					// API requires one to be explicitly set to null if another is set,
+					// Pre-nullify the values so neither is left Unset.
+					Branch:            value.Null[string](),
+					VersionConstraint: value.Null[string](),
+				}
 
-			if !repo.Branch.IsUnknown() && !repo.Branch.IsNull() {
-				opts.VCSRepo.Branch = repo.Branch.ValueStringPointer()
-			}
+				if !repo.Branch.IsUnknown() && !repo.Branch.IsNull() {
+					vcsRepoOpts.Branch = value.Set(repo.Branch.ValueString())
+				}
 
-			if !repo.VersionConstraint.IsUnknown() && !repo.VersionConstraint.IsNull() {
-				opts.VCSRepo.VersionConstraint = repo.VersionConstraint.ValueStringPointer()
-			}
+				if !repo.VersionConstraint.IsUnknown() && !repo.VersionConstraint.IsNull() {
+					vcsRepoOpts.VersionConstraint = value.Set(repo.VersionConstraint.ValueString())
+				}
 
-			if !repo.TriggerPrefixes.IsUnknown() && !repo.TriggerPrefixes.IsNull() {
-				var prefixes []string
-				resp.Diagnostics.Append(repo.TriggerPrefixes.ElementsAs(ctx, &prefixes, false)...)
-				opts.VCSRepo.TriggerPrefixes = &prefixes
+				if !repo.TriggerPrefixes.IsUnknown() && !repo.TriggerPrefixes.IsNull() {
+					var prefixes []string
+					resp.Diagnostics.Append(repo.TriggerPrefixes.ElementsAs(ctx, &prefixes, false)...)
+					vcsRepoOpts.TriggerPrefixes = value.Set(prefixes)
+				}
+
+				opts.Attributes.VcsRepo = value.Set(vcsRepoOpts)
 			}
 		}
 	}
 
-	if !plan.Terragrunt.IsNull() {
-		var terragrunt []terragruntModel
-		resp.Diagnostics.Append(plan.Terragrunt.ElementsAs(ctx, &terragrunt, false)...)
+	if !plan.Terragrunt.Equal(state.Terragrunt) {
+		if plan.Terragrunt.IsNull() {
+			opts.Attributes.Terragrunt = value.Null[schemas.WorkspaceTerragruntRequest]()
+		} else {
+			var terragrunt []terragruntModel
+			resp.Diagnostics.Append(plan.Terragrunt.ElementsAs(ctx, &terragrunt, false)...)
 
-		if len(terragrunt) > 0 {
-			terr := terragrunt[0]
-			opts.Terragrunt = &scalr.WorkspaceTerragruntOptions{
-				Version:                     terr.Version.ValueString(),
-				UseRunAll:                   terr.UseRunAll.ValueBoolPointer(),
-				IncludeExternalDependencies: terr.IncludeExternalDependencies.ValueBoolPointer(),
+			if len(terragrunt) > 0 {
+				terr := terragrunt[0]
+				opts.Attributes.Terragrunt = value.Set(schemas.WorkspaceTerragruntRequest{
+					Version:                     value.Set(terr.Version.ValueString()),
+					UseRunAll:                   value.SetPtrMaybe(terr.UseRunAll.ValueBoolPointer()),
+					IncludeExternalDependencies: value.SetPtrMaybe(terr.IncludeExternalDependencies.ValueBoolPointer()),
+				})
 			}
 		}
 	}
 
 	if !plan.Hooks.Equal(state.Hooks) {
-		var hooks []hooksModel
-		resp.Diagnostics.Append(plan.Hooks.ElementsAs(ctx, &hooks, false)...)
-
-		if len(hooks) > 0 {
-			hook := hooks[0]
-			opts.Hooks = &scalr.HooksOptions{
-				PreInit:   hook.PreInit.ValueStringPointer(),
-				PrePlan:   hook.PrePlan.ValueStringPointer(),
-				PostPlan:  hook.PostPlan.ValueStringPointer(),
-				PreApply:  hook.PreApply.ValueStringPointer(),
-				PostApply: hook.PostApply.ValueStringPointer(),
-			}
+		if plan.Hooks.IsNull() {
+			opts.Attributes.Hooks = value.Null[schemas.WorkspaceHooksRequest]()
 		} else {
-			opts.Hooks = &scalr.HooksOptions{
-				PreInit:   ptr(""),
-				PrePlan:   ptr(""),
-				PostPlan:  ptr(""),
-				PreApply:  ptr(""),
-				PostApply: ptr(""),
+			var hooks []hooksModel
+			resp.Diagnostics.Append(plan.Hooks.ElementsAs(ctx, &hooks, false)...)
+
+			if len(hooks) > 0 {
+				hook := hooks[0]
+				opts.Attributes.Hooks = value.Set(schemas.WorkspaceHooksRequest{
+					PreInit:   value.SetPtrMaybe(hook.PreInit.ValueStringPointer()),
+					PrePlan:   value.SetPtrMaybe(hook.PrePlan.ValueStringPointer()),
+					PostPlan:  value.SetPtrMaybe(hook.PostPlan.ValueStringPointer()),
+					PreApply:  value.SetPtrMaybe(hook.PreApply.ValueStringPointer()),
+					PostApply: value.SetPtrMaybe(hook.PostApply.ValueStringPointer()),
+				})
 			}
 		}
 	}
 
-	if !plan.VarFiles.IsNull() {
-		var varFiles []string
-		resp.Diagnostics.Append(plan.VarFiles.ElementsAs(ctx, &varFiles, false)...)
-		opts.VarFiles = varFiles
+	if !plan.VarFiles.Equal(state.VarFiles) {
+		if plan.VarFiles.IsNull() {
+			opts.Attributes.VarFiles = value.Null[[]string]()
+		} else {
+			var varFiles []string
+			resp.Diagnostics.Append(plan.VarFiles.ElementsAs(ctx, &varFiles, false)...)
+			opts.Attributes.VarFiles = value.Set(varFiles)
+		}
 	}
 
 	var consumersToAdd, consumersToRemove []string
@@ -476,10 +530,10 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 		resp.Diagnostics.Append(plan.RemoteStateConsumers.ElementsAs(ctx, &planConsumers, false)...)
 		resp.Diagnostics.Append(state.RemoteStateConsumers.ElementsAs(ctx, &stateConsumers, false)...)
 
-		opts.RemoteStateSharing = ptr(false)
+		opts.Attributes.RemoteStateSharing = value.Set(false)
 
 		if len(planConsumers) == 1 && planConsumers[0] == "*" {
-			opts.RemoteStateSharing = ptr(true)
+			opts.Attributes.RemoteStateSharing = value.Set(true)
 			planConsumers = []string{}
 		}
 		if len(stateConsumers) == 1 && stateConsumers[0] == "*" {
@@ -494,7 +548,7 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 	}
 
 	// Update existing resource
-	_, err := r.Client.Workspaces.Update(ctx, plan.Id.ValueString(), opts)
+	_, err := r.ClientV2.Workspace.UpdateWorkspace(ctx, plan.Id.ValueString(), &opts)
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating workspace", err.Error())
 		return
@@ -509,57 +563,67 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 		tagsToAdd, tagsToRemove := diff(stateTags, planTags)
 
 		if len(tagsToAdd) > 0 {
-			tagRelations := make([]*scalr.TagRelation, len(tagsToAdd))
+			tags := make([]schemas.Tag, len(tagsToAdd))
 			for i, tag := range tagsToAdd {
-				tagRelations[i] = &scalr.TagRelation{ID: tag}
+				tags[i] = schemas.Tag{ID: tag}
 			}
-			err = r.Client.WorkspaceTags.Add(ctx, plan.Id.ValueString(), tagRelations)
+			err = r.ClientV2.Workspace.AddWorkspaceTags(ctx, plan.Id.ValueString(), tags)
 			if err != nil {
 				resp.Diagnostics.AddError("Error adding tags to workspace", err.Error())
 			}
 		}
 
 		if len(tagsToRemove) > 0 {
-			tagRelations := make([]*scalr.TagRelation, len(tagsToRemove))
+			tags := make([]schemas.Tag, len(tagsToRemove))
 			for i, tag := range tagsToRemove {
-				tagRelations[i] = &scalr.TagRelation{ID: tag}
+				tags[i] = schemas.Tag{ID: tag}
 			}
-			err = r.Client.WorkspaceTags.Delete(ctx, plan.Id.ValueString(), tagRelations)
+			err = r.ClientV2.Workspace.DeleteWorkspaceTags(ctx, plan.Id.ValueString(), tags)
 			if err != nil {
-				resp.Diagnostics.AddError("Error removing tags from workspace", err.Error())
+				if !errors.Is(err, client.ErrNotFound) {
+					// Tag resources may be removed by terraform earlier, ignore error if tag is not found.
+					// This should be improved in the API: if the relationships are already missing
+					// the server must return a successful response.
+					resp.Diagnostics.AddError("Error removing tags from workspace", err.Error())
+				}
 			}
 		}
 	}
 
 	if !plan.ProviderConfiguration.Equal(state.ProviderConfiguration) {
-		expectedLinks := make(map[string]scalr.ProviderConfigurationLinkCreateOptions)
+		expectedLinks := make(map[string]schemas.ProviderConfigurationLinkRequest)
 		if !plan.ProviderConfiguration.IsNull() {
 			var pcfgs []providerConfigurationModel
 			resp.Diagnostics.Append(plan.ProviderConfiguration.ElementsAs(ctx, &pcfgs, false)...)
 
 			for _, pcfg := range pcfgs {
 				mapID := pcfg.ID.ValueString()
-				pcfgOpts := scalr.ProviderConfigurationLinkCreateOptions{
-					ProviderConfiguration: &scalr.ProviderConfiguration{ID: pcfg.ID.ValueString()},
+				pcfgReq := schemas.ProviderConfigurationLinkRequest{
+					Relationships: schemas.ProviderConfigurationLinkRelationshipsRequest{
+						ProviderConfiguration: value.Set(schemas.ProviderConfiguration{ID: pcfg.ID.ValueString()}),
+					},
 				}
 				if !pcfg.Alias.IsUnknown() && len(pcfg.Alias.ValueString()) > 0 {
-					pcfgOpts.Alias = pcfg.Alias.ValueStringPointer()
+					pcfgReq.Attributes.Alias = value.Set(pcfg.Alias.ValueString())
 					mapID = mapID + pcfg.Alias.ValueString()
 				}
-				expectedLinks[mapID] = pcfgOpts
+				expectedLinks[mapID] = pcfgReq
 			}
 		}
 
-		currentLinks, err := getProviderConfigurationWorkspaceLinks(ctx, r.Client, plan.Id.ValueString())
+		currentLinks, err := getProviderConfigurationWorkspaceLinks(ctx, r.ClientV2, plan.Id.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError("Error retrieving provider configuration links", err.Error())
 		} else {
 			for _, currentLink := range currentLinks {
-				mapID := currentLink.ProviderConfiguration.ID + currentLink.Alias
+				mapID := currentLink.Relationships.ProviderConfiguration.ID
+				if currentLink.Attributes.Alias != nil {
+					mapID = mapID + *currentLink.Attributes.Alias
+				}
 				if _, ok := expectedLinks[mapID]; ok {
 					delete(expectedLinks, mapID)
 				} else {
-					err = r.Client.ProviderConfigurationLinks.Delete(ctx, currentLink.ID)
+					err = r.ClientV2.ProviderConfigurationLink.DeleteProviderConfigurationWorkspaceLink(ctx, currentLink.ID)
 					if err != nil {
 						resp.Diagnostics.AddError("Error deleting provider configuration link", err.Error())
 					}
@@ -567,7 +631,7 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 			}
 
 			for _, link := range expectedLinks {
-				_, err = r.Client.ProviderConfigurationLinks.Create(ctx, plan.Id.ValueString(), link)
+				_, err = r.ClientV2.ProviderConfigurationLink.CreateProviderConfigurationLink(ctx, plan.Id.ValueString(), &link)
 				if err != nil {
 					resp.Diagnostics.AddError("Error creating provider configuration link", err.Error())
 				}
@@ -576,13 +640,17 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 	}
 
 	if !plan.SSHKeyID.Equal(state.SSHKeyID) {
-		if !state.SSHKeyID.IsNull() && plan.SSHKeyID.IsNull() {
-			err = r.Client.SSHKeysLinks.Delete(ctx, plan.Id.ValueString())
+		if plan.SSHKeyID.IsNull() {
+			err = r.ClientV2.Misc.DeleteWorkspaceSshKeyLink(ctx, plan.Id.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError("Error deleting SSH key link", err.Error())
 			}
-		} else if !plan.SSHKeyID.IsNull() {
-			_, err = r.Client.SSHKeysLinks.Create(ctx, plan.Id.ValueString(), plan.SSHKeyID.ValueString())
+		} else {
+			_, err = r.ClientV2.Misc.CreateWorkspaceSshKeyLink(
+				ctx, plan.Id.ValueString(), &schemas.WorkspaceSSHKeyLinkRequest{
+					SshKey: plan.SSHKeyID.ValueString(),
+				},
+			)
 			if err != nil {
 				resp.Diagnostics.AddError("Error creating SSH key link", err.Error())
 			}
@@ -590,44 +658,46 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 	}
 
 	if len(consumersToAdd) > 0 {
-		c := make([]*scalr.WorkspaceRelation, len(consumersToAdd))
+		c := make([]schemas.Workspace, len(consumersToAdd))
 		for i, consumer := range consumersToAdd {
-			c[i] = &scalr.WorkspaceRelation{ID: consumer}
+			c[i] = schemas.Workspace{ID: consumer}
 		}
-		err = r.Client.RemoteStateConsumers.Add(ctx, plan.Id.ValueString(), c)
+		err = r.ClientV2.Workspace.AddRemoteStateConsumers(ctx, plan.Id.ValueString(), c)
 		if err != nil {
 			resp.Diagnostics.AddError("Error adding remote state consumers", err.Error())
 		}
 	}
 	if len(consumersToRemove) > 0 {
-		c := make([]*scalr.WorkspaceRelation, len(consumersToRemove))
+		c := make([]schemas.Workspace, len(consumersToRemove))
 		for i, consumer := range consumersToRemove {
-			c[i] = &scalr.WorkspaceRelation{ID: consumer}
+			c[i] = schemas.Workspace{ID: consumer}
 		}
-		err = r.Client.RemoteStateConsumers.Delete(ctx, plan.Id.ValueString(), c)
+		err = r.ClientV2.Workspace.DeleteRemoteStateConsumers(ctx, plan.Id.ValueString(), c)
 		if err != nil {
 			resp.Diagnostics.AddError("Error removing remote state consumers", err.Error())
 		}
 	}
 
 	// Get refreshed resource state from API
-	workspace, err := r.Client.Workspaces.ReadByID(ctx, plan.Id.ValueString())
+	ws, err := r.ClientV2.Workspace.GetWorkspace(ctx, plan.Id.ValueString(), &workspace.GetWorkspaceOptions{
+		Include: []string{"created-by"},
+	})
 	if err != nil {
 		resp.Diagnostics.AddError("Error retrieving workspace", err.Error())
 		return
 	}
 
-	pcfgLinks, err := getProviderConfigurationWorkspaceLinks(ctx, r.Client, workspace.ID)
+	pcfgLinks, err := getProviderConfigurationWorkspaceLinks(ctx, r.ClientV2, ws.ID)
 	if err != nil {
 		resp.Diagnostics.AddError("Error retrieving provider configuration links", err.Error())
 	}
 
-	stateConsumers, err := getRemoteStateConsumers(ctx, r.Client, workspace.ID)
+	stateConsumers, err := getRemoteStateConsumers(ctx, r.ClientV2, ws.ID)
 	if err != nil {
 		resp.Diagnostics.AddError("Error retrieving remote state consumers", err.Error())
 	}
 
-	result, diags := workspaceResourceModelFromAPI(ctx, workspace, pcfgLinks, stateConsumers, &plan)
+	result, diags := workspaceResourceModelFromAPI(ctx, ws, pcfgLinks, stateConsumers, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -648,8 +718,8 @@ func (r *workspaceResource) Delete(ctx context.Context, req resource.DeleteReque
 		return
 	}
 
-	err := r.Client.Workspaces.Delete(ctx, state.Id.ValueString())
-	if err != nil && !errors.Is(err, scalr.ErrResourceNotFound) {
+	err := r.ClientV2.Workspace.DeleteWorkspace(ctx, state.Id.ValueString())
+	if err != nil && !errors.Is(err, client.ErrNotFound) {
 		resp.Diagnostics.AddError("Error deleting workspace", err.Error())
 		return
 	}
@@ -670,8 +740,8 @@ func (r *workspaceResource) ModifyPlan(ctx context.Context, req resource.ModifyP
 
 	if !operationsCfg.IsNull() && !executionModeCfg.IsNull() {
 		// Both attributes cannot be set to mutually exclusive values at the same time.
-		if !operations.ValueBool() && executionMode.ValueString() == string(scalr.WorkspaceExecutionModeRemote) ||
-			operations.ValueBool() && executionMode.ValueString() == string(scalr.WorkspaceExecutionModeLocal) {
+		if !operations.ValueBool() && executionMode.ValueString() == "remote" ||
+			operations.ValueBool() && executionMode.ValueString() == "local" {
 			resp.Diagnostics.AddError(
 				"Attributes `operations` and `execution_mode` are configured with conflicting values",
 				"The attribute `operations` is deprecated. Use `execution_mode` instead",
@@ -683,27 +753,16 @@ func (r *workspaceResource) ModifyPlan(ctx context.Context, req resource.ModifyP
 		// When the `operations` is explicitly set in the configuration, and `execution_mode` is not -
 		// this is the only case when it takes precedence.
 		if !operations.ValueBool() {
-			resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("execution_mode"), string(scalr.WorkspaceExecutionModeLocal))...)
+			resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("execution_mode"), "local")...)
 		} else {
-			resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("execution_mode"), string(scalr.WorkspaceExecutionModeRemote))...)
+			resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("execution_mode"), "remote")...)
 		}
 	} else {
 		// In all other cases, `execution_mode` dictates the value for `operations`, even when left default.
-		if executionMode.ValueString() == string(scalr.WorkspaceExecutionModeLocal) {
+		if executionMode.ValueString() == "local" {
 			resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("operations"), false)...)
 		} else {
 			resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("operations"), true)...)
-		}
-	}
-
-	var vcsRepo []vcsRepoModel
-	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("vcs_repo"), &vcsRepo)...)
-	if len(vcsRepo) > 0 {
-		repo := vcsRepo[0]
-		if !repo.VersionConstraint.IsNull() && !repo.VersionConstraint.IsUnknown() {
-			resp.Diagnostics.Append(
-				resp.Plan.SetAttribute(ctx, path.Root("vcs_repo").AtListIndex(0).AtName("branch"), types.StringNull())...,
-			)
 		}
 	}
 }
@@ -716,69 +775,50 @@ func (r *workspaceResource) UpgradeState(ctx context.Context) map[int64]resource
 	return map[int64]resource.StateUpgrader{
 		0: {
 			PriorSchema:   workspaceResourceSchemaV0(ctx),
-			StateUpgrader: upgradeWorkspaceResourceStateV0toV4(r.Client),
+			StateUpgrader: upgradeWorkspaceResourceStateV0toV4(r.ClientV2),
 		},
 		1: {
 			PriorSchema:   workspaceResourceSchemaV1(ctx),
-			StateUpgrader: upgradeWorkspaceResourceStateV1toV4(r.Client),
+			StateUpgrader: upgradeWorkspaceResourceStateV1toV4(r.ClientV2),
 		},
 		2: {
 			PriorSchema:   workspaceResourceSchemaV2(ctx),
-			StateUpgrader: upgradeWorkspaceResourceStateV2toV4(r.Client),
+			StateUpgrader: upgradeWorkspaceResourceStateV2toV4(r.ClientV2),
 		},
 		3: {
 			PriorSchema:   workspaceResourceSchemaV3(ctx),
-			StateUpgrader: upgradeWorkspaceResourceStateV3toV4(r.Client),
+			StateUpgrader: upgradeWorkspaceResourceStateV3toV4(r.ClientV2),
 		},
 	}
 }
 
 func getProviderConfigurationWorkspaceLinks(
-	ctx context.Context, scalrClient *scalr.Client, workspaceId string,
-) (workspaceLinks []*scalr.ProviderConfigurationLink, err error) {
-	linkListOption := scalr.ProviderConfigurationLinksListOptions{Include: "provider-configuration"}
-	for {
-		linksList, err := scalrClient.ProviderConfigurationLinks.List(ctx, workspaceId, linkListOption)
-
+	ctx context.Context, scalrClient *scalrV2.Client, workspaceId string,
+) (workspaceLinks []*schemas.ProviderConfigurationLink, err error) {
+	for link, err := range scalrClient.ProviderConfigurationLink.ListProviderConfigurationLinksIter(
+		ctx, workspaceId, nil,
+	) {
 		if err != nil {
 			return nil, err
 		}
 
-		for _, link := range linksList.Items {
-			if link.Workspace != nil {
-				workspaceLinks = append(workspaceLinks, link)
-			}
+		if link.Relationships.Workspace != nil {
+			workspaceLinks = append(workspaceLinks, &link)
 		}
-
-		// Exit the loop when we've seen all pages.
-		if linksList.CurrentPage >= linksList.TotalPages {
-			break
-		}
-
-		// Update the page number to get the next page.
-		linkListOption.PageNumber = linksList.NextPage
 	}
+
 	return
 }
 
 func getRemoteStateConsumers(
-	ctx context.Context, scalrClient *scalr.Client, workspaceId string,
+	ctx context.Context, scalrClient *scalrV2.Client, workspaceId string,
 ) (consumers []string, err error) {
-	listOpts := scalr.ListOptions{}
-	for {
-		cl, err := scalrClient.RemoteStateConsumers.List(ctx, workspaceId, listOpts)
+	for c, err := range scalrClient.Workspace.ListRemoteStateConsumersIter(ctx, workspaceId, nil) {
 		if err != nil {
 			return nil, err
 		}
 
-		for _, c := range cl.Items {
-			consumers = append(consumers, c.ID)
-		}
-
-		if cl.CurrentPage >= cl.TotalPages {
-			break
-		}
-		listOpts.PageNumber = cl.NextPage
+		consumers = append(consumers, c.ID)
 	}
 	return
 }
