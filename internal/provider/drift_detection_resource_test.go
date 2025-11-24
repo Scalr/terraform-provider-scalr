@@ -3,6 +3,7 @@ package provider
 import (
 	"fmt"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -31,12 +32,17 @@ func TestDriftDetection_basic(t *testing.T) {
 				PlanOnly:    true,
 			},
 			{
-				Config:      testDriftDetectionConfig(envName, "bad"),
+				Config: testDriftDetectionConfig(
+					envName, "bad", "refresh-only",
+					testWorkspaceFilterConfigPart(&[]string{"*"}, nil, nil),
+				),
 				ExpectError: regexp.MustCompile(`Attribute check_period value must be one of: \["daily" "weekly"], got: "bad"`),
 				PlanOnly:    true,
 			},
 			{
-				Config: testDriftDetectionConfig(envName, "daily"),
+				Config: testDriftDetectionConfig(envName, "daily", "refresh-only",
+					testWorkspaceFilterConfigPart(&[]string{"*"}, nil, nil),
+				),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "environment_id"),
@@ -45,7 +51,9 @@ func TestDriftDetection_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testDriftDetectionConfig(envName, "weekly"),
+				Config: testDriftDetectionConfig(envName, "weekly", "refresh-only",
+					testWorkspaceFilterConfigPart(&[]string{"*"}, nil, nil),
+				),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "environment_id"),
@@ -71,7 +79,9 @@ func TestDriftDetection_import(t *testing.T) {
 		CheckDestroy:             testDriftDetectionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testDriftDetectionConfig(envName, "daily"),
+				Config: testDriftDetectionConfig(envName, "daily", "refresh-only",
+					testWorkspaceFilterConfigPart(&[]string{"*"}, nil, nil),
+				),
 			},
 			{
 				ResourceName:      resourceName,
@@ -133,13 +143,15 @@ func testDriftDetectionSaveID(name string, driftDetectionID *string) resource.Te
 	}
 }
 
-func testDriftDetectionConfig(envName string, checkPeriod string) string {
+func testDriftDetectionConfig(envName string, checkPeriod string, runMode string, extra string) string {
 	return fmt.Sprintf(testDriftDetectionConfigBase, envName, defaultAccount, fmt.Sprintf(`
 resource "scalr_drift_detection" "test" {
   environment_id = scalr_environment.test.id
   check_period = "%s"
+  run_mode = "%s"
+  %s
 }
-`, checkPeriod))
+`, checkPeriod, runMode, extra))
 }
 
 func testDriftDetectionDeleteConfig(envName string) string {
@@ -153,3 +165,25 @@ resource "scalr_environment" "test" {
 }
 %s
 `
+
+func testWorkspaceFilterConfigPart(patterns *[]string, envTypes *[]string, tags *[]string) string {
+	arrayStrToStr := func(o []string) string {
+		l := make([]string, len(o))
+		for i, v := range o {
+			l[i] = fmt.Sprintf(`"%s"`, v)
+		}
+		return fmt.Sprintf(`[%s]`, strings.Join(l, ", "))
+	}
+	s := "  workspace_filters {\n"
+	if patterns != nil {
+		s += fmt.Sprintf("    name_patterns = %s\n", arrayStrToStr(*patterns))
+	}
+	if envTypes != nil {
+		s += fmt.Sprintf("    environmant_types = %s\n", arrayStrToStr(*envTypes))
+	}
+	if tags != nil {
+		s += fmt.Sprintf("    tags = %s\n", arrayStrToStr(*tags))
+	}
+	s += "  }"
+	return s
+}
