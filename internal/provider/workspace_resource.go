@@ -78,10 +78,10 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 		Attributes: schemas.WorkspaceAttributesRequest{
 			AutoApply:                 value.SetPtrMaybe(plan.AutoApply.ValueBoolPointer()),
 			DeletionProtectionEnabled: value.SetPtrMaybe(plan.DeletionProtectionEnabled.ValueBoolPointer()),
-			EnvironmentType:           value.Set(plan.Type.ValueString()),
-			ExecutionMode:             value.Set(plan.ExecutionMode.ValueString()),
+			EnvironmentType:           value.Set(schemas.WorkspaceEnvironmentType(plan.Type.ValueString())),
+			ExecutionMode:             value.Set(schemas.WorkspaceExecutionMode(plan.ExecutionMode.ValueString())),
 			ForceLatestRun:            value.SetPtrMaybe(plan.ForceLatestRun.ValueBoolPointer()),
-			IacPlatform:               value.Set(plan.IaCPlatform.ValueString()),
+			IacPlatform:               value.Set(schemas.WorkspaceIacPlatform(plan.IaCPlatform.ValueString())),
 			Name:                      value.Set(plan.Name.ValueString()),
 			Operations:                value.SetPtrMaybe(plan.Operations.ValueBoolPointer()),
 			VarFiles:                  value.Set(varFiles),
@@ -95,7 +95,7 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 	}
 
 	if !plan.AutoQueueRuns.IsUnknown() && !plan.AutoQueueRuns.IsNull() {
-		opts.Attributes.AutoQueueRuns = value.Set(plan.AutoQueueRuns.ValueString())
+		opts.Attributes.AutoQueueRuns = value.Set(schemas.WorkspaceAutoQueueRuns(plan.AutoQueueRuns.ValueString()))
 	}
 
 	if !plan.TerraformVersion.IsUnknown() && !plan.TerraformVersion.IsNull() {
@@ -364,8 +364,8 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 		opts.Attributes.AutoApply = value.Set(plan.AutoApply.ValueBool())
 	}
 
-	if !plan.AutoQueueRuns.Equal(state.AutoQueueRuns) {
-		opts.Attributes.AutoQueueRuns = framework.SetIfKnownString(plan.AutoQueueRuns)
+	if !plan.AutoQueueRuns.Equal(state.AutoQueueRuns) && !plan.AutoQueueRuns.IsNull() && !plan.AutoQueueRuns.IsUnknown() {
+		opts.Attributes.AutoQueueRuns = value.Set(schemas.WorkspaceAutoQueueRuns(plan.AutoQueueRuns.ValueString()))
 	}
 
 	if !plan.DeletionProtectionEnabled.Equal(state.DeletionProtectionEnabled) {
@@ -373,7 +373,7 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 	}
 
 	if !plan.ExecutionMode.Equal(state.ExecutionMode) {
-		opts.Attributes.ExecutionMode = value.Set(plan.ExecutionMode.ValueString())
+		opts.Attributes.ExecutionMode = value.Set(schemas.WorkspaceExecutionMode(plan.ExecutionMode.ValueString()))
 	}
 
 	if !plan.ForceLatestRun.Equal(state.ForceLatestRun) {
@@ -381,7 +381,7 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 	}
 
 	if !plan.IaCPlatform.Equal(state.IaCPlatform) {
-		opts.Attributes.IacPlatform = value.Set(plan.IaCPlatform.ValueString())
+		opts.Attributes.IacPlatform = value.Set(schemas.WorkspaceIacPlatform(plan.IaCPlatform.ValueString()))
 	}
 
 	if !plan.Operations.Equal(state.Operations) {
@@ -402,7 +402,7 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 	}
 
 	if !plan.Type.Equal(state.Type) {
-		opts.Attributes.EnvironmentType = value.Set(plan.Type.ValueString())
+		opts.Attributes.EnvironmentType = value.Set(schemas.WorkspaceEnvironmentType(plan.Type.ValueString()))
 	}
 
 	if !plan.WorkingDirectory.Equal(state.WorkingDirectory) {
