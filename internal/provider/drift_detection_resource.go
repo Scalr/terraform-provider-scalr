@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -100,7 +99,6 @@ func (r *driftDetectionResource) Schema(_ context.Context, _ resource.SchemaRequ
 				MarkdownDescription: "Run mode for drift detection: `refresh-only` (default) or `plan`. ",
 				Optional:            true,
 				Computed:            true,
-				Default:             stringdefault.StaticString(string(schemas.DriftDetectionScheduleRunModeRefreshOnly)),
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						string(schemas.DriftDetectionScheduleRunModeRefreshOnly),
