@@ -42,7 +42,7 @@ resource "scalr_drift_detection" "example" {
 ### Optional
 
 - `run_mode` (String) Run mode for drift detection: `refresh-only` (default) or `plan`.
-- `workspace_filters` (Block Set) Filters for workspaces to be included in drift detection. Only one type of filter can be specified: `name_patterns`, `environment_types` or `tags`. (see [below for nested schema](#nestedblock--workspace_filters))
+- `workspace_filters` (Block, Optional) Filters for workspaces to be included in drift detection. Only one type of filter can be specified: `name_patterns`, `environment_types` or `tags`. (see [below for nested schema](#nestedblock--workspace_filters))
 
 ### Read-Only
 
