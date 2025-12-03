@@ -16,18 +16,27 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/scalr/go-scalr"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+
+	"github.com/scalr/go-scalr/v2/scalr/client"
+	"github.com/scalr/go-scalr/v2/scalr/schemas"
+	"github.com/scalr/go-scalr/v2/scalr/value"
+
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
 	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
 )
 
 var (
-	_ resource.Resource                     = &driftDetectionResource{}
-	_ resource.ResourceWithConfigure        = &driftDetectionResource{}
-	_ resource.ResourceWithConfigValidators = &driftDetectionResource{}
-	_ resource.ResourceWithImportState      = &driftDetectionResource{}
-	_ resource.ResourceWithModifyPlan       = &driftDetectionResource{}
+	_ resource.Resource                = &driftDetectionResource{}
+	_ resource.ResourceWithConfigure   = &driftDetectionResource{}
+	_ resource.ResourceWithImportState = &driftDetectionResource{}
 )
+
+var filtersAttrTypes = map[string]attr.Type{
+	"name_patterns":     types.SetType{ElemType: types.StringType},
+	"environment_types": types.SetType{ElemType: types.StringType},
+	"tags":              types.SetType{ElemType: types.StringType},
+}
 
 func newDriftDetectionResource() resource.Resource {
 	return &driftDetectionResource{}
@@ -41,7 +50,7 @@ type driftDetectionResourceModel struct {
 	Id               types.String `tfsdk:"id"`
 	EnvironmentID    types.String `tfsdk:"environment_id"`
 	CheckPeriod      types.String `tfsdk:"check_period"`
-	WorkspaceFilters types.Set    `tfsdk:"workspace_filters"`
+	WorkspaceFilters types.Object `tfsdk:"workspace_filters"`
 	RunMode          types.String `tfsdk:"run_mode"`
 }
 
@@ -82,8 +91,8 @@ func (r *driftDetectionResource) Schema(_ context.Context, _ resource.SchemaRequ
 				Required:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf(
-						string(scalr.DriftDetectionSchedulePeriodDaily),
-						string(scalr.DriftDetectionSchedulePeriodWeekly),
+						string(schemas.DriftDetectionScheduleScheduleDaily),
+						string(schemas.DriftDetectionScheduleScheduleWeekly),
 					),
 				},
 			},
@@ -91,156 +100,144 @@ func (r *driftDetectionResource) Schema(_ context.Context, _ resource.SchemaRequ
 				MarkdownDescription: "Run mode for drift detection: `refresh-only` (default) or `plan`. ",
 				Optional:            true,
 				Computed:            true,
-				Default:             stringdefault.StaticString(string(scalr.DriftDetectionScheduleRunModeRefreshOnly)),
+				Default:             stringdefault.StaticString(string(schemas.DriftDetectionScheduleRunModeRefreshOnly)),
 				Validators: []validator.String{
 					stringvalidator.OneOf(
-						string(scalr.DriftDetectionScheduleRunModeRefreshOnly),
-						string(scalr.DriftDetectionScheduleRunModePlan),
+						string(schemas.DriftDetectionScheduleRunModeRefreshOnly),
+						string(schemas.DriftDetectionScheduleRunModePlan),
 					),
 				},
 			},
 		},
 		Blocks: map[string]schema.Block{
-			"workspace_filters": schema.SetNestedBlock{
+			"workspace_filters": schema.SingleNestedBlock{
 				MarkdownDescription: "Filters for workspaces to be included in drift detection. Only one type of filter can be specified: `name_patterns`, `environment_types` or `tags`.",
-				NestedObject: schema.NestedBlockObject{
-					Attributes: map[string]schema.Attribute{
-						"name_patterns": schema.SetAttribute{
-							MarkdownDescription: "Workspace name patterns to include in drift detection. Supports `*` wildcard (e.g., `prod-*`).",
-							ElementType:         types.StringType,
-							Optional:            true,
-							Computed:            true,
-							Validators: []validator.Set{
-								setvalidator.SizeAtLeast(1),
-								setvalidator.ConflictsWith(
-									path.MatchRelative().AtParent().AtName("environment_types"),
-									path.MatchRelative().AtParent().AtName("tags"),
-								),
-							},
+				Attributes: map[string]schema.Attribute{
+					"name_patterns": schema.SetAttribute{
+						MarkdownDescription: "Workspace name patterns to include in drift detection. Supports `*` wildcard (e.g., `prod-*`).",
+						ElementType:         types.StringType,
+						Optional:            true,
+						Validators: []validator.Set{
+							setvalidator.SizeAtLeast(1),
 						},
-						"environment_types": schema.SetAttribute{
-							MarkdownDescription: "Workspace environment types to include in drift detection. Allowed values: `production`, `staging`, `testing`, `development`, `unmapped`.",
-							ElementType:         types.StringType,
-							Optional:            true,
-							Computed:            true,
-							Validators: []validator.Set{
-								setvalidator.SizeAtLeast(1),
-								setvalidator.ConflictsWith(
-									path.MatchRelative().AtParent().AtName("name_patterns"),
-									path.MatchRelative().AtParent().AtName("tags"),
+					},
+					"environment_types": schema.SetAttribute{
+						MarkdownDescription: "Workspace environment types to include in drift detection. Allowed values: `production`, `staging`, `testing`, `development`, `unmapped`.",
+						ElementType:         types.StringType,
+						Optional:            true,
+						Validators: []validator.Set{
+							setvalidator.SizeAtLeast(1),
+							setvalidator.ValueStringsAre(
+								stringvalidator.OneOf(
+									"production",
+									"staging",
+									"testing",
+									"development",
+									"unmapped",
 								),
-							},
+							),
 						},
-						"tags": schema.SetAttribute{
-							MarkdownDescription: "Workspace tag to include in drift detection. A workspace matches if it has at least one of the specified tags.",
-							ElementType:         types.StringType,
-							Optional:            true,
-							Computed:            true,
-							Validators: []validator.Set{
-								setvalidator.SizeAtLeast(1),
-								setvalidator.ConflictsWith(
-									path.MatchRelative().AtParent().AtName("name_patterns"),
-									path.MatchRelative().AtParent().AtName("environment_types"),
-								),
-							},
+					},
+					"tags": schema.SetAttribute{
+						MarkdownDescription: "Workspace tag to include in drift detection. A workspace matches if it has at least one of the specified tags.",
+						ElementType:         types.StringType,
+						Optional:            true,
+						Validators: []validator.Set{
+							setvalidator.SizeAtLeast(1),
 						},
 					},
 				},
-				Validators: []validator.Set{
-					setvalidator.SizeAtMost(1),
+				Validators: []validator.Object{
+					validation.ExactlyOneOfIfObjectSet(
+						path.MatchRelative().AtName("name_patterns"),
+						path.MatchRelative().AtName("environment_types"),
+						path.MatchRelative().AtName("tags"),
+					),
 				},
 			},
 		},
 	}
 }
 
-func (r *driftDetectionResource) ConfigValidators(_ context.Context) []resource.ConfigValidator {
-	return []resource.ConfigValidator{}
-}
-
-func toScalrWorkspaceFilters(ctx context.Context, tfSet types.Set) (*scalr.DriftDetectionWorkspaceFilter, diag.Diagnostics) {
+func toWorkspaceFiltersRequest(ctx context.Context, filtersObj types.Object) (*schemas.DriftDetectionScheduleWorkspaceFiltersRequest, diag.Diagnostics) {
 	var diags diag.Diagnostics
-	var filters []workspaceFiltersModel
+	var filters workspaceFiltersModel
 
-	scalrWorkspaceFilter := &scalr.DriftDetectionWorkspaceFilter{}
-
-	if tfSet.IsNull() || tfSet.IsUnknown() {
-		return scalrWorkspaceFilter, diags
+	if filtersObj.IsNull() || filtersObj.IsUnknown() {
+		return nil, diags
 	}
 
-	diags.Append(tfSet.ElementsAs(ctx, &filters, false)...)
+	diags.Append(filtersObj.As(ctx, &filters, basetypes.ObjectAsOptions{})...)
 	if diags.HasError() {
 		return nil, diags
 	}
-	if len(filters) == 0 {
-		return scalrWorkspaceFilter, diags
-	}
-	filter := filters[0]
-	if !filter.NamePatterns.IsNull() && !filter.NamePatterns.IsUnknown() {
+
+	filtersRequest := &schemas.DriftDetectionScheduleWorkspaceFiltersRequest{}
+
+	if !filters.NamePatterns.IsNull() && !filters.NamePatterns.IsUnknown() {
 		var namePatterns []string
-		diags.Append(filter.NamePatterns.ElementsAs(ctx, &namePatterns, false)...)
+		diags.Append(filters.NamePatterns.ElementsAs(ctx, &namePatterns, false)...)
 		if diags.HasError() {
 			return nil, diags
 		}
-		scalrWorkspaceFilter.NamePatterns = &namePatterns
+		filtersRequest.NamePatterns = value.Set(namePatterns)
 	}
-	if !filter.EnvironmentTypes.IsNull() && !filter.EnvironmentTypes.IsUnknown() {
-		var environmentTypes []scalr.WorkspaceEnvironmentType
-		diags.Append(filter.EnvironmentTypes.ElementsAs(ctx, &environmentTypes, false)...)
+	if !filters.EnvironmentTypes.IsNull() && !filters.EnvironmentTypes.IsUnknown() {
+		var environmentTypes []string
+		diags.Append(filters.EnvironmentTypes.ElementsAs(ctx, &environmentTypes, false)...)
 		if diags.HasError() {
 			return nil, diags
 		}
-		scalrWorkspaceFilter.EnvironmentTypes = &environmentTypes
+		filtersRequest.EnvironmentTypes = value.Set(environmentTypes)
 	}
-	if !filter.Tags.IsNull() && !filter.Tags.IsUnknown() {
+	if !filters.Tags.IsNull() && !filters.Tags.IsUnknown() {
 		var tags []string
-		diags.Append(filter.Tags.ElementsAs(ctx, &tags, false)...)
+		diags.Append(filters.Tags.ElementsAs(ctx, &tags, false)...)
 		if diags.HasError() {
 			return nil, diags
 		}
-		scalrWorkspaceFilter.Tags = &tags
+		filtersRequest.Tags = value.Set(tags)
 	}
-	return scalrWorkspaceFilter, diags
+
+	return filtersRequest, diags
 }
 
-func toTerraformWorkspaceFilters(ctx context.Context, scalrWorkspaceFilter scalr.DriftDetectionWorkspaceFilter) (types.Set, diag.Diagnostics) {
+func driftDetectionResourceModelFromAPI(ctx context.Context, driftDetection *schemas.DriftDetectionSchedule) (*driftDetectionResourceModel, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	filters := []workspaceFiltersModel{
-		{
-			NamePatterns:     types.SetNull(types.StringType),
-			EnvironmentTypes: types.SetNull(types.StringType),
-			Tags:             types.SetNull(types.StringType),
-		},
+	model := &driftDetectionResourceModel{
+		Id:               types.StringValue(driftDetection.ID),
+		EnvironmentID:    types.StringValue(driftDetection.Relationships.Environment.ID),
+		CheckPeriod:      types.StringValue(string(driftDetection.Attributes.Schedule)),
+		RunMode:          types.StringValue(string(driftDetection.Attributes.RunMode)),
+		WorkspaceFilters: types.ObjectNull(filtersAttrTypes),
 	}
 
-	if !scalrWorkspaceFilter.IsEmpty() {
-		filter := &filters[0]
-		if scalrWorkspaceFilter.NamePatterns != nil {
-			namePatterns, d := types.SetValueFrom(ctx, types.StringType, *scalrWorkspaceFilter.NamePatterns)
-			diags.Append(d...)
-			filter.NamePatterns = namePatterns
-		} else if scalrWorkspaceFilter.EnvironmentTypes != nil {
-			envTypes, d := types.SetValueFrom(ctx, types.StringType, *scalrWorkspaceFilter.EnvironmentTypes)
-			diags.Append(d...)
-			filter.EnvironmentTypes = envTypes
-		} else if scalrWorkspaceFilter.Tags != nil {
-			tags, d := types.SetValueFrom(ctx, types.StringType, *scalrWorkspaceFilter.Tags)
-			diags.Append(d...)
-			filter.Tags = tags
-		}
+	filters := workspaceFiltersModel{
+		NamePatterns:     types.SetNull(types.StringType),
+		EnvironmentTypes: types.SetNull(types.StringType),
+		Tags:             types.SetNull(types.StringType),
 	}
 
-	tfSet, d := types.SetValueFrom(ctx, types.ObjectType{
-		AttrTypes: map[string]attr.Type{
-			"name_patterns":     types.SetType{ElemType: types.StringType},
-			"environment_types": types.SetType{ElemType: types.StringType},
-			"tags":              types.SetType{ElemType: types.StringType},
-		},
-	}, filters)
+	namePatterns, d := types.SetValueFrom(ctx, types.StringType, driftDetection.Attributes.WorkspaceFilters.NamePatterns)
 	diags.Append(d...)
+	filters.NamePatterns = namePatterns
 
-	return tfSet, diags
+	envTypes, d := types.SetValueFrom(ctx, types.StringType, driftDetection.Attributes.WorkspaceFilters.EnvironmentTypes)
+	diags.Append(d...)
+	filters.EnvironmentTypes = envTypes
+
+	tags, d := types.SetValueFrom(ctx, types.StringType, driftDetection.Attributes.WorkspaceFilters.Tags)
+	diags.Append(d...)
+	filters.Tags = tags
+
+	if !filters.NamePatterns.IsNull() || !filters.EnvironmentTypes.IsNull() || !filters.Tags.IsNull() {
+		filtersValue, d := types.ObjectValueFrom(ctx, filtersAttrTypes, filters)
+		diags.Append(d...)
+		model.WorkspaceFilters = filtersValue
+	}
+
+	return model, diags
 }
 
 func (r *driftDetectionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -251,38 +248,36 @@ func (r *driftDetectionResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	workspaceFilter, diags := toScalrWorkspaceFilters(ctx, plan.WorkspaceFilters)
+	filtersRequest, diags := toWorkspaceFiltersRequest(ctx, plan.WorkspaceFilters)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	opts := scalr.DriftDetectionCreateOptions{
-		Environment:      &scalr.Environment{ID: plan.EnvironmentID.ValueString()},
-		Schedule:         scalr.DriftDetectionSchedulePeriod(plan.CheckPeriod.ValueString()),
-		WorkspaceFilters: *workspaceFilter,
+	opts := schemas.DriftDetectionScheduleRequest{
+		Attributes: schemas.DriftDetectionScheduleAttributesRequest{
+			RunMode:          value.Set(schemas.DriftDetectionScheduleRunMode(plan.RunMode.ValueString())),
+			Schedule:         value.Set(schemas.DriftDetectionScheduleSchedule(plan.CheckPeriod.ValueString())),
+			WorkspaceFilters: value.SetPtrMaybe(filtersRequest),
+		},
+		Relationships: schemas.DriftDetectionScheduleRelationshipsRequest{
+			Environment: value.Set(schemas.Environment{ID: plan.EnvironmentID.ValueString()}),
+		},
 	}
 
-	if !plan.RunMode.IsUnknown() && !plan.RunMode.IsNull() {
-		opts.RunMode = ptr(scalr.DriftDetectionScheduleRunMode(plan.RunMode.ValueString()))
-	}
-
-	driftDetection, err := r.Client.DriftDetections.Create(ctx, opts)
+	driftDetection, err := r.ClientV2.DriftDetectionSchedule.CreateDriftDetectionSchedule(ctx, &opts, nil)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating scalr_drift_detection", err.Error())
 		return
 	}
 
-	plan.Id = types.StringValue(driftDetection.ID)
-	plan.EnvironmentID = types.StringValue(driftDetection.Environment.ID)
-	plan.CheckPeriod = types.StringValue(string(driftDetection.Schedule))
-	plan.RunMode = types.StringValue(string(driftDetection.RunMode))
-
-	tfWorkspaceFilters, diags := toTerraformWorkspaceFilters(ctx, driftDetection.WorkspaceFilters)
+	result, diags := driftDetectionResourceModelFromAPI(ctx, driftDetection)
 	resp.Diagnostics.Append(diags...)
-	plan.WorkspaceFilters = tfWorkspaceFilters
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
-	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &result)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -295,9 +290,9 @@ func (r *driftDetectionResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	driftDetection, err := r.Client.DriftDetections.Read(ctx, state.Id.ValueString())
+	driftDetection, err := r.ClientV2.DriftDetectionSchedule.GetDriftDetectionSchedule(ctx, state.Id.ValueString())
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
+		if errors.Is(err, client.ErrNotFound) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -305,56 +300,62 @@ func (r *driftDetectionResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	state.EnvironmentID = types.StringValue(driftDetection.Environment.ID)
-	state.CheckPeriod = types.StringValue(string(driftDetection.Schedule))
-	state.RunMode = types.StringValue(string(driftDetection.RunMode))
-	tfWorkspaceFilters, diags := toTerraformWorkspaceFilters(ctx, driftDetection.WorkspaceFilters)
+	result, diags := driftDetectionResourceModelFromAPI(ctx, driftDetection)
 	resp.Diagnostics.Append(diags...)
-	state.WorkspaceFilters = tfWorkspaceFilters
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
-	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &result)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 }
 
 func (r *driftDetectionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan driftDetectionResourceModel
+	var plan, state driftDetectionResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	workspaceFilter, diags := toScalrWorkspaceFilters(ctx, plan.WorkspaceFilters)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
+	opts := schemas.DriftDetectionScheduleRequest{}
+
+	if !plan.RunMode.Equal(state.RunMode) {
+		opts.Attributes.RunMode = value.Set(schemas.DriftDetectionScheduleRunMode(plan.RunMode.ValueString()))
 	}
 
-	opts := scalr.DriftDetectionUpdateOptions{
-		Environment:      &scalr.Environment{ID: plan.EnvironmentID.ValueString()},
-		Schedule:         scalr.DriftDetectionSchedulePeriod(plan.CheckPeriod.ValueString()),
-		WorkspaceFilters: *workspaceFilter,
+	if !plan.CheckPeriod.Equal(state.CheckPeriod) {
+		opts.Attributes.Schedule = value.Set(schemas.DriftDetectionScheduleSchedule(plan.CheckPeriod.ValueString()))
 	}
 
-	if !plan.RunMode.IsUnknown() && !plan.RunMode.IsNull() {
-		opts.RunMode = ptr(scalr.DriftDetectionScheduleRunMode(plan.RunMode.ValueString()))
+	if !plan.WorkspaceFilters.Equal(state.WorkspaceFilters) {
+		if plan.WorkspaceFilters.IsNull() {
+			opts.Attributes.WorkspaceFilters = value.Null[schemas.DriftDetectionScheduleWorkspaceFiltersRequest]()
+		} else {
+			filtersRequest, diags := toWorkspaceFiltersRequest(ctx, plan.WorkspaceFilters)
+			resp.Diagnostics.Append(diags...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+			opts.Attributes.WorkspaceFilters = value.SetPtrMaybe(filtersRequest)
+		}
 	}
 
-	driftDetection, err := r.Client.DriftDetections.Update(ctx, plan.Id.ValueString(), opts)
+	driftDetection, err := r.ClientV2.DriftDetectionSchedule.UpdateDriftDetectionSchedule(ctx, plan.Id.ValueString(), &opts)
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating scalr_drift_detection", err.Error())
 		return
 	}
 
-	plan.CheckPeriod = types.StringValue(string(driftDetection.Schedule))
-	plan.RunMode = types.StringValue(string(driftDetection.RunMode))
-
-	tfWorkspaceFilters, diags := toTerraformWorkspaceFilters(ctx, driftDetection.WorkspaceFilters)
+	result, diags := driftDetectionResourceModelFromAPI(ctx, driftDetection)
 	resp.Diagnostics.Append(diags...)
-	plan.WorkspaceFilters = tfWorkspaceFilters
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
-	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &result)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -367,8 +368,8 @@ func (r *driftDetectionResource) Delete(ctx context.Context, req resource.Delete
 		return
 	}
 
-	err := r.Client.DriftDetections.Delete(ctx, state.Id.ValueString())
-	if err != nil && !errors.Is(err, scalr.ErrResourceNotFound) {
+	err := r.ClientV2.DriftDetectionSchedule.DeleteDriftDetectionSchedule(ctx, state.Id.ValueString())
+	if err != nil && !errors.Is(err, client.ErrNotFound) {
 		resp.Diagnostics.AddError("Error deleting scalr_drift_detection", err.Error())
 		return
 	}
@@ -376,64 +377,4 @@ func (r *driftDetectionResource) Delete(ctx context.Context, req resource.Delete
 
 func (r *driftDetectionResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
-}
-
-func (r *driftDetectionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	if req.Plan.Raw.IsNull() {
-		return
-	}
-
-	var cfgSet, planSet types.Set
-
-	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("workspace_filters"), &cfgSet)...)
-	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("workspace_filters"), &planSet)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	if !cfgSet.IsNull() && !cfgSet.IsUnknown() {
-		var cfgFilters []workspaceFiltersModel
-		resp.Diagnostics.Append(cfgSet.ElementsAs(ctx, &cfgFilters, false)...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
-		if len(cfgFilters) > 0 {
-			return
-		}
-	}
-
-	if !planSet.IsNull() && !planSet.IsUnknown() {
-		var planFilters []workspaceFiltersModel
-		resp.Diagnostics.Append(planSet.ElementsAs(ctx, &planFilters, false)...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
-		if len(planFilters) > 0 {
-			return
-		}
-	}
-
-	filters := []workspaceFiltersModel{
-		{
-			NamePatterns:     types.SetNull(types.StringType),
-			EnvironmentTypes: types.SetNull(types.StringType),
-			Tags:             types.SetNull(types.StringType),
-		},
-	}
-
-	tfSet, d := types.SetValueFrom(ctx, types.ObjectType{
-		AttrTypes: map[string]attr.Type{
-			"name_patterns":     types.SetType{ElemType: types.StringType},
-			"environment_types": types.SetType{ElemType: types.StringType},
-			"tags":              types.SetType{ElemType: types.StringType},
-		},
-	}, filters)
-	resp.Diagnostics.Append(d...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	resp.Diagnostics.Append(
-		resp.Plan.SetAttribute(ctx, path.Root("workspace_filters"), tfSet)...,
-	)
 }
