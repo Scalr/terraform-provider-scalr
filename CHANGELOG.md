@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **New resource:** `scalr_drift_detection` ([#473](https://github.com/Scalr/terraform-provider-scalr/pull/473))
+- `scalr_drift_detection`: new attributes `run_mode` and `workspace_filters`. ([#478](https://github.com/Scalr/terraform-provider-scalr/pull/478))
 
 ### Fixed
 
