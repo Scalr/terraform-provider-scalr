@@ -226,7 +226,7 @@ func (r *environmentResource) Schema(ctx context.Context, _ resource.SchemaReque
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Default:             setdefault.StaticValue(emptyStringSet),
+				DeprecationMessage:  "Use the scalr_federated_environments resource instead. This attribute will be removed in the future.",
 				Validators: []validator.Set{
 					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
 				},
