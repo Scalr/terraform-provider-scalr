@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/scalr/go-scalr"
 	"github.com/scalr/go-scalr/v2/scalr/schemas"
+	"github.com/scalr/go-scalr/v2/scalr/value"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
 	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
@@ -58,7 +59,7 @@ func (r *federatedEnvironmentsResource) Schema(_ context.Context, _ resource.Sch
 				},
 			},
 			"federated_environments": schema.SetAttribute{
-				MarkdownDescription: "The list of environment identifiers that are allowed to access environment that federates access.",
+				MarkdownDescription: "The list of environment identifiers that are allowed to access environment that federates access. Use `*` to allow all environments.",
 				ElementType:         types.StringType,
 				Required:            true,
 				Validators: []validator.Set{
@@ -87,11 +88,34 @@ func (r *federatedEnvironmentsResource) Create(ctx context.Context, req resource
 		return
 	}
 
+	isShared := false
+
 	if len(federatedIDs) == 1 && federatedIDs[0] == "*" {
-		resp.Diagnostics.AddError("Error creating federated environments", "'*' is not a valid environment identifier")
-		return
+		isShared = true
+
 	} else if len(federatedIDs) == 0 {
 		resp.Diagnostics.AddError("Error creating federated environments", "at least one environment identifier is required")
+		return
+	}
+
+	environmentRequest := schemas.EnvironmentRequest{
+		Attributes: schemas.EnvironmentAttributesRequest{
+			IsFederatedToAccount: value.Set(isShared),
+		},
+	}
+	_, er := r.ClientV2.Environment.UpdateEnvironment(ctx, plan.EnvironmentId.ValueString(), &environmentRequest, nil)
+	if er != nil {
+		resp.Diagnostics.AddError("Error updating federated environments", er.Error())
+	}
+
+	if isShared {
+		federatedValue, _ := types.SetValueFrom(ctx, types.StringType, []string{"*"})
+		result := federatedEnvironmentsResourceModel{
+			EnvironmentId:         plan.EnvironmentId,
+			FederatedEnvironments: federatedValue,
+		}
+
+		resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
 		return
 	}
 
@@ -133,6 +157,26 @@ func (r *federatedEnvironmentsResource) Read(ctx context.Context, req resource.R
 		return
 	}
 
+	environment, err := r.ClientV2.Environment.GetEnvironment(ctx, state.EnvironmentId.ValueString(), nil)
+	if err != nil {
+		if errors.Is(err, scalr.ErrResourceNotFound) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
+		resp.Diagnostics.AddError("Error retrieving environment", err.Error())
+		return
+	}
+
+	if environment.Attributes.IsFederatedToAccount {
+		federatedValue, _ := types.SetValueFrom(ctx, types.StringType, []string{"*"})
+		result := federatedEnvironmentsResourceModel{
+			EnvironmentId:         state.EnvironmentId,
+			FederatedEnvironments: federatedValue,
+		}
+		resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
+		return
+	}
+
 	federated, err := getFederatedEnvironments(ctx, r.Client, state.EnvironmentId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error retrieving federated environments", err.Error())
@@ -168,8 +212,30 @@ func (r *federatedEnvironmentsResource) Update(ctx context.Context, req resource
 		return
 	}
 
+	isShared := false
+
 	if len(planFederated) == 1 && planFederated[0] == "*" {
-		resp.Diagnostics.AddError("Error updating federated environments", "'*' is not a valid environment identifier")
+		isShared = true
+	}
+
+	environmentRequest := schemas.EnvironmentRequest{
+		Attributes: schemas.EnvironmentAttributesRequest{
+			IsFederatedToAccount: value.Set(isShared),
+		},
+	}
+	_, er := r.ClientV2.Environment.UpdateEnvironment(ctx, plan.EnvironmentId.ValueString(), &environmentRequest, nil)
+	if er != nil {
+		resp.Diagnostics.AddError("Error updating federated environments", er.Error())
+	}
+
+	if isShared {
+		federatedValue, _ := types.SetValueFrom(ctx, types.StringType, []string{"*"})
+		result := federatedEnvironmentsResourceModel{
+			EnvironmentId:         plan.EnvironmentId,
+			FederatedEnvironments: federatedValue,
+		}
+
+		resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
 		return
 	}
 
@@ -230,6 +296,19 @@ func (r *federatedEnvironmentsResource) Delete(ctx context.Context, req resource
 	var federatedIDs []string
 	resp.Diagnostics.Append(state.FederatedEnvironments.ElementsAs(ctx, &federatedIDs, false)...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if len(federatedIDs) == 1 && federatedIDs[0] == "*" {
+		environmentRequest := schemas.EnvironmentRequest{
+			Attributes: schemas.EnvironmentAttributesRequest{
+				IsFederatedToAccount: value.Set(false),
+			},
+		}
+		_, er := r.ClientV2.Environment.UpdateEnvironment(ctx, state.EnvironmentId.ValueString(), &environmentRequest, nil)
+		if er != nil {
+			resp.Diagnostics.AddError("Error updating federated environments", er.Error())
+		}
 		return
 	}
 

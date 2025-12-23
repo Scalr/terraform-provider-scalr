@@ -61,6 +61,24 @@ func TestFederatedEnvironmentsResource_update(t *testing.T) {
 	})
 }
 
+func TestFederatedEnvironmentsResource_shared(t *testing.T) {
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testFederatedEnvironmentsToAccConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckScalrEnvironmentSharedToAccount("scalr_federated_environments.test", true),
+					resource.TestCheckResourceAttr("scalr_federated_environments.test", "federated_environments.0", "*"),
+					resource.TestCheckResourceAttrSet("scalr_federated_environments.test", "environment_id"),
+				),
+			},
+		},
+	})
+}
+
 func testCheckScalrFederatedEnvironmentsExists(resId string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
@@ -81,6 +99,32 @@ func testCheckScalrFederatedEnvironmentsExists(resId string) resource.TestCheckF
 
 		if len(p.Items) == 0 {
 			return fmt.Errorf("No federated environments found for environment %s", rs.Primary.ID)
+		}
+
+		return nil
+	}
+}
+
+func testCheckScalrEnvironmentSharedToAccount(resId string, expected bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
+
+		rs, ok := s.RootModule().Resources[resId]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resId)
+		}
+
+		if rs.Primary.Attributes["environment_id"] == "" {
+			return errNoInstanceId
+		}
+
+		env, err := scalrClient.Environments.Read(ctx, rs.Primary.Attributes["environment_id"])
+		if err != nil {
+			return err
+		}
+
+		if env.IsFederatedToAccount != expected {
+			return fmt.Errorf("Expected IsFederatedToAccount to be %v, got %v", expected, env.IsFederatedToAccount)
 		}
 
 		return nil
@@ -138,4 +182,18 @@ resource "scalr_federated_environments" "test" {
   federated_environments = %s
 }
 `, defaultAccount, defaultAccount, defaultAccount, federatedEnvs)
+}
+
+func testFederatedEnvironmentsToAccConfig() string {
+	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name       = "environment-test"
+  account_id = "%s"
+}
+
+resource "scalr_federated_environments" "test" {
+  environment_id = scalr_environment.test.id
+  federated_environments = ["*"]
+}
+`, defaultAccount)
 }

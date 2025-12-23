@@ -21,4 +21,4 @@ Manages the list of federated environments of an environment in Scalr.
 ### Required
 
 - `environment_id` (String) The ID of an environment that federates access to other environments.
-- `federated_environments` (Set of String) The list of environment identifiers that are allowed to access environment that federates access.
+- `federated_environments` (Set of String) The list of environment identifiers that are allowed to access environment that federates access. Use `*` to allow all environments.
