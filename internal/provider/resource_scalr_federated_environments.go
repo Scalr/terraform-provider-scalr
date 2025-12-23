@@ -58,7 +58,7 @@ func (r *federatedEnvironmentsResource) Schema(_ context.Context, _ resource.Sch
 				},
 			},
 			"federated_environments": schema.SetAttribute{
-				MarkdownDescription: "The list of environment identifiers that are allowed to access this environment.",
+				MarkdownDescription: "The list of environment identifiers that are allowed to access environment that federates access.",
 				ElementType:         types.StringType,
 				Required:            true,
 				Validators: []validator.Set{
