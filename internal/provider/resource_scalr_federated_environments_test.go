@@ -134,12 +134,12 @@ func testCheckScalrEnvironmentSharedToAccount(resId string, expected bool) resou
 func testFederatedEnvironmentsConfig() string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
-  name       = "environment-test"
+  name       = "environment-test-federated"
   account_id = "%s"
 }
 
 resource "scalr_environment" "test2" {
-  name       = "environment-test2"
+  name       = "environment-test2-federated"
   account_id = "%s"
 }
 
@@ -187,7 +187,7 @@ resource "scalr_federated_environments" "test" {
 func testFederatedEnvironmentsToAccConfig() string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {
-  name       = "environment-test"
+  name       = "environment-test-federated-shared"
   account_id = "%s"
 }
 

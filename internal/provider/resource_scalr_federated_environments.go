@@ -88,12 +88,9 @@ func (r *federatedEnvironmentsResource) Create(ctx context.Context, req resource
 		return
 	}
 
-	isShared := false
+	isShared := len(federatedIDs) == 1 && federatedIDs[0] == "*"
 
-	if len(federatedIDs) == 1 && federatedIDs[0] == "*" {
-		isShared = true
-
-	} else if len(federatedIDs) == 0 {
+	if len(federatedIDs) == 0 {
 		resp.Diagnostics.AddError("Error creating federated environments", "at least one environment identifier is required")
 		return
 	}
@@ -212,11 +209,7 @@ func (r *federatedEnvironmentsResource) Update(ctx context.Context, req resource
 		return
 	}
 
-	isShared := false
-
-	if len(planFederated) == 1 && planFederated[0] == "*" {
-		isShared = true
-	}
+	isShared := len(planFederated) == 1 && planFederated[0] == "*"
 
 	environmentRequest := schemas.EnvironmentRequest{
 		Attributes: schemas.EnvironmentAttributesRequest{
