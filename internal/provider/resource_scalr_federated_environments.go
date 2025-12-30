@@ -121,7 +121,7 @@ func (r *federatedEnvironmentsResource) Create(ctx context.Context, req resource
 		federatedEnvironments[i] = schemas.Environment{ID: envID}
 	}
 
-	err := r.ClientV2.Environment.AddFederatedEnvironments(ctx, plan.EnvironmentId.ValueString(), federatedEnvironments)
+	err := r.ClientV2.Environment.ReplaceFederatedEnvironments(ctx, plan.EnvironmentId.ValueString(), federatedEnvironments)
 	if err != nil {
 		resp.Diagnostics.AddError("Error adding federated environments", err.Error())
 		return
@@ -202,9 +202,8 @@ func (r *federatedEnvironmentsResource) Update(ctx context.Context, req resource
 		return
 	}
 
-	var planFederated, stateFederated []string
+	var planFederated []string
 	resp.Diagnostics.Append(plan.FederatedEnvironments.ElementsAs(ctx, &planFederated, false)...)
-	resp.Diagnostics.Append(state.FederatedEnvironments.ElementsAs(ctx, &stateFederated, false)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -232,28 +231,14 @@ func (r *federatedEnvironmentsResource) Update(ctx context.Context, req resource
 		return
 	}
 
-	federatedToAdd, federatedToRemove := diff(stateFederated, planFederated)
-
-	if len(federatedToAdd) > 0 {
-		e := make([]schemas.Environment, len(federatedToAdd))
-		for i, env := range federatedToAdd {
+	if len(planFederated) > 0 {
+		e := make([]schemas.Environment, len(planFederated))
+		for i, env := range planFederated {
 			e[i] = schemas.Environment{ID: env}
 		}
-		err := r.ClientV2.Environment.AddFederatedEnvironments(ctx, plan.EnvironmentId.ValueString(), e)
+		err := r.ClientV2.Environment.ReplaceFederatedEnvironments(ctx, plan.EnvironmentId.ValueString(), e)
 		if err != nil {
 			resp.Diagnostics.AddError("Error adding federated environments", err.Error())
-			return
-		}
-	}
-
-	if len(federatedToRemove) > 0 {
-		e := make([]schemas.Environment, len(federatedToRemove))
-		for i, env := range federatedToRemove {
-			e[i] = schemas.Environment{ID: env}
-		}
-		err := r.ClientV2.Environment.DeleteFederatedEnvironment(ctx, plan.EnvironmentId.ValueString(), e)
-		if err != nil {
-			resp.Diagnostics.AddError("Error removing federated environments", err.Error())
 			return
 		}
 	}
