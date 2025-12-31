@@ -366,7 +366,7 @@ resource "scalr_provider_configuration" "kubernetes" {
 }
 
 resource "scalr_environment" "test" {
-  name       = "test-env-%d-patched"
+  name       = "test-%d-pcpatched"
   account_id = "%s"
   default_provider_configurations = ["${scalr_provider_configuration.kubernetes.id}"]
 }`, defaultAccount, rInt, defaultAccount)
@@ -381,7 +381,7 @@ resource "scalr_workspace" "test" {
 }
 
 resource "scalr_environment" "test" {
-  name       = "test-env-%d-patched"
+  name       = "test-%d-pc-patched"
   account_id = "%s"
 }`, rInt, defaultAccount)
 }

@@ -35,7 +35,7 @@ resource "scalr_environment" "test" {
 - `account_id` (String) ID of the account, in the format `acc-<RANDOM STRING>`.
 - `default_provider_configurations` (Set of String) List of IDs of provider configurations, used in the environment workspaces by default.
 - `default_workspace_agent_pool_id` (String) Default agent pool that will be set for the entire environment. It will be used by a workspace if no other pool is explicitly linked.
-- `federated_environments` (Set of String) The list of environment identifiers that are allowed to access this environment. Use `["*"]` to share with all environments.
+- `federated_environments` (Set of String, Deprecated) The list of environment identifiers that are allowed to access this environment. Use `["*"]` to share with all environments.
 - `mask_sensitive_output` (Boolean) Enable masking of the sensitive console output. Defaults to `true`.
 - `remote_backend` (Boolean) If Scalr exports the remote backend configuration and state storage for your infrastructure management. Disabling this feature will also prevent the ability to perform state locking, which ensures that concurrent operations do not conflict. Additionally, it will disable the capability to initiate CLI-driven runs through Scalr.
 - `remote_backend_overridable` (Boolean) Indicates if the remote backend configuration can be overridden on the workspace level.

@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 26
+position: 27
 ---
 ## Resource: scalr_ssh_key
 

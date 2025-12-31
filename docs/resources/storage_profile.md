@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 27
+position: 28
 ---
 ## Resource: scalr_storage_profile
 

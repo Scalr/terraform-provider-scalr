@@ -226,7 +226,7 @@ func (r *environmentResource) Schema(ctx context.Context, _ resource.SchemaReque
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Default:             setdefault.StaticValue(emptyStringSet),
+				DeprecationMessage:  "Use the scalr_federated_environments resource instead. This attribute will be removed in the future.",
 				Validators: []validator.Set{
 					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
 				},
@@ -439,8 +439,13 @@ func (r *environmentResource) Update(ctx context.Context, req resource.UpdateReq
 	if !plan.FederatedEnvironments.Equal(state.FederatedEnvironments) {
 		var planFederated []string
 		var stateFederated []string
-		resp.Diagnostics.Append(plan.FederatedEnvironments.ElementsAs(ctx, &planFederated, false)...)
-		resp.Diagnostics.Append(state.FederatedEnvironments.ElementsAs(ctx, &stateFederated, false)...)
+
+		if !plan.FederatedEnvironments.IsUnknown() && !plan.FederatedEnvironments.IsNull() {
+			resp.Diagnostics.Append(plan.FederatedEnvironments.ElementsAs(ctx, &planFederated, false)...)
+		}
+		if !state.FederatedEnvironments.IsUnknown() && !state.FederatedEnvironments.IsNull() {
+			resp.Diagnostics.Append(state.FederatedEnvironments.ElementsAs(ctx, &stateFederated, false)...)
+		}
 
 		opts.IsFederatedToAccount = ptr(false)
 

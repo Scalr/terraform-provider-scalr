@@ -158,6 +158,7 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 		newCheckovIntegrationResource,
 		newEnvironmentHookResource,
 		newEnvironmentResource,
+		newFederatedEnvironmentsResource,
 		newHookResource,
 		newIntegrationInfracostResource,
 		newModuleNamespaceResource,

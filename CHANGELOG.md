@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- **New resource:** `scalr_federated_environments` ([#480](https://github.com/Scalr/terraform-provider-scalr/pull/480))
+
 ## [3.11.0] - 2025-11-21
 
 ### Added

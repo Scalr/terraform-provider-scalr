@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 28
+position: 29
 ---
 ## Resource: scalr_tag
 
