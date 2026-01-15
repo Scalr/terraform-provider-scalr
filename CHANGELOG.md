@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
 - **New resource:** `scalr_federated_environments` ([#480](https://github.com/Scalr/terraform-provider-scalr/pull/480))
+
+### Fixed
+
+- `data.scalr_vcs_provider.name` attribute: now works only by exact match.  ([#482](https://github.com/Scalr/terraform-provider-scalr/pull/482))
 
 ## [3.11.0] - 2025-11-21
 

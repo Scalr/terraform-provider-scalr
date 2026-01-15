@@ -83,7 +83,7 @@ func dataSourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if name, ok := d.GetOk("name"); ok {
-		options.Query = ptr(name.(string))
+		options.Name = ptr(name.(string))
 	}
 
 	if envId, ok := d.GetOk("environment_id"); ok {

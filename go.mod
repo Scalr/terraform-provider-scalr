@@ -17,7 +17,7 @@ require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.35.0
 	github.com/hashicorp/terraform-plugin-testing v1.11.0
 	github.com/hashicorp/terraform-svchost v0.1.1
-	github.com/scalr/go-scalr v0.0.0-20251124163029-3cd0a1a54d4c
+	github.com/scalr/go-scalr v0.0.0-20260115144546-0279d98173f8
 	github.com/scalr/go-scalr/v2 v2.0.0-rc.2
 )
 
@@ -85,3 +85,5 @@ require (
 	google.golang.org/grpc v1.67.1 // indirect
 	google.golang.org/protobuf v1.35.1 // indirect
 )
+
+replace github.com/scalr/go-scalr => /home/soltyssss/GolandProjects/go-scalr
