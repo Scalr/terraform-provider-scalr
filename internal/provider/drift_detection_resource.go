@@ -254,13 +254,16 @@ func (r *driftDetectionResource) Create(ctx context.Context, req resource.Create
 
 	opts := schemas.DriftDetectionScheduleRequest{
 		Attributes: schemas.DriftDetectionScheduleAttributesRequest{
-			RunMode:          value.Set(schemas.DriftDetectionScheduleRunMode(plan.RunMode.ValueString())),
 			Schedule:         value.Set(schemas.DriftDetectionScheduleSchedule(plan.CheckPeriod.ValueString())),
 			WorkspaceFilters: value.SetPtrMaybe(filtersRequest),
 		},
 		Relationships: schemas.DriftDetectionScheduleRelationshipsRequest{
 			Environment: value.Set(schemas.Environment{ID: plan.EnvironmentID.ValueString()}),
 		},
+	}
+
+	if !plan.RunMode.IsUnknown() && !plan.RunMode.IsNull() {
+		opts.Attributes.RunMode = value.Set(schemas.DriftDetectionScheduleRunMode(plan.RunMode.ValueString()))
 	}
 
 	driftDetection, err := r.ClientV2.DriftDetectionSchedule.CreateDriftDetectionSchedule(ctx, &opts, nil)
