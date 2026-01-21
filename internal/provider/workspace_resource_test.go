@@ -270,6 +270,29 @@ func TestAccScalrWorkspaceResource_import(t *testing.T) {
 	})
 }
 
+func TestAccScalrWorkspaceResource_importByName(t *testing.T) {
+	rInt := GetRandomInteger()
+	envName := fmt.Sprintf("test-env-%d", rInt)
+	wsName := "workspace-import-by-name"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrWorkspaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrWorkspaceForImportByName(rInt, wsName),
+			},
+			{
+				ResourceName:      "scalr_workspace.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateId:     fmt.Sprintf("%s/%s", envName, wsName),
+			},
+		},
+	})
+}
+
 func TestAccScalrWorkspaceResource_providerConfiguration(t *testing.T) {
 	workspace := &scalr.Workspace{}
 	rInt := GetRandomInteger()
@@ -1325,4 +1348,17 @@ func getProviderConfigurationWorkspaceLinksWithPcfg(
 	}
 
 	return
+}
+
+func testAccScalrWorkspaceForImportByName(rInt int, wsName string) string {
+	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name       = "test-env-%[1]d"
+  account_id = "%[2]s"
+}
+
+resource "scalr_workspace" "test" {
+  name           = "%[3]s"
+  environment_id = scalr_environment.test.id
+}`, rInt, defaultAccount, wsName)
 }

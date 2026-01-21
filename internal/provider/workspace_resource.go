@@ -3,6 +3,8 @@ package provider
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -11,6 +13,7 @@ import (
 
 	scalrV2 "github.com/scalr/go-scalr/v2/scalr"
 	"github.com/scalr/go-scalr/v2/scalr/client"
+	"github.com/scalr/go-scalr/v2/scalr/ops/environment"
 	"github.com/scalr/go-scalr/v2/scalr/ops/workspace"
 	"github.com/scalr/go-scalr/v2/scalr/schemas"
 	"github.com/scalr/go-scalr/v2/scalr/value"
@@ -88,9 +91,11 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 			WorkingDirectory:          value.SetPtrMaybe(plan.WorkingDirectory.ValueStringPointer()),
 		},
 		Relationships: schemas.WorkspaceRelationshipsRequest{
-			Environment: value.Set(schemas.Environment{
-				ID: plan.EnvironmentID.ValueString(),
-			}),
+			Environment: value.Set(
+				schemas.Environment{
+					ID: plan.EnvironmentID.ValueString(),
+				},
+			),
 		},
 	}
 
@@ -111,21 +116,27 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 	}
 
 	if !plan.VCSProviderID.IsUnknown() && !plan.VCSProviderID.IsNull() {
-		opts.Relationships.VcsProvider = value.Set(schemas.VcsProvider{
-			ID: plan.VCSProviderID.ValueString(),
-		})
+		opts.Relationships.VcsProvider = value.Set(
+			schemas.VcsProvider{
+				ID: plan.VCSProviderID.ValueString(),
+			},
+		)
 	}
 
 	if !plan.ModuleVersionID.IsUnknown() && !plan.ModuleVersionID.IsNull() {
-		opts.Relationships.ModuleVersion = value.Set(schemas.ModuleVersion{
-			ID: plan.ModuleVersionID.ValueString(),
-		})
+		opts.Relationships.ModuleVersion = value.Set(
+			schemas.ModuleVersion{
+				ID: plan.ModuleVersionID.ValueString(),
+			},
+		)
 	}
 
 	if !plan.AgentPoolID.IsUnknown() && !plan.AgentPoolID.IsNull() {
-		opts.Relationships.AgentPool = value.Set(schemas.AgentPool{
-			ID: plan.AgentPoolID.ValueString(),
-		})
+		opts.Relationships.AgentPool = value.Set(
+			schemas.AgentPool{
+				ID: plan.AgentPoolID.ValueString(),
+			},
+		)
 	}
 
 	if !plan.VCSRepo.IsUnknown() && !plan.VCSRepo.IsNull() {
@@ -167,11 +178,13 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 
 		if len(terragrunt) > 0 {
 			terr := terragrunt[0]
-			opts.Attributes.Terragrunt = value.Set(schemas.WorkspaceTerragruntRequest{
-				Version:                     value.Set(terr.Version.ValueString()),
-				UseRunAll:                   value.SetPtrMaybe(terr.UseRunAll.ValueBoolPointer()),
-				IncludeExternalDependencies: value.SetPtrMaybe(terr.IncludeExternalDependencies.ValueBoolPointer()),
-			})
+			opts.Attributes.Terragrunt = value.Set(
+				schemas.WorkspaceTerragruntRequest{
+					Version:                     value.Set(terr.Version.ValueString()),
+					UseRunAll:                   value.SetPtrMaybe(terr.UseRunAll.ValueBoolPointer()),
+					IncludeExternalDependencies: value.SetPtrMaybe(terr.IncludeExternalDependencies.ValueBoolPointer()),
+				},
+			)
 		}
 	}
 
@@ -181,13 +194,15 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 
 		if len(hooks) > 0 {
 			hook := hooks[0]
-			opts.Attributes.Hooks = value.Set(schemas.WorkspaceHooksRequest{
-				PreInit:   value.SetPtrMaybe(hook.PreInit.ValueStringPointer()),
-				PrePlan:   value.SetPtrMaybe(hook.PrePlan.ValueStringPointer()),
-				PostPlan:  value.SetPtrMaybe(hook.PostPlan.ValueStringPointer()),
-				PreApply:  value.SetPtrMaybe(hook.PreApply.ValueStringPointer()),
-				PostApply: value.SetPtrMaybe(hook.PostApply.ValueStringPointer()),
-			})
+			opts.Attributes.Hooks = value.Set(
+				schemas.WorkspaceHooksRequest{
+					PreInit:   value.SetPtrMaybe(hook.PreInit.ValueStringPointer()),
+					PrePlan:   value.SetPtrMaybe(hook.PrePlan.ValueStringPointer()),
+					PostPlan:  value.SetPtrMaybe(hook.PostPlan.ValueStringPointer()),
+					PreApply:  value.SetPtrMaybe(hook.PreApply.ValueStringPointer()),
+					PostApply: value.SetPtrMaybe(hook.PostApply.ValueStringPointer()),
+				},
+			)
 		}
 	}
 
@@ -273,9 +288,11 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 	}
 
 	// Get refreshed resource state from API
-	ws, err = r.ClientV2.Workspace.GetWorkspace(ctx, ws.ID, &workspace.GetWorkspaceOptions{
-		Include: []string{"created-by"},
-	})
+	ws, err = r.ClientV2.Workspace.GetWorkspace(
+		ctx, ws.ID, &workspace.GetWorkspaceOptions{
+			Include: []string{"created-by"},
+		},
+	)
 	if err != nil {
 		resp.Diagnostics.AddError("Error retrieving workspace", err.Error())
 		return
@@ -311,9 +328,11 @@ func (r *workspaceResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	ws, err := r.ClientV2.Workspace.GetWorkspace(ctx, state.Id.ValueString(), &workspace.GetWorkspaceOptions{
-		Include: []string{"created-by"},
-	})
+	ws, err := r.ClientV2.Workspace.GetWorkspace(
+		ctx, state.Id.ValueString(), &workspace.GetWorkspaceOptions{
+			Include: []string{"created-by"},
+		},
+	)
 	if err != nil {
 		if errors.Is(err, client.ErrNotFound) {
 			resp.State.RemoveResource(ctx)
@@ -484,11 +503,13 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 
 			if len(terragrunt) > 0 {
 				terr := terragrunt[0]
-				opts.Attributes.Terragrunt = value.Set(schemas.WorkspaceTerragruntRequest{
-					Version:                     value.Set(terr.Version.ValueString()),
-					UseRunAll:                   value.SetPtrMaybe(terr.UseRunAll.ValueBoolPointer()),
-					IncludeExternalDependencies: value.SetPtrMaybe(terr.IncludeExternalDependencies.ValueBoolPointer()),
-				})
+				opts.Attributes.Terragrunt = value.Set(
+					schemas.WorkspaceTerragruntRequest{
+						Version:                     value.Set(terr.Version.ValueString()),
+						UseRunAll:                   value.SetPtrMaybe(terr.UseRunAll.ValueBoolPointer()),
+						IncludeExternalDependencies: value.SetPtrMaybe(terr.IncludeExternalDependencies.ValueBoolPointer()),
+					},
+				)
 			}
 		}
 	}
@@ -502,13 +523,15 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 
 			if len(hooks) > 0 {
 				hook := hooks[0]
-				opts.Attributes.Hooks = value.Set(schemas.WorkspaceHooksRequest{
-					PreInit:   value.SetPtrMaybe(hook.PreInit.ValueStringPointer()),
-					PrePlan:   value.SetPtrMaybe(hook.PrePlan.ValueStringPointer()),
-					PostPlan:  value.SetPtrMaybe(hook.PostPlan.ValueStringPointer()),
-					PreApply:  value.SetPtrMaybe(hook.PreApply.ValueStringPointer()),
-					PostApply: value.SetPtrMaybe(hook.PostApply.ValueStringPointer()),
-				})
+				opts.Attributes.Hooks = value.Set(
+					schemas.WorkspaceHooksRequest{
+						PreInit:   value.SetPtrMaybe(hook.PreInit.ValueStringPointer()),
+						PrePlan:   value.SetPtrMaybe(hook.PrePlan.ValueStringPointer()),
+						PostPlan:  value.SetPtrMaybe(hook.PostPlan.ValueStringPointer()),
+						PreApply:  value.SetPtrMaybe(hook.PreApply.ValueStringPointer()),
+						PostApply: value.SetPtrMaybe(hook.PostApply.ValueStringPointer()),
+					},
+				)
 			}
 		}
 	}
@@ -623,7 +646,10 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 				if _, ok := expectedLinks[mapID]; ok {
 					delete(expectedLinks, mapID)
 				} else {
-					err = r.ClientV2.ProviderConfigurationLink.DeleteProviderConfigurationWorkspaceLink(ctx, currentLink.ID)
+					err = r.ClientV2.ProviderConfigurationLink.DeleteProviderConfigurationWorkspaceLink(
+						ctx,
+						currentLink.ID,
+					)
 					if err != nil {
 						resp.Diagnostics.AddError("Error deleting provider configuration link", err.Error())
 					}
@@ -631,7 +657,11 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 			}
 
 			for _, link := range expectedLinks {
-				_, err = r.ClientV2.ProviderConfigurationLink.CreateProviderConfigurationLink(ctx, plan.Id.ValueString(), &link)
+				_, err = r.ClientV2.ProviderConfigurationLink.CreateProviderConfigurationLink(
+					ctx,
+					plan.Id.ValueString(),
+					&link,
+				)
 				if err != nil {
 					resp.Diagnostics.AddError("Error creating provider configuration link", err.Error())
 				}
@@ -679,9 +709,11 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 	}
 
 	// Get refreshed resource state from API
-	ws, err := r.ClientV2.Workspace.GetWorkspace(ctx, plan.Id.ValueString(), &workspace.GetWorkspaceOptions{
-		Include: []string{"created-by"},
-	})
+	ws, err := r.ClientV2.Workspace.GetWorkspace(
+		ctx, plan.Id.ValueString(), &workspace.GetWorkspaceOptions{
+			Include: []string{"created-by"},
+		},
+	)
 	if err != nil {
 		resp.Diagnostics.AddError("Error retrieving workspace", err.Error())
 		return
@@ -725,7 +757,11 @@ func (r *workspaceResource) Delete(ctx context.Context, req resource.DeleteReque
 	}
 }
 
-func (r *workspaceResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+func (r *workspaceResource) ModifyPlan(
+	ctx context.Context,
+	req resource.ModifyPlanRequest,
+	resp *resource.ModifyPlanResponse,
+) {
 	if req.Plan.Raw.IsNull() {
 		// The resource is being destroyed
 		return
@@ -753,9 +789,21 @@ func (r *workspaceResource) ModifyPlan(ctx context.Context, req resource.ModifyP
 		// When the `operations` is explicitly set in the configuration, and `execution_mode` is not -
 		// this is the only case when it takes precedence.
 		if !operations.ValueBool() {
-			resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("execution_mode"), "local")...)
+			resp.Diagnostics.Append(
+				resp.Plan.SetAttribute(
+					ctx,
+					path.Root("execution_mode"),
+					"local",
+				)...,
+			)
 		} else {
-			resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("execution_mode"), "remote")...)
+			resp.Diagnostics.Append(
+				resp.Plan.SetAttribute(
+					ctx,
+					path.Root("execution_mode"),
+					"remote",
+				)...,
+			)
 		}
 	} else {
 		// In all other cases, `execution_mode` dictates the value for `operations`, even when left default.
@@ -767,8 +815,71 @@ func (r *workspaceResource) ModifyPlan(ctx context.Context, req resource.ModifyP
 	}
 }
 
-func (r *workspaceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+// ImportState handles importing existing resources into Terraform state.
+//
+// In addition to default importing by resource ID,
+// it is also possible to import the workspace by environment and workspace name
+// in the format '<environment>/<workspace>'.
+func (r *workspaceResource) ImportState(
+	ctx context.Context,
+	req resource.ImportStateRequest,
+	resp *resource.ImportStateResponse,
+) {
+	if !strings.Contains(req.ID, "/") {
+		resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+		return
+	}
+
+	parts := strings.SplitN(req.ID, "/", 2)
+	envName := strings.TrimSpace(parts[0])
+	wsName := strings.TrimSpace(parts[1])
+
+	if envName == "" || wsName == "" {
+		resp.Diagnostics.AddError(
+			"Invalid import ID",
+			"Expected '<environment>/<workspace>' with both parts non-empty.",
+		)
+		return
+	}
+
+	envs, err := r.ClientV2.Environment.ListEnvironments(
+		ctx,
+		&environment.ListEnvironmentsOptions{
+			Filter: map[string]string{"name": envName},
+			Fields: map[string]any{"environments": ""},
+		},
+	)
+	if err != nil {
+		resp.Diagnostics.AddError("Import failed", fmt.Sprintf("Error listing environments: %s", err.Error()))
+		return
+	}
+	if len(envs) != 1 {
+		resp.Diagnostics.AddError(
+			"Import failed",
+			fmt.Sprintf("Expected exactly one environment with name %q, got %d.", envName, len(envs)),
+		)
+		return
+	}
+
+	wss, err := r.ClientV2.Workspace.GetWorkspaces(
+		ctx, &workspace.GetWorkspacesOptions{
+			Filter: map[string]string{"name": wsName, "environment": envs[0].ID},
+			Fields: map[string]any{"workspaces": ""},
+		},
+	)
+	if err != nil {
+		resp.Diagnostics.AddError("Import failed", fmt.Sprintf("Error listing workspaces: %s", err.Error()))
+		return
+	}
+	if len(wss) != 1 {
+		resp.Diagnostics.AddError(
+			"Import failed",
+			fmt.Sprintf("Expected exactly one workspace with name %q, got %d.", wsName, len(wss)),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), wss[0].ID)...)
 }
 
 func (r *workspaceResource) UpgradeState(ctx context.Context) map[int64]resource.StateUpgrader {
