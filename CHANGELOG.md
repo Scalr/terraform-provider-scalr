@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `scalr_workspace`: now it is also possible to import by <environment-name>/<workspace-name> ([#484](https://github.com/Scalr/terraform-provider-scalr/pull/484))
+
 ## [3.12.0] - 2026-01-16
 
 ### Added
