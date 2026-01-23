@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `scalr_workspace`: now it is also possible to import by <environment-name>/<workspace-name> ([#484](https://github.com/Scalr/terraform-provider-scalr/pull/484))
+- `scalr_workspace`: now it is also possible to import by &lt;environment-name&gt;/&lt;workspace-name&gt; ([#484](https://github.com/Scalr/terraform-provider-scalr/pull/484))
 
 ### Changed
 
