@@ -11,19 +11,17 @@ position: 26
 ---
 ## Data Source: scalr_vcs_provider
 
-Retrieves the details of a VCS provider.
+Retrieves information about VCS provider.
 
 ## Example Usage
 
 ```terraform
 data "scalr_vcs_provider" "example1" {
-  id         = "vcs-xxxxxxxxxx"
-  account_id = "acc-xxxxxxxxxx"
+  id = "vcs-xxxxxxxxxx"
 }
 
 data "scalr_vcs_provider" "example2" {
-  name       = "example"
-  account_id = "acc-xxxxxxxxxx"
+  name = "example"
 }
 ```
 
@@ -32,15 +30,15 @@ data "scalr_vcs_provider" "example2" {
 
 ### Optional
 
-- `account_id` (String) ID of the account, in the format `acc-<RANDOM STRING>`.
-- `agent_pool_id` (String) The id of the agent pool to connect Scalr to self-hosted VCS provider, in the format `apool-<RANDOM STRING>`.
-- `draft_pr_runs_enabled` (Boolean) Indicates whether the draft pull-request runs are enabled for this VCS provider.
-- `environment_id` (String) ID of the environment the VCS provider has to be linked to, in the format `env-<RANDOM STRING>`.
-- `id` (String) Identifier of the VCS provider.
-- `name` (String) Name of the VCS provider.
-- `vcs_type` (String) Type of the VCS provider. For example, `github`.
+- `account_id` (String, Deprecated) The identifier of the Scalr account.
+- `agent_pool_id` (String) The ID of the agent pool to connect Scalr to self-hosted VCS provider, in the format `apool-<RANDOM STRING>`.
+- `draft_pr_runs_enabled` (Boolean, Deprecated) Indicates whether the draft pull-request runs are enabled for this VCS provider.
+- `environment_id` (String) The ID of the environment the VCS provider has to be linked to, in the format `env-<RANDOM STRING>`.
+- `id` (String) The identifier of the VCS provider.
+- `name` (String) The name of the VCS provider.
+- `vcs_type` (String) The type of the VCS provider. For example, `github`.
 
 ### Read-Only
 
-- `environments` (List of String) List of the identifiers of environments the VCS provider is linked to.
+- `environments` (Set of String) List of the identifiers of the environments the VCS provider is linked to.
 - `url` (String) The URL to the VCS provider installation.
