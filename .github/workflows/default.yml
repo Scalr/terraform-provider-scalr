@@ -138,7 +138,7 @@ jobs:
           no_segment: true
           agent_pool_id: ${{ vars.TACO_APOOL_ID }}
           working_directory: fatmouse
-          secrets_bucket: tacobell-secrets
+          secrets_bucket: scalr-tacobell-secrets
       - name: Get Scalr Hostname
         run: |
           SCALR_HOST=${{ steps.create-preview-env.outputs.host }}
