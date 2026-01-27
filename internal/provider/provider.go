@@ -142,11 +142,12 @@ func (p *scalrProvider) Configure(ctx context.Context, req provider.ConfigureReq
 	}
 
 	// Make the Scalr client available during DataSource and Resource Configure methods.
-	resp.DataSourceData = scalrClient
-	resp.ResourceData = &framework.Clients{
+	clients := framework.Clients{
 		Client:   scalrClient,
 		ClientV2: scalrClientV2,
 	}
+	resp.DataSourceData = &clients
+	resp.ResourceData = &clients
 
 	tflog.Info(ctx, "Scalr provider configured.")
 }
@@ -156,6 +157,7 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 		newAgentPoolTokenResource,
 		newAssumeServiceAccountPolicyResource,
 		newCheckovIntegrationResource,
+		newDriftDetectionResource,
 		newEnvironmentHookResource,
 		newEnvironmentResource,
 		newFederatedEnvironmentsResource,
@@ -168,7 +170,6 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 		newVariableResource,
 		newWorkloadIdentityProviderResource,
 		newWorkspaceResource,
-		newDriftDetectionResource,
 	}
 }
 
@@ -183,6 +184,7 @@ func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataS
 		newProviderConfigurationDataSource,
 		newStorageProfileDataSource,
 		newTagDataSource,
+		newVcsProviderDataSource,
 		newWorkloadIdentityProviderDataSource,
 	}
 }

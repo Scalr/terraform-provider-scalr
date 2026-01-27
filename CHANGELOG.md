@@ -9,7 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `scalr_workspace`: now it is also possible to import by <environment-name>/<workspace-name> ([#484](https://github.com/Scalr/terraform-provider-scalr/pull/484))
+- `scalr_workspace`: now it is also possible to import by &lt;environment-name&gt;/&lt;workspace-name&gt; ([#484](https://github.com/Scalr/terraform-provider-scalr/pull/484))
+
+### Changed
+
+- `data.scalr_vcs_provider`: `name` attribute now performs exact match by default with fallback to partial match for backward compatibility. ([#482](https://github.com/Scalr/terraform-provider-scalr/pull/482))
+
+### Deprecated
+
+- `data.scalr_vcs_provider`: setting `account_id` and `draft_pr_runs_enabled` attributes is deprecated. They will become read-only in the next major version. ([#482](https://github.com/Scalr/terraform-provider-scalr/pull/482))
 
 ## [3.12.0] - 2026-01-16
 
