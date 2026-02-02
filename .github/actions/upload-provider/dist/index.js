@@ -27620,7 +27620,7 @@ async function main() {
         // Copy remote provider registry to working directory
         // Old versions of terraform provider are used for composing versions file
         await mkdir(tmpDir, { recursive: true });
-        await exec.exec(`gsutil -m rsync -R ${bucketName} ${tmpDir}`);
+        await exec.exec(`gcloud storage rsync --exclude ".*zip$" --recursive ${bucketName} ${tmpDir}`);
 
         // Copy all built binaries, sha256sums and its signature to bin path
         const providerBinPath = path.join(tmpDir, PROVIDER_NAME, version);
@@ -27735,7 +27735,7 @@ terraform {
 
         // Upload to GCS with no caching
         await exec.exec(
-            `gsutil -m -h "Cache-Control:private, max-age=0, no-transform" rsync -R ${tmpDir} ${bucketName}`
+            `gcloud storage rsync --cache-control="private, max-age=0, no-transform" --recursive ${tmpDir} ${bucketName}`
         );
 
         // Clean up
