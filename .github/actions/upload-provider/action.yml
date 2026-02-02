@@ -19,15 +19,6 @@ inputs:
     
 
 runs:
-  # TODO: Rewrite on JS, for god's sake
-  using: composite
-  steps:
-    - name: Upload provider
-      shell: bash
-      run: 'bash ./.github/actions/upload-provider/action.sh'
-      env:
-        DOMAIN: ${{ inputs.registry-domain }}
-        BUCKET_NAME: ${{ inputs.gcs-bucket }}
-        GPG_KEY_ID: ${{ inputs.gpg-key-id }}
-        GPG_PUB_KEY: ${{ inputs.gpg-pub-key }}
+  using: 'node16'
+  main: 'dist/index.js'
         

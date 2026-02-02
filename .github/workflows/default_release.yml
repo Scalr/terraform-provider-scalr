@@ -19,12 +19,6 @@ jobs:
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-      - id: Auth
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.DEV_GCP_SA_KEY }}
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
       - name: Create Development Tag
         run: |
           BRANCH=${{ github.head_ref || github.ref_name }}
@@ -44,13 +38,13 @@ jobs:
       - name: Upload Provider to Registry
         uses: ./.github/actions/upload-provider
         with:
-          gcs-bucket: ${{ secrets.DEV_BUCKET_NAME }}
-          registry-domain: ${{ secrets.DEV_DOMAIN }}
+          gcs-bucket: ${{ vars.DEV_BUCKET_NAME }}
+          registry-domain: ${{ vars.DEV_DOMAIN }}
           gpg-key-id: ${{ steps.import_gpg.outputs.fingerprint }}
           gpg-pub-key: ${{ steps.import_gpg.outputs.pubkey }}
       - name: Update Network Mirror
         uses: ./.github/actions/update-network-mirror
         with:
-          gcs-bucket: ${{ secrets.DEV_BUCKET_NAME }}
-          registry-domain: ${{ secrets.DEV_DOMAIN }}
+          gcs-bucket: ${{ vars.DEV_BUCKET_NAME }}
+          registry-domain: ${{ vars.DEV_DOMAIN }}
           dry-run: false
