@@ -232,6 +232,8 @@ jobs:
         with:
           workload_identity_provider: ${{ vars.GOOGLE_WORKLOAD_IDENTITY_POOL_PROVIDER }}
           service_account: ${{ vars.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v3'
       - name: Create Development Tag
         run: |
           BRANCH=${{ github.head_ref || github.ref_name }}
