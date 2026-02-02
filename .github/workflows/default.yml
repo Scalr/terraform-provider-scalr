@@ -212,7 +212,7 @@ jobs:
   upload-dev:
     name: upload-dev
     # needs: [lint, unit-tests, acc-tests]
-    runs-on: ubuntu-latest
+    runs-on: ["large-amd64-without-dind"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -220,10 +220,10 @@ jobs:
           fetch-depth: 0
       - name: Import GPG key
         id: import_gpg
-        uses: Scalr/ghaction-import-gpg@v2.1.1
+        uses: crazy-max/ghaction-import-gpg@v6
         env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
       - name: Create Development Tag
         run: |
           BRANCH=${{ github.head_ref || github.ref_name }}
@@ -246,7 +246,7 @@ jobs:
           gcs-bucket: ${{ vars.DEV_BUCKET }}
           registry-domain: ${{ vars.DEV_DOMAIN }}
           gpg-key-id: ${{ steps.import_gpg.outputs.fingerprint }}
-          gpg-pub-key: ${{ steps.import_gpg.outputs.pubkey }}
+          gpg-pub-key: ${{ secrets.GPG_PUBLIC_KEY }}
       - name: Update Network Mirror
         uses: ./.github/actions/update-network-mirror
         with:
