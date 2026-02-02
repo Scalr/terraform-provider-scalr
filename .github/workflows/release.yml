@@ -39,15 +39,15 @@ jobs:
       - name: Upload Provider to Registry
         uses: ./.github/actions/upload-provider
         with:
-          gcs-bucket: ${{ vars.BUCKET_NAME }}
-          registry-domain: ${{ vars.DOMAIN }}
+          gcs-bucket: ${{ vars.PROD_BUCKET }}
+          registry-domain: ${{ vars.PROD_DOMAIN }}
           gpg-key-id: ${{ steps.import_gpg.outputs.fingerprint }}
           gpg-pub-key: ${{ steps.import_gpg.outputs.pubkey }}
       - name: Update network mirror
         uses: ./.github/actions/update-network-mirror
         with:
-          gcs-bucket: ${{ vars.BUCKET_NAME }}
-          registry-domain: ${{ vars.DOMAIN }}
+          gcs-bucket: ${{ vars.PROD_BUCKET }}
+          registry-domain: ${{ vars.PROD_DOMAIN }}
           dry-run: false
 
   docs-publish:
