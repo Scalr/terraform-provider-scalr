@@ -1,4 +1,4 @@
-name: default
+name: Default
 
 on:
   push:
@@ -210,9 +210,9 @@ jobs:
   #         }
 
   upload-dev:
-    name: upload-dev
+    name: Upload Provider to ${{ vars.DEV_DOMAIN }}
     # needs: [lint, unit-tests, acc-tests]
-    runs-on: ["large-amd64-without-dind"]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -224,6 +224,11 @@ jobs:
         env:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      - id: Auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GOOGLE_WORKLOAD_IDENTITY_POOL_PROVIDER }}
+          service_account: ${{ vars.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
       - name: Create Development Tag
         run: |
           BRANCH=${{ github.head_ref || github.ref_name }}
@@ -232,7 +237,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version-file: '.go-version'
+          go-version-file: ".go-version"
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
