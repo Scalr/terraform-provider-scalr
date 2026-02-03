@@ -16,7 +16,10 @@ inputs:
   gpg-pub-key:
     description: 'GPG pub key'
     required: true
-    
+  is-development:
+    description: 'Whether this is a development registry'
+    required: false
+    default: 'false'
 
 runs:
   using: 'node16'

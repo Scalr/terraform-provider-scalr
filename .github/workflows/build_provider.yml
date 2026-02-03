@@ -68,6 +68,7 @@ jobs:
           registry-domain: ${{ vars.DEV_DOMAIN }}
           gpg-key-id: ${{ steps.import_gpg.outputs.fingerprint }}
           gpg-pub-key: ${{ secrets.GPG_PUBLIC_KEY }}
+          is-development: true
       - name: Update Network Mirror
         uses: ./.github/actions/update-network-mirror
         with:

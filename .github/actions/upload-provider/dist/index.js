@@ -27578,6 +27578,10 @@ const PROVIDER_SOURCE = 'scalr/scalr';
 const PROTOCOLS = ['5.0'];
 const DIST_DIR = 'dist';
 
+const FOOTER = ```
+Don't worry, if you don't see your version, you always can build it here <a href="https://github.com/Scalr/terraform-provider-scalr/actions/workflows/build_provider.yml">https://github.com/Scalr/terraform-provider-scalr/actions/workflows/build_provider.yml</a>
+```
+
 async function getVersion() {
     const distFiles = await readdir(DIST_DIR);
     const sumsFile = distFiles.find(f => f.endsWith('_SHA256SUMS'));
@@ -27636,6 +27640,7 @@ async function main() {
         const bucketName = core.getInput('gcs-bucket');
         const gpgKeyId = core.getInput('gpg-key-id');
         const gpgPubKey = core.getInput('gpg-pub-key');
+        const isDevelopment = core.getInput('is-development') === 'true';
 
         const url = `https://${domain}`;
         const version = await getVersion();
@@ -27736,11 +27741,13 @@ async function main() {
                 return `<span class="${classes}" data-version="${v}">${label}</span>`;
             })
             .join('');
+
         const indexHtml = indexTemplate
             .replace('{{VERSIONS}}', versionTags)
             .replace('{{DOMAIN}}', domain)
             .replace('{{PROVIDER_SOURCE}}', PROVIDER_SOURCE)
-            .replace('{{VERSION}}', latestVersion);
+            .replace('{{VERSION}}', latestVersion)
+            .replace('{{FOOTER}}', isDevelopment ? FOOTER : '');
 
         await writeFile(path.join(tmpDir, 'index.html'), indexHtml);
 
