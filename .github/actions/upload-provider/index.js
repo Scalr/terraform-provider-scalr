@@ -43,6 +43,33 @@ function parseOsArch(zipName, version) {
     return { os, arch };
 }
 
+function compareSemver(a, b) {
+    const parseVersion = (v) => {
+        const [main, ...prereleaseParts] = v.split('-');
+        const parts = main.split('.').map(Number);
+        const prerelease = prereleaseParts.join('-')
+        return { parts, prerelease: prerelease || null };
+    };
+
+    const va = parseVersion(a);
+    const vb = parseVersion(b);
+
+    for (let i = 0; i < Math.max(va.parts.length, vb.parts.length); i++) {
+        const pa = va.parts[i] || 0;
+        const pb = vb.parts[i] || 0;
+        if (pa !== pb) return pa - pb;
+    }
+
+    // Handle prerelease: no prerelease > prerelease
+    if (!va.prerelease && vb.prerelease) return 1;
+    if (va.prerelease && !vb.prerelease) return -1;
+    if (va.prerelease && vb.prerelease) {
+        return va.prerelease.localeCompare(vb.prerelease);
+    }
+
+    return 0;
+}
+
 async function main() {
     core.startGroup('Uploading provider to registry');
     try {
@@ -140,14 +167,21 @@ async function main() {
         );
 
         const indexTemplate = await readFile(path.join(__dirname, 'index.html'), 'utf8');
-        const versionTags = versions
-            .map(v => `<span class="version-tag${v === version ? ' selected' : ''}" data-version="${v}">${v}</span>`)
+        const sortedVersions = [...versions].sort(compareSemver);
+        const latestVersion = sortedVersions[sortedVersions.length - 1];
+        const versionTags = sortedVersions
+            .map(v => {
+                const isLatest = v === latestVersion;
+                const classes = `version-tag${isLatest ? ' selected latest' : ''}`;
+                const label = isLatest ? `${v} (latest)` : v;
+                return `<span class="${classes}" data-version="${v}">${label}</span>`;
+            })
             .join('');
         const indexHtml = indexTemplate
             .replace('{{VERSIONS}}', versionTags)
             .replace('{{DOMAIN}}', domain)
             .replace('{{PROVIDER_SOURCE}}', PROVIDER_SOURCE)
-            .replace('{{VERSION}}', version);
+            .replace('{{VERSION}}', latestVersion);
 
         await writeFile(path.join(tmpDir, 'index.html'), indexHtml);
 
