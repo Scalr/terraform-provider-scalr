@@ -27705,7 +27705,6 @@ async function main() {
             .join('');
         const indexHtml = indexTemplate
             .replace('{{VERSIONS}}', versionTags)
-            .replace('{{VERSIONS}}', `<span class="version-tag selected" data-version="1.0.0">1.0.0</span>`)
             .replace('{{DOMAIN}}', domain)
             .replace('{{PROVIDER_SOURCE}}', PROVIDER_SOURCE)
             .replace('{{VERSION}}', version);
