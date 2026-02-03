@@ -17,12 +17,13 @@ const SOURCE_URL = 'https://scalr.com';
 const PROVIDER_NAME = 'terraform-provider-scalr';
 const PROVIDER_SOURCE = 'scalr/scalr';
 const PROTOCOLS = ['5.0'];
+const DIST_DIR = 'dist';
 
 async function getVersion() {
-    const distFiles = await readdir('dist');
-    const sumsFile = distFiles.find((f) => f.endsWith('_SHA256SUMS'));
+    const distFiles = await readdir(DIST_DIR);
+    const sumsFile = distFiles.find(f => f.endsWith('_SHA256SUMS'));
     if (!sumsFile) {
-        throw new Error('SHA256SUMS file not found in dist/');
+        throw new Error(`SHA256SUMS file not found in ${DIST_DIR}/`);
     }
     const match = sumsFile.match(/^terraform-provider-scalr_(.*)_SHA256SUMS$/);
     if (!match) {
@@ -37,9 +38,7 @@ async function sha256(filePath) {
 }
 
 function parseOsArch(zipName, version) {
-    const prefix = `${PROVIDER_NAME}_${version}_`;
-    const suffix = '.zip';
-    const osArch = zipName.replace(prefix, '').replace(suffix, '');
+    const osArch = zipName.replace(`${PROVIDER_NAME}_${version}_`, '').replace('.zip', '');
     const [os, arch] = osArch.split('_');
     return { os, arch };
 }
@@ -67,10 +66,10 @@ async function main() {
         const providerBinPath = path.join(tmpDir, PROVIDER_NAME, version);
         await mkdir(providerBinPath, { recursive: true });
 
-        const distFiles = await readdir('dist');
-        const filesToCopy = distFiles.filter((f) => f.endsWith('.zip') || f.includes('_SHA256SUMS'));
+        const distFiles = await readdir(DIST_DIR);
+        const filesToCopy = distFiles.filter(f => f.endsWith('.zip') || f.includes('_SHA256SUMS'));
         for (const file of filesToCopy) {
-            await copyFile(path.join('dist', file), path.join(providerBinPath, file));
+            await copyFile(path.join(DIST_DIR, file), path.join(providerBinPath, file));
         }
 
         // Create download directory for provider package metadata
@@ -79,12 +78,12 @@ async function main() {
 
         // Compose provider package metadata for each arch and os
         // https://www.terraform.io/docs/internals/provider-registry-protocol.html#find-a-provider-package
-        const zipFiles = distFiles.filter((f) => f.endsWith('.zip'));
+        const zipFiles = distFiles.filter(f => f.endsWith('.zip'));
         const platforms = [];
 
         for (const zipName of zipFiles) {
             const { os, arch } = parseOsArch(zipName, version);
-            const shasum = await sha256(path.join('dist', zipName));
+            const shasum = await sha256(path.join(DIST_DIR, zipName));
 
             platforms.push({ os, arch });
 
@@ -118,11 +117,11 @@ async function main() {
         // Compose file with all available terraform provider versions and supported platforms
         // https://www.terraform.io/docs/internals/provider-registry-protocol.html#list-available-versions
         const providerSourceDir = path.join(tmpDir, PROVIDER_SOURCE);
-        const versionDirs = (await readdir(providerSourceDir, { withFileTypes: true }))
-            .filter((dirent) => dirent.isDirectory())
-            .map((dirent) => dirent.name);
+        const versions = (await readdir(providerSourceDir, { withFileTypes: true }))
+            .filter(dirent => dirent.isDirectory())
+            .map(dirent => dirent.name);
 
-        const versions = versionDirs.map((ver) => ({
+        const versionsMeta = versions.map(ver => ({
             version: ver,
             protocols: PROTOCOLS,
             platforms,
@@ -130,7 +129,7 @@ async function main() {
 
         await writeFile(
             path.join(providerSourceDir, 'versions'),
-            JSON.stringify({ versions }, null, 4)
+            JSON.stringify({ versionsMeta }, null, 4)
         );
 
         // Create .well-known/terraform.json
@@ -141,36 +140,16 @@ async function main() {
             JSON.stringify({ 'providers.v1': '/' }, null, 4)
         );
 
-        // Compose index.html page with provider example usage
-        const providerDir = path.join(tmpDir, PROVIDER_NAME);
-        const availableVersions = (await readdir(providerDir, { withFileTypes: true }))
-            .filter((dirent) => dirent.isDirectory())
-            .map((dirent) => dirent.name);
-
-        const indexHtml = `<html>
-    <head>
-        <meta charset='UTF-8'>
-        <title>Scalr terraform registry</title>
-    </head>
-    <body>
-        <p>Versions:</p>
-        <p><code>${availableVersions.join(', ')}</code></p>
-        <p>Example:</p>
-        <pre>
-            <code>
-terraform {
-    required_providers {
-        scalr = {
-            source = "${domain}/${PROVIDER_SOURCE}"
-            version= "${version}"
-        }
-    }
-}
-            </code>
-        </pre>
-    </body>
-</html>
-`;
+        const indexTemplate = await readFile(path.join(__dirname, 'index.html'), 'utf8');
+        const versionTags = versions
+            .map(v => `<span class="version-tag${v === version ? ' selected' : ''}" data-version="${v}">${v}</span>`)
+            .join('');
+        const indexHtml = indexTemplate
+            // .replace('{{VERSIONS}}', versionTags)
+            .replace('{{VERSIONS}}', `<span class="version-tag selected" data-version="1.0.0">1.0.0</span>`)
+            .replace('{{DOMAIN}}', domain)
+            .replace('{{PROVIDER_SOURCE}}', PROVIDER_SOURCE)
+            .replace('{{VERSION}}', version);
 
         await writeFile(path.join(tmpDir, 'index.html'), indexHtml);
 
