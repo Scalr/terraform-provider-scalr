@@ -27736,7 +27736,7 @@ async function main() {
         const versionTags = sortedVersions
             .map(v => {
                 const isLatest = v === latestVersion;
-                const classes = `version-tag${isLatest ? ' selected latest' : ''}`;
+                const classes = `version-tag${isLatest ? ' selected' : ''}`;
                 const label = isLatest ? `${v} (latest)` : v;
                 return `<span class="${classes}" data-version="${v}">${label}</span>`;
             })
