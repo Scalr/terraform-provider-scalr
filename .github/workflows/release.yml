@@ -1,4 +1,4 @@
-name: release
+name: Release Provider
 
 on:
   push:
@@ -9,8 +9,8 @@ env:
   RDME_VERSION: 0.0.5
 
 jobs:
-  release:
-    name: Release
+  build:
+    name: Build Provider
     runs-on: ubuntu-latest
     environment: release
     permissions:
@@ -39,14 +39,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
-      - name: Upload Provider to Registry
+      - name: Upload Provider
         uses: ./.github/actions/upload-provider
         with:
           gcs-bucket: ${{ vars.PROD_BUCKET }}
           registry-domain: ${{ vars.PROD_DOMAIN }}
           gpg-key-id: ${{ steps.import_gpg.outputs.fingerprint }}
-          gpg-pub-key: ${{ steps.import_gpg.outputs.pubkey }}
-      - name: Update network mirror
+          gpg-pub-key: ${{ secrets.GPG_PUBLIC_KEY }}
+      - name: Update Network Mirror
         uses: ./.github/actions/update-network-mirror
         with:
           gcs-bucket: ${{ vars.PROD_BUCKET }}
@@ -65,7 +65,7 @@ jobs:
           rdme: docs upload ./docs --key=${{ secrets.README_API_KEY }} --branch=${{ env.RDME_VERSION }}
 
   e2e-tests:
-    name: Trigger e2e tests
+    name: Trigger E2E Tests
     needs: [ release ]
     runs-on: ubuntu-latest
     steps:

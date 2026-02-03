@@ -22,244 +22,190 @@ env:
   RDME_VERSION: 0.0.5
 
 jobs:
-  # lint:
-  #   name: Lint
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: actions/setup-go@v6
-  #       with:
-  #         go-version-file: '.go-version'
-  #         cache: false
-  #     - uses: hashicorp/setup-terraform@v3
-  #     - name: Lint
-  #       uses: golangci/golangci-lint-action@v8
-  #       with:
-  #         version: v2.6.1
-  #         args: --timeout 2m
-  #     - name: Validate Generated Code
-  #       run: |
-  #         go generate
-  #         if [ -z "$(git status --porcelain)" ]; then
-  #           echo "ok";
-  #         else
-  #           echo "*** Unexpected differences after code generation. Run 'go generate' and commit.";
-  #           exit 1;
-  #         fi
-
-  # unit-tests:
-  #   name: Unit Tests
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: actions/setup-go@v6
-  #       with:
-  #         go-version-file: '.go-version'
-  #     - name: Run unit tests
-  #       run: make test
-
-  # docs-preview:
-  #   name: Preview Docs
-  #   needs: [ lint ]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Preview
-  #       uses: readmeio/rdme@v10
-  #       with:
-  #         rdme: docs upload ./docs --key=${{ secrets.README_API_KEY }} --branch=${{ env.RDME_VERSION }} --dry-run
-
-  # acc-tests:
-  #   runs-on: ubuntu-latest
-  #   name: acc-tests
-  #   env:
-  #     SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
-  #     UPSTREAM_ID: ${{ github.run_number }}
-  #   steps:
-  #     - name: Sudo GitHub Token
-  #       id: generate_token
-  #       uses: tibdex/github-app-token@v1
-  #       with:
-  #         app_id: ${{vars.SUDO_GHA_APP_ID}}
-  #         installation_id: ${{vars.SUDO_GHA_APP_INSTALLATION_ID}}
-  #         private_key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
-  #     - uses: actions/checkout@v4
-  #     - uses: actions/setup-go@v6
-  #       with:
-  #         go-version-file: '.go-version'
-  #     - name: Check if Same Branch Exists in Fatmouse Repo
-  #       id: check-branch
-  #       uses: actions/github-script@v7
-  #       with:
-  #         github-token: ${{steps.generate_token.outputs.token}}
-  #         script: |
-  #           const owner = "Scalr";
-  #           const repo = "fatmouse";
-  #           const targetBranch = "${{ github.head_ref || github.ref_name }}";
-  #           const default_branch = "master";
-
-  #           try {
-  #             const { data: branch } = await github.request('GET /repos/{owner}/{repo}/branches/{branch}', {
-  #               owner: owner,
-  #               repo: repo,
-  #               branch: targetBranch
-  #             });
-
-  #             console.log(`Branch found in the ${repo} repository: ${branch.name}`);
-  #             core.setOutput('branch', branch.name);
-  #           } catch (error) {
-  #             if (error.status === 404) {
-  #               console.log(`Branch not found in ${repo} repository.`);
-  #               core.setOutput('branch', default_branch);
-  #             } else {
-  #               console.error('Unexpected error:', error);
-  #               core.setFailed('Unexpected error');
-  #             }
-  #           }
-  #     - name: Clone Fatmouse Repo
-  #       uses: actions/checkout@v4
-  #       with:
-  #         repository: Scalr/fatmouse
-  #         path: fatmouse
-  #         ref: ${{ steps.check-branch.outputs.branch }}
-  #         token: ${{steps.generate_token.outputs.token}}
-  #     - uses: ./fatmouse/.github/actions/preview-env
-  #       name: Create preview environment
-  #       id: create-preview-env
-  #       with:
-  #         ref: ${{ github.head_ref || github.ref_name }}
-  #         ignore_missing_branches: true
-  #         github_token: ${{ steps.generate_token.outputs.token }}
-  #         google_cloud_credentials: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-  #         run_prefix: e2e-provider-default
-  #         deployment_type: saas
-  #         prepare_runner: true
-  #         wait_for_env: true
-  #         no_segment: true
-  #         agent_pool_id: ${{ vars.TACO_APOOL_ID }}
-  #         working_directory: fatmouse
-  #         secrets_bucket: scalr-tacobell-secrets
-  #     - name: Get Scalr Hostname
-  #       run: |
-  #         SCALR_HOST=${{ steps.create-preview-env.outputs.host }}
-  #         echo "SCALR_HOSTNAME=mainiacp.${SCALR_HOST/https:\/\//}" >> $GITHUB_ENV
-  #     - name: Run Acceptance Tests
-  #       env:
-  #         SCALR_HOSTNAME: ${{ env.SCALR_HOSTNAME }}
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #         TEST_AWS_ACCESS_KEY: ${{ secrets.TEST_AWS_ACCESS_KEY }}
-  #         TEST_AWS_SECRET_KEY: ${{ secrets.TEST_AWS_SECRET_KEY }}
-  #         TEST_AWS_ROLE_ARN: ${{ secrets.TEST_AWS_ROLE_ARN }}
-  #         TEST_AWS_EXTERNAL_ID: ${{ secrets.TEST_AWS_EXTERNAL_ID }}
-  #         TEST_ARM_CLIENT_ID: ${{ secrets.TEST_ARM_CLIENT_ID }}
-  #         TEST_ARM_CLIENT_SECRET: ${{ secrets.TEST_ARM_CLIENT_SECRET }}
-  #         TEST_ARM_TENANT_ID: ${{ secrets.TEST_ARM_TENANT_ID }}
-  #         TEST_ARM_SUBSCRIPTION_ID: ${{ secrets.TEST_ARM_SUBSCRIPTION_ID }}
-  #       run: make testacc
-  #     - name: Install Goveralls
-  #       run: go install github.com/mattn/goveralls@latest
-  #     - name: Send Coverage
-  #       env:
-  #         COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       run: goveralls -coverprofile=covprofile -service=github
-  #     - name: Delete Container
-  #       id: delete
-  #       working-directory: fatmouse
-  #       if: ${{ always() }}
-  #       run: |
-  #         python -u clickfile.py te rm --no-wait ${{ steps.create-preview-env.outputs.env_name }}
-
-  # notify:
-  #   name: Notify About Tests Failure
-  #   needs: [lint, unit-tests, acc-tests]
-  #   runs-on: ubuntu-latest
-  #   if: contains(needs.*.result, 'failure') && startsWith(github.ref, 'refs/heads/master/')
-  #   env:
-  #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-  #     SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v4
-
-  #   - name: Get Last Commit User Email
-  #     id: get_email
-  #     run: |
-  #       LAST_COMMIT_EMAIL=$(git log -1 --pretty=format:'%ae')
-  #       echo "Last commit email: $LAST_COMMIT_EMAIL"
-  #       echo "commit_email=$LAST_COMMIT_EMAIL" | tee -a $GITHUB_ENV
-
-  #   - name: Notification
-  #     uses: slackapi/slack-github-action@v1.25.0
-  #     with:
-  #       payload: |
-  #         {
-  #           "channel" : "#area-backend",
-  #           "text": "The Provider Tests on the Master Branch has been Failed. Last Comitter: ${{steps.get_email.outputs.commit_email}}",
-  #           "attachments": [
-  #             {
-  #               "color": "b52c2a",
-  #               "fields": [
-  #                 {
-  #                   "title": "Job URL",
-  #                   "value": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-  #                   "short": false
-  #                 }
-  #               ]
-  #             }
-  #           ]
-  #         }
-
-  upload-dev:
-    name: Upload Provider to ${{ vars.DEV_DOMAIN }}
-    # needs: [lint, unit-tests, acc-tests]
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
     steps:
-      - name: Checkout
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: '.go-version'
+          cache: false
+      - uses: hashicorp/setup-terraform@v3
+      - name: Lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.6.1
+          args: --timeout 2m
+      - name: Validate Generated Code
+        run: |
+          go generate
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "ok";
+          else
+            echo "*** Unexpected differences after code generation. Run 'go generate' and commit.";
+            exit 1;
+          fi
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: '.go-version'
+      - name: Run unit tests
+        run: make test
+
+  docs-preview:
+    name: Preview Docs
+    needs: [ lint ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preview
+        uses: readmeio/rdme@v10
+        with:
+          rdme: docs upload ./docs --key=${{ secrets.README_API_KEY }} --branch=${{ env.RDME_VERSION }} --dry-run
+
+  acc-tests:
+    runs-on: ubuntu-latest
+    needs: [ lint ]
+    name: acc-tests
+    env:
+      SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
+      UPSTREAM_ID: ${{ github.run_number }}
+    steps:
+      - name: Sudo GitHub Token
+        id: generate_token
+        uses: tibdex/github-app-token@v1
+        with:
+          app_id: ${{vars.SUDO_GHA_APP_ID}}
+          installation_id: ${{vars.SUDO_GHA_APP_INSTALLATION_ID}}
+          private_key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: '.go-version'
+      - name: Check if Same Branch Exists in Fatmouse Repo
+        id: check-branch
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{steps.generate_token.outputs.token}}
+          script: |
+            const owner = "Scalr";
+            const repo = "fatmouse";
+            const targetBranch = "${{ github.head_ref || github.ref_name }}";
+            const default_branch = "master";
+
+            try {
+              const { data: branch } = await github.request('GET /repos/{owner}/{repo}/branches/{branch}', {
+                owner: owner,
+                repo: repo,
+                branch: targetBranch
+              });
+
+              console.log(`Branch found in the ${repo} repository: ${branch.name}`);
+              core.setOutput('branch', branch.name);
+            } catch (error) {
+              if (error.status === 404) {
+                console.log(`Branch not found in ${repo} repository.`);
+                core.setOutput('branch', default_branch);
+              } else {
+                console.error('Unexpected error:', error);
+                core.setFailed('Unexpected error');
+              }
+            }
+      - name: Clone Fatmouse Repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - name: Import GPG key
-        id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v6
+          repository: Scalr/fatmouse
+          path: fatmouse
+          ref: ${{ steps.check-branch.outputs.branch }}
+          token: ${{steps.generate_token.outputs.token}}
+      - uses: ./fatmouse/.github/actions/preview-env
+        name: Create preview environment
+        id: create-preview-env
         with:
-          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.GPG_PASSPHRASE }}
-      - id: Auth
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ vars.GOOGLE_WORKLOAD_IDENTITY_POOL_PROVIDER }}
-          service_account: ${{ vars.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v3'
-      - name: Create Development Tag
+          ref: ${{ github.head_ref || github.ref_name }}
+          ignore_missing_branches: true
+          github_token: ${{ steps.generate_token.outputs.token }}
+          google_cloud_credentials: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          run_prefix: e2e-provider-default
+          deployment_type: saas
+          prepare_runner: true
+          wait_for_env: true
+          no_segment: true
+          agent_pool_id: ${{ vars.TACO_APOOL_ID }}
+          working_directory: fatmouse
+          secrets_bucket: scalr-tacobell-secrets
+      - name: Get Scalr Hostname
         run: |
-          BRANCH=${{ github.head_ref || github.ref_name }}
-          CLEAN_BRANCH=$(echo "$BRANCH" | sed 's/[\/]/-/g')
-          git tag v1.0.0-rc-$CLEAN_BRANCH-67
-      - name: Set up Go
-        uses: actions/setup-go@v6
-        with:
-          go-version-file: ".go-version"
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
-        with:
-          version: "~> v2"
-          args: release --skip=publish
+          SCALR_HOST=${{ steps.create-preview-env.outputs.host }}
+          echo "SCALR_HOSTNAME=mainiacp.${SCALR_HOST/https:\/\//}" >> $GITHUB_ENV
+      - name: Run Acceptance Tests
         env:
-          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
-      - name: Upload Provider to Registry
-        uses: ./.github/actions/upload-provider
-        with:
-          gcs-bucket: ${{ vars.DEV_BUCKET }}
-          registry-domain: ${{ vars.DEV_DOMAIN }}
-          gpg-key-id: ${{ steps.import_gpg.outputs.fingerprint }}
-          gpg-pub-key: ${{ secrets.GPG_PUBLIC_KEY }}
-      - name: Update Network Mirror
-        uses: ./.github/actions/update-network-mirror
-        with:
-          gcs-bucket: ${{ vars.DEV_BUCKET }}
-          registry-domain: ${{ vars.DEV_DOMAIN }}
-          dry-run: false
+          SCALR_HOSTNAME: ${{ env.SCALR_HOSTNAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TEST_AWS_ACCESS_KEY: ${{ secrets.TEST_AWS_ACCESS_KEY }}
+          TEST_AWS_SECRET_KEY: ${{ secrets.TEST_AWS_SECRET_KEY }}
+          TEST_AWS_ROLE_ARN: ${{ secrets.TEST_AWS_ROLE_ARN }}
+          TEST_AWS_EXTERNAL_ID: ${{ secrets.TEST_AWS_EXTERNAL_ID }}
+          TEST_ARM_CLIENT_ID: ${{ secrets.TEST_ARM_CLIENT_ID }}
+          TEST_ARM_CLIENT_SECRET: ${{ secrets.TEST_ARM_CLIENT_SECRET }}
+          TEST_ARM_TENANT_ID: ${{ secrets.TEST_ARM_TENANT_ID }}
+          TEST_ARM_SUBSCRIPTION_ID: ${{ secrets.TEST_ARM_SUBSCRIPTION_ID }}
+        run: make testacc
+      - name: Install Goveralls
+        run: go install github.com/mattn/goveralls@latest
+      - name: Send Coverage
+        env:
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: goveralls -coverprofile=covprofile -service=github
+      - name: Delete Container
+        id: delete
+        working-directory: fatmouse
+        if: ${{ always() }}
+        run: |
+          python -u clickfile.py te rm --no-wait ${{ steps.create-preview-env.outputs.env_name }}
+
+  notify:
+    name: Notify About Tests Failure
+    needs: [lint, unit-tests, acc-tests]
+    runs-on: ubuntu-latest
+    if: contains(needs.*.result, 'failure') && startsWith(github.ref, 'refs/heads/master/')
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Get Last Commit User Email
+      id: get_email
+      run: |
+        LAST_COMMIT_EMAIL=$(git log -1 --pretty=format:'%ae')
+        echo "Last commit email: $LAST_COMMIT_EMAIL"
+        echo "commit_email=$LAST_COMMIT_EMAIL" | tee -a $GITHUB_ENV
+
+    - name: Notification
+      uses: slackapi/slack-github-action@v1.25.0
+      with:
+        payload: |
+          {
+            "channel" : "#area-backend",
+            "text": "The Provider Tests on the Master Branch has been Failed. Last Comitter: ${{steps.get_email.outputs.commit_email}}",
+            "attachments": [
+              {
+                "color": "b52c2a",
+                "fields": [
+                  {
+                    "title": "Job URL",
+                    "value": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                    "short": false
+                  }
+                ]
+              }
+            ]
+          }
