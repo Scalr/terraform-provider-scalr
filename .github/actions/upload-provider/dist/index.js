@@ -27578,9 +27578,10 @@ const PROVIDER_SOURCE = 'scalr/scalr';
 const PROTOCOLS = ['5.0'];
 const DIST_DIR = 'dist';
 
-const FOOTER = ```
-Don't worry, if you don't see your version, you always can build it here <a href="https://github.com/Scalr/terraform-provider-scalr/actions/workflows/build_provider.yml">https://github.com/Scalr/terraform-provider-scalr/actions/workflows/build_provider.yml</a>
-```
+const FOOTER = `
+🫂 Don't worry, if you don't see your version,
+you always can build it <a href="https://github.com/Scalr/terraform-provider-scalr/actions/workflows/build_provider.yml">here</a>.
+`
 
 async function getVersion() {
     const distFiles = await readdir(DIST_DIR);
