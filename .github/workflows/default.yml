@@ -238,7 +238,7 @@ jobs:
         run: |
           BRANCH=${{ github.head_ref || github.ref_name }}
           CLEAN_BRANCH=$(echo "$BRANCH" | sed 's/[\/]/-/g')
-          git tag v1.0.0-rc-$CLEAN_BRANCH
+          git tag v1.0.0-rc-$CLEAN_BRANCH-67
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
