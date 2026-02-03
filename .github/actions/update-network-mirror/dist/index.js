@@ -8179,8 +8179,8 @@ async function main() {
         const bucketPath = GCSBucket + '/providers';
         if (!dryRun) {
             await exec.exec(
-                'gsutil -m -h "Cache-Control:private, max-age=0, no-transform"'
-                + ` rsync -d -r ${MIRROR_DIR}/ ${bucketPath}/`
+                'gcloud storage rsync --cache-control="private, max-age=0, no-transform"'
+                + ` --delete-unmatched-destination-objects --recursive ${MIRROR_DIR}/ ${bucketPath}/`
             );
         }
 
