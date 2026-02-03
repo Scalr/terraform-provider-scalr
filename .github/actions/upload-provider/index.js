@@ -57,10 +57,9 @@ async function main() {
 
         console.log(`Starting to push ${PROVIDER_NAME}:${version}`);
 
-        // Copy remote provider registry to working directory
-        // Old versions of terraform provider are used for composing versions file
-        await mkdir(tmpDir, { recursive: true });
-        await exec.exec(`gcloud storage rsync --exclude ".*zip$" --recursive ${bucketName} ${tmpDir}`);
+        // Copy providers metadata only
+        await mkdir(path.join(tmpDir, PROVIDER_SOURCE), { recursive: true });
+        await exec.exec(`gcloud storage rsync --recursive ${bucketName}/${PROVIDER_SOURCE} ${tmpDir}/${PROVIDER_SOURCE}`);
 
         // Copy all built binaries, sha256sums and its signature to bin path
         const providerBinPath = path.join(tmpDir, PROVIDER_NAME, version);
