@@ -1,0 +1,77 @@
+name: Build Development Provider
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - release/**
+    paths-ignore:
+      - CHANGELOG.md
+      - CONTRIBUTING.md
+      - README.md
+  pull_request:
+    branches:
+      - master
+      - release/**
+    paths-ignore:
+      - CHANGELOG.md
+      - CONTRIBUTING.md
+      - README.md
+
+concurrency:
+  group: ${{github.head_ref || github.ref}}-${{github.workflow}}
+
+jobs:
+  build:
+    name: Build Provider
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Import GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      - id: Auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GOOGLE_WORKLOAD_IDENTITY_POOL_PROVIDER }}
+          service_account: ${{ vars.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
+      - name: Create Development Tag
+        run: |
+          BRANCH=${{ github.head_ref || github.ref_name }}
+          CLEAN_BRANCH=$(echo "$BRANCH" | sed 's/[\/]/-/g')
+          git tag v1.0.0-rc-$CLEAN_BRANCH
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: '.go-version'
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: "~> v2"
+          args: release --skip=publish
+        env:
+          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
+      - name: Upload Provider
+        uses: ./.github/actions/upload-provider
+        with:
+          gcs-bucket: ${{ vars.DEV_BUCKET }}
+          registry-domain: ${{ vars.DEV_DOMAIN }}
+          gpg-key-id: ${{ steps.import_gpg.outputs.fingerprint }}
+          gpg-pub-key: ${{ secrets.GPG_PUBLIC_KEY }}
+          is-development: true
+      - name: Update Network Mirror
+        uses: ./.github/actions/update-network-mirror
+        with:
+          gcs-bucket: ${{ vars.DEV_BUCKET }}
+          registry-domain: ${{ vars.DEV_DOMAIN }}
+          dry-run: false

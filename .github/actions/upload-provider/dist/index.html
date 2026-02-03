@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scalr Terraform Registry</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        code {
+            background-color: #e8e8e8;
+            padding: 0.2rem 0.4rem;
+            font-family: monospace;
+        }
+
+        pre {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        .versions {
+            display: flex;
+            font-family: monospace;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .version-tag {
+            padding: 0.3rem 0.6rem;
+            cursor: pointer;
+        }
+
+        .version-tag.selected {
+            background-color: #444;
+            color: white;
+        }
+
+        .code-block {
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #444;
+            color: #f8f8f2;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Scalr Terraform Registry</h1>
+
+    <section>
+        <p>Available versions (click to select):</p>
+        <div class="versions">{{VERSIONS}}</div>
+    </section>
+
+    <section>
+        <p>Usage example:</p>
+        <div class="code-block">
+            <button class="copy-btn" id="copy-btn">Copy</button>
+            <pre><code id="terraform-code">terraform {
+  required_providers {
+    scalr = {
+      source  = "{{DOMAIN}}/{{PROVIDER_SOURCE}}"
+      version = "<span id="selected-version">{{VERSION}}</span>"
+    }
+  }
+}</code></pre>
+        </div>
+    </section>
+    <footer>{{FOOTER}}</footer>
+</body>
+<script>
+    document.querySelectorAll('.version-tag').forEach(tag => {
+        tag.addEventListener('click', () => {
+            document.querySelectorAll('.version-tag').forEach(t => t.classList.remove('selected'));
+            tag.classList.add('selected');
+            document.getElementById('selected-version').textContent = tag.dataset.version;
+        });
+    });
+
+    document.getElementById('copy-btn').addEventListener('click', () => {
+        const code = document.getElementById('terraform-code').textContent;
+        navigator.clipboard.writeText(code).then(() => {
+            const btn = document.getElementById('copy-btn');
+            btn.textContent = 'Copied!';
+            btn.classList.add('copied');
+            setTimeout(() => {
+                btn.textContent = 'Copy';
+                btn.classList.remove('copied');
+            }, 2000);
+        });
+    });
+</script>
+</html>

@@ -1,4 +1,4 @@
-name: release
+name: Release Provider
 
 on:
   push:
@@ -9,10 +9,13 @@ env:
   RDME_VERSION: 0.0.5
 
 jobs:
-  release:
-    name: Release
+  build:
+    name: Build Provider
     runs-on: ubuntu-latest
     environment: release
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,16 +23,10 @@ jobs:
           fetch-depth: 0
       - name: Import GPG Key
         id: import_gpg
-        uses: Scalr/ghaction-import-gpg@v2.1.1
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-      - id: Auth
-        uses: google-github-actions/auth@v2
+        uses: crazy-max/ghaction-import-gpg@v6
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
       - name: Set Up Go
         uses: actions/setup-go@v6
         with:
@@ -42,23 +39,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
-      - name: Upload Provider to Registry
+      - name: Upload Provider
         uses: ./.github/actions/upload-provider
         with:
-          gcs-bucket: ${{ secrets.BUCKET_NAME }}
-          registry-domain: ${{ secrets.DOMAIN }}
+          gcs-bucket: ${{ vars.PROD_BUCKET }}
+          registry-domain: ${{ vars.PROD_DOMAIN }}
           gpg-key-id: ${{ steps.import_gpg.outputs.fingerprint }}
-          gpg-pub-key: ${{ steps.import_gpg.outputs.pubkey }}
-      - name: Update network mirror
+          gpg-pub-key: ${{ secrets.GPG_PUBLIC_KEY }}
+      - name: Update Network Mirror
         uses: ./.github/actions/update-network-mirror
         with:
-          gcs-bucket: ${{ secrets.BUCKET_NAME }}
-          registry-domain: ${{ secrets.DOMAIN }}
+          gcs-bucket: ${{ vars.PROD_BUCKET }}
+          registry-domain: ${{ vars.PROD_DOMAIN }}
           dry-run: false
 
   docs-publish:
     name: Publish Docs
-    needs: [ release ]
+    needs: [ build ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -68,8 +65,8 @@ jobs:
           rdme: docs upload ./docs --key=${{ secrets.README_API_KEY }} --branch=${{ env.RDME_VERSION }}
 
   e2e-tests:
-    name: Trigger e2e tests
-    needs: [ release ]
+    name: Trigger E2E Tests
+    needs: [ build ]
     runs-on: ubuntu-latest
     steps:
       - name: Sudo GitHub Token
