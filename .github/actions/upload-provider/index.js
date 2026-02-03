@@ -121,7 +121,7 @@ async function main() {
             .filter(dirent => dirent.isDirectory())
             .map(dirent => dirent.name);
 
-        const versionsMeta = versions.map(ver => ({
+        const versionsFile = versions.map(ver => ({
             version: ver,
             protocols: PROTOCOLS,
             platforms,
@@ -129,7 +129,7 @@ async function main() {
 
         await writeFile(
             path.join(providerSourceDir, 'versions'),
-            JSON.stringify({ versionsMeta }, null, 4)
+            JSON.stringify({ versions: versionsFile }, null, 4)
         );
 
         // Create .well-known/terraform.json
@@ -146,6 +146,7 @@ async function main() {
             .join('');
         const indexHtml = indexTemplate
             .replace('{{VERSIONS}}', versionTags)
+            .replace('{{VERSIONS}}', `<span class="version-tag selected" data-version="1.0.0">1.0.0</span>`)
             .replace('{{DOMAIN}}', domain)
             .replace('{{PROVIDER_SOURCE}}', PROVIDER_SOURCE)
             .replace('{{VERSION}}', version);
