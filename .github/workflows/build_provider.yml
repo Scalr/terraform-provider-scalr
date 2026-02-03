@@ -19,6 +19,9 @@ on:
       - CONTRIBUTING.md
       - README.md
 
+concurrency:
+  group: ${{github.head_ref || github.ref}}-${{github.workflow}}
+
 jobs:
   build:
     name: Build Provider
