@@ -45,9 +45,24 @@ func (r *variableResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
+	// Read config to get write-only value (not available in plan)
+	var config variableResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Determine which value to send: value_wo takes precedence over value
+	var valueToSend *string
+	if !config.ValueWO.IsNull() && !config.ValueWO.IsUnknown() {
+		valueToSend = config.ValueWO.ValueStringPointer()
+	} else {
+		valueToSend = plan.Value.ValueStringPointer()
+	}
+
 	opts := scalr.VariableCreateOptions{
 		Key:         plan.Key.ValueStringPointer(),
-		Value:       plan.Value.ValueStringPointer(),
+		Value:       valueToSend,
 		Description: plan.Description.ValueStringPointer(),
 		Category:    ptr(scalr.CategoryType(plan.Category.ValueString())),
 		HCL:         plan.HCL.ValueBoolPointer(),
@@ -128,9 +143,24 @@ func (r *variableResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
+	// Read config to get write-only value (not available in plan)
+	var config variableResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Determine which value to send: value_wo takes precedence over value
+	var valueToSend *string
+	if !config.ValueWO.IsNull() && !config.ValueWO.IsUnknown() {
+		valueToSend = config.ValueWO.ValueStringPointer()
+	} else {
+		valueToSend = plan.Value.ValueStringPointer()
+	}
+
 	opts := scalr.VariableUpdateOptions{
 		Key:         plan.Key.ValueStringPointer(),
-		Value:       plan.Value.ValueStringPointer(),
+		Value:       valueToSend,
 		HCL:         plan.HCL.ValueBoolPointer(),
 		Sensitive:   plan.Sensitive.ValueBoolPointer(),
 		Description: plan.Description.ValueStringPointer(),
@@ -184,15 +214,19 @@ func (r *variableResource) UpgradeState(_ context.Context) map[int64]resource.St
 	return map[int64]resource.StateUpgrader{
 		0: {
 			PriorSchema:   variableResourceSchemaV0(),
-			StateUpgrader: upgradeVariableResourceStateV0toV3(r.Client),
+			StateUpgrader: upgradeVariableResourceStateV0toV4(r.Client),
 		},
 		1: {
 			PriorSchema:   variableResourceSchemaV1(),
-			StateUpgrader: upgradeVariableResourceStateV1toV3(r.Client),
+			StateUpgrader: upgradeVariableResourceStateV1toV4(r.Client),
 		},
 		2: {
 			PriorSchema:   variableResourceSchemaV2(),
-			StateUpgrader: upgradeVariableResourceStateV2toV3(r.Client),
+			StateUpgrader: upgradeVariableResourceStateV2toV4(r.Client),
+		},
+		3: {
+			PriorSchema:   variableResourceSchemaV3(),
+			StateUpgrader: upgradeVariableResourceStateV3toV4,
 		},
 	}
 }

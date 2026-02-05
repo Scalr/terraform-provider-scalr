@@ -2,6 +2,7 @@ package provider
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -481,4 +482,204 @@ resource scalr_variable test {
   workspace_id   = scalr_workspace.test.id
   description    = "updated"
 }`, rInt, defaultAccount)
+}
+
+func TestAccScalrVariable_writeOnly(t *testing.T) {
+	variable := &scalr.Variable{}
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrVariableDestroy,
+		Steps: []resource.TestStep{
+			{
+				// Step 1: Create variable with value_wo
+				Config: testAccScalrVariableWithWriteOnlyValue(rInt, "secret_value", 1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrVariableExists("scalr_variable.test_wo", variable),
+					testAccCheckScalrVariableValueInAPI("scalr_variable.test_wo", "secret_value"),
+					resource.TestCheckResourceAttr(
+						"scalr_variable.test_wo", "key", fmt.Sprintf("var_wo_%d", rInt)),
+					resource.TestCheckResourceAttr(
+						"scalr_variable.test_wo", "value_wo_version", "1"),
+					// value should be empty string (default) when using value_wo
+					resource.TestCheckResourceAttr(
+						"scalr_variable.test_wo", "value", ""),
+					// readable_value should be null when using value_wo
+					resource.TestCheckNoResourceAttr(
+						"scalr_variable.test_wo", "readable_value"),
+				),
+			},
+			{
+				// Step 2: Update value_wo by incrementing version
+				Config: testAccScalrVariableWithWriteOnlyValue(rInt, "updated_secret", 2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrVariableExists("scalr_variable.test_wo", variable),
+					testAccCheckScalrVariableValueInAPI("scalr_variable.test_wo", "updated_secret"),
+					resource.TestCheckResourceAttr(
+						"scalr_variable.test_wo", "value_wo_version", "2"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccScalrVariable_writeOnlyConflictsWithValue(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrVariableDestroy,
+		Steps: []resource.TestStep{
+			{
+				// This should fail because value and value_wo are mutually exclusive
+				Config:      testAccScalrVariableWithBothValueAndWriteOnly(rInt),
+				ExpectError: regexp.MustCompile("Conflicting configuration arguments"),
+			},
+		},
+	})
+}
+
+func TestAccScalrVariable_writeOnlyVersionRequiresValueWO(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrVariableDestroy,
+		Steps: []resource.TestStep{
+			{
+				// This should fail because value_wo_version requires value_wo
+				Config:      testAccScalrVariableWithVersionButNoValueWO(rInt),
+				ExpectError: regexp.MustCompile("These attributes must be configured together"),
+			},
+		},
+	})
+}
+
+func TestAccScalrVariable_switchValueToWriteOnly(t *testing.T) {
+	variable := &scalr.Variable{}
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrVariableDestroy,
+		Steps: []resource.TestStep{
+			{
+				// Step 1: Create with regular value
+				Config: testAccScalrVariableWithRegularValue(rInt, "initial_value"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrVariableExists("scalr_variable.test_switch", variable),
+					resource.TestCheckResourceAttr(
+						"scalr_variable.test_switch", "value", "initial_value"),
+					resource.TestCheckResourceAttr(
+						"scalr_variable.test_switch", "readable_value", "initial_value"),
+				),
+			},
+			{
+				// Step 2: Switch to value_wo
+				Config: testAccScalrVariableWithWriteOnlyValueForSwitch(rInt, "secret_value", 1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrVariableExists("scalr_variable.test_switch", variable),
+					testAccCheckScalrVariableValueInAPI("scalr_variable.test_switch", "secret_value"),
+					resource.TestCheckResourceAttr(
+						"scalr_variable.test_switch", "value_wo_version", "1"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccScalrVariable_writeOnlyImport(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrVariableDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrVariableWithWriteOnlyValue(rInt, "secret_value", 1),
+			},
+			{
+				ResourceName:      "scalr_variable.test_wo",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// value_wo and value_wo_version are write-only/not stored, so they won't match on import
+				ImportStateVerifyIgnore: []string{"value_wo", "value_wo_version"},
+			},
+		},
+	})
+}
+
+// Helper function to check variable value via API
+func testAccCheckScalrVariableValueInAPI(n string, expectedValue string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		var v scalr.Variable
+		if err := variableFromState(s, n, &v); err != nil {
+			return err
+		}
+		// Note: For sensitive variables, the API may not return the value
+		// This check is for non-sensitive write-only values
+		if v.Value != expectedValue {
+			return fmt.Errorf("Expected variable value %q, got %q", expectedValue, v.Value)
+		}
+		return nil
+	}
+}
+
+func testAccScalrVariableWithWriteOnlyValue(rInt int, value string, version int) string {
+	return fmt.Sprintf(`
+resource scalr_variable test_wo {
+  key              = "var_wo_%d"
+  value_wo         = "%s"
+  value_wo_version = %d
+  category         = "shell"
+  description      = "Test write-only variable"
+}`, rInt, value, version)
+}
+
+func testAccScalrVariableWithBothValueAndWriteOnly(rInt int) string {
+	return fmt.Sprintf(`
+resource scalr_variable test_conflict {
+  key              = "var_conflict_%d"
+  value            = "regular_value"
+  value_wo         = "secret_value"
+  value_wo_version = 1
+  category         = "shell"
+}`, rInt)
+}
+
+func testAccScalrVariableWithVersionButNoValueWO(rInt int) string {
+	return fmt.Sprintf(`
+resource scalr_variable test_version_only {
+  key              = "var_version_only_%d"
+  value            = "regular_value"
+  value_wo_version = 1
+  category         = "shell"
+}`, rInt)
+}
+
+func testAccScalrVariableWithRegularValue(rInt int, value string) string {
+	return fmt.Sprintf(`
+resource scalr_variable test_switch {
+  key         = "var_switch_%d"
+  value       = "%s"
+  category    = "shell"
+  description = "Test switching from value to value_wo"
+}`, rInt, value)
+}
+
+func testAccScalrVariableWithWriteOnlyValueForSwitch(rInt int, value string, version int) string {
+	return fmt.Sprintf(`
+resource scalr_variable test_switch {
+  key              = "var_switch_%d"
+  value_wo         = "%s"
+  value_wo_version = %d
+  category         = "shell"
+  description      = "Test switching from value to value_wo"
+}`, rInt, value, version)
 }
