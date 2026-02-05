@@ -2,6 +2,7 @@ name: Build Development Provider
 
 on:
   workflow_dispatch:
+  create:
   push:
     branches:
       - master
