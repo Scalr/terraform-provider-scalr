@@ -27,6 +27,11 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      - id: Auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GOOGLE_WORKLOAD_IDENTITY_POOL_PROVIDER }}
+          service_account: ${{ vars.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
       - name: Set Up Go
         uses: actions/setup-go@v6
         with:
