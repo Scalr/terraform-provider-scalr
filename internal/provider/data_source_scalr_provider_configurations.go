@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -39,6 +40,12 @@ func dataSourceScalrProviderConfigurations() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
+			"tag_ids": {
+				Description: "List of tag IDs associated with the provider configuration.",
+				Type:        schema.TypeSet,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Optional:    true,
+			},
 		},
 	}
 }
@@ -50,10 +57,26 @@ func dataSourceScalrProviderConfigurationsRead(ctx context.Context, d *schema.Re
 	name := d.Get("name").(string)
 	providerName := d.Get("provider_name").(string)
 
+	// Build unique resource ID from all filter parameters
+	id := strings.Builder{}
+	id.WriteString(accountID)
+	id.WriteString(name)
+	id.WriteString(providerName)
+
 	providersFilter := scalr.ProviderConfigurationFilter{
 		AccountID:    accountID,
 		Name:         name,
 		ProviderName: providerName,
+	}
+	if tagIDsI, ok := d.GetOk("tag_ids"); ok {
+		tagIDs := make([]string, 0)
+		for _, t := range tagIDsI.(*schema.Set).List() {
+			id.WriteString(t.(string))
+			tagIDs = append(tagIDs, t.(string))
+		}
+		if len(tagIDs) > 0 {
+			providersFilter.Tag = "in:" + strings.Join(tagIDs, ",")
+		}
 	}
 	options := scalr.ProviderConfigurationsListOptions{
 		Filter: &providersFilter,
@@ -82,7 +105,7 @@ func dataSourceScalrProviderConfigurationsRead(ctx context.Context, d *schema.Re
 	sort.Strings(ids)
 
 	_ = d.Set("ids", ids)
-	d.SetId(fmt.Sprintf("%d", schema.HashString(accountID+name+providerName)))
+	d.SetId(fmt.Sprintf("%d", schema.HashString(id.String())))
 
 	return nil
 }
