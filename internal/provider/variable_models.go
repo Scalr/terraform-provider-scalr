@@ -13,6 +13,8 @@ type variableResourceModel struct {
 	Id             types.String `tfsdk:"id"`
 	Key            types.String `tfsdk:"key"`
 	Value          types.String `tfsdk:"value"`
+	ValueWO        types.String `tfsdk:"value_wo"`
+	ValueWOVersion types.Int64  `tfsdk:"value_wo_version"`
 	ReadableValue  types.String `tfsdk:"readable_value"`
 	Category       types.String `tfsdk:"category"`
 	HCL            types.Bool   `tfsdk:"hcl"`
@@ -35,6 +37,8 @@ func variableResourceModelFromAPI(ctx context.Context, v *scalr.Variable, existi
 		Id:             types.StringValue(v.ID),
 		Key:            types.StringValue(v.Key),
 		Value:          types.StringNull(),
+		ValueWO:        types.StringNull(),
+		ValueWOVersion: types.Int64Null(),
 		ReadableValue:  types.StringNull(),
 		Category:       types.StringValue(string(v.Category)),
 		HCL:            types.BoolValue(v.HCL),
@@ -52,6 +56,11 @@ func variableResourceModelFromAPI(ctx context.Context, v *scalr.Variable, existi
 
 	if existing != nil && !existing.Force.IsUnknown() && !existing.Force.IsNull() {
 		model.Force = existing.Force
+	}
+
+	// Preserve value_wo_version from existing state (write-only values are never returned by API)
+	if existing != nil && !existing.ValueWOVersion.IsUnknown() && !existing.ValueWOVersion.IsNull() {
+		model.ValueWOVersion = existing.ValueWOVersion
 	}
 
 	if v.Workspace != nil {

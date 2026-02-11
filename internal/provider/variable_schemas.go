@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -24,7 +25,7 @@ import (
 func variableResourceSchema() *schema.Schema {
 	return &schema.Schema{
 		MarkdownDescription: "Manages the state of variables in Scalr.",
-		Version:             3,
+		Version:             4,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -58,6 +59,26 @@ func variableResourceSchema() *schema.Schema {
 				Computed:            true,
 				Default:             stringdefault.StaticString(""),
 				Sensitive:           true,
+				Validators: []validator.String{
+					stringvalidator.PreferWriteOnlyAttribute(
+						path.MatchRoot("value_wo"),
+					),
+				},
+			},
+			"value_wo": schema.StringAttribute{
+				MarkdownDescription: "Write-only variable value. Use instead of `value` when working with ephemeral values (Terraform 1.11+). Not stored in state. Requires `value_wo_version` to trigger updates.",
+				Optional:            true,
+				WriteOnly:           true,
+				Validators: []validator.String{
+					stringvalidator.ConflictsWith(path.MatchRoot("value")),
+				},
+			},
+			"value_wo_version": schema.Int64Attribute{
+				MarkdownDescription: "Version number for `value_wo`. Increment to trigger an update when the write-only value changes.",
+				Optional:            true,
+				Validators: []validator.Int64{
+					int64validator.AlsoRequires(path.MatchRoot("value_wo")),
+				},
 			},
 			"readable_value": schema.StringAttribute{
 				Description: "A non-sensitive read-only copy of a variable value. Will be null if the variable is sensitive.",
@@ -159,6 +180,80 @@ func variableResourceSchema() *schema.Schema {
 				MarkdownDescription: "Details of the user that updated the variable last time.",
 				ElementType:         userElementType,
 				Computed:            true,
+			},
+		},
+	}
+}
+
+func variableResourceSchemaV3() *schema.Schema {
+	return &schema.Schema{
+		Version: 3,
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				Computed: true,
+			},
+			"key": schema.StringAttribute{
+				Required: true,
+			},
+			"value": schema.StringAttribute{
+				Optional:  true,
+				Computed:  true,
+				Default:   stringdefault.StaticString(""),
+				Sensitive: true,
+			},
+			"readable_value": schema.StringAttribute{
+				Computed: true,
+			},
+			"category": schema.StringAttribute{
+				Required: true,
+			},
+			"hcl": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  booldefault.StaticBool(false),
+			},
+			"sensitive": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  booldefault.StaticBool(false),
+			},
+			"description": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  stringdefault.StaticString(""),
+			},
+			"final": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  booldefault.StaticBool(false),
+			},
+			"force": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  booldefault.StaticBool(false),
+			},
+			"workspace_id": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+			},
+			"environment_id": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+			},
+			"account_id": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+				Default:  defaults.AccountIDRequired(),
+			},
+			"updated_at": schema.StringAttribute{
+				Computed: true,
+			},
+			"updated_by_email": schema.StringAttribute{
+				Computed: true,
+			},
+			"updated_by": schema.ListAttribute{
+				ElementType: userElementType,
+				Computed:    true,
 			},
 		},
 	}
@@ -370,7 +465,15 @@ func (m syncReadableValueModifier) PlanModifyString(ctx context.Context, req pla
 		return
 	}
 
-	if sensitive.ValueBool() {
+	// Check if value_wo is being used (from config since it's write-only)
+	var valueWO types.String
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("value_wo"), &valueWO)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// readable_value is null when sensitive or when using value_wo
+	if sensitive.ValueBool() || !valueWO.IsNull() {
 		resp.PlanValue = types.StringNull()
 	} else {
 		var value types.String
