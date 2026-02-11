@@ -53,6 +53,8 @@ resource "scalr_variable" "example3" {
 
 ### Optional
 
+> **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
+
 - `account_id` (String) ID of the account, in the format `acc-<RANDOM STRING>`.
 - `description` (String) Variable verbose description, defaults to empty string.
 - `environment_id` (String) The environment that owns the variable, specified as an ID, in the format `env-<RANDOM STRING>`.
@@ -61,8 +63,8 @@ resource "scalr_variable" "example3" {
 - `hcl` (Boolean) Set (true/false) to configure the variable as a string of HCL code. Has no effect for `category = "shell"` variables. Default `false`.
 - `sensitive` (Boolean) Set (true/false) to configure as sensitive. Sensitive variable values are not visible after being set. Default `false`.
 - `value` (String, Sensitive) Variable value.
-- `value_wo` (String, Write-Only) Write-only variable value. Use instead of `value` when working with ephemeral values (Terraform 1.11+). Not stored in state. Conflicts with `value`. Requires `value_wo_version` to trigger updates.
-- `value_wo_version` (Number) Version number for `value_wo`. Increment to trigger an update when the write-only value changes. Requires `value_wo`.
+- `value_wo` (String, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) Write-only variable value. Use instead of `value` when working with ephemeral values (Terraform 1.11+). Not stored in state. Requires `value_wo_version` to trigger updates.
+- `value_wo_version` (Number) Version number for `value_wo`. Increment to trigger an update when the write-only value changes.
 - `workspace_id` (String) The workspace that owns the variable, specified as an ID, in the format `ws-<RANDOM STRING>`.
 
 ### Read-Only
