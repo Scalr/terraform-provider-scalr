@@ -1,0 +1,16 @@
+{
+  "name": "upload-provider",
+  "version": "0.1.0",
+  "main": "index.js",
+  "author": "Artem Sukhodolskyi <a.sukhodolskyi@scalr.io>",
+  "scripts": {
+    "build": "ncc build index.js -o dist && cp index.html dist/index.html"
+  },
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/exec": "^1.1.1"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "description": ""
+}
