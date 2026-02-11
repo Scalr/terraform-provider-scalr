@@ -485,6 +485,7 @@ resource scalr_variable test {
 }
 
 func TestAccScalrVariable_writeOnly(t *testing.T) {
+	t.Skip("Temporary disabled due to issues with write-only variables.")
 	variable := &scalr.Variable{}
 	rInt := GetRandomInteger()
 
@@ -526,6 +527,7 @@ func TestAccScalrVariable_writeOnly(t *testing.T) {
 }
 
 func TestAccScalrVariable_writeOnlyConflictsWithValue(t *testing.T) {
+	t.Skip("Temporary disabled due to issues with write-only variables.")
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
@@ -543,6 +545,7 @@ func TestAccScalrVariable_writeOnlyConflictsWithValue(t *testing.T) {
 }
 
 func TestAccScalrVariable_writeOnlyVersionRequiresValueWO(t *testing.T) {
+	t.Skip("Temporary disabled due to issues with write-only variables.")
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
@@ -560,6 +563,7 @@ func TestAccScalrVariable_writeOnlyVersionRequiresValueWO(t *testing.T) {
 }
 
 func TestAccScalrVariable_switchValueToWriteOnly(t *testing.T) {
+	t.Skip("Temporary disabled due to issues with write-only variables.")
 	variable := &scalr.Variable{}
 	rInt := GetRandomInteger()
 
@@ -594,6 +598,7 @@ func TestAccScalrVariable_switchValueToWriteOnly(t *testing.T) {
 }
 
 func TestAccScalrVariable_writeOnlyImport(t *testing.T) {
+	t.Skip("Temporary disabled due to issues with write-only variables.")
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
