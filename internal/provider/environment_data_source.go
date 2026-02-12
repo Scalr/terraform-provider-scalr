@@ -14,7 +14,7 @@ import (
 	"github.com/scalr/go-scalr"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
-	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
 )
 
 // Compile-time interface checks
@@ -65,7 +65,7 @@ func (d *environmentDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"name": schema.StringAttribute{
@@ -73,7 +73,7 @@ func (d *environmentDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"status": schema.StringAttribute{

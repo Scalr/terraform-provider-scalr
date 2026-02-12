@@ -12,7 +12,7 @@ import (
 	"github.com/scalr/go-scalr"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
-	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
 )
 
 var (
@@ -54,7 +54,7 @@ func (r *workloadIdentityProviderDataSource) Schema(_ context.Context, _ datasou
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"name": schema.StringAttribute{
@@ -62,7 +62,7 @@ func (r *workloadIdentityProviderDataSource) Schema(_ context.Context, _ datasou
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"url": schema.StringAttribute{
@@ -70,7 +70,7 @@ func (r *workloadIdentityProviderDataSource) Schema(_ context.Context, _ datasou
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"allowed_audiences": schema.ListAttribute{

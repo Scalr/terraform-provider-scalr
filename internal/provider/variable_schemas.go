@@ -18,7 +18,6 @@ import (
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework/defaults"
 	"github.com/scalr/terraform-provider-scalr/internal/framework/planmodifiers/stringmodifier"
-	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
 	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
 )
 
@@ -39,7 +38,7 @@ func variableResourceSchema() *schema.Schema {
 				MarkdownDescription: "Key of the variable.",
 				Required:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplaceIf(

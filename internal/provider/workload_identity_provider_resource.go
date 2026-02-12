@@ -15,7 +15,7 @@ import (
 	"github.com/scalr/go-scalr"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
-	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
 )
 
 var (
@@ -60,7 +60,7 @@ func (r *workloadIdentityProviderResource) Schema(_ context.Context, _ resource.
 				MarkdownDescription: "Name of the workload identity provider.",
 				Required:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"url": schema.StringAttribute{
@@ -70,7 +70,7 @@ func (r *workloadIdentityProviderResource) Schema(_ context.Context, _ resource.
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
-					validation.StringIsValidURL(),
+					stringvalidation.StringIsValidURL(),
 				},
 			},
 			"allowed_audiences": schema.SetAttribute{

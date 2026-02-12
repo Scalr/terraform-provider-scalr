@@ -20,7 +20,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
 )
 
 func workspaceResourceSchema(ctx context.Context) *schema.Schema {
@@ -86,7 +86,7 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 				Default:             listdefault.StaticValue(emptyStringList),
 				ElementType:         types.StringType,
 				Validators: []validator.List{
-					listvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
+					listvalidator.ValueStringsAre(stringvalidation.StringIsNotWhiteSpace()),
 				},
 			},
 			"operations": schema.BoolAttribute{
@@ -193,7 +193,7 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 				Computed:            true,
 				Default:             setdefault.StaticValue(emptyStringSet),
 				Validators: []validator.Set{
-					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
+					setvalidator.ValueStringsAre(stringvalidation.StringIsNotWhiteSpace()),
 				},
 			},
 			"remote_state_consumers": schema.SetAttribute{
@@ -202,7 +202,7 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.Set{
-					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
+					setvalidator.ValueStringsAre(stringvalidation.StringIsNotWhiteSpace()),
 				},
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

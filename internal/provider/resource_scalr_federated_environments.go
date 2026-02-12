@@ -16,7 +16,7 @@ import (
 	"github.com/scalr/go-scalr/v2/scalr/value"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
-	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
 )
 
 // Compile-time interface checks
@@ -55,7 +55,7 @@ func (r *federatedEnvironmentsResource) Schema(_ context.Context, _ resource.Sch
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"federated_environments": schema.SetAttribute{
@@ -63,7 +63,7 @@ func (r *federatedEnvironmentsResource) Schema(_ context.Context, _ resource.Sch
 				ElementType:         types.StringType,
 				Required:            true,
 				Validators: []validator.Set{
-					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
+					setvalidator.ValueStringsAre(stringvalidation.StringIsNotWhiteSpace()),
 				},
 			},
 		},
