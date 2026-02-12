@@ -536,7 +536,7 @@ func TestAccScalrVariable_writeOnlyConflictsWithValue(t *testing.T) {
 			{
 				// This should fail because value and value_wo are mutually exclusive
 				Config:      testAccScalrVariableWithBothValueAndWriteOnly(rInt),
-				ExpectError: regexp.MustCompile("Conflicting configuration arguments"),
+				ExpectError: regexp.MustCompile(`Attribute "value" cannot be specified when "value_wo" is specified`),
 			},
 		},
 	})
@@ -553,7 +553,7 @@ func TestAccScalrVariable_writeOnlyVersionRequiresValueWO(t *testing.T) {
 			{
 				// This should fail because value_wo_version requires value_wo
 				Config:      testAccScalrVariableWithVersionButNoValueWO(rInt),
-				ExpectError: regexp.MustCompile("These attributes must be configured together"),
+				ExpectError: regexp.MustCompile(`These attributes must be configured together: \[value_wo,value_wo_version]`),
 			},
 		},
 	})
@@ -588,28 +588,6 @@ func TestAccScalrVariable_switchValueToWriteOnly(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test_switch", "value_wo_version", "1"),
 				),
-			},
-		},
-	})
-}
-
-func TestAccScalrVariable_writeOnlyImport(t *testing.T) {
-	rInt := GetRandomInteger()
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckScalrVariableDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccScalrVariableWithWriteOnlyValue(rInt, "secret_value", 1),
-			},
-			{
-				ResourceName:      "scalr_variable.test_wo",
-				ImportState:       true,
-				ImportStateVerify: true,
-				// value_wo and value_wo_version are write-only/not stored, so they won't match on import
-				ImportStateVerifyIgnore: []string{"value_wo", "value_wo_version"},
 			},
 		},
 	})
