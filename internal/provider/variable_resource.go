@@ -182,13 +182,22 @@ func (r *variableResource) Update(ctx context.Context, req resource.UpdateReques
 		},
 	}
 
+	metaBytes, diags := req.Private.GetKey(ctx, "meta")
+	resp.Diagnostics.Append(diags...)
+
+	var meta privateMeta
+	if metaBytes != nil {
+		_ = json.Unmarshal(metaBytes, &meta)
+	}
+
 	isWriteOnly := !config.ValueWO.IsNull() && !config.ValueWO.IsUnknown()
+	isWriteOnlyChanged := isWriteOnly != meta.IsWriteOnly
 	if isWriteOnly {
 		// Only update write-only value if the version attribute has changed
-		if !plan.ValueWOVersion.Equal(state.ValueWOVersion) {
+		if !plan.ValueWOVersion.Equal(state.ValueWOVersion) || isWriteOnlyChanged {
 			opts.Value = config.ValueWO.ValueStringPointer()
 		}
-	} else if !plan.Value.Equal(state.Value) {
+	} else if !plan.Value.Equal(state.Value) || isWriteOnlyChanged {
 		opts.Value = plan.Value.ValueStringPointer()
 	}
 
@@ -212,7 +221,7 @@ func (r *variableResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 
 	// Persist private metadata
-	metaBytes, err := json.Marshal(privateMeta{IsWriteOnly: isWriteOnly})
+	metaBytes, err = json.Marshal(privateMeta{IsWriteOnly: isWriteOnly})
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to marshal private metadata", err.Error())
 		return

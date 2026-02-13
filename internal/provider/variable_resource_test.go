@@ -587,6 +587,17 @@ func TestAccScalrVariable_switchValueToWriteOnly(t *testing.T) {
 					testAccCheckScalrVariableValueInAPI("scalr_variable.test_switch", "secret_value"),
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test_switch", "value_wo_version", "1"),
+					resource.TestCheckNoResourceAttr("scalr_variable.test_switch", "readable_value"),
+				),
+			},
+			{
+				// Step 3: Switch back but omit value (use default)
+				Config: testAccScalrVariableWithWriteOnlyValueSwitchBack(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrVariableExists("scalr_variable.test_switch", variable),
+					testAccCheckScalrVariableValueInAPI("scalr_variable.test_switch", ""),
+					resource.TestCheckResourceAttr("scalr_variable.test_switch", "value", ""),
+					resource.TestCheckResourceAttr("scalr_variable.test_switch", "readable_value", ""),
 				),
 			},
 		},
@@ -660,4 +671,13 @@ resource scalr_variable test_switch {
   category         = "shell"
   description      = "Test switching from value to value_wo"
 }`, rInt, value, version)
+}
+
+func testAccScalrVariableWithWriteOnlyValueSwitchBack(rInt int) string {
+	return fmt.Sprintf(`
+resource scalr_variable test_switch {
+  key              = "var_switch_%d"
+  category         = "shell"
+  description      = "Test switching from value to value_wo"
+}`, rInt)
 }
