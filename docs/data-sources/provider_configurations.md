@@ -33,6 +33,7 @@ data "scalr_provider_configurations" "google" {
 - `account_id` (String) The identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.
 - `name` (String) The query used in a Scalr provider configuration name filter.
 - `provider_name` (String) The name of a Terraform provider.
+- `tag_ids` (Set of String) List of tag IDs associated with the provider configuration.
 
 ### Read-Only
 

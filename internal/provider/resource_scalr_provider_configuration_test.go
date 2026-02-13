@@ -1204,3 +1204,93 @@ resource "scalr_provider_configuration" "scalr" {
 }
 `, name, defaultAccount, os.Getenv(client.HostnameEnvVar)+"/", os.Getenv(client.TokenEnvVar))
 }
+
+func TestAccProviderConfiguration_tag_ids(t *testing.T) {
+	var providerConfiguration scalr.ProviderConfiguration
+	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProviderConfigurationResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrProviderConfigurationWithTagIds(rName, true, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.test", &providerConfiguration),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.test", "name", rName),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.test", "tag_ids.#", "2"),
+					testAccCheckProviderConfigurationTagCount(&providerConfiguration, 2),
+				),
+			},
+			{
+				Config: testAccScalrProviderConfigurationWithTagIds(rName, false, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.test", &providerConfiguration),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.test", "tag_ids.#", "2"),
+					testAccCheckProviderConfigurationTagCount(&providerConfiguration, 2),
+				),
+			},
+			{
+				Config: testAccScalrProviderConfigurationWithTagIds(rName, false, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.test", &providerConfiguration),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.test", "tag_ids.#", "0"),
+					testAccCheckProviderConfigurationTagCount(&providerConfiguration, 0),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckProviderConfigurationTagCount(providerConfiguration *scalr.ProviderConfiguration, expected int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(providerConfiguration.Tags) != expected {
+			return fmt.Errorf("bad tag count, expected %d, got: %d", expected, len(providerConfiguration.Tags))
+		}
+		return nil
+	}
+}
+
+func testAccScalrProviderConfigurationWithTagIds(name string, includeTag1 bool, includeTag3 bool) string {
+	tagIds := ""
+	if includeTag1 && includeTag3 {
+		tagIds = "tag_ids = [scalr_tag.tag1.id, scalr_tag.tag3.id]"
+	} else if includeTag1 {
+		tagIds = "tag_ids = [scalr_tag.tag1.id, scalr_tag.tag2.id]"
+	} else if includeTag3 {
+		tagIds = "tag_ids = [scalr_tag.tag2.id, scalr_tag.tag3.id]"
+	} else {
+		tagIds = "tag_ids = []"
+	}
+
+	return fmt.Sprintf(`
+resource "scalr_tag" "tag1" {
+  name       = "pcfg-tag1-%[1]s"
+  account_id = "%[2]s"
+}
+
+resource "scalr_tag" "tag2" {
+  name       = "pcfg-tag2-%[1]s"
+  account_id = "%[2]s"
+}
+
+resource "scalr_tag" "tag3" {
+  name       = "pcfg-tag3-%[1]s"
+  account_id = "%[2]s"
+}
+
+resource "scalr_provider_configuration" "test" {
+  name       = "%[1]s"
+  account_id = "%[2]s"
+  %[3]s
+  custom {
+    provider_name = "kubernetes"
+    argument {
+      name  = "host"
+      value = "my-host"
+    }
+  }
+}
+`, name, defaultAccount, tagIds)
+}
