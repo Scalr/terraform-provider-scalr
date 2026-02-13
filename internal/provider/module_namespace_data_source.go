@@ -11,7 +11,7 @@ import (
 	"github.com/scalr/go-scalr"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
-	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
 )
 
 var (
@@ -50,7 +50,7 @@ func (r *moduleNamespaceDataSource) Schema(_ context.Context, _ datasource.Schem
 				MarkdownDescription: "The module namespace ID.",
 				Computed:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"name": schema.StringAttribute{
@@ -58,7 +58,7 @@ func (r *moduleNamespaceDataSource) Schema(_ context.Context, _ datasource.Schem
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"is_shared": schema.BoolAttribute{

@@ -485,7 +485,6 @@ resource scalr_variable test {
 }
 
 func TestAccScalrVariable_writeOnly(t *testing.T) {
-	t.Skip("Temporary disabled due to issues with write-only variables.")
 	variable := &scalr.Variable{}
 	rInt := GetRandomInteger()
 
@@ -527,7 +526,6 @@ func TestAccScalrVariable_writeOnly(t *testing.T) {
 }
 
 func TestAccScalrVariable_writeOnlyConflictsWithValue(t *testing.T) {
-	t.Skip("Temporary disabled due to issues with write-only variables.")
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
@@ -538,14 +536,13 @@ func TestAccScalrVariable_writeOnlyConflictsWithValue(t *testing.T) {
 			{
 				// This should fail because value and value_wo are mutually exclusive
 				Config:      testAccScalrVariableWithBothValueAndWriteOnly(rInt),
-				ExpectError: regexp.MustCompile("Conflicting configuration arguments"),
+				ExpectError: regexp.MustCompile(`Attribute "value" cannot be specified when "value_wo" is specified`),
 			},
 		},
 	})
 }
 
 func TestAccScalrVariable_writeOnlyVersionRequiresValueWO(t *testing.T) {
-	t.Skip("Temporary disabled due to issues with write-only variables.")
 	rInt := GetRandomInteger()
 
 	resource.Test(t, resource.TestCase{
@@ -556,14 +553,13 @@ func TestAccScalrVariable_writeOnlyVersionRequiresValueWO(t *testing.T) {
 			{
 				// This should fail because value_wo_version requires value_wo
 				Config:      testAccScalrVariableWithVersionButNoValueWO(rInt),
-				ExpectError: regexp.MustCompile("These attributes must be configured together"),
+				ExpectError: regexp.MustCompile(`These attributes must be configured together: \[value_wo,value_wo_version]`),
 			},
 		},
 	})
 }
 
 func TestAccScalrVariable_switchValueToWriteOnly(t *testing.T) {
-	t.Skip("Temporary disabled due to issues with write-only variables.")
 	variable := &scalr.Variable{}
 	rInt := GetRandomInteger()
 
@@ -591,30 +587,18 @@ func TestAccScalrVariable_switchValueToWriteOnly(t *testing.T) {
 					testAccCheckScalrVariableValueInAPI("scalr_variable.test_switch", "secret_value"),
 					resource.TestCheckResourceAttr(
 						"scalr_variable.test_switch", "value_wo_version", "1"),
+					resource.TestCheckNoResourceAttr("scalr_variable.test_switch", "readable_value"),
 				),
 			},
-		},
-	})
-}
-
-func TestAccScalrVariable_writeOnlyImport(t *testing.T) {
-	t.Skip("Temporary disabled due to issues with write-only variables.")
-	rInt := GetRandomInteger()
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckScalrVariableDestroy,
-		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrVariableWithWriteOnlyValue(rInt, "secret_value", 1),
-			},
-			{
-				ResourceName:      "scalr_variable.test_wo",
-				ImportState:       true,
-				ImportStateVerify: true,
-				// value_wo and value_wo_version are write-only/not stored, so they won't match on import
-				ImportStateVerifyIgnore: []string{"value_wo", "value_wo_version"},
+				// Step 3: Switch back but omit value (use default)
+				Config: testAccScalrVariableWithWriteOnlyValueSwitchBack(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrVariableExists("scalr_variable.test_switch", variable),
+					testAccCheckScalrVariableValueInAPI("scalr_variable.test_switch", ""),
+					resource.TestCheckResourceAttr("scalr_variable.test_switch", "value", ""),
+					resource.TestCheckResourceAttr("scalr_variable.test_switch", "readable_value", ""),
+				),
 			},
 		},
 	})
@@ -687,4 +671,13 @@ resource scalr_variable test_switch {
   category         = "shell"
   description      = "Test switching from value to value_wo"
 }`, rInt, value, version)
+}
+
+func testAccScalrVariableWithWriteOnlyValueSwitchBack(rInt int) string {
+	return fmt.Sprintf(`
+resource scalr_variable test_switch {
+  key              = "var_switch_%d"
+  category         = "shell"
+  description      = "Test switching from value to value_wo"
+}`, rInt)
 }

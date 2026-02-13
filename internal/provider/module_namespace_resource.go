@@ -14,7 +14,7 @@ import (
 	"github.com/scalr/go-scalr"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
-	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
 )
 
 var (
@@ -63,8 +63,8 @@ func (r *moduleNamespaceResource) Schema(_ context.Context, _ resource.SchemaReq
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
-					validation.StringIsNamespaceName(),
+					stringvalidation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNamespaceName(),
 				},
 			},
 			"is_shared": schema.BoolAttribute{

@@ -22,7 +22,8 @@ import (
 	"github.com/scalr/go-scalr/v2/scalr/value"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
-	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/objectvalidation"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
 )
 
 var (
@@ -82,7 +83,7 @@ func (r *driftDetectionResource) Schema(_ context.Context, _ resource.SchemaRequ
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"check_period": schema.StringAttribute{
@@ -146,7 +147,7 @@ func (r *driftDetectionResource) Schema(_ context.Context, _ resource.SchemaRequ
 					},
 				},
 				Validators: []validator.Object{
-					validation.ExactlyOneOfIfObjectSet(
+					objectvalidation.ExactlyOneOfIfObjectSet(
 						path.MatchRelative().AtName("name_patterns"),
 						path.MatchRelative().AtName("environment_types"),
 						path.MatchRelative().AtName("tags"),

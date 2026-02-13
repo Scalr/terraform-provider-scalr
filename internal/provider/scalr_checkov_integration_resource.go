@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"errors"
+
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
@@ -21,7 +22,7 @@ import (
 	"github.com/scalr/go-scalr"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
-	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
 )
 
 // Compile-time interface checks
@@ -89,7 +90,7 @@ func (r *checkovIntegrationResource) Schema(_ context.Context, _ resource.Schema
 				MarkdownDescription: "Name of the Checkov integration.",
 				Required:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"version": schema.StringAttribute{
@@ -112,7 +113,7 @@ func (r *checkovIntegrationResource) Schema(_ context.Context, _ resource.Schema
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.Set{
-					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
+					setvalidator.ValueStringsAre(stringvalidation.StringIsNotWhiteSpace()),
 				},
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

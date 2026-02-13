@@ -22,7 +22,7 @@ import (
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
 	"github.com/scalr/terraform-provider-scalr/internal/framework/defaults"
-	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
 )
 
 // Compile-time interface checks
@@ -153,7 +153,7 @@ func (r *environmentResource) Schema(ctx context.Context, _ resource.SchemaReque
 				MarkdownDescription: "Name of the environment.",
 				Required:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"status": schema.StringAttribute{
@@ -185,7 +185,7 @@ func (r *environmentResource) Schema(ctx context.Context, _ resource.SchemaReque
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.Set{
-					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
+					setvalidator.ValueStringsAre(stringvalidation.StringIsNotWhiteSpace()),
 				},
 			},
 			"tag_ids": schema.SetAttribute{
@@ -195,7 +195,7 @@ func (r *environmentResource) Schema(ctx context.Context, _ resource.SchemaReque
 				Computed:            true,
 				Default:             setdefault.StaticValue(emptyStringSet),
 				Validators: []validator.Set{
-					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
+					setvalidator.ValueStringsAre(stringvalidation.StringIsNotWhiteSpace()),
 				},
 			},
 			"remote_backend": schema.BoolAttribute{
@@ -228,7 +228,7 @@ func (r *environmentResource) Schema(ctx context.Context, _ resource.SchemaReque
 				Computed:            true,
 				DeprecationMessage:  "Use the scalr_federated_environments resource instead. This attribute will be removed in the future.",
 				Validators: []validator.Set{
-					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
+					setvalidator.ValueStringsAre(stringvalidation.StringIsNotWhiteSpace()),
 				},
 			},
 			"account_id": schema.StringAttribute{

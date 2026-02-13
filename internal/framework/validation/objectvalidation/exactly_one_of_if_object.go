@@ -1,4 +1,4 @@
-package validation
+package objectvalidation
 
 import (
 	"context"

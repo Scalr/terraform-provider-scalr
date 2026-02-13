@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
 )
 
 func roleResourceSchema() *schema.Schema {
@@ -28,7 +28,7 @@ func roleResourceSchema() *schema.Schema {
 				MarkdownDescription: "Name of the role.",
 				Required:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"account_id": schema.StringAttribute{
@@ -51,7 +51,7 @@ func roleResourceSchema() *schema.Schema {
 				ElementType:         types.StringType,
 				Validators: []validator.Set{
 					setvalidator.SizeBetween(1, 128),
-					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
+					setvalidator.ValueStringsAre(stringvalidation.StringIsNotWhiteSpace()),
 				},
 			},
 		},
@@ -75,7 +75,7 @@ func roleResourceSchemaV0() *schema.Schema {
 				MarkdownDescription: "Name of the role.",
 				Required:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"account_id": schema.StringAttribute{
@@ -98,7 +98,7 @@ func roleResourceSchemaV0() *schema.Schema {
 				ElementType:         types.StringType,
 				Validators: []validator.Set{
 					setvalidator.SizeBetween(1, 128),
-					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
+					setvalidator.ValueStringsAre(stringvalidation.StringIsNotWhiteSpace()),
 				},
 			},
 		},

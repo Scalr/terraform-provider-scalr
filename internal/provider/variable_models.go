@@ -30,7 +30,12 @@ type variableResourceModel struct {
 	UpdatedBy      types.List   `tfsdk:"updated_by"`
 }
 
-func variableResourceModelFromAPI(ctx context.Context, v *scalr.Variable, existing *variableResourceModel) (*variableResourceModel, diag.Diagnostics) {
+func variableResourceModelFromAPI(
+	ctx context.Context,
+	v *scalr.Variable,
+	existing *variableResourceModel,
+	isWriteOnly bool,
+) (*variableResourceModel, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	model := &variableResourceModel{
@@ -58,7 +63,7 @@ func variableResourceModelFromAPI(ctx context.Context, v *scalr.Variable, existi
 		model.Force = existing.Force
 	}
 
-	// Preserve value_wo_version from existing state (write-only values are never returned by API)
+	// Preserve value_wo_version (it does not come from the API)
 	if existing != nil && !existing.ValueWOVersion.IsUnknown() && !existing.ValueWOVersion.IsNull() {
 		model.ValueWOVersion = existing.ValueWOVersion
 	}
@@ -92,6 +97,11 @@ func variableResourceModelFromAPI(ctx context.Context, v *scalr.Variable, existi
 		model.ReadableValue = model.Value
 	} else if existing != nil {
 		model.Value = existing.Value
+	}
+	// Unset value and readable_value if write-only value was used.
+	if isWriteOnly {
+		model.Value = types.StringValue("") // it has a default value of empty string in the schema
+		model.ReadableValue = types.StringNull()
 	}
 
 	return model, diags

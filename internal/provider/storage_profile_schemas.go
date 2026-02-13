@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 
-	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
 )
 
 func storageProfileResourceSchema(_ context.Context) *resourceSchema.Schema {
@@ -40,7 +40,7 @@ func storageProfileResourceSchema(_ context.Context) *resourceSchema.Schema {
 				MarkdownDescription: "Name of the storage profile.",
 				Required:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"default": resourceSchema.BoolAttribute{
@@ -170,7 +170,7 @@ func storageProfileDatasourceSchema(_ context.Context) *datasourceSchema.Schema 
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"name": datasourceSchema.StringAttribute{
@@ -178,7 +178,7 @@ func storageProfileDatasourceSchema(_ context.Context) *datasourceSchema.Schema 
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"default": datasourceSchema.BoolAttribute{

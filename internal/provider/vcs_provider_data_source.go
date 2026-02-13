@@ -14,7 +14,7 @@ import (
 	"github.com/scalr/go-scalr/v2/scalr/schemas"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
-	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
 )
 
 // Compile-time interface checks
@@ -63,7 +63,7 @@ func (d *vcsProviderDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"name": schema.StringAttribute{
@@ -71,7 +71,7 @@ func (d *vcsProviderDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"vcs_type": schema.StringAttribute{
@@ -79,7 +79,7 @@ func (d *vcsProviderDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 				Computed:            true,
 				Optional:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"url": schema.StringAttribute{
@@ -90,7 +90,7 @@ func (d *vcsProviderDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 				MarkdownDescription: "The ID of the environment the VCS provider has to be linked to, in the format `env-<RANDOM STRING>`.",
 				Optional:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"agent_pool_id": schema.StringAttribute{
@@ -98,7 +98,7 @@ func (d *vcsProviderDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"environments": schema.SetAttribute{

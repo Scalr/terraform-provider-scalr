@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"errors"
+
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/scalr/go-scalr"
@@ -14,8 +15,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
-	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
 )
 
 // Compile-time interface checks
@@ -63,7 +65,7 @@ func (r *integrationInfracostResource) Schema(_ context.Context, _ resource.Sche
 				MarkdownDescription: "Name of the Infracost integration.",
 				Required:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"api_key": schema.StringAttribute{
@@ -71,7 +73,7 @@ func (r *integrationInfracostResource) Schema(_ context.Context, _ resource.Sche
 				Required:            true,
 				Sensitive:           true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"environments": schema.SetAttribute{
@@ -80,7 +82,7 @@ func (r *integrationInfracostResource) Schema(_ context.Context, _ resource.Sche
 				Optional:            true,
 				Computed:            true,
 				Validators: []validator.Set{
-					setvalidator.ValueStringsAre(validation.StringIsNotWhiteSpace()),
+					setvalidator.ValueStringsAre(stringvalidation.StringIsNotWhiteSpace()),
 				},
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),

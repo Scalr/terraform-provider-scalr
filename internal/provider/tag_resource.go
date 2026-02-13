@@ -18,7 +18,7 @@ import (
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
 	"github.com/scalr/terraform-provider-scalr/internal/framework/defaults"
-	"github.com/scalr/terraform-provider-scalr/internal/framework/validation"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
 )
 
 // Compile-time interface checks
@@ -65,7 +65,7 @@ func (r *tagResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *
 				MarkdownDescription: "Name of the tag.",
 				Required:            true,
 				Validators: []validator.String{
-					validation.StringIsNotWhiteSpace(),
+					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"account_id": schema.StringAttribute{

@@ -2,8 +2,10 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/scalr/go-scalr"
@@ -13,10 +15,11 @@ import (
 
 // Compile-time interface checks
 var (
-	_ resource.Resource                 = &variableResource{}
-	_ resource.ResourceWithConfigure    = &variableResource{}
-	_ resource.ResourceWithImportState  = &variableResource{}
-	_ resource.ResourceWithUpgradeState = &variableResource{}
+	_ resource.Resource                     = &variableResource{}
+	_ resource.ResourceWithConfigure        = &variableResource{}
+	_ resource.ResourceWithConfigValidators = &variableResource{}
+	_ resource.ResourceWithImportState      = &variableResource{}
+	_ resource.ResourceWithUpgradeState     = &variableResource{}
 )
 
 func newVariableResource() resource.Resource {
@@ -28,6 +31,10 @@ type variableResource struct {
 	framework.ResourceWithScalrClient
 }
 
+type privateMeta struct {
+	IsWriteOnly bool `json:"is_write_only"`
+}
+
 func (r *variableResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_variable"
 }
@@ -36,25 +43,27 @@ func (r *variableResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 	resp.Schema = *variableResourceSchema()
 }
 
-func (r *variableResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan variableResourceModel
-
-	// Read plan data
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
-	if resp.Diagnostics.HasError() {
-		return
+func (r *variableResource) ConfigValidators(_ context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		resourcevalidator.RequiredTogether(
+			path.MatchRoot("value_wo"),
+			path.MatchRoot("value_wo_version"),
+		),
 	}
+}
 
-	// Read config to get write-only value (not available in plan)
-	var config variableResourceModel
+func (r *variableResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var config, plan variableResourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	// Determine which value to send: value_wo takes precedence over value
 	var valueToSend *string
-	if !config.ValueWO.IsNull() && !config.ValueWO.IsUnknown() {
+	isWriteOnly := !config.ValueWO.IsNull() && !config.ValueWO.IsUnknown()
+	if isWriteOnly {
 		valueToSend = config.ValueWO.ValueStringPointer()
 	} else {
 		valueToSend = plan.Value.ValueStringPointer()
@@ -89,7 +98,7 @@ func (r *variableResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	result, diags := variableResourceModelFromAPI(ctx, variable, &plan)
+	result, diags := variableResourceModelFromAPI(ctx, variable, &plan, isWriteOnly)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -100,6 +109,15 @@ func (r *variableResource) Create(ctx context.Context, req resource.CreateReques
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	// Persist private metadata
+	metaBytes, err := json.Marshal(privateMeta{IsWriteOnly: isWriteOnly})
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to marshal private metadata", err.Error())
+		return
+	}
+
+	resp.Private.SetKey(ctx, "meta", metaBytes)
 }
 
 func (r *variableResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -121,7 +139,15 @@ func (r *variableResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	result, diags := variableResourceModelFromAPI(ctx, variable, &state)
+	metaBytes, diags := req.Private.GetKey(ctx, "meta")
+	resp.Diagnostics.Append(diags...)
+
+	var meta privateMeta
+	if metaBytes != nil {
+		_ = json.Unmarshal(metaBytes, &meta)
+	}
+
+	result, diags := variableResourceModelFromAPI(ctx, variable, &state, meta.IsWriteOnly)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -136,31 +162,16 @@ func (r *variableResource) Read(ctx context.Context, req resource.ReadRequest, r
 
 func (r *variableResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Read plan & state data
-	var plan, state variableResourceModel
+	var config, plan, state variableResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Read config to get write-only value (not available in plan)
-	var config variableResourceModel
-	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Determine which value to send: value_wo takes precedence over value
-	var valueToSend *string
-	if !config.ValueWO.IsNull() && !config.ValueWO.IsUnknown() {
-		valueToSend = config.ValueWO.ValueStringPointer()
-	} else {
-		valueToSend = plan.Value.ValueStringPointer()
-	}
-
 	opts := scalr.VariableUpdateOptions{
 		Key:         plan.Key.ValueStringPointer(),
-		Value:       valueToSend,
 		HCL:         plan.HCL.ValueBoolPointer(),
 		Sensitive:   plan.Sensitive.ValueBoolPointer(),
 		Description: plan.Description.ValueStringPointer(),
@@ -171,6 +182,25 @@ func (r *variableResource) Update(ctx context.Context, req resource.UpdateReques
 		},
 	}
 
+	metaBytes, diags := req.Private.GetKey(ctx, "meta")
+	resp.Diagnostics.Append(diags...)
+
+	var meta privateMeta
+	if metaBytes != nil {
+		_ = json.Unmarshal(metaBytes, &meta)
+	}
+
+	isWriteOnly := !config.ValueWO.IsNull() && !config.ValueWO.IsUnknown()
+	isWriteOnlyChanged := isWriteOnly != meta.IsWriteOnly
+	if isWriteOnly {
+		// Only update write-only value if the version attribute has changed
+		if !plan.ValueWOVersion.Equal(state.ValueWOVersion) || isWriteOnlyChanged {
+			opts.Value = config.ValueWO.ValueStringPointer()
+		}
+	} else if !plan.Value.Equal(state.Value) || isWriteOnlyChanged {
+		opts.Value = plan.Value.ValueStringPointer()
+	}
+
 	// Update existing resource
 	variable, err := r.Client.Variables.Update(ctx, plan.Id.ValueString(), opts)
 	if err != nil {
@@ -178,7 +208,7 @@ func (r *variableResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
-	result, diags := variableResourceModelFromAPI(ctx, variable, &plan)
+	result, diags := variableResourceModelFromAPI(ctx, variable, &plan, isWriteOnly)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -189,6 +219,15 @@ func (r *variableResource) Update(ctx context.Context, req resource.UpdateReques
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	// Persist private metadata
+	metaBytes, err = json.Marshal(privateMeta{IsWriteOnly: isWriteOnly})
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to marshal private metadata", err.Error())
+		return
+	}
+
+	resp.Private.SetKey(ctx, "meta", metaBytes)
 }
 
 func (r *variableResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -214,19 +253,15 @@ func (r *variableResource) UpgradeState(_ context.Context) map[int64]resource.St
 	return map[int64]resource.StateUpgrader{
 		0: {
 			PriorSchema:   variableResourceSchemaV0(),
-			StateUpgrader: upgradeVariableResourceStateV0toV4(r.Client),
+			StateUpgrader: upgradeVariableResourceStateV0toV3(r.Client),
 		},
 		1: {
 			PriorSchema:   variableResourceSchemaV1(),
-			StateUpgrader: upgradeVariableResourceStateV1toV4(r.Client),
+			StateUpgrader: upgradeVariableResourceStateV1toV3(r.Client),
 		},
 		2: {
 			PriorSchema:   variableResourceSchemaV2(),
-			StateUpgrader: upgradeVariableResourceStateV2toV4(r.Client),
-		},
-		3: {
-			PriorSchema:   variableResourceSchemaV3(),
-			StateUpgrader: upgradeVariableResourceStateV3toV4,
+			StateUpgrader: upgradeVariableResourceStateV2toV3(r.Client),
 		},
 	}
 }
