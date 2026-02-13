@@ -30,6 +30,22 @@ func TestAccScalrProviderConfigurationsDataSource(t *testing.T) {
 	})
 }
 
+func TestAccScalrProviderConfigurationsDataSource_tags(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrProviderConfigurationsDataSourceTagsConfig(),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.scalr_provider_configurations.tagged_foo_bar", "ids.#", "2"),
+					resource.TestCheckResourceAttr("data.scalr_provider_configurations.tagged_baz", "ids.#", "2"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckProviderConfigurationsDataSourceNameFilter() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		var expectedIds []string
@@ -162,3 +178,76 @@ data "scalr_provider_configurations" "kubernetes" {
   provider_name = "kubernetes"
 }
 `
+
+func testAccScalrProviderConfigurationsDataSourceTagsConfig() string {
+	return fmt.Sprintf(`
+resource "scalr_tag" "foo" {
+  name = "pcfg-foo"
+}
+
+resource "scalr_tag" "bar" {
+  name = "pcfg-bar"
+}
+
+resource "scalr_tag" "baz" {
+  name = "pcfg-baz"
+}
+
+resource "scalr_provider_configuration" "tagged_foobar" {
+  name       = "tagged-foobar"
+  account_id = "%[1]s"
+  tag_ids    = [scalr_tag.foo.id, scalr_tag.bar.id]
+  custom {
+    provider_name = "kubernetes"
+    argument {
+      name  = "host"
+      value = "my-host"
+    }
+  }
+}
+
+resource "scalr_provider_configuration" "tagged_barbaz" {
+  name       = "tagged-barbaz"
+  account_id = "%[1]s"
+  tag_ids    = [scalr_tag.bar.id, scalr_tag.baz.id]
+  custom {
+    provider_name = "kubernetes"
+    argument {
+      name  = "host"
+      value = "my-host2"
+    }
+  }
+}
+
+resource "scalr_provider_configuration" "tagged_baz" {
+  name       = "tagged-baz"
+  account_id = "%[1]s"
+  tag_ids    = [scalr_tag.baz.id]
+  custom {
+    provider_name = "consul"
+    argument {
+      name  = "address"
+      value = "demo.consul.io:80"
+    }
+  }
+}
+
+data "scalr_provider_configurations" "tagged_foo_bar" {
+  tag_ids = [scalr_tag.foo.id, scalr_tag.bar.id]
+  depends_on = [
+    scalr_provider_configuration.tagged_foobar,
+    scalr_provider_configuration.tagged_barbaz,
+    scalr_provider_configuration.tagged_baz,
+  ]
+}
+
+data "scalr_provider_configurations" "tagged_baz" {
+  tag_ids = [scalr_tag.baz.id]
+  depends_on = [
+    scalr_provider_configuration.tagged_foobar,
+    scalr_provider_configuration.tagged_barbaz,
+    scalr_provider_configuration.tagged_baz,
+  ]
+}
+`, defaultAccount)
+}

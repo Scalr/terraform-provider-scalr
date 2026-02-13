@@ -338,6 +338,12 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"tag_ids": {
+				Description: "List of tag IDs associated with the provider configuration.",
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -360,6 +366,15 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 			ownerResources = append(ownerResources, &scalr.Team{ID: ownerId.(string)})
 		}
 		configurationOptions.Owners = ownerResources
+	}
+
+	if tagIDsI, ok := d.GetOk("tag_ids"); ok {
+		tagIDs := tagIDsI.(*schema.Set).List()
+		tags := make([]*scalr.Tag, len(tagIDs))
+		for i, tagID := range tagIDs {
+			tags[i] = &scalr.Tag{ID: tagID.(string)}
+		}
+		configurationOptions.Tags = tags
 	}
 
 	if environmentsI, ok := d.GetOk("environments"); ok {
@@ -597,6 +612,12 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 	}
 	_ = d.Set("owners", owners)
 
+	tagIDs := make([]string, 0)
+	for _, tag := range providerConfiguration.Tags {
+		tagIDs = append(tagIDs, tag.ID)
+	}
+	_ = d.Set("tag_ids", tagIDs)
+
 	if providerConfiguration.IsCustom {
 		var currentArguments []map[string]interface{}
 
@@ -775,7 +796,8 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 		d.HasChange("scalr") ||
 		d.HasChange("custom") ||
 		d.HasChange("environments") ||
-		d.HasChange("owners") {
+		d.HasChange("owners") ||
+		d.HasChange("tag_ids") {
 		configurationOptions := scalr.ProviderConfigurationUpdateOptions{
 			Name:                 ptr(d.Get("name").(string)),
 			ExportShellVariables: ptr(d.Get("export_shell_variables").(bool)),
@@ -933,6 +955,14 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 			}
 		}
 		configurationOptions.Owners = ownerResources
+
+		tagResources := make([]*scalr.Tag, 0)
+		if tagIDsI, ok := d.GetOk("tag_ids"); ok {
+			for _, tagID := range tagIDsI.(*schema.Set).List() {
+				tagResources = append(tagResources, &scalr.Tag{ID: tagID.(string)})
+			}
+		}
+		configurationOptions.Tags = tagResources
 
 		_, err := scalrClient.ProviderConfigurations.Update(ctx, id, configurationOptions)
 		if err != nil {

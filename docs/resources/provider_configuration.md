@@ -226,6 +226,7 @@ resource "scalr_provider_configuration" "elasticstack" {
 - `google` (Block List, Max: 1) Settings for the google provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`. (see [below for nested schema](#nestedblock--google))
 - `owners` (Set of String) The teams, the provider configuration belongs to.
 - `scalr` (Block List, Max: 1) Settings for the Scalr provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`. (see [below for nested schema](#nestedblock--scalr))
+- `tag_ids` (Set of String) List of tag IDs associated with the provider configuration.
 
 ### Read-Only
 
