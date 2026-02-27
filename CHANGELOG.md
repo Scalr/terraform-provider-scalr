@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `scalr_variable`: new attributes `value_wo` and `value_wo_version` — write-only (ephemeral) alternative for setting variable value; use with Terraform/OpenTofu v1.11+ ephemeral values (e.g. secrets); value is not stored in state. ([#487](https://github.com/Scalr/terraform-provider-scalr/pull/487))
+- `scalr_provider_configuration`: new attribute `apply_only` — provider configuration used only during apply phase; AWS only; create-only. ([#497](https://github.com/Scalr/terraform-provider-scalr/pull/497))
 
 ## [3.13.0] - 2026-02-06
 
