@@ -41,5 +41,6 @@ data "scalr_provider_configuration" "azure" {
 
 ### Read-Only
 
+- `apply_only` (Boolean) Whether the provider configuration is used only during the apply phase of the run.
 - `environments` (List of String) The list of environment identifiers that the provider configuration is shared to, or `["*"]` if shared with all environments.
 - `owners` (List of String) The teams, the provider configuration belongs to.
