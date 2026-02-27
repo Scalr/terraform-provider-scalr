@@ -7,7 +7,7 @@ parent:
   uri: provider_datasources
 privacy:
   view: public
-position: 19
+position: 20
 ---
 ## Data Source: scalr_role
 
