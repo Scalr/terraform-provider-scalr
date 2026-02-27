@@ -39,6 +39,7 @@ type providerConfigurationDataSourceModel struct {
 	Environments types.List   `tfsdk:"environments"`
 	Owners       types.List   `tfsdk:"owners"`
 	AccountID    types.String `tfsdk:"account_id"`
+	ApplyOnly    types.Bool   `tfsdk:"apply_only"`
 }
 
 func (r *providerConfigurationDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -83,6 +84,10 @@ func (r *providerConfigurationDataSource) Schema(_ context.Context, _ datasource
 			"account_id": schema.StringAttribute{
 				MarkdownDescription: "The identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.",
 				Optional:            true,
+				Computed:            true,
+			},
+			"apply_only": schema.BoolAttribute{
+				MarkdownDescription: "Whether the provider configuration is used only during the apply phase of the run.",
 				Computed:            true,
 			},
 		},
@@ -140,6 +145,7 @@ func (r *providerConfigurationDataSource) Read(ctx context.Context, req datasour
 	cfg.Name = types.StringValue(providerConfiguration.Name)
 	cfg.ProviderName = types.StringValue(providerConfiguration.ProviderName)
 	cfg.AccountID = types.StringValue(providerConfiguration.Account.ID)
+	cfg.ApplyOnly = types.BoolValue(providerConfiguration.ApplyOnly)
 
 	owners := make([]string, len(providerConfiguration.Owners))
 	for i, owner := range providerConfiguration.Owners {
