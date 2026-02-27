@@ -42,6 +42,14 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				}
 				return nil
 			},
+			func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+				if applyOnly, ok := d.GetOk("apply_only"); ok && applyOnly.(bool) {
+					if _, hasAws := d.GetOk("aws"); !hasAws {
+						return fmt.Errorf("'apply_only' is currently supported only for AWS provider configuration")
+					}
+				}
+				return nil
+			},
 		),
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -72,6 +80,13 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"apply_only": {
+				Description: "When enabled, the provider configuration will be used only during the apply phase of the run. Currently supported for AWS provider configuration only. This option can be set only at creation time.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				ForceNew:    true,
 			},
 			"aws": {
 				Description:  "Settings for the aws provider configuration. Exactly one of the following attributes must be set: `scalr`, `aws`, `google`, `azurerm`, `custom`.",
@@ -457,6 +472,10 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 			}
 		}
 
+		if applyOnly, ok := d.GetOk("apply_only"); ok && applyOnly.(bool) {
+			configurationOptions.ApplyOnly = ptr(true)
+		}
+
 	} else if _, ok := d.GetOk("google"); ok {
 		configurationOptions.ProviderName = ptr("google")
 		configurationOptions.GoogleAuthType = ptr(d.Get("google.0.auth_type").(string))
@@ -617,6 +636,7 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 		tagIDs = append(tagIDs, tag.ID)
 	}
 	_ = d.Set("tag_ids", tagIDs)
+	_ = d.Set("apply_only", providerConfiguration.ApplyOnly)
 
 	if providerConfiguration.IsCustom {
 		var currentArguments []map[string]interface{}
