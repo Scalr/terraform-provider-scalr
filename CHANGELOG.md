@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.0] - 2026-03-05
+
 ### Added
 
 - **New data source:** `scalr_outputs` ([#498](https://github.com/Scalr/terraform-provider-scalr/pull/498))
 - `scalr_variable`: new attributes `value_wo` and `value_wo_version` — write-only (ephemeral) alternative for setting variable value; use with Terraform/OpenTofu v1.11+ ephemeral values (e.g. secrets); value is not stored in state. ([#487](https://github.com/Scalr/terraform-provider-scalr/pull/487))
 - `scalr_provider_configuration`: new attribute `apply_only` — provider configuration used only during apply phase; AWS only; create-only. ([#497](https://github.com/Scalr/terraform-provider-scalr/pull/497))
 
-## [3.13.0] - 2026-02-06
+## [3.13.1] - 2026-02-06
 
 ### Added
 
@@ -1173,8 +1175,9 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.13.0...HEAD
-[3.13.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.13.0
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.14.0...HEAD
+[3.14.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.14.0
+[3.13.1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.13.1
 [3.12.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.12.0
 [3.11.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.11.0
 [3.10.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.10.0
