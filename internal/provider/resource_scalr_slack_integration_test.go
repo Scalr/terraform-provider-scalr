@@ -111,7 +111,7 @@ resource "scalr_slack_integration" "test" {
   name           = "test-create"
   account_id     = scalr_environment.test.account_id
   run_mode       = "dry"
-  events		 = ["run_approval_required", "run_errored"]
+  events		 = ["run_approval_required", "run_errored", "drift_detected"]
   channel_id	 = "C123"
   environments = [scalr_environment.test.id]
 }`, defaultAccount)

@@ -41,6 +41,7 @@ func resourceScalrSlackIntegration() *schema.Resource {
 								scalr.SlackIntegrationEventRunApprovalRequired,
 								scalr.SlackIntegrationEventRunSuccess,
 								scalr.SlackIntegrationEventRunErrored,
+								scalr.SlackIntegrationEventDriftDetected,
 							},
 							false,
 						),
