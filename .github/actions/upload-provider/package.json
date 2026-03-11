@@ -7,8 +7,8 @@
     "build": "ncc build index.js -o dist && cp index.html dist/index.html"
   },
   "dependencies": {
-    "@actions/core": "^1.10.0",
-    "@actions/exec": "^1.1.1"
+    "@actions/core": "^3.0.0",
+    "@actions/exec": "^3.0.0"
   },
   "keywords": [],
   "license": "ISC",
