@@ -24,4 +24,3 @@ inputs:
 runs:
   using: 'node24'
   main: 'dist/index.mjs'
-        
