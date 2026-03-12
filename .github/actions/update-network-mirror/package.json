@@ -1,15 +1,15 @@
 {
   "name": "update-network-mirror",
   "version": "0.1.0",
-  "main": "index.js",
+  "main": "index.mjs",
   "author": "Artem Sukhodolskyi <a.sukhodolskyi@scalr.io>",
   "scripts": {
-    "build": "ncc build index.js -o dist",
+    "build": "ncc build index.mjs -o dist",
     "lint": "npx eslint ."
   },
   "dependencies": {
-    "@actions/core": "^1.10.0",
-    "@actions/exec": "^1.1.1",
+    "@actions/core": "^3.0.0",
+    "@actions/exec": "^3.0.0",
     "node-fetch": "^2.6.12"
   },
   "keywords": [],

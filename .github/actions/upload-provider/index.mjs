@@ -1,16 +1,16 @@
-const core = require('@actions/core');
-const exec = require('@actions/exec');
+import * as core from '@actions/core';
+import * as exec from '@actions/exec';
+import fs from 'fs';
+import path from 'path';
+import crypto from 'crypto';
 
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
-const { promisify } = require('util');
-
-const mkdir = promisify(fs.mkdir);
-const writeFile = promisify(fs.writeFile);
-const readFile = promisify(fs.readFile);
-const readdir = promisify(fs.readdir);
-const copyFile = promisify(fs.copyFile);
+import {
+    mkdir,
+    writeFile,
+    readFile,
+    readdir,
+    copyFile,
+} from 'fs/promises';
 
 const SOURCE = 'Scalr';
 const SOURCE_URL = 'https://scalr.com';

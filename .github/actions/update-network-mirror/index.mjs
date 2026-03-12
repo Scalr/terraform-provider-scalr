@@ -1,11 +1,12 @@
-const core = require('@actions/core');
-const exec = require('@actions/exec');
+import * as core from '@actions/core';
+import * as exec from '@actions/exec';
+import fetch from 'node-fetch';
+import path from 'path';
 
-const util = require('util');
-const fetch = require('node-fetch');
-const mkdir = util.promisify(require('fs').mkdir);
-const writeFile = util.promisify(require('fs').writeFile);
-const path = require('path');
+import {
+    mkdir,
+    writeFile,
+} from 'fs/promises';
 
 
 const MIRROR_DIR = 'network-mirror';
