@@ -31,7 +31,7 @@ func resourceScalrSlackIntegration() *schema.Resource {
 				ValidateDiagFunc: validation.ToDiagFunc(validation.StringIsNotWhiteSpace),
 			},
 			"events": {
-				Description: "Terraform run events you would like to receive a Slack notifications for. Supported values are `run_approval_required`, `run_success`, `run_errored`.",
+				Description: "Terraform run events you would like to receive a Slack notifications for. Supported values are `run_approval_required`, `run_success`, `run_errored`, `drift_detected`.",
 				Type:        schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -41,6 +41,7 @@ func resourceScalrSlackIntegration() *schema.Resource {
 								scalr.SlackIntegrationEventRunApprovalRequired,
 								scalr.SlackIntegrationEventRunSuccess,
 								scalr.SlackIntegrationEventRunErrored,
+								scalr.SlackIntegrationEventDriftDetected,
 							},
 							false,
 						),

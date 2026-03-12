@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `scalr_slack_integration`: support `drift_detected` in `events` attribute values. ([#504](https://github.com/Scalr/terraform-provider-scalr/pull/504))
+
 ## [3.14.0] - 2026-03-05
 
 ### Added

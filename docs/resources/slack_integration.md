@@ -21,7 +21,7 @@ Manage the state of Slack integrations in Scalr. Create, update and destroy.
 resource "scalr_slack_integration" "test" {
   name         = "my-channel"
   account_id   = "acc-xxxxxxxxxx"
-  events       = ["run_approval_required", "run_success", "run_errored"]
+  events       = ["run_approval_required", "run_success", "run_errored", "drift_detected"]
   run_mode     = "apply"
   channel_id   = "xxxxxxxxxx" # Can be found in slack UI (channel settings/info popup)
   environments = ["env-xxxxxxxxxx"]
@@ -36,7 +36,7 @@ resource "scalr_slack_integration" "test" {
 
 - `channel_id` (String) Slack channel ID the event will be sent to.
 - `environments` (Set of String) List of environments where events should be triggered.
-- `events` (Set of String) Terraform run events you would like to receive a Slack notifications for. Supported values are `run_approval_required`, `run_success`, `run_errored`.
+- `events` (Set of String) Terraform run events you would like to receive a Slack notifications for. Supported values are `run_approval_required`, `run_success`, `run_errored`, `drift_detected`.
 - `name` (String) Name of the Slack integration.
 
 ### Optional
