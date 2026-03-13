@@ -1,8 +1,11 @@
 package framework
 
 import (
+	"context"
 	"hash/crc32"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/scalr/go-scalr/v2/scalr/value"
@@ -44,4 +47,54 @@ func SetIfKnownInt(v basetypes.Int32Value) *value.Value[int] {
 		return value.Unset[int]()
 	}
 	return value.Set(int(v.ValueInt32()))
+}
+
+func FlattenRelationshipIDsSet[T any](ctx context.Context, apiValue []*T, prior types.Set, idFunc func(*T) string) (
+	types.Set,
+	diag.Diagnostics,
+) {
+	if len(apiValue) > 0 {
+		ids := make([]string, 0, len(apiValue))
+		for _, v := range apiValue {
+			if v == nil {
+				continue
+			}
+			ids = append(ids, idFunc(v))
+		}
+		if len(ids) > 0 {
+			return types.SetValueFrom(ctx, types.StringType, ids)
+		}
+	}
+
+	if prior.IsNull() {
+		return types.SetNull(types.StringType), nil
+	}
+
+	// preserve explicit empty set
+	return types.SetValueFrom(ctx, types.StringType, []string{})
+}
+
+func FlattenRelationshipIDsList[T any](ctx context.Context, apiValue []*T, prior types.List, idFunc func(*T) string) (
+	types.List,
+	diag.Diagnostics,
+) {
+	if len(apiValue) > 0 {
+		ids := make([]string, 0, len(apiValue))
+		for _, v := range apiValue {
+			if v == nil {
+				continue
+			}
+			ids = append(ids, idFunc(v))
+		}
+		if len(ids) > 0 {
+			return types.ListValueFrom(ctx, types.StringType, ids)
+		}
+	}
+
+	if prior.IsNull() {
+		return types.ListNull(types.StringType), nil
+	}
+
+	// preserve explicit empty set
+	return types.ListValueFrom(ctx, types.StringType, []string{})
 }
