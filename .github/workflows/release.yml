@@ -86,7 +86,7 @@ jobs:
           github-token: ${{steps.generate_token.outputs.token}}
           script: |
             const tag = '${{ github.ref_name }}';
-            const providerVersion = `provider/${tag.replace(/^v/, '')}`;
+            const providerVersion = `${tag.replace(/^v/, '')}`;
 
             await github.rest.actions.createWorkflowDispatch({
               owner: 'Scalr',
@@ -95,5 +95,6 @@ jobs:
               ref: 'master',
               inputs: {
                 version: providerVersion
+                run_post_relese: true
               }
             })
