@@ -17,10 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `scalr_module_namespace`: fix "Provider produced inconsistent result after apply" error when `environments` or `owners` is set to an empty collection `[]`. ([#506](https://github.com/Scalr/terraform-provider-scalr/pull/506))
 
-### Required
-
-- scalr-server >= 2602.17.0
-
 ## [3.14.0] - 2026-03-05
 
 ### Added
