@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.15.0] - 2026-03-20
+
 ### Added
 
 - `scalr_slack_integration`: support `drift_detected` in `events` attribute values. ([#504](https://github.com/Scalr/terraform-provider-scalr/pull/504))
@@ -14,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `scalr_module_namespace`: fix "Provider produced inconsistent result after apply" error when `environments` or `owners` is set to an empty collection `[]`. ([#506](https://github.com/Scalr/terraform-provider-scalr/pull/506))
+
+### Required
+
+- scalr-server >= 2602.17.0
 
 ## [3.14.0] - 2026-03-05
 
@@ -1187,7 +1193,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.14.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.15.0...HEAD
+[3.15.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.15.0
 [3.14.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.14.0
 [3.13.1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.13.1
 [3.12.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.12.0
