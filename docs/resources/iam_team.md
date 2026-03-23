@@ -37,7 +37,7 @@ resource "scalr_iam_team" "example" {
 - `account_id` (String) ID of the account, in the format `acc-<RANDOM STRING>`.
 - `description` (String) A verbose description of the team.
 - `identity_provider_id` (String, Deprecated) An identifier of the login identity provider, in the format `idp-<RANDOM STRING>`.
-- `users` (Set of String) A list of the user identifiers to add to the team. This attribute should not be used when the account's identity provider is of type `ldap` or `saml`, as team membership is managed externally in these cases.
+- `users` (Set of String) A list of the user identifiers to add to the team. This attribute should not be used when the account's identity provider is not of type `scalr`, as team membership is managed externally in these cases.
 
 ### Read-Only
 
