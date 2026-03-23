@@ -53,7 +53,7 @@ func (d *iamTeamDataSource) Metadata(
 
 func (d *iamTeamDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Retrieves information about iam_team.",
+		MarkdownDescription: "Retrieves the details of a Scalr team.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
