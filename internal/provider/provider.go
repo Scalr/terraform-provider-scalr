@@ -180,13 +180,14 @@ func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataS
 		newEnvironmentDataSource,
 		newEnvironmentsDataSource,
 		newHookDataSource,
+		newIamTeamDataSource,
 		newIntegrationInfracostDataSource,
 		newModuleNamespaceDataSource,
+		newOutputsDataSource,
 		newProviderConfigurationDataSource,
 		newStorageProfileDataSource,
 		newTagDataSource,
 		newVcsProviderDataSource,
 		newWorkloadIdentityProviderDataSource,
-		outputsDataSource,
 	}
 }
