@@ -162,6 +162,7 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 		newEnvironmentResource,
 		newFederatedEnvironmentsResource,
 		newHookResource,
+		newIamTeamResource,
 		newIntegrationInfracostResource,
 		newModuleNamespaceResource,
 		newRoleResource,
@@ -179,13 +180,14 @@ func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataS
 		newEnvironmentDataSource,
 		newEnvironmentsDataSource,
 		newHookDataSource,
+		newIamTeamDataSource,
 		newIntegrationInfracostDataSource,
 		newModuleNamespaceDataSource,
+		newOutputsDataSource,
 		newProviderConfigurationDataSource,
 		newStorageProfileDataSource,
 		newTagDataSource,
 		newVcsProviderDataSource,
 		newWorkloadIdentityProviderDataSource,
-		outputsDataSource,
 	}
 }

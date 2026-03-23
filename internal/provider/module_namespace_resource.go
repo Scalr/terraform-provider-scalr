@@ -144,10 +144,10 @@ func (r *moduleNamespaceResource) Create(ctx context.Context, req resource.Creat
 	plan.IsShared = types.BoolValue(namespace.IsShared)
 
 	environmentsSet, diags := framework.FlattenRelationshipIDsSet(
-		ctx, namespace.Environments, plan.Environments,
-		func(e *scalr.Environment) string {
-			return e.ID
-		},
+		ctx,
+		namespace.Environments,
+		func(e *scalr.Environment) string { return e.ID },
+		&plan.Environments,
 	)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -156,9 +156,10 @@ func (r *moduleNamespaceResource) Create(ctx context.Context, req resource.Creat
 	plan.Environments = environmentsSet
 
 	ownersSet, diags := framework.FlattenRelationshipIDsSet(
-		ctx, namespace.Owners, plan.Owners, func(t *scalr.Team) string {
-			return t.ID
-		},
+		ctx,
+		namespace.Owners,
+		func(t *scalr.Team) string { return t.ID },
+		&plan.Owners,
 	)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -193,10 +194,12 @@ func (r *moduleNamespaceResource) Read(ctx context.Context, req resource.ReadReq
 	state.IsShared = types.BoolValue(namespace.IsShared)
 
 	environmentsSet, diags := framework.FlattenRelationshipIDsSet(
-		ctx, namespace.Environments, state.Environments,
+		ctx,
+		namespace.Environments,
 		func(e *scalr.Environment) string {
 			return e.ID
 		},
+		&state.Environments,
 	)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -205,9 +208,12 @@ func (r *moduleNamespaceResource) Read(ctx context.Context, req resource.ReadReq
 	state.Environments = environmentsSet
 
 	ownersSet, diags := framework.FlattenRelationshipIDsSet(
-		ctx, namespace.Owners, state.Owners, func(t *scalr.Team) string {
+		ctx,
+		namespace.Owners,
+		func(t *scalr.Team) string {
 			return t.ID
 		},
+		&state.Owners,
 	)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -268,10 +274,12 @@ func (r *moduleNamespaceResource) Update(ctx context.Context, req resource.Updat
 	plan.IsShared = types.BoolValue(namespace.IsShared)
 
 	environmentsSet, diags := framework.FlattenRelationshipIDsSet(
-		ctx, namespace.Environments, plan.Environments,
+		ctx,
+		namespace.Environments,
 		func(e *scalr.Environment) string {
 			return e.ID
 		},
+		&plan.Environments,
 	)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -280,9 +288,12 @@ func (r *moduleNamespaceResource) Update(ctx context.Context, req resource.Updat
 	plan.Environments = environmentsSet
 
 	ownersSet, diags := framework.FlattenRelationshipIDsSet(
-		ctx, namespace.Owners, plan.Owners, func(t *scalr.Team) string {
+		ctx,
+		namespace.Owners,
+		func(t *scalr.Team) string {
 			return t.ID
 		},
+		&plan.Owners,
 	)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `scalr_iam_team`: the `users` attribute now issues a warning when set, if the account uses external identity provider to manage team memberships. This will become a hard error in the next major version of the provider. ([#517](https://github.com/Scalr/terraform-provider-scalr/pull/517))
+
 ## [3.15.0] - 2026-03-20
 
 ### Added

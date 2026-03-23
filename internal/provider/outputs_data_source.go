@@ -23,7 +23,7 @@ var (
 	_ datasource.DataSourceWithConfigure = &workspaceOutputsDataSource{}
 )
 
-func outputsDataSource() datasource.DataSource {
+func newOutputsDataSource() datasource.DataSource {
 	return &workspaceOutputsDataSource{}
 }
 
