@@ -142,7 +142,7 @@ func (r *iamTeamResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 			"users": schema.SetAttribute{
 				MarkdownDescription: "A list of the user identifiers to add to the team." +
-					" This attribute should not be used when the account's identity provider is of type `ldap` or `saml`," +
+					" This attribute should not be used when the account's identity provider is not of type `scalr`," +
 					" as team membership is managed externally in these cases.",
 				Optional:    true,
 				Computed:    true,
