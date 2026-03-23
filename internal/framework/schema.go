@@ -49,7 +49,7 @@ func SetIfKnownInt(v basetypes.Int32Value) *value.Value[int] {
 	return value.Set(int(v.ValueInt32()))
 }
 
-func FlattenRelationshipIDsSet[T any](ctx context.Context, apiValue []*T, prior types.Set, idFunc func(*T) string) (
+func FlattenRelationshipIDsSet[T any](ctx context.Context, apiValue []*T, idFunc func(*T) string, prior *types.Set) (
 	types.Set,
 	diag.Diagnostics,
 ) {
@@ -66,7 +66,7 @@ func FlattenRelationshipIDsSet[T any](ctx context.Context, apiValue []*T, prior 
 		}
 	}
 
-	if prior.IsNull() {
+	if prior != nil && prior.IsNull() {
 		return types.SetNull(types.StringType), nil
 	}
 
@@ -74,7 +74,7 @@ func FlattenRelationshipIDsSet[T any](ctx context.Context, apiValue []*T, prior 
 	return types.SetValueFrom(ctx, types.StringType, []string{})
 }
 
-func FlattenRelationshipIDsList[T any](ctx context.Context, apiValue []*T, prior types.List, idFunc func(*T) string) (
+func FlattenRelationshipIDsList[T any](ctx context.Context, apiValue []*T, idFunc func(*T) string, prior *types.List) (
 	types.List,
 	diag.Diagnostics,
 ) {
@@ -91,10 +91,52 @@ func FlattenRelationshipIDsList[T any](ctx context.Context, apiValue []*T, prior
 		}
 	}
 
-	if prior.IsNull() {
+	if prior != nil && prior.IsNull() {
 		return types.ListNull(types.StringType), nil
 	}
 
-	// preserve explicit empty set
+	// preserve explicit empty list
 	return types.ListValueFrom(ctx, types.StringType, []string{})
+}
+
+func ExpandRelationshipIDsSet[T any](ctx context.Context, v types.Set, newFunc func(string) T) (
+	[]T,
+	diag.Diagnostics,
+) {
+	var (
+		ids   []string
+		diags diag.Diagnostics
+	)
+
+	diags.Append(v.ElementsAs(ctx, &ids, false)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	rels := make([]T, len(ids))
+	for i, id := range ids {
+		rels[i] = newFunc(id)
+	}
+	return rels, diags
+}
+
+func ExpandRelationshipIDsList[T any](ctx context.Context, v types.List, newFunc func(string) T) (
+	[]T,
+	diag.Diagnostics,
+) {
+	var (
+		ids   []string
+		diags diag.Diagnostics
+	)
+
+	diags.Append(v.ElementsAs(ctx, &ids, false)...)
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	rels := make([]T, len(ids))
+	for i, id := range ids {
+		rels[i] = newFunc(id)
+	}
+	return rels, diags
 }

@@ -162,6 +162,7 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 		newEnvironmentResource,
 		newFederatedEnvironmentsResource,
 		newHookResource,
+		newIamTeamResource,
 		newIntegrationInfracostResource,
 		newModuleNamespaceResource,
 		newRoleResource,
