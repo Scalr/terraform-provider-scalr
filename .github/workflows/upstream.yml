@@ -90,6 +90,7 @@ jobs:
         run: |
           SCALR_HOST=${{ steps.create-preview-env.outputs.host }}
           echo "SCALR_HOSTNAME=mainiacp.${SCALR_HOST/https:\/\//}" >> $GITHUB_ENV
+      - uses: hashicorp/setup-terraform@v4
       - name: Run acceptance tests
         env:
           SCALR_HOSTNAME: ${{ env.SCALR_HOSTNAME }}
