@@ -26,7 +26,7 @@ resource "scalr_module" "example" {
   }
 }
 
-# Edge case: VCS path does not follow terraform-<provider>-<name> (e.g. extra hyphens).
+# VCS path does not follow terraform-<provider>-<name> (e.g. extra hyphens).
 # Set module_provider and name so the registry maps the module correctly.
 resource "scalr_module" "example_explicit_provider_and_name" {
   namespace_id    = scalr_module_namespace.shared.id
