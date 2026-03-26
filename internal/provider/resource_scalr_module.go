@@ -3,11 +3,14 @@ package provider
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
+	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/scalr/go-scalr"
 )
 
@@ -17,6 +20,7 @@ func resourceScalrModule() *schema.Resource {
 		CreateContext: resourceScalrModuleCreate,
 		ReadContext:   resourceScalrModuleRead,
 		DeleteContext: resourceScalrModuleDelete,
+		CustomizeDiff: resourceScalrModuleCustomizeDiff,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -24,12 +28,27 @@ func resourceScalrModule() *schema.Resource {
 			"name": {
 				Description: "Name of the module, e.g. `rds`, `compute`, `kubernetes-engine`.",
 				Type:        schema.TypeString,
+				Optional:    true,
 				Computed:    true,
+				ForceNew:    true,
+				ValidateFunc: validation.All(
+					validation.StringLenBetween(1, 64),
+					validation.StringMatch(
+						regexp.MustCompile(`^[a-zA-Z0-9]([a-zA-Z_0-9-]*[a-zA-Z0-9])?$`),
+						"must start and end with a letter or digit, contain only letters, digits, underscores, and hyphens, and be at most 64 characters",
+					),
+				),
 			},
 			"module_provider": {
 				Description: "Module provider name, e.g `aws`, `azurerm`, `google`, etc.",
 				Type:        schema.TypeString,
+				Optional:    true,
 				Computed:    true,
+				ForceNew:    true,
+				ValidateFunc: validation.StringMatch(
+					regexp.MustCompile(`^[0-9a-z]{1,64}$`),
+					"must be 1-64 characters of lowercase letters and digits only",
+				),
 			},
 			"status": {
 				Description: "A system status of the Module.",
@@ -103,6 +122,29 @@ func resourceScalrModule() *schema.Resource {
 	}
 }
 
+func resourceScalrModuleCustomizeDiff(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
+	nameVal, nameInCfg := d.GetOkExists("name")            //nolint:staticcheck
+	provVal, provInCfg := d.GetOkExists("module_provider") //nolint:staticcheck
+
+	if nameInCfg != provInCfg {
+		return fmt.Errorf("either both `name` and `module_provider` must be set, or both must be omitted")
+	}
+	if nameInCfg {
+		name := ""
+		prov := ""
+		if nameVal != nil {
+			name = nameVal.(string)
+		}
+		if provVal != nil {
+			prov = provVal.(string)
+		}
+		if name == "" || prov == "" {
+			return fmt.Errorf("`name` and `module_provider` must be non-empty when set")
+		}
+	}
+	return nil
+}
+
 func resourceScalrModuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	scalrClient := meta.(*scalr.Client)
 
@@ -120,6 +162,15 @@ func resourceScalrModuleCreate(ctx context.Context, d *schema.ResourceData, meta
 	opt := scalr.ModuleCreateOptions{
 		VCSRepo:     vcsOpt,
 		VcsProvider: &scalr.VcsProvider{ID: d.Get("vcs_provider_id").(string)},
+	}
+
+	if name, ok := d.GetOk("name"); ok {
+		n := name.(string)
+		opt.Name = &n
+	}
+	if provider, ok := d.GetOk("module_provider"); ok {
+		p := provider.(string)
+		opt.Provider = &p
 	}
 
 	if envID, ok := d.GetOk("environment_id"); ok {
