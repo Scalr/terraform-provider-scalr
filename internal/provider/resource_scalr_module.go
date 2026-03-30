@@ -24,7 +24,7 @@ func resourceScalrModule() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Description:  "Name of the module, e.g. `rds`, `compute`, `kubernetes-engine`. Must be set together with `module_provider` when either is set.",
+				Description:  "Name of the module, e.g. `rds`, `compute`, `kubernetes-engine`.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -38,7 +38,7 @@ func resourceScalrModule() *schema.Resource {
 				),
 			},
 			"module_provider": {
-				Description:  "Module provider name, e.g `aws`, `azurerm`, `google`, etc. Must be set together with `name` when either is set.",
+				Description:  "Module provider name, e.g `aws`, `azurerm`, `google`, etc.",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
