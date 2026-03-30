@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"regexp"
 
@@ -20,31 +19,31 @@ func resourceScalrModule() *schema.Resource {
 		CreateContext: resourceScalrModuleCreate,
 		ReadContext:   resourceScalrModuleRead,
 		DeleteContext: resourceScalrModuleDelete,
-		CustomizeDiff: resourceScalrModuleCustomizeDiff,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Description: "Name of the module, e.g. `rds`, `compute`, `kubernetes-engine`.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
+				Description:  "Name of the module, e.g. `rds`, `compute`, `kubernetes-engine`. Must be set together with `module_provider` when either is set.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"module_provider"},
 				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 64),
 					validation.StringMatch(
-						regexp.MustCompile(`^[a-zA-Z0-9]([a-zA-Z_0-9-]*[a-zA-Z0-9])?$`),
+						regexp.MustCompile(`^[a-zA-Z0-9]([A-Za-z0-9_-]{0,62}[a-zA-Z0-9])?$`),
 						"must start and end with a letter or digit, contain only letters, digits, underscores, and hyphens, and be at most 64 characters",
 					),
 				),
 			},
 			"module_provider": {
-				Description: "Module provider name, e.g `aws`, `azurerm`, `google`, etc.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
+				Description:  "Module provider name, e.g `aws`, `azurerm`, `google`, etc. Must be set together with `name` when either is set.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"name"},
 				ValidateFunc: validation.StringMatch(
 					regexp.MustCompile(`^[0-9a-z]{1,64}$`),
 					"must be 1-64 characters of lowercase letters and digits only",
@@ -120,29 +119,6 @@ func resourceScalrModule() *schema.Resource {
 			},
 		},
 	}
-}
-
-func resourceScalrModuleCustomizeDiff(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
-	nameVal, nameInCfg := d.GetOkExists("name")            //nolint:staticcheck
-	provVal, provInCfg := d.GetOkExists("module_provider") //nolint:staticcheck
-
-	if nameInCfg != provInCfg {
-		return fmt.Errorf("either both `name` and `module_provider` must be set, or both must be omitted")
-	}
-	if nameInCfg {
-		name := ""
-		prov := ""
-		if nameVal != nil {
-			name = nameVal.(string)
-		}
-		if provVal != nil {
-			prov = provVal.(string)
-		}
-		if name == "" || prov == "" {
-			return fmt.Errorf("`name` and `module_provider` must be non-empty when set")
-		}
-	}
-	return nil
 }
 
 func resourceScalrModuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
