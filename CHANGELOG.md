@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `scalr_module`: optional create-only `name` and `module_provider` (API `name` and `provider`); both must be set in configuration together or omitted; changing either forces replacement; format validation when set. ([#519](https://github.com/Scalr/terraform-provider-scalr/pull/519))
+
 ### Changed
 
 - `scalr_iam_team`: the `users` attribute now issues a warning when set, if the account uses external identity provider to manage team memberships. This will become a hard error in the next major version of the provider. ([#517](https://github.com/Scalr/terraform-provider-scalr/pull/517))
