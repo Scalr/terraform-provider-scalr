@@ -455,7 +455,7 @@ func TestAccProviderConfiguration_aws_oidc(t *testing.T) {
 	})
 }
 
-func TestAccProviderConfiguration_aws_service_credentials_source(t *testing.T) {
+func TestAccProviderConfiguration_aws_credentials_source(t *testing.T) {
 	var providerConfiguration scalr.ProviderConfiguration
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
@@ -474,7 +474,7 @@ func TestAccProviderConfiguration_aws_service_credentials_source(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.credentials_type", "role_delegation"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.trusted_entity_type", "aws_service"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.role_arn", "arn:aws:iam::123456789012:role/scalr-service-role"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.service_credentials_source", "Ec2InstanceMetadata"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.credentials_source", "Ec2InstanceMetadata"),
 				),
 			},
 			{
@@ -486,7 +486,7 @@ func TestAccProviderConfiguration_aws_service_credentials_source(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.credentials_type", "role_delegation"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.trusted_entity_type", "aws_service"),
 					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.role_arn", "arn:aws:iam::123456789012:role/scalr-service-role"),
-					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.service_credentials_source", "EcsContainer"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.credentials_source", "EcsContainer"),
 				),
 			},
 		},
@@ -1134,7 +1134,7 @@ resource "scalr_provider_configuration" "aws" {
     credentials_type           = "role_delegation"
     trusted_entity_type        = "aws_service"
     role_arn                   = "arn:aws:iam::123456789012:role/scalr-service-role"
-    service_credentials_source = "%s"
+    credentials_source = "%s"
   }
 }
 `, name, defaultAccount, serviceCredentialsSource)

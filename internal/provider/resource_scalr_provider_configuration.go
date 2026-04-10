@@ -138,7 +138,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 						},
-						"service_credentials_source": {
+						"credentials_source": {
 							Description: "The source of AWS service credentials when using `role_delegation` credentials type with `aws_service` trusted entity type. Available options: `Ec2InstanceMetadata`, `EcsContainer`.",
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -446,7 +446,7 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 			if externalIdExists {
 				configurationOptions.AwsExternalId = ptr(externalIdI.(string))
 			}
-			if v, ok := d.GetOk("aws.0.service_credentials_source"); ok {
+			if v, ok := d.GetOk("aws.0.credentials_source"); ok {
 				configurationOptions.AwsServiceCredentialsSource = ptr(scalr.AwsServiceCredentialsSource(v.(string)))
 			}
 			if len(*configurationOptions.AwsTrustedEntityType) == 0 {
@@ -733,7 +733,7 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 				aws["audience"] = providerConfiguration.AwsAudience
 			}
 			if len(providerConfiguration.AwsServiceCredentialsSource) > 0 {
-				aws["service_credentials_source"] = string(providerConfiguration.AwsServiceCredentialsSource)
+				aws["credentials_source"] = string(providerConfiguration.AwsServiceCredentialsSource)
 			}
 
 			var tags map[string]string
@@ -883,7 +883,7 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 				if externalIdExists {
 					configurationOptions.AwsExternalId = ptr(externalIdI.(string))
 				}
-				if v, ok := d.GetOk("aws.0.service_credentials_source"); ok {
+				if v, ok := d.GetOk("aws.0.credentials_source"); ok {
 					configurationOptions.AwsServiceCredentialsSource = ptr(scalr.AwsServiceCredentialsSource(v.(string)))
 				}
 				if len(*configurationOptions.AwsTrustedEntityType) == 0 {

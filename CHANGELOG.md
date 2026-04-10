@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `scalr_provider_configuration`: new attribute `credential_source` — the credential source for the initial assume-role call. ([#522](https://github.com/Scalr/terraform-provider-scalr/pull/522))
+- `scalr_provider_configuration.aws`: new attribute `credentials_source` — the credential source for the initial assume-role call. ([#522](https://github.com/Scalr/terraform-provider-scalr/pull/522))
 
 ### Changed
 

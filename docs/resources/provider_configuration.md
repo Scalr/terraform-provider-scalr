@@ -307,7 +307,7 @@ Optional:
 - `external_id` (String) External identifier to use when assuming the role. This option is required with `role_delegation` credentials type and `aws_account` trusted entity type.
 - `role_arn` (String) Amazon Resource Name (ARN) of the IAM Role to assume. This option is required with the `role_delegation` and `oidc` credentials type.
 - `secret_key` (String, Sensitive) AWS secret key. This option is required with `access_keys` credentials type.
-- `service_credentials_source` (String) The source of AWS service credentials when using `role_delegation` credentials type with `aws_service` trusted entity type. Available options: `Ec2InstanceMetadata`, `EcsContainer`.
+- `credentials_source` (String) The source of AWS service credentials when using `role_delegation` credentials type with `aws_service` trusted entity type. Available options: `Ec2InstanceMetadata`, `EcsContainer`.
 - `trusted_entity_type` (String) Trusted entity type, available options: `aws_account`, `aws_service`. This option is required with `role_delegation` credentials type.
 
 <a id="nestedblock--aws--default_tags"></a>
