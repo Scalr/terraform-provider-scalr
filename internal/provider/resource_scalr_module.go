@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"log"
+	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/scalr/go-scalr"
 )
 
@@ -22,14 +24,30 @@ func resourceScalrModule() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Description: "Name of the module, e.g. `rds`, `compute`, `kubernetes-engine`.",
-				Type:        schema.TypeString,
-				Computed:    true,
+				Description:  "Name of the module, e.g. `rds`, `compute`, `kubernetes-engine`.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"module_provider"},
+				ValidateFunc: validation.All(
+					validation.StringMatch(
+						regexp.MustCompile(`^[a-zA-Z0-9]([A-Za-z0-9_-]{0,62}[a-zA-Z0-9])?$`),
+						"must start and end with a letter or digit, contain only letters, digits, underscores, and hyphens, and be at most 64 characters",
+					),
+				),
 			},
 			"module_provider": {
-				Description: "Module provider name, e.g `aws`, `azurerm`, `google`, etc.",
-				Type:        schema.TypeString,
-				Computed:    true,
+				Description:  "Module provider name, e.g `aws`, `azurerm`, `google`, etc.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				RequiredWith: []string{"name"},
+				ValidateFunc: validation.StringMatch(
+					regexp.MustCompile(`^[0-9a-z]{1,64}$`),
+					"must be 1-64 characters of lowercase letters and digits only",
+				),
 			},
 			"status": {
 				Description: "A system status of the Module.",
@@ -120,6 +138,15 @@ func resourceScalrModuleCreate(ctx context.Context, d *schema.ResourceData, meta
 	opt := scalr.ModuleCreateOptions{
 		VCSRepo:     vcsOpt,
 		VcsProvider: &scalr.VcsProvider{ID: d.Get("vcs_provider_id").(string)},
+	}
+
+	if name, ok := d.GetOk("name"); ok {
+		n := name.(string)
+		opt.Name = &n
+	}
+	if provider, ok := d.GetOk("module_provider"); ok {
+		p := provider.(string)
+		opt.Provider = &p
 	}
 
 	if envID, ok := d.GetOk("environment_id"); ok {

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `scalr_module`: optional create-only `name` and `module_provider` (API `name` and `provider`); both must be set in configuration together or omitted; changing either forces replacement; format validation when set. ([#519](https://github.com/Scalr/terraform-provider-scalr/pull/519))
 - `scalr_provider_configuration.aws`: new attribute `credentials_source` — the credential source for the initial assume-role call. ([#522](https://github.com/Scalr/terraform-provider-scalr/pull/522))
 
 ### Changed
