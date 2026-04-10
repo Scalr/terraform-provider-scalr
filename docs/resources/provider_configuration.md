@@ -303,11 +303,11 @@ Optional:
 - `access_key` (String) AWS access key. This option is required with `access_keys` credentials type.
 - `account_type` (String) The type of AWS account, available options: `regular`, `gov-cloud`, `cn-cloud`.
 - `audience` (String) The value of the `aud` claim for the identity token. This option is required with `oidc` credentials type.
+- `credentials_source` (String) The source of AWS service credentials when using `role_delegation` credentials type with `aws_service` trusted entity type. Available options: `Ec2InstanceMetadata`, `EcsContainer`.
 - `default_tags` (Block List, Max: 1) AWS default tags settings. (see [below for nested schema](#nestedblock--aws--default_tags))
 - `external_id` (String) External identifier to use when assuming the role. This option is required with `role_delegation` credentials type and `aws_account` trusted entity type.
 - `role_arn` (String) Amazon Resource Name (ARN) of the IAM Role to assume. This option is required with the `role_delegation` and `oidc` credentials type.
 - `secret_key` (String, Sensitive) AWS secret key. This option is required with `access_keys` credentials type.
-- `credentials_source` (String) The source of AWS service credentials when using `role_delegation` credentials type with `aws_service` trusted entity type. Available options: `Ec2InstanceMetadata`, `EcsContainer`.
 - `trusted_entity_type` (String) Trusted entity type, available options: `aws_account`, `aws_service`. This option is required with `role_delegation` credentials type.
 
 <a id="nestedblock--aws--default_tags"></a>
