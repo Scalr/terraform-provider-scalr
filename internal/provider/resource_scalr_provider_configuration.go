@@ -145,8 +145,8 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 							ValidateDiagFunc: validation.ToDiagFunc(
 								validation.StringInSlice(
 									[]string{
-										string(scalr.AwsServiceCredentialsSourceEc2InstanceMetadata),
-										string(scalr.AwsServiceCredentialsSourceEcsContainer),
+										string(scalr.AwsCredentialsSourceEc2InstanceMetadata),
+										string(scalr.AwsCredentialsSourceEcsContainer),
 									},
 									false,
 								),
@@ -447,7 +447,7 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 				configurationOptions.AwsExternalId = ptr(externalIdI.(string))
 			}
 			if v, ok := d.GetOk("aws.0.credentials_source"); ok {
-				configurationOptions.AwsServiceCredentialsSource = ptr(scalr.AwsServiceCredentialsSource(v.(string)))
+				configurationOptions.AwsCredentialsSource = ptr(scalr.AwsCredentialsSource(v.(string)))
 			}
 			if len(*configurationOptions.AwsTrustedEntityType) == 0 {
 				return diag.Errorf("'trusted_entity_type' field is required for 'role_delegation' credentials type of aws provider configuration")
@@ -732,8 +732,8 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 			if len(providerConfiguration.AwsAudience) > 0 {
 				aws["audience"] = providerConfiguration.AwsAudience
 			}
-			if len(providerConfiguration.AwsServiceCredentialsSource) > 0 {
-				aws["credentials_source"] = string(providerConfiguration.AwsServiceCredentialsSource)
+			if len(providerConfiguration.AwsCredentialsSource) > 0 {
+				aws["credentials_source"] = string(providerConfiguration.AwsCredentialsSource)
 			}
 
 			var tags map[string]string
@@ -884,7 +884,7 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 					configurationOptions.AwsExternalId = ptr(externalIdI.(string))
 				}
 				if v, ok := d.GetOk("aws.0.credentials_source"); ok {
-					configurationOptions.AwsServiceCredentialsSource = ptr(scalr.AwsServiceCredentialsSource(v.(string)))
+					configurationOptions.AwsCredentialsSource = ptr(scalr.AwsCredentialsSource(v.(string)))
 				}
 				if len(*configurationOptions.AwsTrustedEntityType) == 0 {
 					return diag.Errorf("'trusted_entity_type' field is required for 'role_delegation' credentials type of aws provider configuration")
