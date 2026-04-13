@@ -455,6 +455,44 @@ func TestAccProviderConfiguration_aws_oidc(t *testing.T) {
 	})
 }
 
+func TestAccProviderConfiguration_aws_credentials_source(t *testing.T) {
+	var providerConfiguration scalr.ProviderConfiguration
+	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProviderConfigurationResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrProviderConfigurationAWSServiceCredentialsSourceConfig(rName, "Ec2InstanceMetadata"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.aws", &providerConfiguration),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "name", rName),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.#", "1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.credentials_type", "role_delegation"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.trusted_entity_type", "aws_service"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.role_arn", "arn:aws:iam::123456789012:role/scalr-service-role"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.credentials_source", "Ec2InstanceMetadata"),
+				),
+			},
+			{
+				Config: testAccScalrProviderConfigurationAWSServiceCredentialsSourceConfig(rNewName, "EcsContainer"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.aws", &providerConfiguration),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "name", rNewName),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.#", "1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.credentials_type", "role_delegation"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.trusted_entity_type", "aws_service"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.role_arn", "arn:aws:iam::123456789012:role/scalr-service-role"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.aws", "aws.0.credentials_source", "EcsContainer"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccProviderConfiguration_azurerm(t *testing.T) {
 	if true {
 		t.Skip("TODO: add a valid credentials for azurerm testing.")
@@ -1085,6 +1123,21 @@ resource "scalr_provider_configuration" "google" {
   }
 }
 `, name, defaultAccount, project)
+}
+
+func testAccScalrProviderConfigurationAWSServiceCredentialsSourceConfig(name, serviceCredentialsSource string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "aws" {
+  name       = "%s"
+  account_id = "%s"
+  aws {
+    credentials_type           = "role_delegation"
+    trusted_entity_type        = "aws_service"
+    role_arn                   = "arn:aws:iam::123456789012:role/scalr-service-role"
+    credentials_source = "%s"
+  }
+}
+`, name, defaultAccount, serviceCredentialsSource)
 }
 
 func testAccScalrProviderConfigurationAWSOidcConfig(name string) string {
