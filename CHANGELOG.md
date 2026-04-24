@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.16.0] - 2026-04-27
+
 ### Added
 
 - `scalr_module`: optional create-only `name` and `module_provider` (API `name` and `provider`); both must be set in configuration together or omitted; changing either forces replacement; format validation when set. ([#519](https://github.com/Scalr/terraform-provider-scalr/pull/519))
@@ -1198,7 +1200,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.15.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.16.0...HEAD
+[3.16.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.16.0
 [3.15.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.15.0
 [3.14.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.14.0
 [3.13.1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.13.1
