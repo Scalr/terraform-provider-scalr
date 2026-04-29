@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `scalr_iam_team`: preserve the `users` attribute value from state when it is not set in configuration; fixes a regression introduced in 3.16.0 that caused unwanted plan diffs and apply errors for teams whose membership is managed externally (e.g. SCIM).
+
 ## [3.16.0] - 2026-04-27
 
 ### Added
