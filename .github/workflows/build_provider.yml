@@ -47,7 +47,11 @@ jobs:
           service_account: ${{ vars.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
       - name: Create Development Tag
         run: |
-          BRANCH=${{ github.base_ref || github.ref_name }}
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BRANCH="${{ github.head_ref }}"
+          else
+            BRANCH="${{ github.ref_name }}"
+          fi
           CLEAN_BRANCH=$(echo "$BRANCH" | sed 's/[\/]/-/g')
           git tag v1.0.0-rc-$CLEAN_BRANCH
       - name: Set up Go
