@@ -47,7 +47,7 @@ jobs:
           service_account: ${{ vars.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
       - name: Create Development Tag
         run: |
-          BRANCH=${{ github.head_ref || github.ref_name }}
+          BRANCH=${{ github.base_ref || github.ref_name }}
           CLEAN_BRANCH=$(echo "$BRANCH" | sed 's/[\/]/-/g')
           git tag v1.0.0-rc-$CLEAN_BRANCH
       - name: Set up Go
