@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.16.1] - 2026-05-01
+
 ### Fixed
 
 - `scalr_iam_team`: preserve the `users` attribute value from state when it is not set in configuration; fixes a regression introduced in 3.16.0 that caused unwanted plan diffs and apply errors for teams whose membership is managed externally (e.g. SCIM).
@@ -1204,7 +1206,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.16.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.16.1...HEAD
+[3.16.1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.16.1
 [3.16.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.16.0
 [3.15.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.15.0
 [3.14.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.14.0
