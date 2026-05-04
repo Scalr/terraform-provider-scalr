@@ -201,7 +201,13 @@ func (r *iamTeamResource) Create(ctx context.Context, req resource.CreateRequest
 	var priorUsers *types.Set
 	if iamTeam.Relationships.IdentityProvider != nil &&
 		iamTeam.Relationships.IdentityProvider.Attributes.IdpType != schemas.IdentityProviderIdpTypeScalr {
-		priorUsers = &plan.Users
+		users := plan.Users
+		if users.IsUnknown() {
+			// `users` attribute was not set in config, and there is no prior state (new resource):
+			// store an empty set so UseStateForUnknown can preserve it on subsequent plans.
+			users = types.SetValueMust(types.StringType, nil)
+		}
+		priorUsers = &users
 	}
 
 	result, diags := iamTeamResourceModelFromAPI(ctx, iamTeam, priorUsers)
@@ -294,7 +300,11 @@ func (r *iamTeamResource) Update(ctx context.Context, req resource.UpdateRequest
 	var priorUsers *types.Set
 	if iamTeam.Relationships.IdentityProvider != nil &&
 		iamTeam.Relationships.IdentityProvider.Attributes.IdpType != schemas.IdentityProviderIdpTypeScalr {
-		priorUsers = &plan.Users
+		users := plan.Users
+		if users.IsUnknown() {
+			users = state.Users
+		}
+		priorUsers = &users
 	}
 
 	result, diags := iamTeamResourceModelFromAPI(ctx, iamTeam, priorUsers)
@@ -326,9 +336,9 @@ func (r *iamTeamResource) ModifyPlan(
 	resp *resource.ModifyPlanResponse,
 ) {
 	// Fetch the account with its identity provider;
-	// issue a warning if it's an external IDP and the `users` attribute is set.
+	// issue a warning if it's an external IDP and the `users` attribute is set in config.
 	var users types.Set
-	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("users"), &users)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("users"), &users)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
