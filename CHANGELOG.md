@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [3.16.1] - 2026-05-01
+## [3.16.2] - 2026-05-05
 
 ### Fixed
 
@@ -1206,7 +1206,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.16.1...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.16.2...HEAD
+[3.16.2]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.16.2
 [3.16.1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.16.1
 [3.16.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.16.0
 [3.15.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.15.0

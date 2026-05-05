@@ -112,6 +112,36 @@ func TestAccScalrIamTeamResource_import(t *testing.T) {
 	)
 }
 
+func TestAccScalrIamTeamResource_noUsers(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-team")
+
+	resource.Test(
+		t, resource.TestCase{
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+			CheckDestroy:             testAccCheckScalrIamTeamResourceDestroy,
+			Steps: []resource.TestStep{
+				// Create without users: state must resolve to an empty set, not unknown.
+				{
+					Config: testAccScalrIamTeamResourceNoUsers(name),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("scalr_iam_team.test", "users.#", "0"),
+					),
+				},
+				// Subsequent plan must be empty (UseStateForUnknown)
+				{
+					Config: testAccScalrIamTeamResourceNoUsers(name),
+					ConfigPlanChecks: resource.ConfigPlanChecks{
+						PreApply: []plancheck.PlanCheck{
+							plancheck.ExpectEmptyPlan(),
+						},
+					},
+				},
+			},
+		},
+	)
+}
+
 func TestAccScalrIamTeamResource_UpgradeFromSDK(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-team")
 
@@ -131,6 +161,37 @@ func TestAccScalrIamTeamResource_UpgradeFromSDK(t *testing.T) {
 				{
 					ProtoV5ProviderFactories: protoV5ProviderFactories(t),
 					Config:                   testAccScalrIamTeamResourceBasic(name),
+					ConfigPlanChecks: resource.ConfigPlanChecks{
+						PreApply: []plancheck.PlanCheck{
+							plancheck.ExpectEmptyPlan(),
+						},
+					},
+				},
+			},
+		},
+	)
+}
+
+func TestAccScalrIamTeamResource_UpgradeFromSDK_noUsers(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-team")
+
+	resource.Test(
+		t, resource.TestCase{
+			Steps: []resource.TestStep{
+				// Create with old SDK, no users in config.
+				{
+					ExternalProviders: map[string]resource.ExternalProvider{
+						"scalr": {
+							Source:            "registry.scalr.io/scalr/scalr",
+							VersionConstraint: "<=3.15.0",
+						},
+					},
+					Config: testAccScalrIamTeamResourceNoUsers(name),
+					Check:  resource.TestCheckResourceAttrSet("scalr_iam_team.test", "id"),
+				},
+				{
+					ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+					Config:                   testAccScalrIamTeamResourceNoUsers(name),
 					ConfigPlanChecks: resource.ConfigPlanChecks{
 						PreApply: []plancheck.PlanCheck{
 							plancheck.ExpectEmptyPlan(),
@@ -207,6 +268,16 @@ resource "scalr_iam_team" "test" {
   description = "updated"
   account_id  = "%s"
   users       = []
+}`, name, defaultAccount,
+	)
+}
+
+func testAccScalrIamTeamResourceNoUsers(name string) string {
+	return fmt.Sprintf(
+		`
+resource "scalr_iam_team" "test" {
+  name       = "%s"
+  account_id = "%s"
 }`, name, defaultAccount,
 	)
 }
