@@ -22,6 +22,9 @@ func resourceScalrRunTrigger() *schema.Resource {
 		CreateContext: resourceScalrRunTriggerCreate,
 		DeleteContext: resourceScalrRunTriggerDelete,
 		ReadContext:   resourceScalrRunTriggerRead,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"downstream_id": {

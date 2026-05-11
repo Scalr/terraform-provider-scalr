@@ -25,6 +25,11 @@ func TestAccScalrRunTriggersDataSource_basic(t *testing.T) {
 					testAccCheckRunTriggerAttributes(runTrigger, "scalr_environment.test"),
 				),
 			},
+			{
+				ResourceName:      "scalr_run_trigger.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
