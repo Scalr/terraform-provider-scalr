@@ -7,9 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `scalr_run_trigger`: add missing import support
+
+## [3.16.2] - 2026-05-05
+
+### Fixed
+
+- `scalr_iam_team`: preserve the `users` attribute value from state when it is not set in configuration; fixes a regression introduced in 3.16.0 that caused unwanted plan diffs and apply errors for teams whose membership is managed externally (e.g. SCIM).
+
+## [3.16.0] - 2026-04-27
+
+### Added
+
+- `scalr_module`: optional create-only `name` and `module_provider` (API `name` and `provider`); both must be set in configuration together or omitted; changing either forces replacement; format validation when set. ([#519](https://github.com/Scalr/terraform-provider-scalr/pull/519))
+- `scalr_provider_configuration.aws`: new attribute `credentials_source` — the credential source for the initial assume-role call. ([#522](https://github.com/Scalr/terraform-provider-scalr/pull/522))
+
+### Changed
+
+- `scalr_iam_team`: the `users` attribute now issues a warning when set, if the account uses external identity provider to manage team memberships. This will become a hard error in the next major version of the provider. ([#517](https://github.com/Scalr/terraform-provider-scalr/pull/517))
+
+## [3.15.0] - 2026-03-20
+
 ### Added
 
 - `scalr_slack_integration`: support `drift_detected` in `events` attribute values. ([#504](https://github.com/Scalr/terraform-provider-scalr/pull/504))
+
+### Fixed
+
+- `scalr_module_namespace`: fix "Provider produced inconsistent result after apply" error when `environments` or `owners` is set to an empty collection `[]`. ([#506](https://github.com/Scalr/terraform-provider-scalr/pull/506))
 
 ## [3.14.0] - 2026-03-05
 
@@ -1183,7 +1210,11 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.14.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.16.2...HEAD
+[3.16.2]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.16.2
+[3.16.1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.16.1
+[3.16.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.16.0
+[3.15.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.15.0
 [3.14.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.14.0
 [3.13.1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.13.1
 [3.12.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.12.0

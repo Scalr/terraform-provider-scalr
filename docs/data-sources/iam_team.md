@@ -32,12 +32,12 @@ data "scalr_iam_team" "example2" {
 
 ### Optional
 
-- `account_id` (String) The identifier of the Scalr account.
-- `id` (String) Identifier of the team.
-- `name` (String) Name of the team.
+- `account_id` (String) The ID of the Scalr account, in the format `acc-<RANDOM STRING>`.
+- `id` (String) The identifier of the team.
+- `name` (String) The name of the team.
 
 ### Read-Only
 
 - `description` (String) A verbose description of the team.
 - `identity_provider_id` (String) An identifier of an identity provider team is linked to, in the format `idp-<RANDOM STRING>`.
-- `users` (List of String) The list of the user identifiers that belong to the team.
+- `users` (Set of String) The list of the user identifiers that belong to the team.

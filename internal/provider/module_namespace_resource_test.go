@@ -82,6 +82,28 @@ func TestAccScalrModuleNamespace_update(t *testing.T) {
 	})
 }
 
+func TestAccScalrModuleNamespace_emptyCollections(t *testing.T) {
+	namespaceName := acctest.RandomWithPrefix("test-namespace")
+	namespace := &scalr.ModuleNamespace{}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrModuleNamespaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrModuleNamespaceEmptyCollections(namespaceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrModuleNamespaceExists("scalr_module_namespace.test", namespace),
+					resource.TestCheckResourceAttr("scalr_module_namespace.test", "name", namespaceName),
+					resource.TestCheckResourceAttr("scalr_module_namespace.test", "environments.#", "0"),
+					resource.TestCheckResourceAttr("scalr_module_namespace.test", "owners.#", "0"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccScalrModuleNamespace_invalidName(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -108,6 +130,15 @@ resource "scalr_module_namespace" "test" {
   name      = "%s"
   is_shared = %t
 }`, name, isShared)
+}
+
+func testAccScalrModuleNamespaceEmptyCollections(name string) string {
+	return fmt.Sprintf(`
+resource "scalr_module_namespace" "test" {
+  name         = "%s"
+  environments = []
+  owners       = []
+}`, name)
 }
 
 func testAccScalrModuleNamespaceInvalidName() string {

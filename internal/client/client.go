@@ -4,8 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
+	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-svchost"
 	"github.com/hashicorp/terraform-svchost/disco"
@@ -16,6 +19,11 @@ import (
 	clientV2 "github.com/scalr/go-scalr/v2/scalr/client"
 
 	"github.com/scalr/terraform-provider-scalr/internal/logging"
+)
+
+const (
+	discoveryMaxRetries = 5
+	discoveryMaxDelay   = 120 * time.Second
 )
 
 var scalrServiceIDs = []string{"iacp.v3"}
@@ -49,8 +57,8 @@ func Configure(h, t, v string) (*scalr.Client, *scalrV2.Client, error) {
 		services.ForceHostServices(host, hostConfig.Services)
 	}
 
-	// Discover the address.
-	host, err := services.Discover(hostname)
+	// Discover the address, retrying on transient network errors.
+	host, err := discoverWithRetry(services, hostname)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -129,4 +137,48 @@ func Configure(h, t, v string) (*scalr.Client, *scalrV2.Client, error) {
 	)
 
 	return scalrClient, scalrClientV2, nil
+}
+
+// discoverWithRetry calls services.Discover and retries on transient network
+// errors (timeouts, connection resets) with an exponential backoff.
+// This mostly addresses network issues in the k8s environment during acceptance tests.
+func discoverWithRetry(services *disco.Disco, hostname svchost.Hostname) (*disco.Host, error) {
+	var (
+		host  *disco.Host
+		err   error
+		delay = 5 * time.Second
+	)
+	for attempt := 0; attempt <= discoveryMaxRetries; attempt++ {
+		host, err = services.Discover(hostname)
+		if err == nil || !isTransientDiscoveryError(err) {
+			break
+		}
+		if attempt < discoveryMaxRetries {
+			log.Printf(
+				"[WARN] Discovery attempt %d/%d failed: %s. Retrying in %s...",
+				attempt+1, discoveryMaxRetries, err, delay,
+			)
+			time.Sleep(delay)
+			delay *= 2
+			if delay > discoveryMaxDelay {
+				delay = discoveryMaxDelay
+			}
+		}
+	}
+	return host, err
+}
+
+// isTransientDiscoveryError returns true for network errors that are worth retrying.
+func isTransientDiscoveryError(err error) bool {
+	var netErr net.Error
+	if errors.As(err, &netErr) && netErr.Timeout() {
+		return true
+	}
+	msg := err.Error()
+	return strings.Contains(msg, "connection reset by peer") ||
+		strings.Contains(msg, "connection refused") ||
+		strings.Contains(msg, "EOF") ||
+		strings.Contains(msg, "Client.Timeout exceeded") ||
+		strings.Contains(msg, "request canceled") ||
+		strings.Contains(msg, "context deadline exceeded")
 }

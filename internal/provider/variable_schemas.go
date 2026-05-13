@@ -348,7 +348,7 @@ var _ validator.Bool = categoryHCLValidator{}
 type categoryHCLValidator struct{}
 
 func (v categoryHCLValidator) Description(_ context.Context) string {
-	return "must not be empty or consisting entirely of whitespace characters"
+	return "HCL flag is not supported for shell variables"
 }
 
 func (v categoryHCLValidator) MarkdownDescription(ctx context.Context) string {

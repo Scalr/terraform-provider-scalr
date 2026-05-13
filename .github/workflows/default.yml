@@ -35,7 +35,7 @@ jobs:
         with:
           go-version-file: '.go-version'
           cache: false
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
       - name: Lint
         uses: golangci/golangci-lint-action@v8
         with:
@@ -148,6 +148,7 @@ jobs:
         run: |
           SCALR_HOST=${{ steps.create-preview-env.outputs.host }}
           echo "SCALR_HOSTNAME=mainiacp.${SCALR_HOST/https:\/\//}" >> $GITHUB_ENV
+      - uses: hashicorp/setup-terraform@v4
       - name: Run Acceptance Tests
         env:
           SCALR_HOSTNAME: ${{ env.SCALR_HOSTNAME }}
