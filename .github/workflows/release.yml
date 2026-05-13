@@ -95,6 +95,7 @@ jobs:
               ref: 'master',
               inputs: {
                 version: providerVersion
+                registry: prod
                 run_post_relese: true
               }
             })
