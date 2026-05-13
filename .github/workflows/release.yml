@@ -94,8 +94,8 @@ jobs:
               workflow_id: 'e2e-provider-release.yml',
               ref: 'master',
               inputs: {
-                version: providerVersion
-                registry: prod
+                version: providerVersion,
+                registry: prod,
                 run_post_relese: true
               }
             })
