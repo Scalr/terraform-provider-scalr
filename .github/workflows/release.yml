@@ -87,7 +87,6 @@ jobs:
           script: |
             const tag = '${{ github.ref_name }}';
             const providerVersion = `${tag.replace(/^v/, '')}`;
-
             await github.rest.actions.createWorkflowDispatch({
               owner: 'Scalr',
               repo: 'fatmouse',
