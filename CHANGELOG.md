@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **New resource:** `scalr_var_set` ([#531](https://github.com/Scalr/terraform-provider-scalr/pull/531))
+
 ### Fixed
 
 - `scalr_run_trigger`: add missing import support
