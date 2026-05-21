@@ -91,7 +91,7 @@ func TestAccScalrVarSetResource_environments(t *testing.T) {
 					),
 				},
 				{
-					Config: testAccScalrVarSetBasic(name),
+					Config: testAccScalrVarSetUnshared(name),
 					Check: resource.ComposeTestCheckFunc(
 						resource.TestCheckResourceAttr("scalr_var_set.test", "environments.#", "0"),
 					),
@@ -200,6 +200,16 @@ func testAccScalrVarSetSharedWithAll(name string) string {
 resource "scalr_var_set" "test" {
   name         = "%s"
   environments = ["*"]
+}`, name,
+	)
+}
+
+func testAccScalrVarSetUnshared(name string) string {
+	return fmt.Sprintf(
+		`
+resource "scalr_var_set" "test" {
+  name         = "%s"
+  environments = []
 }`, name,
 	)
 }
