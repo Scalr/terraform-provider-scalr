@@ -171,6 +171,13 @@ func variableResourceSchema() *schema.Schema {
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"var_set_id": schema.StringAttribute{
+				MarkdownDescription: "ID of the variable set this variable belongs to, in the format `varset-<RANDOM STRING>`.",
+				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
 			"updated_at": schema.StringAttribute{
 				MarkdownDescription: "Date/time the variable was updated.",
 				Computed:            true,
