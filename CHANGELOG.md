@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **New resource:** `scalr_var_set` ([#531](https://github.com/Scalr/terraform-provider-scalr/pull/531))
+- **New data source:** `scalr_var_set` ([#531](https://github.com/Scalr/terraform-provider-scalr/pull/531))
 
 ### Fixed
 
