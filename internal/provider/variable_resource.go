@@ -8,7 +8,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/scalr/go-scalr"
+
+	"github.com/scalr/go-scalr/v2/scalr/client"
+	varops "github.com/scalr/go-scalr/v2/scalr/ops/variable"
+	"github.com/scalr/go-scalr/v2/scalr/schemas"
+	"github.com/scalr/go-scalr/v2/scalr/value"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
 )
@@ -69,30 +73,32 @@ func (r *variableResource) Create(ctx context.Context, req resource.CreateReques
 		valueToSend = plan.Value.ValueStringPointer()
 	}
 
-	opts := scalr.VariableCreateOptions{
-		Key:         plan.Key.ValueStringPointer(),
-		Value:       valueToSend,
-		Description: plan.Description.ValueStringPointer(),
-		Category:    ptr(scalr.CategoryType(plan.Category.ValueString())),
-		HCL:         plan.HCL.ValueBoolPointer(),
-		Sensitive:   plan.Sensitive.ValueBoolPointer(),
-		Final:       plan.Final.ValueBoolPointer(),
-		Account:     &scalr.Account{ID: plan.AccountID.ValueString()},
-		QueryOptions: &scalr.VariableWriteQueryOptions{
-			Force:   plan.Force.ValueBoolPointer(),
-			Include: ptr("updated-by"),
+	createReq := schemas.VariableRequest{
+		Attributes: schemas.VariableAttributesRequest{
+			Key:         value.Set(plan.Key.ValueString()),
+			Value:       value.SetPtrMaybe(valueToSend),
+			Description: value.SetPtrMaybe(plan.Description.ValueStringPointer()),
+			Category:    value.Set(schemas.VariableCategory(plan.Category.ValueString())),
+			Hcl:         value.Set(plan.HCL.ValueBool()),
+			Sensitive:   value.Set(plan.Sensitive.ValueBool()),
+			Final:       value.Set(plan.Final.ValueBool()),
 		},
 	}
 
 	if !plan.WorkspaceID.IsUnknown() && !plan.WorkspaceID.IsNull() {
-		opts.Workspace = &scalr.Workspace{ID: plan.WorkspaceID.ValueString()}
+		createReq.Relationships.Workspace = value.Set(schemas.Workspace{ID: plan.WorkspaceID.ValueString()})
 	}
 
 	if !plan.EnvironmentID.IsUnknown() && !plan.EnvironmentID.IsNull() {
-		opts.Environment = &scalr.Environment{ID: plan.EnvironmentID.ValueString()}
+		createReq.Relationships.Environment = value.Set(schemas.Environment{ID: plan.EnvironmentID.ValueString()})
 	}
 
-	variable, err := r.Client.Variables.Create(ctx, opts)
+	createOpts := varops.CreateVariableOptions{
+		Force:   plan.Force.ValueBool(),
+		Include: []string{"updated-by"},
+	}
+
+	variable, err := r.ClientV2.Variable.CreateVariable(ctx, &createReq, &createOpts)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating variable", err.Error())
 		return
@@ -129,9 +135,13 @@ func (r *variableResource) Read(ctx context.Context, req resource.ReadRequest, r
 	}
 
 	// Get refreshed resource state from API
-	variable, err := r.Client.Variables.Read(ctx, state.Id.ValueString())
+	variable, err := r.ClientV2.Variable.GetVariable(
+		ctx,
+		state.Id.ValueString(),
+		&varops.GetVariableOptions{Include: []string{"updated-by"}},
+	)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
+		if errors.Is(err, client.ErrNotFound) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -170,16 +180,26 @@ func (r *variableResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
-	opts := scalr.VariableUpdateOptions{
-		Key:         plan.Key.ValueStringPointer(),
-		HCL:         plan.HCL.ValueBoolPointer(),
-		Sensitive:   plan.Sensitive.ValueBoolPointer(),
-		Description: plan.Description.ValueStringPointer(),
-		Final:       plan.Final.ValueBoolPointer(),
-		QueryOptions: &scalr.VariableWriteQueryOptions{
-			Force:   plan.Force.ValueBoolPointer(),
-			Include: ptr("updated-by"),
-		},
+	updateReq := schemas.VariableRequest{}
+
+	if !plan.Key.Equal(state.Key) {
+		updateReq.Attributes.Key = value.Set(plan.Key.ValueString())
+	}
+
+	if !plan.Description.Equal(state.Description) {
+		updateReq.Attributes.Description = value.SetPtr(plan.Description.ValueStringPointer())
+	}
+
+	if !plan.HCL.Equal(state.HCL) {
+		updateReq.Attributes.Hcl = value.Set(plan.HCL.ValueBool())
+	}
+
+	if !plan.Sensitive.Equal(state.Sensitive) {
+		updateReq.Attributes.Sensitive = value.Set(plan.Sensitive.ValueBool())
+	}
+
+	if !plan.Final.Equal(state.Final) {
+		updateReq.Attributes.Final = value.Set(plan.Final.ValueBool())
 	}
 
 	metaBytes, diags := req.Private.GetKey(ctx, "meta")
@@ -195,14 +215,19 @@ func (r *variableResource) Update(ctx context.Context, req resource.UpdateReques
 	if isWriteOnly {
 		// Only update write-only value if the version attribute has changed
 		if !plan.ValueWOVersion.Equal(state.ValueWOVersion) || isWriteOnlyChanged {
-			opts.Value = config.ValueWO.ValueStringPointer()
+			updateReq.Attributes.Value = value.SetPtr(config.ValueWO.ValueStringPointer())
 		}
 	} else if !plan.Value.Equal(state.Value) || isWriteOnlyChanged {
-		opts.Value = plan.Value.ValueStringPointer()
+		updateReq.Attributes.Value = value.SetPtr(plan.Value.ValueStringPointer())
+	}
+
+	updateOpts := varops.UpdateVariableOptions{
+		Force:   plan.Force.ValueBool(),
+		Include: []string{"updated-by"},
 	}
 
 	// Update existing resource
-	variable, err := r.Client.Variables.Update(ctx, plan.Id.ValueString(), opts)
+	variable, err := r.ClientV2.Variable.UpdateVariable(ctx, plan.Id.ValueString(), &updateReq, &updateOpts)
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating variable", err.Error())
 		return
@@ -238,14 +263,18 @@ func (r *variableResource) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 
-	err := r.Client.Variables.Delete(ctx, state.Id.ValueString())
-	if err != nil && !errors.Is(err, scalr.ErrResourceNotFound) {
+	err := r.ClientV2.Variable.DeleteVariable(ctx, state.Id.ValueString())
+	if err != nil && !errors.Is(err, client.ErrNotFound) {
 		resp.Diagnostics.AddError("Error deleting variable", err.Error())
 		return
 	}
 }
 
-func (r *variableResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *variableResource) ImportState(
+	ctx context.Context,
+	req resource.ImportStateRequest,
+	resp *resource.ImportStateResponse,
+) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
@@ -253,15 +282,15 @@ func (r *variableResource) UpgradeState(_ context.Context) map[int64]resource.St
 	return map[int64]resource.StateUpgrader{
 		0: {
 			PriorSchema:   variableResourceSchemaV0(),
-			StateUpgrader: upgradeVariableResourceStateV0toV3(r.Client),
+			StateUpgrader: upgradeVariableResourceStateV0toV3(r.ClientV2),
 		},
 		1: {
 			PriorSchema:   variableResourceSchemaV1(),
-			StateUpgrader: upgradeVariableResourceStateV1toV3(r.Client),
+			StateUpgrader: upgradeVariableResourceStateV1toV3(r.ClientV2),
 		},
 		2: {
 			PriorSchema:   variableResourceSchemaV2(),
-			StateUpgrader: upgradeVariableResourceStateV2toV3(r.Client),
+			StateUpgrader: upgradeVariableResourceStateV2toV3(r.ClientV2),
 		},
 	}
 }

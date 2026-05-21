@@ -5,10 +5,16 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/scalr/go-scalr"
+
+	"github.com/scalr/go-scalr/v2/scalr"
+	varops "github.com/scalr/go-scalr/v2/scalr/ops/variable"
 )
 
-func upgradeVariableResourceStateV0toV3(c *scalr.Client) func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
+func upgradeVariableResourceStateV0toV3(c *scalr.Client) func(
+	ctx context.Context,
+	req resource.UpgradeStateRequest,
+	resp *resource.UpgradeStateResponse,
+) {
 	return func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
 		type variableModelV0 struct {
 			Id          types.String `tfsdk:"id"`
@@ -26,14 +32,18 @@ func upgradeVariableResourceStateV0toV3(c *scalr.Client) func(ctx context.Contex
 			return
 		}
 
-		variable, err := c.Variables.Read(ctx, dataV0.Id.ValueString())
+		variable, err := c.Variable.GetVariable(
+			ctx,
+			dataV0.Id.ValueString(),
+			&varops.GetVariableOptions{Include: []string{"updated-by"}},
+		)
 		if err != nil {
 			resp.Diagnostics.AddError("Error reading variable", err.Error())
 			return
 		}
 
 		data, diags := variableResourceModelFromAPI(ctx, variable, nil, false)
-		if variable.Sensitive {
+		if variable.Attributes.Sensitive {
 			data.Value = dataV0.Value
 		}
 		resp.Diagnostics.Append(diags...)
@@ -43,7 +53,11 @@ func upgradeVariableResourceStateV0toV3(c *scalr.Client) func(ctx context.Contex
 	}
 }
 
-func upgradeVariableResourceStateV1toV3(c *scalr.Client) func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
+func upgradeVariableResourceStateV1toV3(c *scalr.Client) func(
+	ctx context.Context,
+	req resource.UpgradeStateRequest,
+	resp *resource.UpgradeStateResponse,
+) {
 	return func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
 		type variableModelV1 struct {
 			Id            types.String `tfsdk:"id"`
@@ -65,7 +79,11 @@ func upgradeVariableResourceStateV1toV3(c *scalr.Client) func(ctx context.Contex
 			return
 		}
 
-		variable, err := c.Variables.Read(ctx, dataV1.Id.ValueString())
+		variable, err := c.Variable.GetVariable(
+			ctx,
+			dataV1.Id.ValueString(),
+			&varops.GetVariableOptions{Include: []string{"updated-by"}},
+		)
 		if err != nil {
 			resp.Diagnostics.AddError("Error reading variable", err.Error())
 			return
@@ -75,7 +93,7 @@ func upgradeVariableResourceStateV1toV3(c *scalr.Client) func(ctx context.Contex
 		if !dataV1.Force.IsNull() {
 			data.Force = dataV1.Force
 		}
-		if variable.Sensitive {
+		if variable.Attributes.Sensitive {
 			data.Value = dataV1.Value
 		}
 		resp.Diagnostics.Append(diags...)
@@ -85,7 +103,11 @@ func upgradeVariableResourceStateV1toV3(c *scalr.Client) func(ctx context.Contex
 	}
 }
 
-func upgradeVariableResourceStateV2toV3(c *scalr.Client) func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
+func upgradeVariableResourceStateV2toV3(c *scalr.Client) func(
+	ctx context.Context,
+	req resource.UpgradeStateRequest,
+	resp *resource.UpgradeStateResponse,
+) {
 	return func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
 		type variableModelV2 struct {
 			Id            types.String `tfsdk:"id"`
@@ -108,7 +130,11 @@ func upgradeVariableResourceStateV2toV3(c *scalr.Client) func(ctx context.Contex
 			return
 		}
 
-		variable, err := c.Variables.Read(ctx, dataV2.Id.ValueString())
+		variable, err := c.Variable.GetVariable(
+			ctx,
+			dataV2.Id.ValueString(),
+			&varops.GetVariableOptions{Include: []string{"updated-by"}},
+		)
 		if err != nil {
 			resp.Diagnostics.AddError("Error reading variable", err.Error())
 			return
@@ -118,7 +144,7 @@ func upgradeVariableResourceStateV2toV3(c *scalr.Client) func(ctx context.Contex
 		if !dataV2.Force.IsNull() {
 			data.Force = dataV2.Force
 		}
-		if variable.Sensitive {
+		if variable.Attributes.Sensitive {
 			data.Value = dataV2.Value
 		}
 		resp.Diagnostics.Append(diags...)

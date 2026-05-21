@@ -6,7 +6,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/scalr/go-scalr"
+
+	"github.com/scalr/go-scalr/v2/scalr/schemas"
 )
 
 type variableResourceModel struct {
@@ -32,7 +33,7 @@ type variableResourceModel struct {
 
 func variableResourceModelFromAPI(
 	ctx context.Context,
-	v *scalr.Variable,
+	v *schemas.Variable,
 	existing *variableResourceModel,
 	isWriteOnly bool,
 ) (*variableResourceModel, diag.Diagnostics) {
@@ -40,22 +41,22 @@ func variableResourceModelFromAPI(
 
 	model := &variableResourceModel{
 		Id:             types.StringValue(v.ID),
-		Key:            types.StringValue(v.Key),
+		Key:            types.StringValue(v.Attributes.Key),
 		Value:          types.StringNull(),
 		ValueWO:        types.StringNull(),
 		ValueWOVersion: types.Int64Null(),
 		ReadableValue:  types.StringNull(),
-		Category:       types.StringValue(string(v.Category)),
-		HCL:            types.BoolValue(v.HCL),
-		Sensitive:      types.BoolValue(v.Sensitive),
-		Description:    types.StringValue(v.Description),
-		Final:          types.BoolValue(v.Final),
+		Category:       types.StringValue(string(v.Attributes.Category)),
+		HCL:            types.BoolValue(v.Attributes.Hcl),
+		Sensitive:      types.BoolValue(v.Attributes.Sensitive),
+		Description:    types.StringPointerValue(v.Attributes.Description),
+		Final:          types.BoolValue(v.Attributes.Final),
 		Force:          types.BoolValue(false),
 		WorkspaceID:    types.StringNull(),
 		EnvironmentID:  types.StringNull(),
 		AccountID:      types.StringNull(),
 		UpdatedAt:      types.StringNull(),
-		UpdatedByEmail: types.StringValue(v.UpdatedByEmail),
+		UpdatedByEmail: types.StringPointerValue(v.Attributes.UpdatedByEmail),
 		UpdatedBy:      types.ListNull(userElementType),
 	}
 
@@ -68,32 +69,32 @@ func variableResourceModelFromAPI(
 		model.ValueWOVersion = existing.ValueWOVersion
 	}
 
-	if v.Workspace != nil {
-		model.WorkspaceID = types.StringValue(v.Workspace.ID)
+	if v.Relationships.Workspace != nil {
+		model.WorkspaceID = types.StringValue(v.Relationships.Workspace.ID)
 	}
 
-	if v.Environment != nil {
-		model.EnvironmentID = types.StringValue(v.Environment.ID)
+	if v.Relationships.Environment != nil {
+		model.EnvironmentID = types.StringValue(v.Relationships.Environment.ID)
 	}
 
-	if v.Account != nil {
-		model.AccountID = types.StringValue(v.Account.ID)
+	if v.Relationships.Account != nil {
+		model.AccountID = types.StringValue(v.Relationships.Account.ID)
 	}
 
-	if v.UpdatedAt != nil {
-		model.UpdatedAt = types.StringValue(v.UpdatedAt.Format(time.RFC3339))
+	if v.Attributes.UpdatedAt != nil {
+		model.UpdatedAt = types.StringValue(v.Attributes.UpdatedAt.Format(time.RFC3339))
 	}
 
-	if v.UpdatedBy != nil {
-		updatedBy := []userModel{*userModelFromAPI(v.UpdatedBy)}
+	if v.Relationships.UpdatedBy != nil {
+		updatedBy := []userModel{*userModelFromAPIv2(v.Relationships.UpdatedBy)}
 		updatedByValue, d := types.ListValueFrom(ctx, userElementType, updatedBy)
 		diags.Append(d...)
 		model.UpdatedBy = updatedByValue
 	}
 
 	// Only set the value if the variable is not sensitive, as otherwise it will be empty.
-	if !v.Sensitive {
-		model.Value = types.StringValue(v.Value)
+	if !v.Attributes.Sensitive {
+		model.Value = types.StringPointerValue(v.Attributes.Value)
 		model.ReadableValue = model.Value
 	} else if existing != nil {
 		model.Value = existing.Value
