@@ -188,6 +188,7 @@ func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataS
 		newProviderConfigurationDataSource,
 		newStorageProfileDataSource,
 		newTagDataSource,
+		newVarSetDataSource,
 		newVcsProviderDataSource,
 		newWorkloadIdentityProviderDataSource,
 	}
