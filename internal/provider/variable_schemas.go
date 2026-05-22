@@ -42,7 +42,11 @@ func variableResourceSchema() *schema.Schema {
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplaceIf(
-						func(ctx context.Context, req planmodifier.StringRequest, resp *stringplanmodifier.RequiresReplaceIfFuncResponse) {
+						func(
+							ctx context.Context,
+							req planmodifier.StringRequest,
+							resp *stringplanmodifier.RequiresReplaceIfFuncResponse,
+						) {
 							var sensitive types.Bool
 							resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("sensitive"), &sensitive)...)
 							resp.RequiresReplace = sensitive.ValueBool()
@@ -118,7 +122,11 @@ func variableResourceSchema() *schema.Schema {
 				Default:             booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.RequiresReplaceIf(
-						func(ctx context.Context, req planmodifier.BoolRequest, resp *boolplanmodifier.RequiresReplaceIfFuncResponse) {
+						func(
+							ctx context.Context,
+							req planmodifier.BoolRequest,
+							resp *boolplanmodifier.RequiresReplaceIfFuncResponse,
+						) {
 							resp.RequiresReplace = req.StateValue.ValueBool()
 						},
 						"Recreate the resource when changing the `sensitive` value from `true` to `false`.",
@@ -172,7 +180,7 @@ func variableResourceSchema() *schema.Schema {
 				},
 			},
 			"var_set_id": schema.StringAttribute{
-				MarkdownDescription: "ID of the variable set this variable belongs to, in the format `varset-<RANDOM STRING>`.",
+				MarkdownDescription: "ID of the variable set this variable belongs to, in the format `varset-<RANDOM STRING>`. Cannot be used together with `workspace_id` or `environment_id`",
 				Optional:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -362,7 +370,11 @@ func (v categoryHCLValidator) MarkdownDescription(ctx context.Context) string {
 	return v.Description(ctx)
 }
 
-func (v categoryHCLValidator) ValidateBool(ctx context.Context, req validator.BoolRequest, resp *validator.BoolResponse) {
+func (v categoryHCLValidator) ValidateBool(
+	ctx context.Context,
+	req validator.BoolRequest,
+	resp *validator.BoolResponse,
+) {
 	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() {
 		return
 	}
@@ -394,7 +406,11 @@ func (m syncReadableValueModifier) MarkdownDescription(ctx context.Context) stri
 	return m.Description(ctx)
 }
 
-func (m syncReadableValueModifier) PlanModifyString(ctx context.Context, req planmodifier.StringRequest, resp *planmodifier.StringResponse) {
+func (m syncReadableValueModifier) PlanModifyString(
+	ctx context.Context,
+	req planmodifier.StringRequest,
+	resp *planmodifier.StringResponse,
+) {
 	var sensitive types.Bool
 	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("sensitive"), &sensitive)...)
 	if resp.Diagnostics.HasError() {
