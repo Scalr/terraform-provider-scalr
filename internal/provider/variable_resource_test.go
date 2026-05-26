@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -27,211 +28,262 @@ func TestAccScalrVariable_basic(t *testing.T) {
 	variable := &scalr.Variable{}
 	rInt := GetRandomInteger()
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckScalrVariableDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccScalrVariableOnAccountScopeImplicit(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrVariableExists("scalr_variable.test", variable),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "key", fmt.Sprintf("var_on_account_%d", rInt)),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "value", "test"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "category", "shell"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "sensitive", "false"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "description", "Test on account scope"),
-				),
-			},
+	resource.Test(
+		t, resource.TestCase{
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+			CheckDestroy:             testAccCheckScalrVariableDestroy,
+			Steps: []resource.TestStep{
+				{
+					Config: testAccScalrVariableOnAccountScopeImplicit(rInt),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckScalrVariableExists("scalr_variable.test", variable),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "key", fmt.Sprintf("var_on_account_%d", rInt),
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "value", "test",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "category", "shell",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "sensitive", "false",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "description", "Test on account scope",
+						),
+					),
+				},
 
-			// Test creation of sensitive variable
-			{
-				PreConfig: func() { rInt++ },
-				Config:    testAccScalrVariableOnAccountScopeSensitive(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrVariableExists("scalr_variable.test", variable),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "key", fmt.Sprintf("var_on_account_%d", rInt)),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "value", "test"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "category", "shell"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "sensitive", "true"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "description", "Test on account scope sensitive"),
-					resource.TestCheckResourceAttrSet(
-						"scalr_variable.test", "updated_at"),
-					resource.TestCheckResourceAttrSet(
-						"scalr_variable.test", "updated_by_email"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "updated_by.#", "1"),
-					resource.TestCheckResourceAttrSet(
-						"scalr_variable.test", "updated_by.0.username"),
-					resource.TestCheckResourceAttrSet(
-						"scalr_variable.test", "updated_by.0.email"),
-					resource.TestCheckResourceAttrSet(
-						"scalr_variable.test", "updated_by.0.full_name"),
-				),
+				// Test creation of sensitive variable
+				{
+					PreConfig: func() { rInt++ },
+					Config:    testAccScalrVariableOnAccountScopeSensitive(rInt),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckScalrVariableExists("scalr_variable.test", variable),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "key", fmt.Sprintf("var_on_account_%d", rInt),
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "value", "test",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "category", "shell",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "sensitive", "true",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "description", "Test on account scope sensitive",
+						),
+						resource.TestCheckResourceAttrSet(
+							"scalr_variable.test", "updated_at",
+						),
+						resource.TestCheckResourceAttrSet(
+							"scalr_variable.test", "updated_by_email",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "updated_by.#", "1",
+						),
+						resource.TestCheckResourceAttrSet(
+							"scalr_variable.test", "updated_by.0.username",
+						),
+						resource.TestCheckResourceAttrSet(
+							"scalr_variable.test", "updated_by.0.email",
+						),
+						resource.TestCheckResourceAttrSet(
+							"scalr_variable.test", "updated_by.0.full_name",
+						),
+					),
+				},
 			},
 		},
-	})
+	)
 }
 
 func TestAccScalrVariable_defaults(t *testing.T) {
 	rInt := GetRandomInteger()
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckScalrVariableDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccScalrVariableOnAccountScopeImplicit(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "hcl", "false"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "sensitive", "false"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "force", "false"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "final", "false"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "description", "Test on account scope"),
-				),
+	resource.Test(
+		t, resource.TestCase{
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+			CheckDestroy:             testAccCheckScalrVariableDestroy,
+			Steps: []resource.TestStep{
+				{
+					Config: testAccScalrVariableOnAccountScopeImplicit(rInt),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "hcl", "false",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "sensitive", "false",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "force", "false",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "final", "false",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "description", "Test on account scope",
+						),
+					),
+				},
 			},
 		},
-	})
+	)
 }
 func TestAccScalrVariable_scopes(t *testing.T) {
 	rInt := GetRandomInteger()
 	variable := &scalr.Variable{}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckScalrVariableDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccScalrVariableOnAllScopes(rInt),
-				Check:  testAccCheckScalrVariableOnScopes(variable),
+	resource.Test(
+		t, resource.TestCase{
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+			CheckDestroy:             testAccCheckScalrVariableDestroy,
+			Steps: []resource.TestStep{
+				{
+					Config: testAccScalrVariableOnAllScopes(rInt),
+					Check:  testAccCheckScalrVariableOnScopes(variable),
+				},
 			},
 		},
-	})
+	)
 }
 
 func TestAccScalrVariable_update(t *testing.T) {
 	rInt := GetRandomInteger()
 	variable := &scalr.Variable{}
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckScalrVariableDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccScalrVariableOnWorkspaceScope(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrVariableExists(
-						"scalr_variable.test", variable),
-					testAccCheckScalrVariableAttributes(variable, rInt),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "key", fmt.Sprintf("var_on_ws_%d", rInt)),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "value", "test"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "category", "shell"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "hcl", "false"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "force", "false"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "final", "false"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "sensitive", "false"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "description", "Test update"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "account_id", defaultAccount),
-				),
-			},
+	resource.Test(
+		t, resource.TestCase{
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+			CheckDestroy:             testAccCheckScalrVariableDestroy,
+			Steps: []resource.TestStep{
+				{
+					Config: testAccScalrVariableOnWorkspaceScope(rInt),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckScalrVariableExists(
+							"scalr_variable.test", variable,
+						),
+						testAccCheckScalrVariableAttributes(variable, rInt),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "key", fmt.Sprintf("var_on_ws_%d", rInt),
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "value", "test",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "category", "shell",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "hcl", "false",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "force", "false",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "final", "false",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "sensitive", "false",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "description", "Test update",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "account_id", defaultAccount,
+						),
+					),
+				},
 
-			{
-				Config: testAccScalrVariableOnWorkspaceScopeUpdateValue(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrVariableExists(
-						"scalr_variable.test", variable),
-					testAccCheckScalrVariableAttributesUpdate(variable, rInt),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "key", fmt.Sprintf("var_on_ws_updated_%d", rInt)),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "value", "updated"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "category", "terraform"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "hcl", "true"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "force", "true"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "final", "true"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test", "description", "updated"),
-				),
+				{
+					Config: testAccScalrVariableOnWorkspaceScopeUpdateValue(rInt),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckScalrVariableExists(
+							"scalr_variable.test", variable,
+						),
+						testAccCheckScalrVariableAttributesUpdate(variable, rInt),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "key", fmt.Sprintf("var_on_ws_updated_%d", rInt),
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "value", "updated",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "category", "terraform",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "hcl", "true",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "force", "true",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "final", "true",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "description", "updated",
+						),
+					),
+				},
 			},
 		},
-	})
+	)
 }
 
 func TestAccScalrVariable_import(t *testing.T) {
 	rInt := GetRandomInteger()
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckScalrVariableDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccScalrVariableOnWorkspaceScope(rInt),
-			},
-			{
-				ResourceName:      "scalr_variable.test",
-				ImportState:       true,
-				ImportStateVerify: true,
+	resource.Test(
+		t, resource.TestCase{
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+			CheckDestroy:             testAccCheckScalrVariableDestroy,
+			Steps: []resource.TestStep{
+				{
+					Config: testAccScalrVariableOnWorkspaceScope(rInt),
+				},
+				{
+					ResourceName:      "scalr_variable.test",
+					ImportState:       true,
+					ImportStateVerify: true,
+				},
 			},
 		},
-	})
+	)
 }
 
 func TestAccScalrVariable_UpgradeFromSDK(t *testing.T) {
 	rInt := GetRandomInteger()
 
-	resource.Test(t, resource.TestCase{
-		Steps: []resource.TestStep{
-			{
-				ExternalProviders: map[string]resource.ExternalProvider{
-					"scalr": {
-						Source:            "registry.scalr.io/scalr/scalr",
-						VersionConstraint: "<=2.6.0",
+	resource.Test(
+		t, resource.TestCase{
+			Steps: []resource.TestStep{
+				{
+					ExternalProviders: map[string]resource.ExternalProvider{
+						"scalr": {
+							Source:            "registry.scalr.io/scalr/scalr",
+							VersionConstraint: "<=2.6.0",
+						},
 					},
+					Config: testAccScalrVariableOnAccountScopeImplicit(rInt),
+					Check:  resource.TestCheckResourceAttrSet("scalr_variable.test", "id"),
 				},
-				Config: testAccScalrVariableOnAccountScopeImplicit(rInt),
-				Check:  resource.TestCheckResourceAttrSet("scalr_variable.test", "id"),
-			},
-			{
-				ProtoV5ProviderFactories: protoV5ProviderFactories(t),
-				Config:                   testAccScalrVariableOnAccountScopeImplicit(rInt),
-				ConfigPlanChecks: resource.ConfigPlanChecks{
-					PreApply: []plancheck.PlanCheck{
-						plancheck.ExpectEmptyPlan(),
+				{
+					ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+					Config:                   testAccScalrVariableOnAccountScopeImplicit(rInt),
+					ConfigPlanChecks: resource.ConfigPlanChecks{
+						PreApply: []plancheck.PlanCheck{
+							plancheck.ExpectEmptyPlan(),
+						},
 					},
 				},
 			},
 		},
-	})
+	)
 }
 
 func variableFromState(s *terraform.State, n string, v *scalr.Variable) error {
@@ -255,7 +307,8 @@ func variableFromState(s *terraform.State, n string, v *scalr.Variable) error {
 }
 
 func testAccCheckScalrVariableExists(
-	n string, v *scalr.Variable) resource.TestCheckFunc {
+	n string, v *scalr.Variable,
+) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		return variableFromState(s, n, v)
 
@@ -301,7 +354,8 @@ func testAccCheckScalrVariableOnScopes(v *scalr.Variable) resource.TestCheckFunc
 }
 
 func testAccCheckScalrVariableAttributes(
-	variable *scalr.Variable, rInt int) resource.TestCheckFunc {
+	variable *scalr.Variable, rInt int,
+) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if variable.Key != fmt.Sprintf("var_on_ws_%d", rInt) {
 			return fmt.Errorf("Bad key: %s != %s", variable.Key, variable.Key)
@@ -336,7 +390,8 @@ func testAccCheckScalrVariableAttributes(
 }
 
 func testAccCheckScalrVariableAttributesUpdate(
-	variable *scalr.Variable, rInt int) resource.TestCheckFunc {
+	variable *scalr.Variable, rInt int,
+) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if variable.Key != fmt.Sprintf("var_on_ws_updated_%d", rInt) {
 			return fmt.Errorf("Bad key: %s != %s", variable.Key, variable.Key)
@@ -384,28 +439,33 @@ func testAccCheckScalrVariableDestroy(s *terraform.State) error {
 }
 
 func testAccScalrVariableOnAccountScopeImplicit(rInt int) string {
-	return fmt.Sprintf(`
+	return fmt.Sprintf(
+		`
 resource scalr_variable test {
   key          = "var_on_account_%d"
   value        = "test"
   category     = "shell"
   description  = "Test on account scope"
-}`, rInt)
+}`, rInt,
+	)
 }
 
 func testAccScalrVariableOnAccountScopeSensitive(rInt int) string {
-	return fmt.Sprintf(`
+	return fmt.Sprintf(
+		`
 resource scalr_variable test {
   key          = "var_on_account_%d"
   value        = "test"
   category     = "shell"
   sensitive    = true
   description  = "Test on account scope sensitive"
-}`, rInt)
+}`, rInt,
+	)
 }
 
 func testAccScalrVariableOnWorkspaceScope(rInt int) string {
-	return fmt.Sprintf(`
+	return fmt.Sprintf(
+		`
 resource scalr_environment test {
   name       = "test-env-%[1]d"
   account_id = "%[2]s"
@@ -422,11 +482,13 @@ resource scalr_variable test {
   category       = "shell"
   workspace_id   = scalr_workspace.test.id
   description    = "Test update"
-}`, rInt, defaultAccount)
+}`, rInt, defaultAccount,
+	)
 }
 
 func testAccScalrVariableOnAllScopes(rInt int) string {
-	return fmt.Sprintf(`
+	return fmt.Sprintf(
+		`
 resource scalr_environment test {
   name       = "test-env-%[1]d"
   account_id = "%[2]s"
@@ -465,11 +527,13 @@ resource scalr_variable on_workspace {
   account_id     = "%[2]s"
   environment_id = scalr_environment.test.id
   workspace_id   = scalr_workspace.test.id
-}`, rInt, defaultAccount)
+}`, rInt, defaultAccount,
+	)
 }
 
 func testAccScalrVariableOnWorkspaceScopeUpdateValue(rInt int) string {
-	return fmt.Sprintf(baseForUpdate+`
+	return fmt.Sprintf(
+		baseForUpdate+`
 resource scalr_variable test {
   key            = "var_on_ws_updated_%[1]d"
   value          = "updated"
@@ -481,127 +545,144 @@ resource scalr_variable test {
   environment_id = scalr_environment.test.id
   workspace_id   = scalr_workspace.test.id
   description    = "updated"
-}`, rInt, defaultAccount)
+}`, rInt, defaultAccount,
+	)
 }
 
 func TestAccScalrVariable_writeOnly(t *testing.T) {
 	variable := &scalr.Variable{}
 	rInt := GetRandomInteger()
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckScalrVariableDestroy,
-		Steps: []resource.TestStep{
-			{
-				// Step 1: Create variable with value_wo
-				Config: testAccScalrVariableWithWriteOnlyValue(rInt, "secret_value", 1),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrVariableExists("scalr_variable.test_wo", variable),
-					testAccCheckScalrVariableValueInAPI("scalr_variable.test_wo", "secret_value"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test_wo", "key", fmt.Sprintf("var_wo_%d", rInt)),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test_wo", "value_wo_version", "1"),
-					// value should be empty string (default) when using value_wo
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test_wo", "value", ""),
-					// readable_value should be null when using value_wo
-					resource.TestCheckNoResourceAttr(
-						"scalr_variable.test_wo", "readable_value"),
-				),
-			},
-			{
-				// Step 2: Update value_wo by incrementing version
-				Config: testAccScalrVariableWithWriteOnlyValue(rInt, "updated_secret", 2),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrVariableExists("scalr_variable.test_wo", variable),
-					testAccCheckScalrVariableValueInAPI("scalr_variable.test_wo", "updated_secret"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test_wo", "value_wo_version", "2"),
-				),
+	resource.Test(
+		t, resource.TestCase{
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+			CheckDestroy:             testAccCheckScalrVariableDestroy,
+			Steps: []resource.TestStep{
+				{
+					// Step 1: Create variable with value_wo
+					Config: testAccScalrVariableWithWriteOnlyValue(rInt, "secret_value", 1),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckScalrVariableExists("scalr_variable.test_wo", variable),
+						testAccCheckScalrVariableValueInAPI("scalr_variable.test_wo", "secret_value"),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test_wo", "key", fmt.Sprintf("var_wo_%d", rInt),
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test_wo", "value_wo_version", "1",
+						),
+						// value should be empty string (default) when using value_wo
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test_wo", "value", "",
+						),
+						// readable_value should be null when using value_wo
+						resource.TestCheckNoResourceAttr(
+							"scalr_variable.test_wo", "readable_value",
+						),
+					),
+				},
+				{
+					// Step 2: Update value_wo by incrementing version
+					Config: testAccScalrVariableWithWriteOnlyValue(rInt, "updated_secret", 2),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckScalrVariableExists("scalr_variable.test_wo", variable),
+						testAccCheckScalrVariableValueInAPI("scalr_variable.test_wo", "updated_secret"),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test_wo", "value_wo_version", "2",
+						),
+					),
+				},
 			},
 		},
-	})
+	)
 }
 
 func TestAccScalrVariable_writeOnlyConflictsWithValue(t *testing.T) {
 	rInt := GetRandomInteger()
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckScalrVariableDestroy,
-		Steps: []resource.TestStep{
-			{
-				// This should fail because value and value_wo are mutually exclusive
-				Config:      testAccScalrVariableWithBothValueAndWriteOnly(rInt),
-				ExpectError: regexp.MustCompile(`Attribute "value" cannot be specified when "value_wo" is specified`),
+	resource.Test(
+		t, resource.TestCase{
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+			CheckDestroy:             testAccCheckScalrVariableDestroy,
+			Steps: []resource.TestStep{
+				{
+					// This should fail because value and value_wo are mutually exclusive
+					Config:      testAccScalrVariableWithBothValueAndWriteOnly(rInt),
+					ExpectError: regexp.MustCompile(`Attribute "value" cannot be specified when "value_wo" is specified`),
+				},
 			},
 		},
-	})
+	)
 }
 
 func TestAccScalrVariable_writeOnlyVersionRequiresValueWO(t *testing.T) {
 	rInt := GetRandomInteger()
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckScalrVariableDestroy,
-		Steps: []resource.TestStep{
-			{
-				// This should fail because value_wo_version requires value_wo
-				Config:      testAccScalrVariableWithVersionButNoValueWO(rInt),
-				ExpectError: regexp.MustCompile(`These attributes must be configured together: \[value_wo,value_wo_version]`),
+	resource.Test(
+		t, resource.TestCase{
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+			CheckDestroy:             testAccCheckScalrVariableDestroy,
+			Steps: []resource.TestStep{
+				{
+					// This should fail because value_wo_version requires value_wo
+					Config:      testAccScalrVariableWithVersionButNoValueWO(rInt),
+					ExpectError: regexp.MustCompile(`These attributes must be configured together: \[value_wo,value_wo_version]`),
+				},
 			},
 		},
-	})
+	)
 }
 
 func TestAccScalrVariable_switchValueToWriteOnly(t *testing.T) {
 	variable := &scalr.Variable{}
 	rInt := GetRandomInteger()
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckScalrVariableDestroy,
-		Steps: []resource.TestStep{
-			{
-				// Step 1: Create with regular value
-				Config: testAccScalrVariableWithRegularValue(rInt, "initial_value"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrVariableExists("scalr_variable.test_switch", variable),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test_switch", "value", "initial_value"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test_switch", "readable_value", "initial_value"),
-				),
-			},
-			{
-				// Step 2: Switch to value_wo
-				Config: testAccScalrVariableWithWriteOnlyValueForSwitch(rInt, "secret_value", 1),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrVariableExists("scalr_variable.test_switch", variable),
-					testAccCheckScalrVariableValueInAPI("scalr_variable.test_switch", "secret_value"),
-					resource.TestCheckResourceAttr(
-						"scalr_variable.test_switch", "value_wo_version", "1"),
-					resource.TestCheckNoResourceAttr("scalr_variable.test_switch", "readable_value"),
-				),
-			},
-			{
-				// Step 3: Switch back but omit value (use default)
-				Config: testAccScalrVariableWithWriteOnlyValueSwitchBack(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckScalrVariableExists("scalr_variable.test_switch", variable),
-					testAccCheckScalrVariableValueInAPI("scalr_variable.test_switch", ""),
-					resource.TestCheckResourceAttr("scalr_variable.test_switch", "value", ""),
-					resource.TestCheckResourceAttr("scalr_variable.test_switch", "readable_value", ""),
-				),
+	resource.Test(
+		t, resource.TestCase{
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+			CheckDestroy:             testAccCheckScalrVariableDestroy,
+			Steps: []resource.TestStep{
+				{
+					// Step 1: Create with regular value
+					Config: testAccScalrVariableWithRegularValue(rInt, "initial_value"),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckScalrVariableExists("scalr_variable.test_switch", variable),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test_switch", "value", "initial_value",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test_switch", "readable_value", "initial_value",
+						),
+					),
+				},
+				{
+					// Step 2: Switch to value_wo
+					Config: testAccScalrVariableWithWriteOnlyValueForSwitch(rInt, "secret_value", 1),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckScalrVariableExists("scalr_variable.test_switch", variable),
+						testAccCheckScalrVariableValueInAPI("scalr_variable.test_switch", "secret_value"),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test_switch", "value_wo_version", "1",
+						),
+						resource.TestCheckNoResourceAttr("scalr_variable.test_switch", "readable_value"),
+					),
+				},
+				{
+					// Step 3: Switch back but omit value (use default)
+					Config: testAccScalrVariableWithWriteOnlyValueSwitchBack(rInt),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckScalrVariableExists("scalr_variable.test_switch", variable),
+						testAccCheckScalrVariableValueInAPI("scalr_variable.test_switch", ""),
+						resource.TestCheckResourceAttr("scalr_variable.test_switch", "value", ""),
+						resource.TestCheckResourceAttr("scalr_variable.test_switch", "readable_value", ""),
+					),
+				},
 			},
 		},
-	})
+	)
 }
 
 // Helper function to check variable value via API
@@ -621,63 +702,289 @@ func testAccCheckScalrVariableValueInAPI(n string, expectedValue string) resourc
 }
 
 func testAccScalrVariableWithWriteOnlyValue(rInt int, value string, version int) string {
-	return fmt.Sprintf(`
+	return fmt.Sprintf(
+		`
 resource scalr_variable test_wo {
   key              = "var_wo_%d"
   value_wo         = "%s"
   value_wo_version = %d
   category         = "shell"
   description      = "Test write-only variable"
-}`, rInt, value, version)
+}`, rInt, value, version,
+	)
 }
 
 func testAccScalrVariableWithBothValueAndWriteOnly(rInt int) string {
-	return fmt.Sprintf(`
+	return fmt.Sprintf(
+		`
 resource scalr_variable test_conflict {
   key              = "var_conflict_%d"
   value            = "regular_value"
   value_wo         = "secret_value"
   value_wo_version = 1
   category         = "shell"
-}`, rInt)
+}`, rInt,
+	)
 }
 
 func testAccScalrVariableWithVersionButNoValueWO(rInt int) string {
-	return fmt.Sprintf(`
+	return fmt.Sprintf(
+		`
 resource scalr_variable test_version_only {
   key              = "var_version_only_%d"
   value            = "regular_value"
   value_wo_version = 1
   category         = "shell"
-}`, rInt)
+}`, rInt,
+	)
 }
 
 func testAccScalrVariableWithRegularValue(rInt int, value string) string {
-	return fmt.Sprintf(`
+	return fmt.Sprintf(
+		`
 resource scalr_variable test_switch {
   key         = "var_switch_%d"
   value       = "%s"
   category    = "shell"
   description = "Test switching from value to value_wo"
-}`, rInt, value)
+}`, rInt, value,
+	)
 }
 
 func testAccScalrVariableWithWriteOnlyValueForSwitch(rInt int, value string, version int) string {
-	return fmt.Sprintf(`
+	return fmt.Sprintf(
+		`
 resource scalr_variable test_switch {
   key              = "var_switch_%d"
   value_wo         = "%s"
   value_wo_version = %d
   category         = "shell"
   description      = "Test switching from value to value_wo"
-}`, rInt, value, version)
+}`, rInt, value, version,
+	)
 }
 
 func testAccScalrVariableWithWriteOnlyValueSwitchBack(rInt int) string {
-	return fmt.Sprintf(`
+	return fmt.Sprintf(
+		`
 resource scalr_variable test_switch {
   key              = "var_switch_%d"
   category         = "shell"
   description      = "Test switching from value to value_wo"
-}`, rInt)
+}`, rInt,
+	)
+}
+
+// --- var set variable tests ---
+
+func TestAccScalrVariable_varSet_basic(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-var-set")
+	rInt := GetRandomInteger()
+
+	resource.Test(
+		t, resource.TestCase{
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+			CheckDestroy:             testAccCheckScalrVarSetVariableDestroy,
+			Steps: []resource.TestStep{
+				{
+					Config: testAccScalrVariableOnVarSet(name, rInt),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckScalrVarSetVariableExists("scalr_variable.test"),
+						resource.TestCheckResourceAttrPair(
+							"scalr_variable.test", "var_set_id",
+							"scalr_var_set.test", "id",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "key", fmt.Sprintf("var_in_vs_%d", rInt),
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "value", "test",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "category", "terraform",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "hcl", "false",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "sensitive", "false",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "account_id", defaultAccount,
+						),
+						resource.TestCheckResourceAttrSet(
+							"scalr_variable.test", "updated_at",
+						),
+						resource.TestCheckResourceAttrSet(
+							"scalr_variable.test", "updated_by_email",
+						),
+					),
+				},
+			},
+		},
+	)
+}
+
+func TestAccScalrVariable_varSet_update(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-var-set")
+	rInt := GetRandomInteger()
+
+	resource.Test(
+		t, resource.TestCase{
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+			CheckDestroy:             testAccCheckScalrVarSetVariableDestroy,
+			Steps: []resource.TestStep{
+				{
+					Config: testAccScalrVariableOnVarSet(name, rInt),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "key", fmt.Sprintf("var_in_vs_%d", rInt),
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "value", "test",
+						),
+					),
+				},
+				{
+					Config: testAccScalrVariableOnVarSetUpdate(name, rInt),
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "key", fmt.Sprintf("var_in_vs_updated_%d", rInt),
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "value", "updated",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "hcl", "true",
+						),
+						resource.TestCheckResourceAttr(
+							"scalr_variable.test", "description", "updated",
+						),
+					),
+				},
+			},
+		},
+	)
+}
+
+func TestAccScalrVariable_varSet_import(t *testing.T) {
+	name := acctest.RandomWithPrefix("test-var-set")
+	rInt := GetRandomInteger()
+
+	resource.Test(
+		t, resource.TestCase{
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+			CheckDestroy:             testAccCheckScalrVarSetVariableDestroy,
+			Steps: []resource.TestStep{
+				{
+					Config: testAccScalrVariableOnVarSet(name, rInt),
+				},
+				{
+					ResourceName:      "scalr_variable.test",
+					ImportState:       true,
+					ImportStateVerify: true,
+				},
+			},
+		},
+	)
+}
+
+func TestAccScalrVariable_varSet_conflicts(t *testing.T) {
+	resource.Test(
+		t, resource.TestCase{
+			PreCheck:                 func() { testAccPreCheck(t) },
+			ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+			Steps: []resource.TestStep{
+				{
+					Config:      testAccScalrVariableVarSetConflictsWithWorkspace(),
+					PlanOnly:    true,
+					ExpectError: regexp.MustCompile(`These attributes cannot be configured together: \[var_set_id,workspace_id]`),
+				},
+			},
+		},
+	)
+}
+
+func testAccCheckScalrVarSetVariableExists(resID string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		scalrClient := createScalrClientV2()
+
+		rs, ok := s.RootModule().Resources[resID]
+		if !ok {
+			return fmt.Errorf("not found: %s", resID)
+		}
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("no instance ID is set")
+		}
+
+		_, err := scalrClient.VariableSetVariable.GetVarSetVariable(ctx, rs.Primary.ID, nil)
+		return err
+	}
+}
+
+func testAccCheckScalrVarSetVariableDestroy(s *terraform.State) error {
+	scalrClient := createScalrClientV2()
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "scalr_variable" {
+			continue
+		}
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("no instance ID is set")
+		}
+		_, err := scalrClient.VariableSetVariable.GetVarSetVariable(ctx, rs.Primary.ID, nil)
+		if err == nil {
+			return fmt.Errorf("variable %s still exists", rs.Primary.ID)
+		}
+	}
+
+	return nil
+}
+
+func testAccScalrVariableOnVarSet(name string, rInt int) string {
+	return fmt.Sprintf(
+		`
+resource "scalr_var_set" "test" {
+  name = "%s"
+}
+
+resource "scalr_variable" "test" {
+  key        = "var_in_vs_%d"
+  value      = "test"
+  category   = "terraform"
+  var_set_id = scalr_var_set.test.id
+}`, name, rInt,
+	)
+}
+
+func testAccScalrVariableOnVarSetUpdate(name string, rInt int) string {
+	return fmt.Sprintf(
+		`
+resource "scalr_var_set" "test" {
+  name = "%s"
+}
+
+resource "scalr_variable" "test" {
+  key         = "var_in_vs_updated_%d"
+  value       = "updated"
+  category    = "terraform"
+  hcl         = true
+  description = "updated"
+  var_set_id  = scalr_var_set.test.id
+}`, name, rInt,
+	)
+}
+
+func testAccScalrVariableVarSetConflictsWithWorkspace() string {
+	return `
+resource "scalr_variable" "test" {
+  key          = "conflict_var"
+  value        = "test"
+  category     = "shell"
+  var_set_id   = "varset-abc123"
+  workspace_id = "ws-abc123"
+}`
 }

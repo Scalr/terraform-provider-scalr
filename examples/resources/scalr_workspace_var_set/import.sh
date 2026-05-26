@@ -1,0 +1,1 @@
+terraform import scalr_workspace_var_set.example ws-xxxxxxxxxx/varset-xxxxxxxxxx

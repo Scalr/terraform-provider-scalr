@@ -168,9 +168,11 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 		newRoleResource,
 		newStorageProfileResource,
 		newTagResource,
+		newVarSetResource,
 		newVariableResource,
 		newWorkloadIdentityProviderResource,
 		newWorkspaceResource,
+		newWorkspaceVarSetResource,
 	}
 }
 
@@ -187,6 +189,7 @@ func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataS
 		newProviderConfigurationDataSource,
 		newStorageProfileDataSource,
 		newTagDataSource,
+		newVarSetDataSource,
 		newVcsProviderDataSource,
 		newWorkloadIdentityProviderDataSource,
 	}

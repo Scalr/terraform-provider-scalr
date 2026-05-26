@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **New resource:** `scalr_var_set` ([#531](https://github.com/Scalr/terraform-provider-scalr/pull/531))
+- **New data source:** `scalr_var_set` ([#531](https://github.com/Scalr/terraform-provider-scalr/pull/531))
+- **New resource:** `scalr_workspace_var_set` ([#531](https://github.com/Scalr/terraform-provider-scalr/pull/531))
+- `scalr_variable`: new attribute `var_set_id`. If specified, the variable is created in the specified var set. Cannot be used with `workspace_id` or `environment_id` ([#531](https://github.com/Scalr/terraform-provider-scalr/pull/531))
+
 ### Fixed
 
 - `scalr_run_trigger`: add missing import support
