@@ -278,6 +278,50 @@ func TestAccProviderConfiguration_aws_tags(t *testing.T) {
 	})
 }
 
+func TestAccProviderConfiguration_google_labels(t *testing.T) {
+	var providerConfiguration scalr.ProviderConfiguration
+	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	credentials, project := getGoogleTestingCreds(t)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckProviderConfigurationResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrProviderConfigurationGoogleConfigWithLabels(rName, credentials, project),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.google", &providerConfiguration),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.default_labels.#", "1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.default_labels.0.strategy", "update"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.default_labels.0.labels.%", "2"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.default_labels.0.labels.label1", "value1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.default_labels.0.labels.label2", "value2"),
+				),
+			},
+			{
+				Config: testAccScalrProviderConfigurationGoogleConfigWithLabelsUpdated(rName, credentials, project),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.google", &providerConfiguration),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.default_labels.#", "1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.default_labels.0.strategy", "skip"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.default_labels.0.labels.%", "3"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.default_labels.0.labels.label1", "new-value1"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.default_labels.0.labels.new-label2", "value2"),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.default_labels.0.labels.label3", "value3"),
+				),
+			},
+			{
+				Config: testAccScalrProviderConfigurationGoogleConfigWithLabelsRemove(rName, credentials, project),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckProviderConfigurationExists("scalr_provider_configuration.google", &providerConfiguration),
+					resource.TestCheckResourceAttr("scalr_provider_configuration.google", "google.0.default_labels.#", "0"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccProviderConfiguration_scalr(t *testing.T) {
 	var providerConfiguration scalr.ProviderConfiguration
 	scalrHostname := os.Getenv(client.HostnameEnvVar)
@@ -1073,6 +1117,66 @@ resource "scalr_provider_configuration" "aws" {
   }
 }
 `, name, defaultAccount, accessKeyId, secretAccessKey)
+}
+
+func testAccScalrProviderConfigurationGoogleConfigWithLabels(name, credentials, project string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "google" {
+  name       = "%s"
+  account_id = "%s"
+  google {
+    project     = "%s"
+    credentials = <<-EOT
+%s
+EOT
+    default_labels {
+      labels = {
+        label1 = "value1"
+        label2 = "value2"
+      }
+      strategy = "update"
+    }
+  }
+}
+`, name, defaultAccount, project, credentials)
+}
+
+func testAccScalrProviderConfigurationGoogleConfigWithLabelsUpdated(name, credentials, project string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "google" {
+  name       = "%s"
+  account_id = "%s"
+  google {
+    project     = "%s"
+    credentials = <<-EOT
+%s
+EOT
+    default_labels {
+      labels = {
+        label1     = "new-value1"
+        new-label2 = "value2"
+        label3     = "value3"
+      }
+      strategy = "skip"
+    }
+  }
+}
+`, name, defaultAccount, project, credentials)
+}
+
+func testAccScalrProviderConfigurationGoogleConfigWithLabelsRemove(name, credentials, project string) string {
+	return fmt.Sprintf(`
+resource "scalr_provider_configuration" "google" {
+  name       = "%s"
+  account_id = "%s"
+  google {
+    project     = "%s"
+    credentials = <<-EOT
+%s
+EOT
+  }
+}
+`, name, defaultAccount, project, credentials)
 }
 
 func testAccScalrProviderConfigurationAwsUpdatedConfig(name, accessKeyId, secretAccessKey, roleArn, externalId string) string {
