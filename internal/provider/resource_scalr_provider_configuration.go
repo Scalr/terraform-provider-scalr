@@ -18,7 +18,7 @@ import (
 
 const numParallel = 10
 
-var googleProjectIDPattern = regexp.MustCompile(`^[a-z][a-zA-Z0-9-]{4,28}[a-z0-9]$`)
+var googleProjectIDPattern = regexp.MustCompile(`^[a-z][a-z0-9-]{4,28}[a-z0-9]$`)
 
 const googleProjectIDValidationError = "Project ID should be 6 to 30 characters in length; contain lowercase letters, numbers, and dashes; start with a letter; not end with a dash"
 

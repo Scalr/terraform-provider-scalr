@@ -412,6 +412,11 @@ func TestProviderConfigurationGoogleProjectValidation(t *testing.T) {
 			project:     "abcde_1",
 			expectError: true,
 		},
+		{
+			name:        "uppercase letter",
+			project:     "abcDe1",
+			expectError: true,
+		},
 	}
 
 	for _, tc := range testCases {
