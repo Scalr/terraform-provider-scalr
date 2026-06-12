@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"regexp"
 	"sync"
 	"time"
 
@@ -16,6 +17,19 @@ import (
 )
 
 const numParallel = 10
+
+var googleProjectIDPattern = regexp.MustCompile(`^[a-z][a-zA-Z0-9-]{4,28}[a-z0-9]$`)
+
+const googleProjectIDValidationError = "Project ID should be 6 to 30 characters in length; contain lowercase letters, numbers, and dashes; start with a letter; not end with a dash"
+
+func validateGoogleProjectIDOrEmpty(v interface{}, _ cty.Path) diag.Diagnostics {
+	projectID := v.(string)
+	if projectID == "" || googleProjectIDPattern.MatchString(projectID) {
+		return nil
+	}
+
+	return diag.Errorf(googleProjectIDValidationError)
+}
 
 func resourceScalrProviderConfiguration() *schema.Resource {
 	return &schema.Resource{
@@ -212,10 +226,11 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 							Default:     "service-account-key",
 						},
 						"project": {
-							Description: "The default project to manage resources in. If another project is specified on a resource, it will take precedence.",
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
+							Description:      "The default project ID to manage resources in. If another project ID is specified on a resource, it will take precedence.",
+							Type:             schema.TypeString,
+							Optional:         true,
+							Computed:         true,
+							ValidateDiagFunc: validateGoogleProjectIDOrEmpty,
 						},
 						"use_default_project": {
 							Description: "If the project a credential is created in will be used by default.",
