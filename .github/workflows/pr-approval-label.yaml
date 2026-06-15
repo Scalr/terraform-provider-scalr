@@ -11,14 +11,15 @@ jobs:
     steps:
       - name: Sudo GitHub Token
         id: sudo_github_token
-        uses: tibdex/github-app-token@v1.8.2
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
         with:
           app_id: ${{vars.SUDO_GHA_APP_ID}}
-          installation_id: ${{vars.SUDO_GHA_APP_INSTALLATION_ID}}
+          installation_retrieval_mode: id
+          installation_retrieval_payload: ${{vars.SUDO_GHA_APP_INSTALLATION_ID}}
           private_key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
 
       - name: Get pr info
-        uses: octokit/graphql-action@v2.x
+        uses: octokit/graphql-action@ddde8ebb2493e79f390e6449c725c21663a67505 # v3.0.2
         id: get_pr_info
         with:
           variables: |
@@ -45,14 +46,14 @@ jobs:
 
       - name: Set label
         if: github.event.review.state == 'approved' && fromJson(steps.get_pr_info.outputs.data).repository.pullRequest.reviewDecision == 'APPROVED'
-        uses: actions-ecosystem/action-add-labels@v1
+        uses: actions-ecosystem/action-add-labels@bd52874380e3909a1ac983768df6976535ece7f8 # v1.1.0
         with:
           labels: approved
           github_token: ${{steps.sudo_github_token.outputs.token}}
 
       - name: Remove label
         if: github.event.review.state != 'approved' || fromJson(steps.get_pr_info.outputs.data).repository.pullRequest.reviewDecision != 'APPROVED'
-        uses: actions-ecosystem/action-remove-labels@v1
+        uses: actions-ecosystem/action-remove-labels@2ce5d41b4b6aa8503e285553f75ed56e0a40bae0 # v1.3.0
         with:
           labels: approved
           github_token: ${{steps.sudo_github_token.outputs.token}}
