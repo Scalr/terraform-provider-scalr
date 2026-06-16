@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -411,6 +412,70 @@ func TestAccProviderConfiguration_google(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestProviderConfigurationGoogleProjectValidation(t *testing.T) {
+	testCases := []struct {
+		name        string
+		project     string
+		expectError bool
+	}{
+		{
+			name:    "empty project",
+			project: "",
+		},
+		{
+			name:    "minimum valid project",
+			project: "abcde1",
+		},
+		{
+			name:    "maximum valid project",
+			project: "a1234567890123456789012345678b",
+		},
+		{
+			name:    "valid project with dash",
+			project: "my-project-1",
+		},
+		{
+			name:        "too short",
+			project:     "abcde",
+			expectError: true,
+		},
+		{
+			name:        "starts with number",
+			project:     "1abcde",
+			expectError: true,
+		},
+		{
+			name:        "ends with dash",
+			project:     "abcde-",
+			expectError: true,
+		},
+		{
+			name:        "invalid character",
+			project:     "abcde_1",
+			expectError: true,
+		},
+		{
+			name:        "uppercase letter",
+			project:     "abcDe1",
+			expectError: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			diags := validateGoogleProjectIDOrEmpty(tc.project, cty.Path{})
+
+			if diags.HasError() != tc.expectError {
+				t.Fatalf("expected error: %t, got diagnostics: %#v", tc.expectError, diags)
+			}
+
+			if tc.expectError && !strings.Contains(diags[0].Summary, googleProjectIDValidationError) {
+				t.Fatalf("expected validation error %q, got %q", googleProjectIDValidationError, diags[0].Summary)
+			}
+		})
+	}
 }
 
 func TestAccProviderConfiguration_google_oidc(t *testing.T) {

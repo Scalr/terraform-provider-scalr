@@ -370,7 +370,7 @@ Optional:
 - `auth_type` (String) Authentication type, either `service-account-key` (default) or `oidc`.
 - `credentials` (String, Sensitive) Service account key file in JSON format, required when `auth_type` is `service-account-key`.
 - `default_labels` (Block List, Max: 1) Google default labels settings. (see [below for nested schema](#nestedblock--google--default_labels))
-- `project` (String) The default project to manage resources in. If another project is specified on a resource, it will take precedence.
+- `project` (String) The default project ID to manage resources in. If another project ID is specified on a resource, it will take precedence.
 - `service_account_email` (String) The service account email used to authenticate to GCP, required when `auth_type` is `oidc`.
 - `use_default_project` (Boolean) If the project a credential is created in will be used by default.
 - `workload_provider_name` (String) The canonical name of the workload identity provider, required when `auth_type` is `oidc`.
