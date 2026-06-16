@@ -254,6 +254,48 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 						},
+						"default_labels": {
+							Description: "Google default labels settings.",
+							Type:        schema.TypeList,
+							Optional:    true,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"labels": {
+										Description: "Default labels to be applied to all resources created by this provider configuration.",
+										Type:        schema.TypeMap,
+										Optional:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										ValidateDiagFunc: func(v interface{}, p cty.Path) diag.Diagnostics {
+											if m, ok := v.(map[string]interface{}); ok && len(m) == 0 {
+												return diag.Diagnostics{
+													diag.Diagnostic{
+														Severity: diag.Error,
+														Summary:  "Empty labels map is not allowed",
+														Detail:   "You must specify at least one key-value pair when setting 'labels'.",
+													},
+												}
+											}
+											return nil
+										},
+									},
+									"strategy": {
+										Description: "On duplicate key behaviour for default labels. Available options:" +
+											"\n  - `skip`: the existing labels will not be changed" +
+											"\n  - `update`: the existing labels will be replaced with the new one",
+										Type:     schema.TypeString,
+										Optional: true,
+										ValidateDiagFunc: validation.ToDiagFunc(
+											validation.StringInSlice(
+												[]string{string(scalr.GoogleDefaultLabelsStrategySkip), string(scalr.GoogleDefaultLabelsStrategyUpdate)},
+												false,
+											),
+										),
+										AtLeastOneOf: []string{"google.0.default_labels.0.labels", "google.0.default_labels.0.strategy"},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -548,6 +590,20 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 			configurationOptions.GoogleProject = ptr(v.(string))
 		}
 
+		if _, defaultLabelsExists := d.GetOk("google.0.default_labels"); defaultLabelsExists {
+			if strategyI, strategyExists := d.GetOk("google.0.default_labels.0.strategy"); strategyExists {
+				configurationOptions.GoogleDefaultLabelsStrategy = ptr(scalr.GoogleDefaultLabelsStrategy(strategyI.(string)))
+			}
+			if labelsI, labelsExists := d.GetOk("google.0.default_labels.0.labels"); labelsExists {
+				labels := labelsI.(map[string]interface{})
+				labelsValue := make(map[string]string)
+				for k, v := range labels {
+					labelsValue[k] = v.(string)
+				}
+				configurationOptions.GoogleDefaultLabels = &labelsValue
+			}
+		}
+
 	} else if _, ok := d.GetOk("azurerm"); ok {
 		configurationOptions.ProviderName = ptr("azurerm")
 		configurationOptions.AzurermClientId = ptr(d.Get("azurerm.0.client_id").(string))
@@ -793,6 +849,20 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 				google["workload_provider_name"] = providerConfiguration.GoogleWorkloadProviderName
 			}
 
+			var labels map[string]string
+			var labelsStrategy string
+			if providerConfiguration.GoogleDefaultLabels != nil {
+				labels = *providerConfiguration.GoogleDefaultLabels
+			}
+			if len(providerConfiguration.GoogleDefaultLabelsStrategy) > 0 {
+				labelsStrategy = string(providerConfiguration.GoogleDefaultLabelsStrategy)
+			}
+			if len(labels) > 0 || len(labelsStrategy) > 0 {
+				google["default_labels"] = []map[string]interface{}{
+					{"labels": labels, "strategy": labelsStrategy},
+				}
+			}
+
 			_ = d.Set("google", []map[string]interface{}{google})
 		case "scalr":
 			var stateToken string
@@ -975,6 +1045,20 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 
 			if v, ok := d.GetOk("google.0.project"); ok {
 				configurationOptions.GoogleProject = ptr(v.(string))
+			}
+
+			if _, defaultLabelsExists := d.GetOk("google.0.default_labels"); defaultLabelsExists {
+				if strategyI, strategyExists := d.GetOk("google.0.default_labels.0.strategy"); strategyExists {
+					configurationOptions.GoogleDefaultLabelsStrategy = ptr(scalr.GoogleDefaultLabelsStrategy(strategyI.(string)))
+				}
+				if labelsI, labelsExists := d.GetOk("google.0.default_labels.0.labels"); labelsExists {
+					labels := labelsI.(map[string]interface{})
+					labelsValue := make(map[string]string)
+					for k, v := range labels {
+						labelsValue[k] = v.(string)
+					}
+					configurationOptions.GoogleDefaultLabels = &labelsValue
+				}
 			}
 		} else if _, ok := d.GetOk("scalr"); ok {
 			configurationOptions.ScalrHostname = ptr(d.Get("scalr.0.hostname").(string))
