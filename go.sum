@@ -208,6 +208,8 @@ github.com/scalr/go-scalr v0.0.0-20260410125152-ddc3bb2c4afe h1:xbEH2nqjTIjngXXJ
 github.com/scalr/go-scalr v0.0.0-20260410125152-ddc3bb2c4afe/go.mod h1:Om3UIkHGeOcUK72OzjWI1GlS/hFyY8RRLxgbO0ZPsn4=
 github.com/scalr/go-scalr v0.0.0-20260609134122-84db31501e36 h1:eny3ufNcRjcOmeuOUtnD9X6p1TfAx5Xb4n1I8AZ9/L0=
 github.com/scalr/go-scalr v0.0.0-20260609134122-84db31501e36/go.mod h1:Om3UIkHGeOcUK72OzjWI1GlS/hFyY8RRLxgbO0ZPsn4=
+github.com/scalr/go-scalr v0.0.0-20260617114255-1bd947c6e964 h1:JNnni5cJeFw1g7H2azCekq1PDDI3XOhtzydfjvN8hLk=
+github.com/scalr/go-scalr v0.0.0-20260617114255-1bd947c6e964/go.mod h1:Om3UIkHGeOcUK72OzjWI1GlS/hFyY8RRLxgbO0ZPsn4=
 github.com/scalr/go-scalr/v2 v2.0.0-rc.4 h1:4jAMHsdwhFr4LBp31Em5+G0eRfzXN9hcpvJNrlTW5cM=
 github.com/scalr/go-scalr/v2 v2.0.0-rc.4/go.mod h1:SExZPC0hFT9ES73N2ATV1ZNfYScx2lfzrNqFCRosUjU=
 github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 h1:n661drycOFuPLCN3Uc8sB6B/s6Z4t2xvBgU1htSHuq8=
@@ -344,6 +346,10 @@ google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55/go.mod h1:DMBHOl98
 google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013/go.mod h1:NbSheEEYHJ7i3ixzK3sjbqSGDJWnxyFXZblF3eUsNvo=
 google.golang.org/genproto v0.0.0-20200904004341-0bd0a958aa1d h1:92D1fum1bJLKSdr11OJ+54YeCMCGYIygTA7R/YZxH5M=
 google.golang.org/genproto v0.0.0-20200904004341-0bd0a958aa1d/go.mod h1:FWY/as6DDZQgahTzZj3fqbO1CbirC29ZNUFHwi0/+no=
+google.golang.org/genproto v0.0.0-20251202230838-ff82c1b0f217 h1:GvESR9BIyHUahIb0NcTum6itIWtdoglGX+rnGxm2934=
+google.golang.org/genproto v0.0.0-20251202230838-ff82c1b0f217/go.mod h1:yJ2HH4EHEDTd3JiLmhds6NkJ17ITVYOdV3m3VKOnws0=
+google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 h1:gRkg/vSppuSQoDjxyiGfN4Upv/h/DQmIR10ZU8dh4Ww=
+google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217/go.mod h1:7i2o+ce6H/6BluujYR+kqX3GKH+dChPTQU19wjRPiGk=
 google.golang.org/grpc v1.19.0/go.mod h1:mqu4LbDTu4XGKhr4mRzUsmM4RtVoemTSY81AxZiDr8c=
 google.golang.org/grpc v1.23.0/go.mod h1:Y5yQAOtifL1yxbo5wqy6BxZv8vAUGQwXBOALyacEbxg=
 google.golang.org/grpc v1.27.0/go.mod h1:qbnxyOmOxrQa7FizSgH+ReBfzJrCY1pSN7KXBS8abTk=

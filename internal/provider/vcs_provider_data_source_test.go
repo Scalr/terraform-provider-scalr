@@ -36,6 +36,12 @@ func TestAccScalrVcsProviderDataSource_basic(t *testing.T) {
 						resource.TestCheckResourceAttr(
 							"data.scalr_vcs_provider.test", "draft_pr_runs_enabled", "false",
 						),
+						resource.TestCheckResourceAttr(
+							"data.scalr_vcs_provider.test", "comments_enabled", "true",
+						),
+						resource.TestCheckResourceAttr(
+							"data.scalr_vcs_provider.test", "pr_merge_comments_enabled", "true",
+						),
 					),
 				},
 				{
@@ -99,6 +105,8 @@ resource scalr_vcs_provider test {
   vcs_type   = "github"
   token      = "%s"
   account_id = "%s"
+  comments_enabled = true
+  pr_merge_comments_enabled = true
 }
 
 data scalr_vcs_provider test {

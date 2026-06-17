@@ -27,6 +27,8 @@ func TestAccVcsProvider_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "url", "https://github.com"),
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "environments.0", "*"),
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "draft_pr_runs_enabled", "false"),
+					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "comments_enabled", "true"),
+					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "pr_merge_comments_enabled", "false"),
 				),
 			},
 			{
@@ -38,6 +40,8 @@ func TestAccVcsProvider_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "vcs_type", string(scalr.Github)),
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "url", "https://github.com"),
 					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "draft_pr_runs_enabled", "true"),
+					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "comments_enabled", "false"),
+					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "pr_merge_comments_enabled", "true"),
 				),
 			},
 			{
@@ -150,6 +154,7 @@ resource "scalr_vcs_provider" "test" {
   account_id     = "%s"
   vcs_type="github"
   token = "%s"
+  comments_enabled = true
 }`, defaultAccount, githubToken)
 }
 
@@ -162,5 +167,6 @@ resource "scalr_vcs_provider" "test" {
   vcs_type="%s"
   token = "%s"
   draft_pr_runs_enabled = true
+  pr_merge_comments_enabled = true
 }`, defaultAccount, string(vcsType), token)
 }
