@@ -11,12 +11,11 @@ jobs:
     steps:
       - name: Sudo GitHub Token
         id: sudo_github_token
-        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
-          app_id: ${{vars.SUDO_GHA_APP_ID}}
-          installation_retrieval_mode: id
-          installation_retrieval_payload: ${{vars.SUDO_GHA_APP_INSTALLATION_ID}}
-          private_key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
+          client-id: ${{ vars.SUDO_GHA_CLIENT_ID }}
+          private-key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
+          owner: ${{ github.repository_owner }}
 
       - name: Get pr info
         uses: octokit/graphql-action@ddde8ebb2493e79f390e6449c725c21663a67505 # v3.0.2
