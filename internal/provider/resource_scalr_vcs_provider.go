@@ -199,7 +199,6 @@ func resourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData, m
 	_ = d.Set("url", provider.Url)
 	_ = d.Set("vcs_type", provider.VcsType)
 	_ = d.Set("username", provider.Username)
-	_ = d.Set("draft_pr_runs_enabled", provider.DraftPrRunsEnabled)
 	_ = d.Set("comments_enabled", provider.CommentsEnabled)
 	_ = d.Set("pr_merge_comments_enabled", provider.PrMergeCommentsEnabled)
 	if provider.Account != nil {
