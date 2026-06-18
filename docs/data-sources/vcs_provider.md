@@ -40,5 +40,7 @@ data "scalr_vcs_provider" "example2" {
 
 ### Read-Only
 
+- `comments_enabled` (Boolean) Indicates whether commenting on pull requests is enabled for this VCS provider.
 - `environments` (Set of String) List of the identifiers of the environments the VCS provider is linked to.
+- `pr_merge_comments_enabled` (Boolean) Indicates whether comments after pull request merges are enabled for this VCS provider.
 - `url` (String) The URL to the VCS provider installation.

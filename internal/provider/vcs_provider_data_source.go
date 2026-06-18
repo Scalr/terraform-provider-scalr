@@ -34,15 +34,17 @@ type vcsProviderDataSource struct {
 
 // vcsProviderDataSourceModel describes the data source data model.
 type vcsProviderDataSourceModel struct {
-	Id                 types.String `tfsdk:"id"`
-	Name               types.String `tfsdk:"name"`
-	VcsType            types.String `tfsdk:"vcs_type"`
-	Url                types.String `tfsdk:"url"`
-	EnvironmentID      types.String `tfsdk:"environment_id"`
-	AgentPoolID        types.String `tfsdk:"agent_pool_id"`
-	Environments       types.Set    `tfsdk:"environments"`
-	DraftPrRunsEnabled types.Bool   `tfsdk:"draft_pr_runs_enabled"`
-	AccountID          types.String `tfsdk:"account_id"`
+	Id                     types.String `tfsdk:"id"`
+	Name                   types.String `tfsdk:"name"`
+	VcsType                types.String `tfsdk:"vcs_type"`
+	Url                    types.String `tfsdk:"url"`
+	EnvironmentID          types.String `tfsdk:"environment_id"`
+	AgentPoolID            types.String `tfsdk:"agent_pool_id"`
+	Environments           types.Set    `tfsdk:"environments"`
+	DraftPrRunsEnabled     types.Bool   `tfsdk:"draft_pr_runs_enabled"`
+	CommentsEnabled        types.Bool   `tfsdk:"comments_enabled"`
+	PrMergeCommentsEnabled types.Bool   `tfsdk:"pr_merge_comments_enabled"`
+	AccountID              types.String `tfsdk:"account_id"`
 }
 
 func (d *vcsProviderDataSource) Metadata(
@@ -113,6 +115,14 @@ func (d *vcsProviderDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 				DeprecationMessage: "Setting this attribute is deprecated." +
 					" It is no longer in use and will become read-only in the next major version of the provider.",
 			},
+			"comments_enabled": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether commenting on pull requests is enabled for this VCS provider.",
+				Computed:            true,
+			},
+			"pr_merge_comments_enabled": schema.BoolAttribute{
+				MarkdownDescription: "Indicates whether comments after pull request merges are enabled for this VCS provider.",
+				Computed:            true,
+			},
 			"account_id": schema.StringAttribute{
 				MarkdownDescription: "The identifier of the Scalr account.",
 				Optional:            true,
@@ -161,6 +171,8 @@ func (d *vcsProviderDataSource) Read(ctx context.Context, req datasource.ReadReq
 	cfg.Name = types.StringValue(vcsProvider.Attributes.Name)
 	cfg.VcsType = types.StringValue(string(vcsProvider.Attributes.VcsType))
 	cfg.DraftPrRunsEnabled = types.BoolValue(vcsProvider.Attributes.DraftPrRunsEnabled)
+	cfg.CommentsEnabled = types.BoolValue(vcsProvider.Attributes.CommentsEnabled)
+	cfg.PrMergeCommentsEnabled = types.BoolValue(vcsProvider.Attributes.PrMergeCommentsEnabled)
 
 	if vcsProvider.Attributes.Url != nil {
 		cfg.Url = types.StringValue(*vcsProvider.Attributes.Url)

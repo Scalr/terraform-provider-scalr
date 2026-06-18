@@ -97,6 +97,18 @@ func resourceScalrVcsProvider() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
+			"comments_enabled": {
+				Description: "Enable comments on pull requests for the VCS provider.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+			},
+			"pr_merge_comments_enabled": {
+				Description: "Enable comments after pull request merges for the VCS provider.",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+			},
 		},
 	}
 }
@@ -133,6 +145,14 @@ func resourceScalrVcsProviderCreate(ctx context.Context, d *schema.ResourceData,
 
 	if draftPRsRunEnabled, ok := d.GetOk("draft_pr_runs_enabled"); ok {
 		options.DraftPrRunsEnabled = ptr(draftPRsRunEnabled.(bool))
+	}
+
+	if commentsEnabled, ok := d.GetOk("comments_enabled"); ok {
+		options.CommentsEnabled = ptr(commentsEnabled.(bool))
+	}
+
+	if prMergeCommentsEnabled, ok := d.GetOk("pr_merge_comments_enabled"); ok {
+		options.PrMergeCommentsEnabled = ptr(prMergeCommentsEnabled.(bool))
 	}
 
 	if environmentsI, ok := d.GetOk("environments"); ok {
@@ -179,6 +199,9 @@ func resourceScalrVcsProviderRead(ctx context.Context, d *schema.ResourceData, m
 	_ = d.Set("url", provider.Url)
 	_ = d.Set("vcs_type", provider.VcsType)
 	_ = d.Set("username", provider.Username)
+	_ = d.Set("draft_pr_runs_enabled", provider.DraftPrRunsEnabled)
+	_ = d.Set("comments_enabled", provider.CommentsEnabled)
+	_ = d.Set("pr_merge_comments_enabled", provider.PrMergeCommentsEnabled)
 	if provider.Account != nil {
 		_ = d.Set("account_id", provider.Account.ID)
 	}
@@ -227,6 +250,14 @@ func resourceScalrVcsProviderUpdate(ctx context.Context, d *schema.ResourceData,
 
 	if d.HasChange("draft_pr_runs_enabled") {
 		options.DraftPrRunsEnabled = ptr(d.Get("draft_pr_runs_enabled").(bool))
+	}
+
+	if d.HasChange("comments_enabled") {
+		options.CommentsEnabled = ptr(d.Get("comments_enabled").(bool))
+	}
+
+	if d.HasChange("pr_merge_comments_enabled") {
+		options.PrMergeCommentsEnabled = ptr(d.Get("pr_merge_comments_enabled").(bool))
 	}
 
 	if environmentsI, ok := d.GetOk("environments"); ok {
