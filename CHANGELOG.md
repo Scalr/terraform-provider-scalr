@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.17.0] - 2026-06-19
 
+### Added
+
 - `scalr_provider_configuration.google`: new attribute `default_labels` ([#532](https://github.com/Scalr/terraform-provider-scalr/pull/532)).
 - **New resource:** `scalr_var_set` ([#531](https://github.com/Scalr/terraform-provider-scalr/pull/531))
 - **New data source:** `scalr_var_set` ([#531](https://github.com/Scalr/terraform-provider-scalr/pull/531))
@@ -21,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `scalr_run_trigger`: add missing import support
+
+### Required
+
+- scalr-server >= 2606.16.0
 
 ## [3.16.2] - 2026-05-05
 
