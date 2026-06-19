@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+## [3.17.0] - 2026-06-19
+
 - `scalr_provider_configuration.google`: new attribute `default_labels` ([#532](https://github.com/Scalr/terraform-provider-scalr/pull/532)).
 - **New resource:** `scalr_var_set` ([#531](https://github.com/Scalr/terraform-provider-scalr/pull/531))
 - **New data source:** `scalr_var_set` ([#531](https://github.com/Scalr/terraform-provider-scalr/pull/531))
@@ -1219,7 +1221,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.16.2...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.17.0...HEAD
+[3.17.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.17.0
 [3.16.2]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.16.2
 [3.16.1]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.16.1
 [3.16.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.16.0
