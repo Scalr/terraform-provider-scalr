@@ -12,5 +12,8 @@
   },
   "keywords": [],
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "@vercel/ncc": "^0.44.1"
+  }
 }
