@@ -1,0 +1,73 @@
+name: "MISC | Backport"
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - release/**
+
+jobs:
+  backport:
+    name: Backport
+    runs-on: small-amd64-without-dind
+    steps:
+      - name: Generate GitHub Token
+        id: generate_token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.SUDO_GHA_CLIENT_ID }}
+          private-key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
+          owner: ${{ github.repository_owner }}
+
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          show-progress: false
+          token: ${{ steps.generate_token.outputs.token }}
+
+      - name: Setup Git Config
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global credential.username "oauth2"
+          git config --global credential.helper '!f() { test "$1" = get && echo "password=${{ steps.generate_token.outputs.token }}"; }; f'
+
+      - name: Automatic Backport
+        uses: Scalr/actions/backport@3bcf799cef92f886c6a01c1b6f0e18c5e53af4e2
+        id: backport
+
+      - name: Manual Backport
+        if: failure() && steps.backport.outcome == 'failure'
+        id: backport_pr
+        uses: Scalr/actions/backport-pr@3bcf799cef92f886c6a01c1b6f0e18c5e53af4e2
+        env:
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
+
+      - name: Slack Notification on Failure
+        if: failure() && ( steps.backport.outcome == 'failure' || steps.backport_pr.outcome == 'failure')
+        uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
+        with:
+          webhook: ${{ secrets.SLACK_RELEASE_SYNC_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": "The Scalr Backport Job for ${{ github.repository }} has Failed",
+              "attachments": [
+                {
+                  "color": "b52c2a",
+                  "fields": [
+                    {
+                      "title": "Job URL",
+                      "value": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                      "short": false
+                    },
+                    {
+                      "title": "PR URL",
+                      "value": "${{ steps.pr.outputs.url }}",
+                      "short": false
+                    }
+                  ]
+                }
+              ]
+            }
