@@ -18,14 +18,6 @@ jobs:
           private-key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
           owner: ${{ github.repository_owner }}
 
-      - name: Checkout Actions
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          token: ${{ steps.generate_token.outputs.token }}
-          repository: Scalr/actions
-          path: actions
-          ref: master
-
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
@@ -33,6 +25,14 @@ jobs:
           filter: blob:none
           show-progress: false
           token: ${{ steps.generate_token.outputs.token }}
+
+      - name: Checkout Actions
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          token: ${{ steps.generate_token.outputs.token }}
+          repository: Scalr/actions
+          path: actions
+          ref: master
 
       - name: Setup Git Config
         run: |
