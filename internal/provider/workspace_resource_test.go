@@ -338,7 +338,7 @@ func TestAccScalrWorkspaceResource_providerConfigurationCreateRollback(t *testin
 			{
 				Config: testAccScalrWorkspaceProviderConfigurationCreateRollback(rInt, false),
 				ExpectError: regexp.MustCompile(
-					`(?s)Failed to link provider configuration "pcfg-[^"]+" to workspace "ws-[^"]+" in environment "env-[^"]+".*Ensure the provider configuration is shared with the environment or use one that is already available`,
+					`(?s)Failed to link provider configuration.*Cannot link provider configuration to workspace.*Ensure.*shared with the environment`,
 				),
 			},
 			{

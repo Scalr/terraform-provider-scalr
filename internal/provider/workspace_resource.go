@@ -262,13 +262,13 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 			_, err = r.ClientV2.ProviderConfigurationLink.CreateProviderConfigurationLink(ctx, ws.ID, &pcfgOpts)
 			if err != nil {
 				detail := fmt.Sprintf(
-					"Failed to link provider configuration %q to workspace %q in environment %q: %s. Ensure the provider configuration is shared with the environment or use one that is already available",
+					"Failed to link provider configuration %q to workspace %q in environment %q: %s\n\nEnsure the provider configuration is shared with the environment or use one that is already available.",
 					pcfg.ID.ValueString(), ws.ID, plan.EnvironmentID.ValueString(), err,
 				)
 				rollbackErr := r.ClientV2.Workspace.DeleteWorkspace(ctx, ws.ID)
 				if rollbackErr != nil && !errors.Is(rollbackErr, client.ErrNotFound) {
 					detail = fmt.Sprintf(
-						"%s. Failed to delete the workspace during rollback: %s",
+						"%s\n\nFailed to delete the workspace during rollback: %s",
 						detail, rollbackErr,
 					)
 				}
