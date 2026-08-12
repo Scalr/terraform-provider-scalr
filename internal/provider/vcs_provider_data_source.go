@@ -112,8 +112,6 @@ func (d *vcsProviderDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 				MarkdownDescription: "Indicates whether the draft pull-request runs are enabled for this VCS provider.",
 				Optional:            true,
 				Computed:            true,
-				DeprecationMessage: "Setting this attribute is deprecated." +
-					" It is no longer in use and will become read-only in the next major version of the provider.",
 			},
 			"comments_enabled": schema.BoolAttribute{
 				MarkdownDescription: "Indicates whether commenting on pull requests is enabled for this VCS provider.",
@@ -127,8 +125,6 @@ func (d *vcsProviderDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 				MarkdownDescription: "The identifier of the Scalr account.",
 				Optional:            true,
 				Computed:            true,
-				DeprecationMessage: "Setting this attribute is deprecated." +
-					" It is no longer in use and will become read-only in the next major version of the provider.",
 			},
 		},
 	}
