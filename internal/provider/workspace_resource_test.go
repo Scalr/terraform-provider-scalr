@@ -326,6 +326,32 @@ func TestAccScalrWorkspaceResource_providerConfiguration(t *testing.T) {
 	})
 }
 
+func TestAccScalrWorkspaceResource_providerConfigurationCreateRollback(t *testing.T) {
+	workspace := &scalr.Workspace{}
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrWorkspaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrWorkspaceProviderConfigurationCreateRollback(rInt, false),
+				ExpectError: regexp.MustCompile(
+					`(?s)Failed to link provider configuration.*Cannot link provider configuration to workspace.*Ensure.*shared with the environment`,
+				),
+			},
+			{
+				Config: testAccScalrWorkspaceProviderConfigurationCreateRollback(rInt, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrWorkspaceExists("scalr_workspace.test", workspace),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "provider_configuration.#", "1"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccScalrWorkspaceResource_SSHKey(t *testing.T) {
 	workspace := &scalr.Workspace{}
 	sshKey := &scalr.SSHKey{}
@@ -1026,6 +1052,38 @@ resource "scalr_workspace" "test" {
     alias = "dev2"
   }
 }`, scalr.WorkspaceExecutionModeLocal),
+	)
+}
+
+func testAccScalrWorkspaceProviderConfigurationCreateRollback(rInt int, shared bool) string {
+	environments := ""
+	if shared {
+		environments = "environments = [scalr_environment.test.id]"
+	}
+
+	return fmt.Sprintf(testAccScalrWorkspaceCommonConfig, rInt, defaultAccount,
+		fmt.Sprintf(`
+resource "scalr_provider_configuration" "test" {
+  name         = "workspace-pcfg-rollback-%[1]d"
+  account_id   = scalr_environment.test.account_id
+  %[2]s
+  custom {
+    provider_name = "kubernetes"
+    argument {
+      name  = "config_path"
+      value = "~/.kube/config"
+    }
+  }
+}
+
+resource "scalr_workspace" "test" {
+  name           = "workspace-pcfg-rollback"
+  environment_id = scalr_environment.test.id
+  execution_mode = "%[3]s"
+  provider_configuration {
+    id = scalr_provider_configuration.test.id
+  }
+}`, rInt, environments, scalr.WorkspaceExecutionModeLocal),
 	)
 }
 
