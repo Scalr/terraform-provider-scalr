@@ -335,15 +335,17 @@ func (r *iamTeamResource) ModifyPlan(
 	req resource.ModifyPlanRequest,
 	resp *resource.ModifyPlanResponse,
 ) {
-	// Fetch the account with its identity provider;
-	// issue a warning if it's an external IDP and the `users` attribute is set in config.
+	// Fetch the account with its identity provider and warn when non-empty `users` are set in config.
 	var users types.Set
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("users"), &users)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if users.IsUnknown() || users.IsNull() {
+	// Terraform Core may replace ignored config paths with prior state before provider planning.
+	// Treat an empty set as not configured to avoid false warnings for omitted, ignored membership.
+	// Explicitly configured empty sets are indistinguishable here and are also not warned about.
+	if users.IsUnknown() || users.IsNull() || len(users.Elements()) == 0 {
 		return
 	}
 
