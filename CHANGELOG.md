@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `scalr_iam_team`: do not warn about externally managed team membership when `users` is empty.
 - `scalr_workspace`: remove a newly created workspace when linking a provider configuration fails.
 
 ## [3.18.0] - 2026-07-31

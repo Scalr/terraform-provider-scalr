@@ -1,10 +1,14 @@
 package provider
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"testing"
 
+	frameworkresource "github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
@@ -12,6 +16,33 @@ import (
 
 	"github.com/scalr/go-scalr/v2/scalr/schemas"
 )
+
+func TestIamTeamResource_ModifyPlan_emptyUsers(t *testing.T) {
+	ctx := context.Background()
+	var schemaResp frameworkresource.SchemaResponse
+	(&iamTeamResource{}).Schema(ctx, frameworkresource.SchemaRequest{}, &schemaResp)
+	resourceSchema := schemaResp.Schema
+
+	objType := resourceSchema.Type().TerraformType(ctx).(tftypes.Object)
+	values := make(map[string]tftypes.Value, len(objType.AttributeTypes))
+	for name, attrType := range objType.AttributeTypes {
+		values[name] = tftypes.NewValue(attrType, nil)
+	}
+	values["users"] = tftypes.NewValue(objType.AttributeTypes["users"], []tftypes.Value{})
+	raw := tftypes.NewValue(objType, values)
+
+	req := frameworkresource.ModifyPlanRequest{
+		Config: tfsdk.Config{Raw: raw, Schema: resourceSchema},
+		Plan:   tfsdk.Plan{Raw: raw, Schema: resourceSchema},
+	}
+	var resp frameworkresource.ModifyPlanResponse
+
+	(&iamTeamResource{}).ModifyPlan(ctx, req, &resp)
+
+	if len(resp.Diagnostics) != 0 {
+		t.Fatalf("expected no diagnostics for empty users, got: %v", resp.Diagnostics)
+	}
+}
 
 func TestAccScalrIamTeamResource_basic(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-team")
