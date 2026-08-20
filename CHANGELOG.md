@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+## [3.19.0] - 2026-08-21
+
 ### Fixed
 
 - `scalr_iam_team`: do not warn about externally managed team membership when `users` is empty.
@@ -1238,7 +1240,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.18.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.19.0...HEAD
+[3.19.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.18.0
 [3.18.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.18.0
 [3.17.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.17.0
 [3.16.2]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.16.2
