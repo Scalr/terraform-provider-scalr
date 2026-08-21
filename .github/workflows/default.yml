@@ -137,7 +137,6 @@ jobs:
           github_token: ${{ steps.generate_token.outputs.token }}
           google_cloud_credentials: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
           run_prefix: e2e-provider-default
-          deployment_type: saas
           prepare_runner: true
           wait_for_env: true
           no_segment: true
