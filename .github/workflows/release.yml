@@ -95,6 +95,6 @@ jobs:
               inputs: {
                 version: providerVersion,
                 registry: 'prod',
-                run_post_relese: true
+                run_post_relese: 'true'
               }
             })
