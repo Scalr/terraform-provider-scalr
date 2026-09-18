@@ -112,11 +112,12 @@ resource "scalr_provider_configuration" "test1" {
   name                      = "test-mtpcl-1"
   account_id                = "%[1]s"
   is_allowed_in_module_test = true
-  aws {
-    account_type     = "regular"
-    credentials_type = "access_keys"
-    access_key       = "access_key"
-    secret_key       = "secret_key"
+  custom {
+    provider_name = "consul"
+    argument {
+      name  = "address"
+      value = "127.0.0.1:8500"
+    }
   }
 }
 
@@ -124,11 +125,12 @@ resource "scalr_provider_configuration" "test2" {
   name                      = "test-mtpcl-2"
   account_id                = "%[1]s"
   is_allowed_in_module_test = true
-  aws {
-    account_type     = "regular"
-    credentials_type = "access_keys"
-    access_key       = "access_key"
-    secret_key       = "secret_key"
+  custom {
+    provider_name = "consul"
+    argument {
+      name  = "address"
+      value = "127.0.0.1:8500"
+    }
   }
 }
 
@@ -149,11 +151,12 @@ resource "scalr_provider_configuration" "test1" {
   name                      = "test-mtpcl-1"
   account_id                = "%[1]s"
   is_allowed_in_module_test = true
-  aws {
-    account_type     = "regular"
-    credentials_type = "access_keys"
-    access_key       = "access_key"
-    secret_key       = "secret_key"
+  custom {
+    provider_name = "consul"
+    argument {
+      name  = "address"
+      value = "127.0.0.1:8500"
+    }
   }
 }
 
@@ -161,11 +164,12 @@ resource "scalr_provider_configuration" "test2" {
   name                      = "test-mtpcl-2"
   account_id                = "%[1]s"
   is_allowed_in_module_test = true
-  aws {
-    account_type     = "regular"
-    credentials_type = "access_keys"
-    access_key       = "access_key"
-    secret_key       = "secret_key"
+  custom {
+    provider_name = "consul"
+    argument {
+      name  = "address"
+      value = "127.0.0.1:8500"
+    }
   }
 }
 
