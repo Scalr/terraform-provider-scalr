@@ -95,6 +95,18 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"is_allowed_in_module_test": {
+				Description: "Indicates whether the provider configuration can be used as credentials for module tests. See resource" +
+					" [`scalr_module_test_provider_configuration_link`](provider_resource_scalr_module_test_provider_configuration_link).",
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			"is_used_in_module_test": {
+				Description: "Indicates whether the provider configuration is currently linked to a module test.",
+				Type:        schema.TypeBool,
+				Computed:    true,
+			},
 			"apply_only": {
 				Description: "When enabled, the provider configuration will be used only during the apply phase of the run. Currently supported for AWS provider configuration only. This option can be set only at creation time.",
 				Type:        schema.TypeBool,
@@ -441,9 +453,10 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 	accountID := d.Get("account_id").(string)
 
 	configurationOptions := scalr.ProviderConfigurationCreateOptions{
-		Name:                 ptr(name),
-		Account:              &scalr.Account{ID: accountID},
-		ExportShellVariables: ptr(d.Get("export_shell_variables").(bool)),
+		Name:                  ptr(name),
+		Account:               &scalr.Account{ID: accountID},
+		ExportShellVariables:  ptr(d.Get("export_shell_variables").(bool)),
+		IsAllowedInModuleTest: ptr(d.Get("is_allowed_in_module_test").(bool)),
 	}
 
 	if owners, ok := d.GetOk("owners"); ok {
@@ -701,6 +714,8 @@ func resourceScalrProviderConfigurationRead(ctx context.Context, d *schema.Resou
 	_ = d.Set("name", providerConfiguration.Name)
 	_ = d.Set("account_id", providerConfiguration.Account.ID)
 	_ = d.Set("export_shell_variables", providerConfiguration.ExportShellVariables)
+	_ = d.Set("is_allowed_in_module_test", providerConfiguration.IsAllowedInModuleTest)
+	_ = d.Set("is_used_in_module_test", providerConfiguration.IsUsedInModuleTest)
 
 	if providerConfiguration.IsShared {
 		allEnvironments := []string{"*"}
@@ -915,6 +930,7 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 
 	if d.HasChange("name") ||
 		d.HasChange("export_shell_variables") ||
+		d.HasChange("is_allowed_in_module_test") ||
 		d.HasChange("aws") ||
 		d.HasChange("google") ||
 		d.HasChange("azurerm") ||
@@ -924,8 +940,9 @@ func resourceScalrProviderConfigurationUpdate(ctx context.Context, d *schema.Res
 		d.HasChange("owners") ||
 		d.HasChange("tag_ids") {
 		configurationOptions := scalr.ProviderConfigurationUpdateOptions{
-			Name:                 ptr(d.Get("name").(string)),
-			ExportShellVariables: ptr(d.Get("export_shell_variables").(bool)),
+			Name:                  ptr(d.Get("name").(string)),
+			ExportShellVariables:  ptr(d.Get("export_shell_variables").(bool)),
+			IsAllowedInModuleTest: ptr(d.Get("is_allowed_in_module_test").(bool)),
 		}
 		if environmentsI, ok := d.GetOk("environments"); ok {
 			environments := environmentsI.(*schema.Set).List()

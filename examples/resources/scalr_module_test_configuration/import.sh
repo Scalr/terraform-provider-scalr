@@ -1,0 +1,1 @@
+terraform import scalr_module_test_configuration.example mod-xxxxxxxxxx

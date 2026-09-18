@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 33
+position: 35
 ---
 ## Resource: scalr_webhook
 
