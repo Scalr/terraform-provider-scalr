@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -117,6 +118,24 @@ func flattenStringSet(ctx context.Context, apiValue *[]string, prior *types.Set)
 
 	// preserve explicit empty set
 	return types.SetValueFrom(ctx, types.StringType, []string{})
+}
+
+// warnOnIntegrationFailure surfaces a backend-reported failure as a warning
+func warnOnIntegrationFailure(wi *schemas.WizIntegration, diags *diag.Diagnostics) {
+	var errMessage string
+	if wi.Attributes.ErrMessage != nil {
+		errMessage = strings.TrimSpace(*wi.Attributes.ErrMessage)
+	}
+
+	if wi.Attributes.Status != schemas.WizIntegrationStatusFailed && errMessage == "" {
+		return
+	}
+
+	if errMessage == "" {
+		errMessage = "Scalr reported the Wiz integration status as failed."
+	}
+
+	diags.AddWarning("Issues detected", errMessage)
 }
 
 func (r *wizIntegrationResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -280,6 +299,8 @@ func (r *wizIntegrationResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
+	warnOnIntegrationFailure(wi, &resp.Diagnostics)
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
 }
 
@@ -393,6 +414,8 @@ func (r *wizIntegrationResource) Update(ctx context.Context, req resource.Update
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	warnOnIntegrationFailure(wi, &resp.Diagnostics)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
 }
