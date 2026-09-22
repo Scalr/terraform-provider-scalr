@@ -15,8 +15,8 @@ require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.38.1
 	github.com/hashicorp/terraform-plugin-testing v1.14.0
 	github.com/hashicorp/terraform-svchost v0.1.1
-	github.com/scalr/go-scalr v0.0.0-20260918125251-9cc05729412b
-	github.com/scalr/go-scalr/v2 v2.0.0-rc.4
+	github.com/scalr/go-scalr v0.0.0-20260922103055-b8f7a8f46cd4
+	github.com/scalr/go-scalr/v2 v2.0.0-rc.4.0.20260922103055-b8f7a8f46cd4
 )
 
 require (
@@ -91,5 +91,3 @@ require (
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/scalr/go-scalr/v2 => ../go-scalr/v2
