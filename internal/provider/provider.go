@@ -166,7 +166,7 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 		newIntegrationInfracostResource,
 		newModuleNamespaceResource,
 		newModuleTestConfigurationResource,
-		newModuleTestProviderConfigurationLinkResource,
+		newModuleTestProviderConfigurationResource,
 		newRoleResource,
 		newStorageProfileResource,
 		newTagResource,

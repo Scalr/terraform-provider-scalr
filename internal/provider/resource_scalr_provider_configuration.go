@@ -97,7 +97,7 @@ func resourceScalrProviderConfiguration() *schema.Resource {
 			},
 			"is_allowed_in_module_test": {
 				Description: "Indicates whether the provider configuration can be used as credentials for module tests. See resource" +
-					" [`scalr_module_test_provider_configuration_link`](provider_resource_scalr_module_test_provider_configuration_link).",
+					" [`scalr_module_test_provider_configuration`](provider_resource_scalr_module_test_provider_configuration).",
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,

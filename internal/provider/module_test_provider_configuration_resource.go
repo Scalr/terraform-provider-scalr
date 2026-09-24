@@ -18,30 +18,30 @@ import (
 )
 
 var (
-	_ resource.Resource                = &moduleTestProviderConfigurationLinkResource{}
-	_ resource.ResourceWithConfigure   = &moduleTestProviderConfigurationLinkResource{}
-	_ resource.ResourceWithImportState = &moduleTestProviderConfigurationLinkResource{}
+	_ resource.Resource                = &moduleTestProviderConfigurationResource{}
+	_ resource.ResourceWithConfigure   = &moduleTestProviderConfigurationResource{}
+	_ resource.ResourceWithImportState = &moduleTestProviderConfigurationResource{}
 )
 
-func newModuleTestProviderConfigurationLinkResource() resource.Resource {
-	return &moduleTestProviderConfigurationLinkResource{}
+func newModuleTestProviderConfigurationResource() resource.Resource {
+	return &moduleTestProviderConfigurationResource{}
 }
 
-type moduleTestProviderConfigurationLinkResource struct {
+type moduleTestProviderConfigurationResource struct {
 	framework.ResourceWithScalrClient
 }
 
-type moduleTestProviderConfigurationLinkResourceModel struct {
+type moduleTestProviderConfigurationResourceModel struct {
 	ID                      types.String `tfsdk:"id"`
 	TestConfigurationID     types.String `tfsdk:"test_configuration_id"`
 	ProviderConfigurationID types.String `tfsdk:"provider_configuration_id"`
 }
 
-func (r *moduleTestProviderConfigurationLinkResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_module_test_provider_configuration_link"
+func (r *moduleTestProviderConfigurationResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_module_test_provider_configuration"
 }
 
-func (r *moduleTestProviderConfigurationLinkResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *moduleTestProviderConfigurationResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Attaches a provider configuration (credentials) to a module test configuration, so it can be used while running the module's tests." +
 			"\n\n-> **Note** The provider configuration must have `is_allowed_in_module_test = true` (see [`scalr_provider_configuration`](provider_resource_scalr_provider_configuration))." +
@@ -76,8 +76,8 @@ func (r *moduleTestProviderConfigurationLinkResource) Schema(_ context.Context, 
 	}
 }
 
-func moduleTestProviderConfigurationLinkModelFromAPI(link *scalr.ModuleTestProviderConfigurationLink) moduleTestProviderConfigurationLinkResourceModel {
-	model := moduleTestProviderConfigurationLinkResourceModel{
+func moduleTestProviderConfigurationModelFromAPI(link *scalr.ModuleTestProviderConfigurationLink) moduleTestProviderConfigurationResourceModel {
+	model := moduleTestProviderConfigurationResourceModel{
 		ID: types.StringValue(link.ID),
 	}
 	if link.TestConfiguration != nil {
@@ -89,8 +89,8 @@ func moduleTestProviderConfigurationLinkModelFromAPI(link *scalr.ModuleTestProvi
 	return model
 }
 
-func (r *moduleTestProviderConfigurationLinkResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan moduleTestProviderConfigurationLinkResourceModel
+func (r *moduleTestProviderConfigurationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan moduleTestProviderConfigurationResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -102,19 +102,19 @@ func (r *moduleTestProviderConfigurationLinkResource) Create(ctx context.Context
 
 	link, err := r.Client.ModuleTestProviderConfigurationLinks.Create(ctx, plan.TestConfigurationID.ValueString(), opts)
 	if err != nil {
-		resp.Diagnostics.AddError("Error creating module test provider configuration link", err.Error())
+		resp.Diagnostics.AddError("Error creating module test provider configuration", err.Error())
 		return
 	}
 
-	result := moduleTestProviderConfigurationLinkModelFromAPI(link)
+	result := moduleTestProviderConfigurationModelFromAPI(link)
 	if result.TestConfigurationID.ValueString() == "" {
 		result.TestConfigurationID = plan.TestConfigurationID
 	}
 	resp.Diagnostics.Append(resp.State.Set(ctx, &result)...)
 }
 
-func (r *moduleTestProviderConfigurationLinkResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state moduleTestProviderConfigurationLinkResourceModel
+func (r *moduleTestProviderConfigurationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state moduleTestProviderConfigurationResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -126,19 +126,19 @@ func (r *moduleTestProviderConfigurationLinkResource) Read(ctx context.Context, 
 			resp.State.RemoveResource(ctx)
 			return
 		}
-		resp.Diagnostics.AddError("Error retrieving module test provider configuration link", err.Error())
+		resp.Diagnostics.AddError("Error retrieving module test provider configuration", err.Error())
 		return
 	}
 
-	result := moduleTestProviderConfigurationLinkModelFromAPI(link)
+	result := moduleTestProviderConfigurationModelFromAPI(link)
 	if result.TestConfigurationID.ValueString() == "" {
 		result.TestConfigurationID = state.TestConfigurationID
 	}
 	resp.Diagnostics.Append(resp.State.Set(ctx, &result)...)
 }
 
-func (r *moduleTestProviderConfigurationLinkResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan moduleTestProviderConfigurationLinkResourceModel
+func (r *moduleTestProviderConfigurationResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan moduleTestProviderConfigurationResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -150,19 +150,19 @@ func (r *moduleTestProviderConfigurationLinkResource) Update(ctx context.Context
 
 	link, err := r.Client.ModuleTestProviderConfigurationLinks.Update(ctx, plan.ID.ValueString(), opts)
 	if err != nil {
-		resp.Diagnostics.AddError("Error updating module test provider configuration link", err.Error())
+		resp.Diagnostics.AddError("Error updating module test provider configuration", err.Error())
 		return
 	}
 
-	result := moduleTestProviderConfigurationLinkModelFromAPI(link)
+	result := moduleTestProviderConfigurationModelFromAPI(link)
 	if result.TestConfigurationID.ValueString() == "" {
 		result.TestConfigurationID = plan.TestConfigurationID
 	}
 	resp.Diagnostics.Append(resp.State.Set(ctx, &result)...)
 }
 
-func (r *moduleTestProviderConfigurationLinkResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state moduleTestProviderConfigurationLinkResourceModel
+func (r *moduleTestProviderConfigurationResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state moduleTestProviderConfigurationResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -170,11 +170,11 @@ func (r *moduleTestProviderConfigurationLinkResource) Delete(ctx context.Context
 
 	err := r.Client.ModuleTestProviderConfigurationLinks.Delete(ctx, state.ID.ValueString())
 	if err != nil && !errors.Is(err, scalr.ErrResourceNotFound) {
-		resp.Diagnostics.AddError("Error deleting module test provider configuration link", err.Error())
+		resp.Diagnostics.AddError("Error deleting module test provider configuration", err.Error())
 		return
 	}
 }
 
-func (r *moduleTestProviderConfigurationLinkResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *moduleTestProviderConfigurationResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

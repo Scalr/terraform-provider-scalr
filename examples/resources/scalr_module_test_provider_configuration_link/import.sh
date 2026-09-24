@@ -1,1 +1,0 @@
-terraform import scalr_module_test_provider_configuration_link.example tpcfgl-xxxxxxxxxx

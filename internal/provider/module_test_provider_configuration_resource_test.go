@@ -9,16 +9,16 @@ import (
 	"github.com/scalr/go-scalr"
 )
 
-func TestAccScalrModuleTestProviderConfigurationLink_basic(t *testing.T) {
-	resourceName := "scalr_module_test_provider_configuration_link.test"
+func TestAccScalrModuleTestProviderConfiguration_basic(t *testing.T) {
+	resourceName := "scalr_module_test_provider_configuration.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testVcsAccGithubTokenPreCheck(t) },
 		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckScalrModuleTestProviderConfigurationLinkDestroy,
+		CheckDestroy:             testAccCheckScalrModuleTestProviderConfigurationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrModuleTestProviderConfigurationLinkBasic(),
+				Config: testAccScalrModuleTestProviderConfigurationBasic(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttrPair(
@@ -33,16 +33,16 @@ func TestAccScalrModuleTestProviderConfigurationLink_basic(t *testing.T) {
 	})
 }
 
-func TestAccScalrModuleTestProviderConfigurationLink_update(t *testing.T) {
-	resourceName := "scalr_module_test_provider_configuration_link.test"
+func TestAccScalrModuleTestProviderConfiguration_update(t *testing.T) {
+	resourceName := "scalr_module_test_provider_configuration.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testVcsAccGithubTokenPreCheck(t) },
 		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckScalrModuleTestProviderConfigurationLinkDestroy,
+		CheckDestroy:             testAccCheckScalrModuleTestProviderConfigurationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrModuleTestProviderConfigurationLinkBasic(),
+				Config: testAccScalrModuleTestProviderConfigurationBasic(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(
 						resourceName, "provider_configuration_id", "scalr_provider_configuration.test1", "id",
@@ -50,7 +50,7 @@ func TestAccScalrModuleTestProviderConfigurationLink_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccScalrModuleTestProviderConfigurationLinkUpdated(),
+				Config: testAccScalrModuleTestProviderConfigurationUpdated(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(
 						resourceName, "provider_configuration_id", "scalr_provider_configuration.test2", "id",
@@ -61,16 +61,16 @@ func TestAccScalrModuleTestProviderConfigurationLink_update(t *testing.T) {
 	})
 }
 
-func TestAccScalrModuleTestProviderConfigurationLink_import(t *testing.T) {
-	resourceName := "scalr_module_test_provider_configuration_link.test"
+func TestAccScalrModuleTestProviderConfiguration_import(t *testing.T) {
+	resourceName := "scalr_module_test_provider_configuration.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testVcsAccGithubTokenPreCheck(t) },
 		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
-		CheckDestroy:             testAccCheckScalrModuleTestProviderConfigurationLinkDestroy,
+		CheckDestroy:             testAccCheckScalrModuleTestProviderConfigurationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrModuleTestProviderConfigurationLinkBasic(),
+				Config: testAccScalrModuleTestProviderConfigurationBasic(),
 			},
 			{
 				ResourceName:      resourceName,
@@ -81,11 +81,11 @@ func TestAccScalrModuleTestProviderConfigurationLink_import(t *testing.T) {
 	})
 }
 
-func testAccCheckScalrModuleTestProviderConfigurationLinkDestroy(s *terraform.State) error {
+func testAccCheckScalrModuleTestProviderConfigurationDestroy(s *terraform.State) error {
 	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "scalr_module_test_provider_configuration_link" {
+		if rs.Type != "scalr_module_test_provider_configuration" {
 			continue
 		}
 
@@ -95,14 +95,14 @@ func testAccCheckScalrModuleTestProviderConfigurationLinkDestroy(s *terraform.St
 
 		_, err := scalrClient.ModuleTestProviderConfigurationLinks.Read(ctx, rs.Primary.ID)
 		if err == nil {
-			return fmt.Errorf("Module test provider configuration link %s still exists", rs.Primary.ID)
+			return fmt.Errorf("Module test provider configuration %s still exists", rs.Primary.ID)
 		}
 	}
 
 	return nil
 }
 
-func testAccScalrModuleTestProviderConfigurationLinkBasic() string {
+func testAccScalrModuleTestProviderConfigurationBasic() string {
 	return testAccScalrModule() + fmt.Sprintf(`
 resource "scalr_module_test_configuration" "test" {
   module_id = scalr_module.test.id
@@ -134,14 +134,14 @@ resource "scalr_provider_configuration" "test2" {
   }
 }
 
-resource "scalr_module_test_provider_configuration_link" "test" {
+resource "scalr_module_test_provider_configuration" "test" {
   test_configuration_id     = scalr_module_test_configuration.test.id
   provider_configuration_id = scalr_provider_configuration.test1.id
 }
 `, defaultAccount)
 }
 
-func testAccScalrModuleTestProviderConfigurationLinkUpdated() string {
+func testAccScalrModuleTestProviderConfigurationUpdated() string {
 	return testAccScalrModule() + fmt.Sprintf(`
 resource "scalr_module_test_configuration" "test" {
   module_id = scalr_module.test.id
@@ -173,7 +173,7 @@ resource "scalr_provider_configuration" "test2" {
   }
 }
 
-resource "scalr_module_test_provider_configuration_link" "test" {
+resource "scalr_module_test_provider_configuration" "test" {
   test_configuration_id     = scalr_module_test_configuration.test.id
   provider_configuration_id = scalr_provider_configuration.test2.id
 }

@@ -1,6 +1,6 @@
 ---
-title: scalr_module_test_provider_configuration_link
-slug: provider_resource_scalr_module_test_provider_configuration_link
+title: scalr_module_test_provider_configuration
+slug: provider_resource_scalr_module_test_provider_configuration
 category:
   uri: Scalr Terraform Provider
 parent:
@@ -9,7 +9,7 @@ privacy:
   view: public
 position: 18
 ---
-## Resource: scalr_module_test_provider_configuration_link
+## Resource: scalr_module_test_provider_configuration
 
 Attaches a provider configuration (credentials) to a module test configuration, so it can be used while running the module's tests.
 
@@ -35,7 +35,7 @@ resource "scalr_module_test_configuration" "example" {
   enabled   = true
 }
 
-resource "scalr_module_test_provider_configuration_link" "example" {
+resource "scalr_module_test_provider_configuration" "example" {
   test_configuration_id     = scalr_module_test_configuration.example.id
   provider_configuration_id = scalr_provider_configuration.aws_module_test.id
 }
@@ -58,5 +58,5 @@ resource "scalr_module_test_provider_configuration_link" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import scalr_module_test_provider_configuration_link.example tpcfgl-xxxxxxxxxx
+terraform import scalr_module_test_provider_configuration.example tpcfgl-xxxxxxxxxx
 ```

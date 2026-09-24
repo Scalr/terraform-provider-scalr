@@ -15,7 +15,7 @@ resource "scalr_module_test_configuration" "example" {
   enabled   = true
 }
 
-resource "scalr_module_test_provider_configuration_link" "example" {
+resource "scalr_module_test_provider_configuration" "example" {
   test_configuration_id     = scalr_module_test_configuration.example.id
   provider_configuration_id = scalr_provider_configuration.aws_module_test.id
 }
