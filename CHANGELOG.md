@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **New resource:** `scalr_module_test_configuration` to enable and configure tofu tests for a module.
+- **New resource:** `scalr_module_test_provider_configuration` to attach credentials to a module test configuration.
+- `scalr_provider_configuration`: new attribute `is_allowed_in_module_test` and read-only attribute `is_used_in_module_test`.
+
 ## [3.19.0] - 2026-08-21
 
 ### Fixed
