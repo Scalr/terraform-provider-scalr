@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `scalr_policy_group`: new attribute `execution_mode` — the stage of the run the policy group is evaluated at (`pre-plan` or `post-plan`). Defaults to `post-plan`.
+
 ## [3.19.0] - 2026-08-21
 
 ### Fixed

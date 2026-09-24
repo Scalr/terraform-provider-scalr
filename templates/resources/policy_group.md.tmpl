@@ -1,33 +1,20 @@
 ---
-title: scalr_policy_group
-slug: provider_resource_scalr_policy_group
+title: {{.Name}}
+slug: provider_resource_{{.Name}}
 category:
   uri: Scalr Terraform Provider
 parent:
   uri: provider_resources
 privacy:
   view: public
-position: 17
 ---
-## Resource: scalr_policy_group
+## {{.Type}}: {{.Name}}
 
-Manage the state of policy groups in Scalr. Create, update and destroy.
+{{ .Description | trimspace }}
 
 ## Example Usage
 
-```terraform
-resource "scalr_policy_group" "example" {
-  name            = "instance_types"
-  opa_version     = "0.29.4"
-  account_id      = "acc-xxxxxxxxxx"
-  vcs_provider_id = "vcs-xxxxxxxxxx"
-  vcs_repo {
-    identifier = "org/repo"
-    path       = "policies/instance"
-    branch     = "dev"
-  }
-}
-```
+{{tffile .ExampleFile }}
 
 <!-- The schema is written by hand: the plugin framework cannot mark the `vcs_repo` block as required,
 so the generated schema would list it as optional. To keep this file updated please see policy_group.md.tmpl. -->
@@ -80,6 +67,4 @@ Read-Only:
 
 Import is supported using the following syntax:
 
-```shell
-terraform import scalr_policy_group.example pgrp-xxxxxxxxxx
-```
+{{codefile "shell" .ImportFile}}
