@@ -7,8 +7,12 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/scalr/go-scalr"
+
+	"github.com/scalr/go-scalr/v2/scalr/schemas"
+	"github.com/scalr/go-scalr/v2/scalr/value"
 )
 
 const (
@@ -32,7 +36,7 @@ func TestAccPolicyGroup_basic(t *testing.T) {
 			{
 				Config: testAccPolicyGroupBasicConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyGroupExists("scalr_policy_group.test", &scalr.PolicyGroup{}),
+					testAccCheckPolicyGroupExists("scalr_policy_group.test", &schemas.PolicyGroup{}),
 					resource.TestCheckResourceAttr(
 						"scalr_policy_group.test",
 						"name",
@@ -45,6 +49,7 @@ func TestAccPolicyGroup_basic(t *testing.T) {
 						"",
 					),
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "opa_version"),
+					resource.TestCheckResourceAttr("scalr_policy_group.test", "execution_mode", "post-plan"),
 					resource.TestCheckResourceAttr(
 						"scalr_policy_group.test",
 						"account_id",
@@ -90,7 +95,7 @@ func TestAccPolicyGroup_update(t *testing.T) {
 			{
 				Config: testAccPolicyGroupBasicConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyGroupExists("scalr_policy_group.test", &scalr.PolicyGroup{}),
+					testAccCheckPolicyGroupExists("scalr_policy_group.test", &schemas.PolicyGroup{}),
 					resource.TestCheckResourceAttr(
 						"scalr_policy_group.test",
 						"name",
@@ -103,6 +108,7 @@ func TestAccPolicyGroup_update(t *testing.T) {
 						"",
 					),
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "opa_version"),
+					resource.TestCheckResourceAttr("scalr_policy_group.test", "execution_mode", "post-plan"),
 					resource.TestCheckResourceAttr(
 						"scalr_policy_group.test",
 						"account_id",
@@ -131,8 +137,13 @@ func TestAccPolicyGroup_update(t *testing.T) {
 			},
 			{
 				Config: testAccPolicyGroupUpdateConfig(rInt),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("scalr_policy_group.test", plancheck.ResourceActionReplace),
+					},
+				},
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyGroupExists("scalr_policy_group.test", &scalr.PolicyGroup{}),
+					testAccCheckPolicyGroupExists("scalr_policy_group.test", &schemas.PolicyGroup{}),
 					resource.TestCheckResourceAttr(
 						"scalr_policy_group.test",
 						"name",
@@ -145,6 +156,7 @@ func TestAccPolicyGroup_update(t *testing.T) {
 						"",
 					),
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "opa_version"),
+					resource.TestCheckResourceAttr("scalr_policy_group.test", "execution_mode", "pre-plan"),
 					resource.TestCheckResourceAttr(
 						"scalr_policy_group.test",
 						"account_id",
@@ -173,7 +185,7 @@ func TestAccPolicyGroup_update(t *testing.T) {
 
 func TestAccPolicyGroup_renamed(t *testing.T) {
 	rInt := GetRandomInteger()
-	policyGroup := &scalr.PolicyGroup{}
+	policyGroup := &schemas.PolicyGroup{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -200,6 +212,7 @@ func TestAccPolicyGroup_renamed(t *testing.T) {
 						"",
 					),
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "opa_version"),
+					resource.TestCheckResourceAttr("scalr_policy_group.test", "execution_mode", "post-plan"),
 					resource.TestCheckResourceAttr(
 						"scalr_policy_group.test",
 						"account_id",
@@ -222,9 +235,11 @@ func TestAccPolicyGroup_renamed(t *testing.T) {
 				),
 			},
 			{
-				PreConfig: testAccCheckPolicyGroupRename(policyGroup),
-				Config:    testAccPolicyGroupRenamedConfig(rInt),
-				PlanOnly:  true,
+				// Rename the policy group outside of Terraform and refresh the state.
+				// The plan still has a diff, because the config keeps the old name.
+				PreConfig:          testAccCheckPolicyGroupRename(policyGroup),
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"scalr_policy_group.test",
@@ -238,6 +253,7 @@ func TestAccPolicyGroup_renamed(t *testing.T) {
 						"",
 					),
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "opa_version"),
+					resource.TestCheckResourceAttr("scalr_policy_group.test", "execution_mode", "post-plan"),
 					resource.TestCheckResourceAttr(
 						"scalr_policy_group.test",
 						"account_id",
@@ -258,6 +274,11 @@ func TestAccPolicyGroup_renamed(t *testing.T) {
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "policies.#"),
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "environments.#"),
 				),
+			},
+			{
+				// The config matching the new name produces no changes.
+				Config:   testAccPolicyGroupRenamedConfig(rInt),
+				PlanOnly: true,
 			},
 		},
 	})
@@ -282,14 +303,17 @@ func TestAccPolicyGroup_import(t *testing.T) {
 				ResourceName:      "scalr_policy_group.test",
 				ImportState:       true,
 				ImportStateVerify: true,
+				// The policy group is still being fetched from VCS right after creation,
+				// so its status and policies differ by the time it is imported.
+				ImportStateVerifyIgnore: []string{"status", "policies"},
 			},
 		},
 	})
 }
 
-func testAccCheckPolicyGroupExists(resID string, policyGroup *scalr.PolicyGroup) resource.TestCheckFunc {
+func testAccCheckPolicyGroupExists(resID string, policyGroup *schemas.PolicyGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
+		scalrClient := createScalrClientV2()
 
 		rs, ok := s.RootModule().Resources[resID]
 		if !ok {
@@ -300,7 +324,7 @@ func testAccCheckPolicyGroupExists(resID string, policyGroup *scalr.PolicyGroup)
 			return fmt.Errorf("no instance ID is set")
 		}
 
-		pg, err := scalrClient.PolicyGroups.Read(ctx, rs.Primary.ID)
+		pg, err := scalrClient.PolicyGroup.GetPolicyGroup(ctx, rs.Primary.ID, nil)
 		if err != nil {
 			return err
 		}
@@ -311,7 +335,7 @@ func testAccCheckPolicyGroupExists(resID string, policyGroup *scalr.PolicyGroup)
 }
 
 func testAccCheckPolicyGroupDestroy(s *terraform.State) error {
-	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
+	scalrClient := createScalrClientV2()
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_policy_group" {
@@ -322,7 +346,7 @@ func testAccCheckPolicyGroupDestroy(s *terraform.State) error {
 			return fmt.Errorf("no instance ID is set")
 		}
 
-		_, err := scalrClient.PolicyGroups.Read(ctx, rs.Primary.ID)
+		_, err := scalrClient.PolicyGroup.GetPolicyGroup(ctx, rs.Primary.ID, nil)
 		if err == nil {
 			return fmt.Errorf("policy group %s still exists", rs.Primary.ID)
 		}
@@ -331,14 +355,19 @@ func testAccCheckPolicyGroupDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckPolicyGroupRename(policyGroup *scalr.PolicyGroup) func() {
+func testAccCheckPolicyGroupRename(policyGroup *schemas.PolicyGroup) func() {
 	return func() {
-		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
+		scalrClient := createScalrClientV2()
 
-		_, err := scalrClient.PolicyGroups.Update(
+		_, err := scalrClient.PolicyGroup.UpdatePolicyGroup(
 			context.Background(),
 			policyGroup.ID,
-			scalr.PolicyGroupUpdateOptions{Name: ptr("renamed-outside-of-terraform")},
+			&schemas.PolicyGroupRequest{
+				Attributes: schemas.PolicyGroupAttributesRequest{
+					Name: value.Set("renamed-outside-of-terraform"),
+				},
+			},
+			nil,
 		)
 		if err != nil {
 			log.Fatalf("Could not rename policy group outside of terraform: %v", err)
@@ -387,6 +416,7 @@ resource "scalr_policy_group" "test" {
   name            = "updated_name"
   account_id      = "%[4]s"
   vcs_provider_id = scalr_vcs_provider.test.id
+  execution_mode  = "pre-plan"
   vcs_repo {
 	identifier = "%s"
     path       = "%s"
@@ -411,6 +441,15 @@ resource "scalr_policy_group" "test" {
 	identifier = "%s"
     path       = "%s"
   }
+  common_functions_folder = "%s"
 }
-`, rInt, string(scalr.Github), githubToken, defaultAccount, policyGroupVcsRepoID, policyGroupVcsRepoPath)
+`,
+		rInt,
+		string(scalr.Github),
+		githubToken,
+		defaultAccount,
+		policyGroupVcsRepoID,
+		policyGroupVcsRepoPath,
+		commonFunctionsFolder,
+	)
 }
