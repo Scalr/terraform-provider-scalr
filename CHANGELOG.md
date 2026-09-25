@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `scalr_wiz_integration`: new resource and data source to manage Wiz integrations.
+
 ## [3.19.0] - 2026-08-21
 
 ### Fixed
