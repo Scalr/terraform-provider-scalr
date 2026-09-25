@@ -197,15 +197,27 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 				},
 			},
 			"remote_state_consumers": schema.SetAttribute{
-				MarkdownDescription: "The list of workspace identifiers that are allowed to access the state of this workspace. Use `[\"*\"]` to share the state with all the workspaces within the environment (default).",
-				ElementType:         types.StringType,
-				Optional:            true,
-				Computed:            true,
+				MarkdownDescription: "The list of workspace identifiers that are allowed to access the state of this workspace. Use `[\"*\"]` to share the state with all the workspaces within the environment (default)." +
+					" Conflicts with `remote_state_sharing`. Do not use it together with the `scalr_workspace_remote_state_consumer` resource.",
+				ElementType:        types.StringType,
+				Optional:           true,
+				Computed:           true,
+				DeprecationMessage: "This attribute is deprecated. Use `remote_state_sharing` + `scalr_workspace_remote_state_consumer` resource instead.",
 				Validators: []validator.Set{
 					setvalidator.ValueStringsAre(stringvalidation.StringIsNotWhiteSpace()),
 				},
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"remote_state_sharing": schema.BoolAttribute{
+				MarkdownDescription: "Whether the state of this workspace is shared with all the workspaces within the environment." +
+					" Set to `false` to manage the list of consumers with the `scalr_workspace_remote_state_consumer` resource." +
+					" Defaults to the account's workspace state sharing setting. Conflicts with `remote_state_consumers`.",
+				Optional: true,
+				Computed: true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"remote_backend": schema.BoolAttribute{

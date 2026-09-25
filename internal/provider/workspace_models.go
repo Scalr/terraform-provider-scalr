@@ -67,6 +67,7 @@ type workspaceResourceModel struct {
 	ProviderConfiguration     types.Set    `tfsdk:"provider_configuration"`
 	RemoteBackend             types.Bool   `tfsdk:"remote_backend"`
 	RemoteStateConsumers      types.Set    `tfsdk:"remote_state_consumers"`
+	RemoteStateSharing        types.Bool   `tfsdk:"remote_state_sharing"`
 	RunOperationTimeout       types.Int32  `tfsdk:"run_operation_timeout"`
 	SSHKeyID                  types.String `tfsdk:"ssh_key_id"`
 	TagIDs                    types.Set    `tfsdk:"tag_ids"`
@@ -137,6 +138,7 @@ func workspaceResourceModelFromAPI(
 		ProviderConfiguration:     types.SetNull(providerConfigurationElementType),
 		RemoteBackend:             types.BoolValue(ws.Attributes.RemoteBackend),
 		RemoteStateConsumers:      types.SetNull(types.StringType),
+		RemoteStateSharing:        types.BoolValue(ws.Attributes.RemoteStateSharing),
 		RunOperationTimeout:       types.Int32Null(),
 		SSHKeyID:                  types.StringNull(),
 		TagIDs:                    types.SetNull(types.StringType),
