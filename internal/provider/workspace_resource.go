@@ -62,6 +62,10 @@ func (r *workspaceResource) ConfigValidators(_ context.Context) []resource.Confi
 			path.MatchRoot("vcs_provider_id"),
 			path.MatchRoot("vcs_repo"),
 		),
+		resourcevalidator.Conflicting(
+			path.MatchRoot("remote_state_consumers"),
+			path.MatchRoot("remote_state_sharing"),
+		),
 	}
 }
 
@@ -231,6 +235,8 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 				remoteStateConsumers = append(remoteStateConsumers, schemas.Workspace{ID: consumerID})
 			}
 		}
+	} else if !plan.RemoteStateSharing.IsUnknown() && !plan.RemoteStateSharing.IsNull() {
+		opts.Attributes.RemoteStateSharing = value.Set(plan.RemoteStateSharing.ValueBool())
 	}
 
 	if resp.Diagnostics.HasError() {
@@ -557,8 +563,18 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 		}
 	}
 
+	var consumersCfg types.Set
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("remote_state_consumers"), &consumersCfg)...)
+
+	if consumersCfg.IsNull() && !plan.RemoteStateSharing.IsUnknown() &&
+		!plan.RemoteStateSharing.Equal(state.RemoteStateSharing) {
+		opts.Attributes.RemoteStateSharing = value.Set(plan.RemoteStateSharing.ValueBool())
+	}
+
+	// The list of consumers is managed here only when it is set in the configuration,
+	// otherwise it may be managed by the `scalr_workspace_remote_state_consumer` resources.
 	var consumersToAdd, consumersToRemove []string
-	if !plan.RemoteStateConsumers.Equal(state.RemoteStateConsumers) {
+	if !consumersCfg.IsNull() && !plan.RemoteStateConsumers.Equal(state.RemoteStateConsumers) {
 		var planConsumers []string
 		var stateConsumers []string
 		resp.Diagnostics.Append(plan.RemoteStateConsumers.ElementsAs(ctx, &planConsumers, false)...)
@@ -746,6 +762,13 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
+	if consumersCfg.IsNull() && !plan.RemoteStateConsumers.IsUnknown() {
+		// Consumers may be concurrently changed by the `scalr_workspace_remote_state_consumer` resources
+		// within the same apply. Keep the planned value to avoid an inconsistent result,
+		// the actual list will be picked up on the next refresh.
+		result.RemoteStateConsumers = plan.RemoteStateConsumers
+	}
+
 	// Set state to fully populated data
 	resp.Diagnostics.Append(resp.State.Set(ctx, &result)...)
 	if resp.Diagnostics.HasError() {
@@ -823,6 +846,60 @@ func (r *workspaceResource) ModifyPlan(
 		} else {
 			resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("operations"), true)...)
 		}
+	}
+
+	r.modifyPlanRemoteState(ctx, req, resp)
+}
+
+// modifyPlanRemoteState keeps `remote_state_sharing` and `remote_state_consumers` consistent
+// when only one of them is set in the configuration.
+func (r *workspaceResource) modifyPlanRemoteState(
+	ctx context.Context,
+	req resource.ModifyPlanRequest,
+	resp *resource.ModifyPlanResponse,
+) {
+	var consumersCfg types.Set
+	var sharingCfg types.Bool
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("remote_state_consumers"), &consumersCfg)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("remote_state_sharing"), &sharingCfg)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !consumersCfg.IsNull() {
+		// Sharing is derived from the consumers: `["*"]` means shared with the whole environment.
+		if !isSetFullyKnown(consumersCfg) {
+			resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("remote_state_sharing"), types.BoolUnknown())...)
+			return
+		}
+		var consumers []string
+		resp.Diagnostics.Append(consumersCfg.ElementsAs(ctx, &consumers, false)...)
+		sharing := len(consumers) == 1 && consumers[0] == "*"
+		resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("remote_state_sharing"), sharing)...)
+		return
+	}
+
+	if sharingCfg.IsNull() {
+		return
+	}
+
+	if sharingCfg.IsUnknown() {
+		resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("remote_state_consumers"), types.SetUnknown(types.StringType))...)
+		return
+	}
+
+	if sharingCfg.ValueBool() {
+		resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("remote_state_consumers"), []string{"*"})...)
+		return
+	}
+
+	// Sharing is disabled: when it is being switched off, the list of consumers is not known until apply.
+	var sharingState types.Bool
+	if !req.State.Raw.IsNull() {
+		resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("remote_state_sharing"), &sharingState)...)
+	}
+	if req.State.Raw.IsNull() || sharingState.ValueBool() {
+		resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("remote_state_consumers"), types.SetUnknown(types.StringType))...)
 	}
 }
 
@@ -943,4 +1020,16 @@ func getRemoteStateConsumers(
 		consumers = append(consumers, c.ID)
 	}
 	return
+}
+
+func isSetFullyKnown(s types.Set) bool {
+	if s.IsUnknown() {
+		return false
+	}
+	for _, e := range s.Elements() {
+		if e.IsUnknown() {
+			return false
+		}
+	}
+	return true
 }

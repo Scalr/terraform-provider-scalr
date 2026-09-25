@@ -392,6 +392,7 @@ func TestAccScalrWorkspaceResource_StateConsumers(t *testing.T) {
 					testAccCheckScalrWorkspaceExists("scalr_workspace.test", workspace),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "remote_state_consumers.#", "2"),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "remote_state_sharing", "false"),
 					testAccCheckScalrWorkspaceStateSharing("scalr_workspace.test", false),
 				),
 			},
@@ -401,8 +402,54 @@ func TestAccScalrWorkspaceResource_StateConsumers(t *testing.T) {
 					testAccCheckScalrWorkspaceExists("scalr_workspace.test", workspace),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "remote_state_consumers.#", "1"),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "remote_state_sharing", "true"),
 					testAccCheckScalrWorkspaceStateSharing("scalr_workspace.test", true),
 				),
+			},
+		},
+	})
+}
+
+func TestAccScalrWorkspaceResource_StateSharing(t *testing.T) {
+	workspace := &scalr.Workspace{}
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrWorkspaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrWorkspaceWithStateSharingConfig(rInt, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrWorkspaceExists("scalr_workspace.test", workspace),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "remote_state_sharing", "false"),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "remote_state_consumers.#", "0"),
+					testAccCheckScalrWorkspaceStateSharing("scalr_workspace.test", false),
+				),
+			},
+			{
+				Config: testAccScalrWorkspaceWithStateSharingConfig(rInt, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("scalr_workspace.test", "remote_state_sharing", "true"),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "remote_state_consumers.#", "1"),
+					resource.TestCheckResourceAttr("scalr_workspace.test", "remote_state_consumers.0", "*"),
+					testAccCheckScalrWorkspaceStateSharing("scalr_workspace.test", true),
+				),
+			},
+		},
+	})
+}
+
+func TestAccScalrWorkspaceResource_StateSharingConflict(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccScalrWorkspaceWithStateSharingConflictConfig(GetRandomInteger()),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile("Invalid Attribute Combination"),
 			},
 		},
 	})
@@ -1136,6 +1183,35 @@ resource "scalr_workspace" "test" {
   name                   = "state-sharing-%[1]d"
   environment_id         = scalr_environment.test.id
   remote_state_consumers = [ scalr_workspace.consumer1.id, scalr_workspace.consumer2.id ]
+}`, rInt, defaultAccount)
+}
+
+func testAccScalrWorkspaceWithStateSharingConfig(rInt int, sharing bool) string {
+	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name       = "test-env-%[1]d"
+  account_id = "%[2]s"
+}
+
+resource "scalr_workspace" "test" {
+  name                 = "state-sharing-%[1]d"
+  environment_id       = scalr_environment.test.id
+  remote_state_sharing = %[3]t
+}`, rInt, defaultAccount, sharing)
+}
+
+func testAccScalrWorkspaceWithStateSharingConflictConfig(rInt int) string {
+	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name       = "test-env-%[1]d"
+  account_id = "%[2]s"
+}
+
+resource "scalr_workspace" "test" {
+  name                   = "state-sharing-%[1]d"
+  environment_id         = scalr_environment.test.id
+  remote_state_sharing   = false
+  remote_state_consumers = ["*"]
 }`, rInt, defaultAccount)
 }
 

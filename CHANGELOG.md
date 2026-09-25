@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **New resource:** `scalr_workspace_remote_state_consumer` ([#560](https://github.com/Scalr/terraform-provider-scalr/pull/560)).
+- `scalr_workspace`: new attribute `remote_state_sharing` ([#560](https://github.com/Scalr/terraform-provider-scalr/pull/560)).
+
+### Deprecated
+
+- `scalr_workspace`: `remote_state_consumers` attribute is deprecated. `scalr_workspace_remote_state_consumer` resource should be used instead ([#560](https://github.com/Scalr/terraform-provider-scalr/pull/560)).
+
+
 ## [3.19.0] - 2026-08-21
 
 ### Fixed
