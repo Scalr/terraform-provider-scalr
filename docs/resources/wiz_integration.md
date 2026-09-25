@@ -55,5 +55,5 @@ resource "scalr_wiz_integration" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import scalr_wiz_integration.example int-xxxxxxxxxx
+terraform import scalr_wiz_integration.example in-xxxxxxxxxx
 ```

@@ -17,7 +17,7 @@ Retrieves information about a Wiz integration.
 
 ```terraform
 data "scalr_wiz_integration" "example" {
-  id = "int-xxxxxxxxxx"
+  id = "in-xxxxxxxxxx"
 }
 ```
 
