@@ -1,0 +1,1 @@
+terraform import scalr_wiz_integration.example in-xxxxxxxxxx
