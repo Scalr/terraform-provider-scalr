@@ -17,17 +17,17 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrWorkspaceDataSourceMissingRequiredConfig,
-				ExpectError: regexp.MustCompile("\"id\": one of `id,name` must be specified"),
+				ExpectError: regexp.MustCompile(`At least one of these attributes must be configured: \[id,name]`),
 				PlanOnly:    true,
 			},
 			{
 				Config:      testAccScalrWorkspaceDataSourceIDIsEmptyConfig,
-				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				ExpectError: regexp.MustCompile("Attribute id must not be empty"),
 				PlanOnly:    true,
 			},
 			{
 				Config:      testAccScalrWorkspaceDataSourceNameIsEmptyConfig,
-				ExpectError: regexp.MustCompile("expected \"name\" to not be an empty string or whitespace"),
+				ExpectError: regexp.MustCompile("Attribute name must not be empty"),
 				PlanOnly:    true,
 			},
 			{
@@ -57,7 +57,8 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.email"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.username"),
-					resource.TestCheckResourceAttr("data.scalr_workspace.test", "tags.#", "0"),
+					resource.TestCheckResourceAttr("data.scalr_workspace.test", "tag_ids.#", "0"),
+					resource.TestCheckNoResourceAttr("data.scalr_workspace.test", "runner_image_version_id"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.pre_init", "./scripts/pre-init.sh"),
 					resource.TestCheckResourceAttr(

@@ -30,6 +30,14 @@ privacy:
 
 {{tffile "examples/resources/scalr_workspace/tags.tf" }}
 
+### Pin the runner image version
+
+Runs executed on Scalr-managed agent pools use the account default runner image unless the workspace is pinned to a specific image version.
+The `runner_image_version_id` attribute can only be used with Scalr-managed agent pools: it cannot be combined with an `agent_pool_id` that points to a self-hosted agent pool.
+Remove the attribute to fall back to the account default.
+
+{{tffile "examples/resources/scalr_workspace/runner_image.tf" }}
+
 {{ .SchemaMarkdown | trimspace }}
 
 {{- if .HasImport }}

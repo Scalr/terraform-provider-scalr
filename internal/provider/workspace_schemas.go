@@ -186,6 +186,16 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 				MarkdownDescription: "The identifier of the SSH key to use for the workspace.",
 				Optional:            true,
 			},
+			"runner_image_version_id": schema.StringAttribute{
+				MarkdownDescription: "The identifier of a container image version to use as the runner image, in the format `cimgv-<RANDOM STRING>`." +
+					" Use the `scalr_container_image_version` data source to look it up." +
+					" Can only be used with Scalr-managed agent pools." +
+					" When not set, the account default runner image is used.",
+				Optional: true,
+				Validators: []validator.String{
+					stringvalidation.StringIsNotWhiteSpace(),
+				},
+			},
 			"tag_ids": schema.SetAttribute{
 				MarkdownDescription: "List of tag IDs associated with the workspace.",
 				ElementType:         types.StringType,
