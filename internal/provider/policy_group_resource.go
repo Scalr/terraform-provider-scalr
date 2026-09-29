@@ -134,7 +134,7 @@ func policyGroupResourceSchema() *schema.Schema {
 
 		Blocks: map[string]schema.Block{
 			"vcs_repo": schema.ListNestedBlock{
-				MarkdownDescription: "The VCS meta-data to create the policy from.",
+				MarkdownDescription: "(Required) The VCS meta-data to create the policy from.",
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
 						"identifier": schema.StringAttribute{

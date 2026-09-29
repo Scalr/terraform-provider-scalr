@@ -311,6 +311,41 @@ func TestAccPolicyGroup_import(t *testing.T) {
 	})
 }
 
+func TestAccPolicyGroup_UpgradeFromSDK(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(
+		t, resource.TestCase{
+			PreCheck: func() {
+				// TODO: delete skip after SCALRCORE-19891
+				t.Skip("Works with personal token but does not work with github action token.")
+				testVcsAccGithubTokenPreCheck(t)
+			},
+			Steps: []resource.TestStep{
+				{
+					ExternalProviders: map[string]resource.ExternalProvider{
+						"scalr": {
+							Source:            "registry.scalr.io/scalr/scalr",
+							VersionConstraint: "<=3.19.0",
+						},
+					},
+					Config: testAccPolicyGroupBasicConfig(rInt),
+					Check:  resource.TestCheckResourceAttrSet("scalr_policy_group.test", "id"),
+				},
+				{
+					ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+					Config:                   testAccPolicyGroupBasicConfig(rInt),
+					ConfigPlanChecks: resource.ConfigPlanChecks{
+						PreApply: []plancheck.PlanCheck{
+							plancheck.ExpectEmptyPlan(),
+						},
+					},
+				},
+			},
+		},
+	)
+}
+
 func testAccCheckPolicyGroupExists(resID string, policyGroup *schemas.PolicyGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		scalrClient := createScalrClientV2()
