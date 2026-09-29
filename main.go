@@ -19,7 +19,7 @@ import (
 // - format terraform example snippets:
 //go:generate terraform fmt -recursive examples
 // - generate the /docs content:
-//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate --rendered-website-dir docs
+//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate --rendered-website-dir docs --tf-version 1.16.4
 // - inject proper 'order' Front Matter directives so pages are always sorted alphabetically:
 //go:generate go run tools/page_order.go -dir=docs/data-sources
 //go:generate go run tools/page_order.go -dir=docs/resources
