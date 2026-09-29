@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `scalr_wiz_integration`: new resource and data source to manage Wiz integrations.
 
+- **New resource:** `scalr_datadog_integration` ([#562](https://github.com/Scalr/terraform-provider-scalr/pull/562)).
+- **New data source:** `scalr_datadog_integration` ([#562](https://github.com/Scalr/terraform-provider-scalr/pull/562)).
+
 ## [3.19.0] - 2026-08-21
 
 ### Fixed
