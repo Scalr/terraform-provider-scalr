@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 )
 
 func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
@@ -88,6 +89,38 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 						"data.scalr_workspace.test", "name", fmt.Sprintf("workspace-test-%d", rInt)),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "environment_id"),
 				),
+			},
+		},
+	})
+}
+
+func TestAccScalrWorkspaceDataSource_UpgradeFromSDK(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"scalr": {
+						Source:            "registry.scalr.io/scalr/scalr",
+						VersionConstraint: "<=3.19.0",
+					},
+				},
+				Config: testAccScalrWorkspaceDataSourceByIDConfig(rInt),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "id"),
+					resource.TestCheckResourceAttr(
+						"data.scalr_workspace.test", "name", fmt.Sprintf("workspace-test-%d", rInt)),
+				),
+			},
+			{
+				ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+				Config:                   testAccScalrWorkspaceDataSourceByIDConfig(rInt),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
 			},
 		},
 	})
