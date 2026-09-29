@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `scalr_wiz_integration`: new resource and data source to manage Wiz integrations.
 - `scalr_workspace`: new attribute `runner_image_version_id` to pin the runner image version for runs on Scalr-managed agent pools ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
 - `data.scalr_workspace`: new attribute `runner_image_version_id` ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
 - **New data source:** `scalr_container_image` ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
