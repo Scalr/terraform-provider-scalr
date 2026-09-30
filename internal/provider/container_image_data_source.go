@@ -54,7 +54,8 @@ func (d *containerImageDataSource) Metadata(_ context.Context, req datasource.Me
 
 func (d *containerImageDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Retrieves information about a container image that can be used as a runner image.",
+		MarkdownDescription: "Retrieves information about a container image that can be used as a runner image." +
+			" Requires the `container-images:read` permission on the account.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

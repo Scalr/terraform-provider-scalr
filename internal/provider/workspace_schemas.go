@@ -189,7 +189,7 @@ func workspaceResourceSchema(ctx context.Context) *schema.Schema {
 			"runner_image_version_id": schema.StringAttribute{
 				MarkdownDescription: "The identifier of a container image version to use as the runner image, in the format `cimgv-<RANDOM STRING>`." +
 					" Use the `scalr_container_image_version` data source to look it up." +
-					" Can only be used with Scalr-managed agent pools." +
+					" Can only be used with a Scalr-managed agent pool, including the environment or account default agent pool that the workspace uses when `agent_pool_id` is not set." +
 					" When not set, the account default runner image is used.",
 				Optional: true,
 				Validators: []validator.String{

@@ -11,7 +11,7 @@ position: 5
 ---
 ## Data Source: scalr_container_image_version
 
-Retrieves information about a version of a container image.
+Retrieves information about a version of a container image. Requires the `container-images:read` permission on the account.
 
 ## Example Usage
 

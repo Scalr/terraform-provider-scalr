@@ -124,7 +124,7 @@ func (d *workspaceDataSource) Schema(_ context.Context, _ datasource.SchemaReque
 			},
 			"runner_image_version_id": schema.StringAttribute{
 				MarkdownDescription: "The identifier of the container image version used as the runner image on Scalr-managed agent pools." +
-					" Empty when the workspace uses the account default runner image.",
+					" Null when the workspace uses the account default runner image.",
 				Computed: true,
 			},
 			"auto_apply": schema.BoolAttribute{
