@@ -68,6 +68,7 @@ type workspaceResourceModel struct {
 	RemoteBackend             types.Bool   `tfsdk:"remote_backend"`
 	RemoteStateConsumers      types.Set    `tfsdk:"remote_state_consumers"`
 	RunOperationTimeout       types.Int32  `tfsdk:"run_operation_timeout"`
+	RunnerImageVersionID      types.String `tfsdk:"runner_image_version_id"`
 	SSHKeyID                  types.String `tfsdk:"ssh_key_id"`
 	TagIDs                    types.Set    `tfsdk:"tag_ids"`
 	TerraformVersion          types.String `tfsdk:"terraform_version"`
@@ -138,6 +139,7 @@ func workspaceResourceModelFromAPI(
 		RemoteBackend:             types.BoolValue(ws.Attributes.RemoteBackend),
 		RemoteStateConsumers:      types.SetNull(types.StringType),
 		RunOperationTimeout:       types.Int32Null(),
+		RunnerImageVersionID:      types.StringNull(),
 		SSHKeyID:                  types.StringNull(),
 		TagIDs:                    types.SetNull(types.StringType),
 		TerraformVersion:          types.StringValue(ws.Attributes.TerraformVersion),
@@ -173,6 +175,10 @@ func workspaceResourceModelFromAPI(
 
 	if ws.Relationships.AgentPool != nil {
 		model.AgentPoolID = types.StringValue(ws.Relationships.AgentPool.ID)
+	}
+
+	if ws.Relationships.RunnerImageVersion != nil {
+		model.RunnerImageVersionID = types.StringValue(ws.Relationships.RunnerImageVersion.ID)
 	}
 
 	if ws.Attributes.VcsRepo != nil {
