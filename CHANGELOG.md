@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `data.scalr_workspace`: The `agent_pool_id` attribute is now populated. Unset string attributes (e.g. `working_directory`, `vcs_provider_id`, `hooks.*`) are now `null` instead of an empty string ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
+- `scalr_vcs_provider`: now supports `azure_dev_ops_services` VCS type ([#563](https://github.com/Scalr/terraform-provider-scalr/pull/563)).
 
 ## [3.19.0] - 2026-08-21
 
