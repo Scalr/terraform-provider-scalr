@@ -53,8 +53,7 @@ func (d *containerImageVersionDataSource) Metadata(
 
 func (d *containerImageVersionDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Retrieves information about a version of a container image." +
-			" Requires the `container-images:read` permission on the account.",
+		MarkdownDescription: "Retrieves information about a version of a container image.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

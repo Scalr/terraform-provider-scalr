@@ -10,14 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `scalr_wiz_integration`: new resource and data source to manage Wiz integrations.
-- `scalr_workspace`: new attribute `runner_image_version_id` to pin the runner image version for runs on Scalr-managed agent pools. If a workspace managed by this provider is pinned in the Scalr UI, set `runner_image_version_id` to the pinned version ID in its configuration before the next apply, or the apply removes the pin ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
+- `scalr_workspace`: new attribute `runner_image_version_id` to pin the runner image version for runs on Scalr-managed agent pools ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
 - `data.scalr_workspace`: new attribute `runner_image_version_id` ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
 - **New data source:** `scalr_container_image` ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
 - **New data source:** `scalr_container_image_version` ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
 
 ### Changed
 
-- `data.scalr_workspace`: The `agent_pool_id` attribute is now populated. `working_directory` and unset `hooks.*` attributes are now `null` instead of an empty string for workspaces created in the Scalr UI or API without these values; workspaces created by `scalr_workspace` still return an empty string. String interpolation of a `null` attribute fails, and a comparison with `""` is false ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
+- `data.scalr_workspace`: The `agent_pool_id` attribute is now populated. Unset string attributes (e.g. `working_directory`, `vcs_provider_id`, `hooks.*`) are now `null` instead of an empty string ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
 
 ## [3.19.0] - 2026-08-21
 

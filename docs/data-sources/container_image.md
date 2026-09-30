@@ -11,7 +11,7 @@ position: 4
 ---
 ## Data Source: scalr_container_image
 
-Retrieves information about a container image that can be used as a runner image. Requires the `container-images:read` permission on the account.
+Retrieves information about a container image that can be used as a runner image.
 
 ## Example Usage
 
