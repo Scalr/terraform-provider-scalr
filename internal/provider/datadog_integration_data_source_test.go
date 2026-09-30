@@ -18,7 +18,7 @@ func TestAccScalrDatadogIntegrationDataSource_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      `data "scalr_datadog_integration" "test" {}`,
-				ExpectError: regexp.MustCompile("At least one of these attributes must be configured: \\[id,name]"),
+				ExpectError: regexp.MustCompile(`At least one of these attributes must be configured: \[id,name]`),
 			},
 			{
 				Config:      `data "scalr_datadog_integration" "test" { id = "" }`,
