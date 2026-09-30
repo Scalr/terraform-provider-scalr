@@ -46,8 +46,6 @@ If a workspace is pinned in the Scalr UI and its configuration does not set `run
 To follow the latest version, omit `version` in `scalr_container_image_version`.
 Terraform reads the data source on every plan, so the workspace moves to a newer version on the next apply after Scalr syncs it. Until then, runs use the pinned version.
 Scalr syncs image tags once a day, so a newly pushed tag can take up to a day to appear.
-If the latest tag is removed from the registry, the next apply moves the workspace to the new latest version, which is usually older.
-Do not use `latest_version_id` of `scalr_container_image` for this: it is null when the image has no versions, and the workspace is then silently unpinned.
 
 {{ .SchemaMarkdown | trimspace }}
 
