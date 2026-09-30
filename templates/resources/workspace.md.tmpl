@@ -34,9 +34,7 @@ privacy:
 
 Runs executed on Scalr-managed agent pools use the account default runner image unless the workspace is pinned to a specific image version.
 The `runner_image_version_id` attribute can only be used with Scalr-managed agent pools: it cannot be combined with an `agent_pool_id` that points to a self-hosted agent pool.
-When `agent_pool_id` is not set, the environment or account default agent pool must be Scalr-managed.
 Looking up or pinning an image version requires the `container-images:read` permission on the account.
-Without it, the data sources fail with a permission error, and a pinned version ID fails with a "not found or user unauthorized" error.
 
 Remove the attribute to fall back to the account default.
 If a workspace is pinned in the Scalr UI and its configuration does not set `runner_image_version_id`, the next apply removes the pin.
