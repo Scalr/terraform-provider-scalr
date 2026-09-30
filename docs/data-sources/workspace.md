@@ -7,7 +7,7 @@ parent:
   uri: provider_datasources
 privacy:
   view: public
-position: 33
+position: 34
 ---
 ## Data Source: scalr_workspace
 
@@ -58,6 +58,7 @@ data "scalr_workspace" "example2" {
 - `module_version_id` (String) The identifier of a module version in the format `modver-<RANDOM STRING>`.
 - `operations` (Boolean) Boolean indicates if the workspace is being used for remote execution.
 - `remote_backend` (Boolean) Manages if Scalr exports the remote backend configuration and state storage for your infrastructure management. Disabling this feature will also prevent the ability to perform state locking, which ensures that concurrent operations do not conflict. Additionally, it will disable the capability to initiate CLI-driven runs through Scalr.
+- `runner_image_version_id` (String) The identifier of the container image version used as the runner image on Scalr-managed agent pools. Null when the workspace uses the account default runner image.
 - `tag_ids` (List of String) List of tag IDs associated with the workspace.
 - `terraform_version` (String) The version of Terraform used for this workspace.
 - `terragrunt` (List of Object) List of terragrunt configurations in a workspace if set. (see [below for nested schema](#nestedatt--terragrunt))
