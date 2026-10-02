@@ -60,7 +60,6 @@ func Provider(v string) *schema.Provider {
 			"scalr_access_policy":                  resourceScalrAccessPolicy(),
 			"scalr_account_allowed_ips":            resourceScalrAccountAllowedIps(),
 			"scalr_agent_pool":                     resourceScalrAgentPool(),
-			"scalr_module":                         resourceScalrModule(),
 			"scalr_policy_group":                   resourceScalrPolicyGroup(),
 			"scalr_policy_group_linkage":           resourceScalrPolicyGroupLinkage(),
 			"scalr_provider_configuration":         resourceScalrProviderConfiguration(),
