@@ -377,6 +377,41 @@ func TestAccScalrWorkspaceResource_SSHKey(t *testing.T) {
 	})
 }
 
+func TestAccScalrWorkspaceResource_RunnerImageVersion(t *testing.T) {
+	workspace := &scalr.Workspace{}
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrWorkspaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrWorkspaceRunnerImageVersionConfig(rInt, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrWorkspaceExists("scalr_workspace.test", workspace),
+					resource.TestCheckResourceAttrPair(
+						"scalr_workspace.test", "runner_image_version_id",
+						"data.scalr_container_image_version.latest", "id",
+					),
+					resource.TestCheckResourceAttrPair(
+						"data.scalr_workspace.test", "runner_image_version_id",
+						"data.scalr_container_image_version.latest", "id",
+					),
+				),
+			},
+			{
+				Config: testAccScalrWorkspaceRunnerImageVersionConfig(rInt, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrWorkspaceExists("scalr_workspace.test", workspace),
+					resource.TestCheckNoResourceAttr("scalr_workspace.test", "runner_image_version_id"),
+					resource.TestCheckNoResourceAttr("data.scalr_workspace.test", "runner_image_version_id"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccScalrWorkspaceResource_StateConsumers(t *testing.T) {
 	workspace := &scalr.Workspace{}
 	rInt := GetRandomInteger()
@@ -1085,6 +1120,38 @@ resource "scalr_workspace" "test" {
   }
 }`, rInt, environments, scalr.WorkspaceExecutionModeLocal),
 	)
+}
+
+func testAccScalrWorkspaceRunnerImageVersionConfig(rInt int, withImage bool) string {
+	runnerImage := ""
+	if withImage {
+		runnerImage = "runner_image_version_id = data.scalr_container_image_version.latest.id"
+	}
+	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name       = "test-env-%d"
+  account_id = "%s"
+}
+
+data "scalr_container_image" "runner" {
+  name       = "scalr/runner"
+  visibility = "system"
+}
+
+data "scalr_container_image_version" "latest" {
+  container_image_id = data.scalr_container_image.runner.id
+}
+
+resource "scalr_workspace" "test" {
+  name           = "workspace-with-runner-image"
+  environment_id = scalr_environment.test.id
+  %s
+}
+
+data "scalr_workspace" "test" {
+  id             = scalr_workspace.test.id
+  environment_id = scalr_environment.test.id
+}`, rInt, defaultAccount, runnerImage)
 }
 
 func testAccScalrWorkspaceWithSSHKeyConfig(rInt int, sshKeyName string) string {

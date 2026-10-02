@@ -50,7 +50,6 @@ func Provider(v string) *schema.Provider {
 			"scalr_variable":                 dataSourceScalrVariable(),
 			"scalr_variables":                dataSourceScalrVariables(),
 			"scalr_webhook":                  dataSourceScalrWebhook(),
-			"scalr_workspace":                dataSourceScalrWorkspace(),
 			"scalr_workspace_ids":            dataSourceScalrWorkspaceIDs(),
 			"scalr_workspaces":               dataSourceScalrWorkspaces(),
 			"scalr_event_bridge_integration": dataSourceScalrEventBridgeIntegration(),

@@ -7,7 +7,7 @@ parent:
   uri: provider_datasources
 privacy:
   view: public
-position: 22
+position: 24
 ---
 ## Data Source: scalr_ssh_key
 
