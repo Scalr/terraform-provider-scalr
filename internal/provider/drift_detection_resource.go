@@ -52,6 +52,7 @@ type driftDetectionResourceModel struct {
 	CheckPeriod      types.String `tfsdk:"check_period"`
 	WorkspaceFilters types.Object `tfsdk:"workspace_filters"`
 	RunMode          types.String `tfsdk:"run_mode"`
+	TimeWindow       types.String `tfsdk:"time_window"`
 }
 
 type workspaceFiltersModel struct {
@@ -104,6 +105,22 @@ func (r *driftDetectionResource) Schema(_ context.Context, _ resource.SchemaRequ
 					stringvalidator.OneOf(
 						string(schemas.DriftDetectionScheduleRunModeRefreshOnly),
 						string(schemas.DriftDetectionScheduleRunModePlan),
+					),
+				},
+			},
+			"time_window": schema.StringAttribute{
+				MarkdownDescription: "Preferred UTC time window within which drift checks are scheduled: " +
+					"`00:00-04:00`, `04:00-08:00`, `08:00-12:00`, `12:00-16:00`, `16:00-20:00` or `20:00-24:00`. " +
+					"If omitted, checks are not bound to a specific window.",
+				Optional: true,
+				Validators: []validator.String{
+					stringvalidator.OneOf(
+						string(schemas.DriftDetectionScheduleTimeWindow00000400),
+						string(schemas.DriftDetectionScheduleTimeWindow04000800),
+						string(schemas.DriftDetectionScheduleTimeWindow08001200),
+						string(schemas.DriftDetectionScheduleTimeWindow12001600),
+						string(schemas.DriftDetectionScheduleTimeWindow16002000),
+						string(schemas.DriftDetectionScheduleTimeWindow20002400),
 					),
 				},
 			},
@@ -209,7 +226,12 @@ func driftDetectionResourceModelFromAPI(ctx context.Context, driftDetection *sch
 		EnvironmentID:    types.StringValue(driftDetection.Relationships.Environment.ID),
 		CheckPeriod:      types.StringValue(string(driftDetection.Attributes.Schedule)),
 		RunMode:          types.StringValue(string(driftDetection.Attributes.RunMode)),
+		TimeWindow:       types.StringNull(),
 		WorkspaceFilters: types.ObjectNull(filtersAttrTypes),
+	}
+
+	if driftDetection.Attributes.TimeWindow != nil {
+		model.TimeWindow = types.StringValue(string(*driftDetection.Attributes.TimeWindow))
 	}
 
 	filters := workspaceFiltersModel{
@@ -265,6 +287,10 @@ func (r *driftDetectionResource) Create(ctx context.Context, req resource.Create
 
 	if !plan.RunMode.IsUnknown() && !plan.RunMode.IsNull() {
 		opts.Attributes.RunMode = value.Set(schemas.DriftDetectionScheduleRunMode(plan.RunMode.ValueString()))
+	}
+
+	if !plan.TimeWindow.IsUnknown() && !plan.TimeWindow.IsNull() {
+		opts.Attributes.TimeWindow = value.Set(schemas.DriftDetectionScheduleTimeWindow(plan.TimeWindow.ValueString()))
 	}
 
 	driftDetection, err := r.ClientV2.DriftDetectionSchedule.CreateDriftDetectionSchedule(ctx, &opts, nil)
@@ -330,6 +356,14 @@ func (r *driftDetectionResource) Update(ctx context.Context, req resource.Update
 
 	if !plan.CheckPeriod.Equal(state.CheckPeriod) {
 		opts.Attributes.Schedule = value.Set(schemas.DriftDetectionScheduleSchedule(plan.CheckPeriod.ValueString()))
+	}
+
+	if !plan.TimeWindow.Equal(state.TimeWindow) {
+		if plan.TimeWindow.IsNull() {
+			opts.Attributes.TimeWindow = value.Null[schemas.DriftDetectionScheduleTimeWindow]()
+		} else {
+			opts.Attributes.TimeWindow = value.Set(schemas.DriftDetectionScheduleTimeWindow(plan.TimeWindow.ValueString()))
+		}
 	}
 
 	if !plan.WorkspaceFilters.Equal(state.WorkspaceFilters) {
