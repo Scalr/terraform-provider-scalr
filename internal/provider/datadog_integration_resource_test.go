@@ -91,6 +91,9 @@ func TestAccScalrDatadogIntegration_update(t *testing.T) {
 }
 
 func TestAccScalrDatadogIntegration_importApiKey(t *testing.T) {
+	if !isAccTest() {
+		t.Skip("Acceptance tests skipped unless env 'TF_ACC' set")
+	}
 	testAccPreCheck(t)
 	name := acctest.RandomWithPrefix("test-datadog")
 
