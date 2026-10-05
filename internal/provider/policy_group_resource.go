@@ -81,20 +81,20 @@ func policyGroupResourceSchema() *schema.Schema {
 				Optional: true,
 				Computed: true,
 			},
-			"execution_mode": schema.StringAttribute{
+			"evaluate_on": schema.StringAttribute{
 				MarkdownDescription: "The stage of the run the policy group is evaluated at." +
 					" Valid values are `pre-plan` and `post-plan`. Defaults to `post-plan`." +
 					" Changing this forces a resource to be re-created.",
 				Optional: true,
 				Computed: true,
-				Default:  stringdefault.StaticString(policyGroupExecutionModePostPlan),
+				Default:  stringdefault.StaticString(policyGroupEvaluateOnPostPlan),
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
 					stringvalidator.OneOf(
-						policyGroupExecutionModePrePlan,
-						policyGroupExecutionModePostPlan,
+						policyGroupEvaluateOnPrePlan,
+						policyGroupEvaluateOnPostPlan,
 					),
 				},
 			},
@@ -171,10 +171,10 @@ func (r *policyGroupResource) Schema(_ context.Context, _ resource.SchemaRequest
 	resp.Schema = *policyGroupResourceSchema()
 }
 
-// Values of the `execution_mode` attribute, mapped to the API `execute-as` values.
+// Values of the `evaluate_on` attribute, mapped to the API `execute-as` values.
 const (
-	policyGroupExecutionModePrePlan  = "pre-plan"
-	policyGroupExecutionModePostPlan = "post-plan"
+	policyGroupEvaluateOnPrePlan  = "pre-plan"
+	policyGroupEvaluateOnPostPlan = "post-plan"
 )
 
 var (
@@ -201,7 +201,7 @@ type policyGroupResourceModel struct {
 	Status                types.String `tfsdk:"status"`
 	ErrorMessage          types.String `tfsdk:"error_message"`
 	OpaVersion            types.String `tfsdk:"opa_version"`
-	ExecutionMode         types.String `tfsdk:"execution_mode"`
+	EvaluateOn            types.String `tfsdk:"evaluate_on"`
 	CommonFunctionsFolder types.String `tfsdk:"common_functions_folder"`
 	AccountID             types.String `tfsdk:"account_id"`
 	VCSProviderID         types.String `tfsdk:"vcs_provider_id"`
@@ -319,7 +319,7 @@ func (r *policyGroupResource) Create(ctx context.Context, req resource.CreateReq
 		Attributes: schemas.PolicyGroupAttributesRequest{
 			Name:                  value.Set(plan.Name.ValueString()),
 			OpaVersion:            framework.SetIfKnownString(plan.OpaVersion),
-			ExecuteAs:             policyGroupExecuteAs(plan.ExecutionMode),
+			ExecuteAs:             policyGroupExecuteAs(plan.EvaluateOn),
 			CommonFunctionsFolder: policyGroupCommonFunctionsFolder(plan.CommonFunctionsFolder),
 			IsEnforced:            value.Set(isEnforced),
 			VcsRepo:               value.SetPtrMaybe(vcsRepo),
@@ -499,12 +499,12 @@ func (r *policyGroupResource) ImportState(ctx context.Context, req resource.Impo
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-// policyGroupExecuteAs converts the `execution_mode` attribute value into the API request value.
+// policyGroupExecuteAs converts the `evaluate_on` attribute value into the API request value.
 func policyGroupExecuteAs(v types.String) *value.Value[schemas.PolicyGroupExecuteAs] {
 	if v.IsUnknown() || v.IsNull() {
 		return value.Unset[schemas.PolicyGroupExecuteAs]()
 	}
-	return value.Set(policyGroupExecutionModeToAPI(v.ValueString()))
+	return value.Set(policyGroupEvaluateOnToAPI(v.ValueString()))
 }
 
 // policyGroupCommonFunctionsFolder converts the `common_functions_folder` attribute value
@@ -531,8 +531,8 @@ func policyGroupResourceModelFromAPI(
 		Status:       types.StringValue(string(pg.Attributes.Status)),
 		ErrorMessage: types.StringValue(stringOrEmpty(pg.Attributes.ErrorMessage)),
 		OpaVersion:   types.StringValue(pg.Attributes.OpaVersion),
-		ExecutionMode: types.StringValue(
-			policyGroupExecutionModeFromAPI(pg.Attributes.ExecuteAs),
+		EvaluateOn: types.StringValue(
+			policyGroupEvaluateOnFromAPI(pg.Attributes.ExecuteAs),
 		),
 
 		CommonFunctionsFolder: types.StringValue(stringOrEmpty(pg.Attributes.CommonFunctionsFolder)),
@@ -593,23 +593,23 @@ func policyGroupResourceModelFromAPI(
 	return model, diags
 }
 
-// policyGroupExecutionModeToAPI converts the `execution_mode` attribute value
+// policyGroupEvaluateOnToAPI converts the `evaluate_on` attribute value
 // into the API `execute-as` value.
-func policyGroupExecutionModeToAPI(mode string) schemas.PolicyGroupExecuteAs {
-	if mode == policyGroupExecutionModePrePlan {
+func policyGroupEvaluateOnToAPI(mode string) schemas.PolicyGroupExecuteAs {
+	if mode == policyGroupEvaluateOnPrePlan {
 		return schemas.PolicyGroupExecuteAsPrePlanCheck
 	}
 	return schemas.PolicyGroupExecuteAsPolicyCheck
 }
 
-// policyGroupExecutionModeFromAPI converts the API `execute-as` value
-// into the `execution_mode` attribute value.
-func policyGroupExecutionModeFromAPI(executeAs schemas.PolicyGroupExecuteAs) string {
+// policyGroupEvaluateOnFromAPI converts the API `execute-as` value
+// into the `evaluate_on` attribute value.
+func policyGroupEvaluateOnFromAPI(executeAs schemas.PolicyGroupExecuteAs) string {
 	switch executeAs {
 	case schemas.PolicyGroupExecuteAsPrePlanCheck:
-		return policyGroupExecutionModePrePlan
+		return policyGroupEvaluateOnPrePlan
 	case schemas.PolicyGroupExecuteAsPolicyCheck:
-		return policyGroupExecutionModePostPlan
+		return policyGroupEvaluateOnPostPlan
 	default:
 		// Keep unknown values as-is, so the drift is visible to the user.
 		return string(executeAs)

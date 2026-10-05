@@ -49,7 +49,7 @@ func TestAccPolicyGroup_basic(t *testing.T) {
 						"",
 					),
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "opa_version"),
-					resource.TestCheckResourceAttr("scalr_policy_group.test", "execution_mode", "post-plan"),
+					resource.TestCheckResourceAttr("scalr_policy_group.test", "evaluate_on", "post-plan"),
 					resource.TestCheckResourceAttr(
 						"scalr_policy_group.test",
 						"account_id",
@@ -108,7 +108,7 @@ func TestAccPolicyGroup_update(t *testing.T) {
 						"",
 					),
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "opa_version"),
-					resource.TestCheckResourceAttr("scalr_policy_group.test", "execution_mode", "post-plan"),
+					resource.TestCheckResourceAttr("scalr_policy_group.test", "evaluate_on", "post-plan"),
 					resource.TestCheckResourceAttr(
 						"scalr_policy_group.test",
 						"account_id",
@@ -156,7 +156,7 @@ func TestAccPolicyGroup_update(t *testing.T) {
 						"",
 					),
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "opa_version"),
-					resource.TestCheckResourceAttr("scalr_policy_group.test", "execution_mode", "pre-plan"),
+					resource.TestCheckResourceAttr("scalr_policy_group.test", "evaluate_on", "pre-plan"),
 					resource.TestCheckResourceAttr(
 						"scalr_policy_group.test",
 						"account_id",
@@ -212,7 +212,7 @@ func TestAccPolicyGroup_renamed(t *testing.T) {
 						"",
 					),
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "opa_version"),
-					resource.TestCheckResourceAttr("scalr_policy_group.test", "execution_mode", "post-plan"),
+					resource.TestCheckResourceAttr("scalr_policy_group.test", "evaluate_on", "post-plan"),
 					resource.TestCheckResourceAttr(
 						"scalr_policy_group.test",
 						"account_id",
@@ -253,7 +253,7 @@ func TestAccPolicyGroup_renamed(t *testing.T) {
 						"",
 					),
 					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "opa_version"),
-					resource.TestCheckResourceAttr("scalr_policy_group.test", "execution_mode", "post-plan"),
+					resource.TestCheckResourceAttr("scalr_policy_group.test", "evaluate_on", "post-plan"),
 					resource.TestCheckResourceAttr(
 						"scalr_policy_group.test",
 						"account_id",
@@ -451,7 +451,7 @@ resource "scalr_policy_group" "test" {
   name            = "updated_name"
   account_id      = "%[4]s"
   vcs_provider_id = scalr_vcs_provider.test.id
-  execution_mode  = "pre-plan"
+  evaluate_on     = "pre-plan"
   vcs_repo {
 	identifier = "%s"
     path       = "%s"
