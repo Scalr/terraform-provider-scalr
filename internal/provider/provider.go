@@ -182,6 +182,8 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		newAssumeServiceAccountPolicyDataSource,
+		newContainerImageDataSource,
+		newContainerImageVersionDataSource,
 		newEnvironmentDataSource,
 		newEnvironmentsDataSource,
 		newHookDataSource,
@@ -196,5 +198,6 @@ func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataS
 		newVcsProviderDataSource,
 		newWizIntegrationDataSource,
 		newWorkloadIdentityProviderDataSource,
+		newWorkspaceDataSource,
 	}
 }

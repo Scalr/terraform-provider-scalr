@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 )
 
 func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
@@ -17,17 +18,17 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrWorkspaceDataSourceMissingRequiredConfig,
-				ExpectError: regexp.MustCompile("\"id\": one of `id,name` must be specified"),
+				ExpectError: regexp.MustCompile(`At least one of these attributes must be configured: \[id,name]`),
 				PlanOnly:    true,
 			},
 			{
 				Config:      testAccScalrWorkspaceDataSourceIDIsEmptyConfig,
-				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				ExpectError: regexp.MustCompile("Attribute id must not be empty"),
 				PlanOnly:    true,
 			},
 			{
 				Config:      testAccScalrWorkspaceDataSourceNameIsEmptyConfig,
-				ExpectError: regexp.MustCompile("expected \"name\" to not be an empty string or whitespace"),
+				ExpectError: regexp.MustCompile("Attribute name must not be empty"),
 				PlanOnly:    true,
 			},
 			{
@@ -57,7 +58,8 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.full_name"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.email"),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "created_by.0.username"),
-					resource.TestCheckResourceAttr("data.scalr_workspace.test", "tags.#", "0"),
+					resource.TestCheckResourceAttr("data.scalr_workspace.test", "tag_ids.#", "0"),
+					resource.TestCheckNoResourceAttr("data.scalr_workspace.test", "runner_image_version_id"),
 					resource.TestCheckResourceAttr(
 						"scalr_workspace.test", "hooks.0.pre_init", "./scripts/pre-init.sh"),
 					resource.TestCheckResourceAttr(
@@ -87,6 +89,38 @@ func TestAccScalrWorkspaceDataSource_basic(t *testing.T) {
 						"data.scalr_workspace.test", "name", fmt.Sprintf("workspace-test-%d", rInt)),
 					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "environment_id"),
 				),
+			},
+		},
+	})
+}
+
+func TestAccScalrWorkspaceDataSource_UpgradeFromSDK(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		Steps: []resource.TestStep{
+			{
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"scalr": {
+						Source:            "registry.scalr.io/scalr/scalr",
+						VersionConstraint: "<=3.19.0",
+					},
+				},
+				Config: testAccScalrWorkspaceDataSourceByIDConfig(rInt),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.scalr_workspace.test", "id"),
+					resource.TestCheckResourceAttr(
+						"data.scalr_workspace.test", "name", fmt.Sprintf("workspace-test-%d", rInt)),
+				),
+			},
+			{
+				ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+				Config:                   testAccScalrWorkspaceDataSourceByIDConfig(rInt),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
 			},
 		},
 	})
