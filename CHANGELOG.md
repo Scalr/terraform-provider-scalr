@@ -14,7 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `data.scalr_workspace`: new attribute `runner_image_version_id` ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
 - **New data source:** `scalr_container_image` ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
 - **New data source:** `scalr_container_image_version` ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
-- `scalr_policy_group`: new attribute `evaluate_on` — the stage of the run the policy group is evaluated at (`pre-plan` or `post-plan`). Defaults to `post-plan` ([#559](https://github.com/Scalr/terraform-provider-scalr/pull/559)).
+- `scalr_policy_group`: new attribute `evaluate_on` — the stage of the run the policy group is evaluated at (`pre-plan` or `post-plan`). If omitted on creation, defaults to `post-plan` ([#559](https://github.com/Scalr/terraform-provider-scalr/pull/559)).
+- `data.scalr_policy_group`: new attribute `evaluate_on` ([#559](https://github.com/Scalr/terraform-provider-scalr/pull/559)).
 
 ### Changed
 

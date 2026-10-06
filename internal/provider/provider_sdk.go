@@ -43,7 +43,6 @@ func Provider(v string) *schema.Provider {
 			"scalr_iam_user":                 dataSourceScalrIamUser(),
 			"scalr_module_version":           dataSourceModuleVersion(),
 			"scalr_module_versions":          dataSourceModuleVersions(),
-			"scalr_policy_group":             dataSourceScalrPolicyGroup(),
 			"scalr_provider_configurations":  dataSourceScalrProviderConfigurations(),
 			"scalr_role":                     dataSourceScalrRole(),
 			"scalr_service_account":          dataSourceScalrServiceAccount(),

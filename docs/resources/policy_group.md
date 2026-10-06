@@ -42,7 +42,7 @@ resource "scalr_policy_group" "example" {
 - `account_id` (String) The identifier of the Scalr account, in the format `acc-<RANDOM STRING>`.
 - `common_functions_folder` (String) An absolute path from the repository root to the folder that contains common rego functions.
 - `environments` (Set of String) A list of the environments the policy group is linked to. Use `["*"]` to enforce in all environments. To manage a linkage use either this attribute or the `scalr_policy_group_linkage` resource.
-- `evaluate_on` (String) The stage of the run the policy group is evaluated at. Valid values are `pre-plan` and `post-plan`. Defaults to `post-plan`. Changing this forces a resource to be re-created.
+- `evaluate_on` (String) The stage of the run the policy group is evaluated at. Valid values are `pre-plan` and `post-plan`. If omitted on creation, defaults to `post-plan`. Changing this forces a resource to be re-created.
 - `opa_version` (String) The version of Open Policy Agent to run policies against. If omitted, the system default version is assigned.
 - `vcs_repo` (Block List) (Required) The VCS meta-data to create the policy from. (see [below for nested schema](#nestedblock--vcs_repo))
 

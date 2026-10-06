@@ -83,11 +83,10 @@ func policyGroupResourceSchema() *schema.Schema {
 			},
 			"evaluate_on": schema.StringAttribute{
 				MarkdownDescription: "The stage of the run the policy group is evaluated at." +
-					" Valid values are `pre-plan` and `post-plan`. Defaults to `post-plan`." +
+					" Valid values are `pre-plan` and `post-plan`. If omitted on creation, defaults to `post-plan`." +
 					" Changing this forces a resource to be re-created.",
 				Optional: true,
 				Computed: true,
-				Default:  stringdefault.StaticString(policyGroupEvaluateOnPostPlan),
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
