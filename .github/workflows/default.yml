@@ -48,6 +48,7 @@ jobs:
             echo "ok";
           else
             echo "*** Unexpected differences after code generation. Run 'go generate' and commit.";
+            git diff;
             exit 1;
           fi
 
