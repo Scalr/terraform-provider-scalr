@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **New resource:** `scalr_datadog_integration` ([#562](https://github.com/Scalr/terraform-provider-scalr/pull/562)).
+- **New data source:** `scalr_datadog_integration` ([#562](https://github.com/Scalr/terraform-provider-scalr/pull/562)).
 - `scalr_wiz_integration`: new resource and data source to manage Wiz integrations.
 - `scalr_workspace`: new attribute `runner_image_version_id` to pin the runner image version for runs on Scalr-managed agent pools ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
 - `data.scalr_workspace`: new attribute `runner_image_version_id` ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
@@ -18,9 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `data.scalr_workspace`: The `agent_pool_id` attribute is now populated. Unset string attributes (e.g. `working_directory`, `vcs_provider_id`, `hooks.*`) are now `null` instead of an empty string ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
-
-- **New resource:** `scalr_datadog_integration` ([#562](https://github.com/Scalr/terraform-provider-scalr/pull/562)).
-- **New data source:** `scalr_datadog_integration` ([#562](https://github.com/Scalr/terraform-provider-scalr/pull/562)).
 
 ## [3.19.0] - 2026-08-21
 
