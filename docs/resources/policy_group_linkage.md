@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 18
+position: 20
 ---
 ## Resource: scalr_policy_group_linkage
 
