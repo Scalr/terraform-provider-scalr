@@ -14,9 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `data.scalr_workspace`: new attribute `runner_image_version_id` ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
 - **New data source:** `scalr_container_image` ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
 - **New data source:** `scalr_container_image_version` ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
-- **New resource:** `scalr_docker_integration` to manage Docker (OCI) registry integrations ([#563](https://github.com/Scalr/terraform-provider-scalr/pull/563)).
-- **New data source:** `scalr_docker_integration` ([#563](https://github.com/Scalr/terraform-provider-scalr/pull/563)).
-- `scalr_module`: support OCI-sourced modules with new attributes `docker_image` and `docker_integration_id`; new computed attribute `source_type` ([#563](https://github.com/Scalr/terraform-provider-scalr/pull/563)).
+- **New resource:** `scalr_docker_integration` to manage Docker (OCI) registry integrations ([#564](https://github.com/Scalr/terraform-provider-scalr/pull/564)).
+- **New data source:** `scalr_docker_integration` ([#564](https://github.com/Scalr/terraform-provider-scalr/pull/564)).
+- `scalr_module`: support OCI-sourced modules with new attributes `docker_image` and `docker_integration_id`; new computed attribute `source_type` ([#564](https://github.com/Scalr/terraform-provider-scalr/pull/564)).
 
 ### Changed
 
