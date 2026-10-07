@@ -350,7 +350,7 @@ func (r *driftDetectionResource) Update(ctx context.Context, req resource.Update
 
 	opts := schemas.DriftDetectionScheduleRequest{}
 
-	if !plan.RunMode.Equal(state.RunMode) {
+	if !plan.RunMode.Equal(state.RunMode) && !plan.RunMode.IsUnknown() {
 		opts.Attributes.RunMode = value.Set(schemas.DriftDetectionScheduleRunMode(plan.RunMode.ValueString()))
 	}
 
