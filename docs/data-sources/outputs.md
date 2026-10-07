@@ -27,4 +27,4 @@ Retrieves the outputs of a Scalr workspace.
 
 - `id` (String) The ID of the workspace.
 - `nonsensitive_values` (Dynamic) A map of non-sensitive workspace output values.
-- `values` (Dynamic, Sensitive) A map of all workspace output values.
+- `values` (Dynamic, Sensitive) A map of all workspace output values. Sensitive outputs whose values cannot be accessed are left out, with a warning.
