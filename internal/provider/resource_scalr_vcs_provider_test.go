@@ -2,6 +2,7 @@ package provider
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"testing"
 
@@ -101,6 +102,63 @@ func TestAccScalrVcsProvider_import(t *testing.T) {
 	})
 }
 
+func TestAccVcsProvider_azureDevOps(t *testing.T) {
+	adoToken := os.Getenv("TEST_AZURE_DEVOPS_TOKEN")
+	adoOrganization := os.Getenv("TEST_AZURE_DEVOPS_ORGANIZATION")
+	if adoToken == "" {
+		t.Skip("Please set TEST_AZURE_DEVOPS_TOKEN to run this test.")
+	}
+	provider := &scalr.VcsProvider{}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrVcsProviderDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrVcsProviderAzureDevOpsConfig("ado-vcs-provider", adoToken, adoOrganization),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrVcsProviderExists("scalr_vcs_provider.test", provider),
+					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "name", "ado-vcs-provider"),
+					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "account_id", defaultAccount),
+					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "vcs_type", string(scalr.AzureDevOpsServices)),
+					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "url", "https://dev.azure.com"),
+					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "username", adoOrganization),
+					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "environments.0", "*"),
+				),
+			},
+			{
+				Config: testAccScalrVcsProviderAzureDevOpsConfig("updated-ado-vcs-provider", adoToken, adoOrganization),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrVcsProviderExists("scalr_vcs_provider.test", provider),
+					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "name", "updated-ado-vcs-provider"),
+					resource.TestCheckResourceAttr("scalr_vcs_provider.test", "vcs_type", string(scalr.AzureDevOpsServices)),
+				),
+			},
+			{
+				ResourceName:            "scalr_vcs_provider.test",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"token"},
+			},
+		},
+	})
+}
+
+func TestAccVcsProvider_azureDevOpsInvalidToken(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrVcsProviderDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccScalrVcsProviderAzureDevOpsConfig("ado-vcs-provider", "invalid token", "my-org"),
+				ExpectError: regexp.MustCompile("Invalid token or missing organization"),
+			},
+		},
+	})
+}
+
 func testAccCheckScalrVcsProviderExists(resId string, vcsProvider *scalr.VcsProvider) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
@@ -169,4 +227,15 @@ resource "scalr_vcs_provider" "test" {
   draft_pr_runs_enabled = true
   pr_merge_comments_enabled = true
 }`, defaultAccount, string(vcsType), token)
+}
+
+func testAccScalrVcsProviderAzureDevOpsConfig(name, token, organization string) string {
+	return fmt.Sprintf(`
+resource "scalr_vcs_provider" "test" {
+  name       = "%s"
+  account_id = "%s"
+  vcs_type   = "azure_dev_ops_services"
+  token      = "%s"
+  username   = "%s"
+}`, name, defaultAccount, token, organization)
 }

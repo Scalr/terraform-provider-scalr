@@ -165,6 +165,7 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 		newIamTeamResource,
 		newIntegrationInfracostResource,
 		newModuleNamespaceResource,
+		newPolicyGroupResource,
 		newModuleTestConfigurationResource,
 		newModuleTestProviderConfigurationResource,
 		newRoleResource,
@@ -176,6 +177,7 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 		newWorkloadIdentityProviderResource,
 		newWorkspaceResource,
 		newWorkspaceVarSetResource,
+		newDatadogIntegrationResource,
 	}
 }
 
@@ -191,6 +193,7 @@ func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataS
 		newIntegrationInfracostDataSource,
 		newModuleNamespaceDataSource,
 		newOutputsDataSource,
+		newPolicyGroupDataSource,
 		newProviderConfigurationDataSource,
 		newStorageProfileDataSource,
 		newTagDataSource,
@@ -199,5 +202,6 @@ func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataS
 		newWizIntegrationDataSource,
 		newWorkloadIdentityProviderDataSource,
 		newWorkspaceDataSource,
+		newDatadogIntegrationDataSource,
 	}
 }
