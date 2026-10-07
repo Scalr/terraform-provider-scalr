@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 24
+position: 27
 ---
 ## Resource: scalr_service_account
 

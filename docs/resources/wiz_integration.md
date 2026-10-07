@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 34
+position: 37
 ---
 ## Resource: scalr_wiz_integration
 
