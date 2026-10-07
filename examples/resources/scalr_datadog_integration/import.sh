@@ -1,0 +1,1 @@
+terraform import scalr_datadog_integration.example in-xxxxxxxxxx
