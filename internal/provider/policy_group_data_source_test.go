@@ -30,17 +30,17 @@ func TestAccPolicyGroupDataSource_basic(t *testing.T) {
 			},
 			{
 				Config:      `data scalr_policy_group test {}`,
-				ExpectError: regexp.MustCompile("\"id\": one of `id,name` must be specified"),
+				ExpectError: regexp.MustCompile(`At least one of these attributes must be configured: \[id,name]`),
 				PlanOnly:    true,
 			},
 			{
 				Config:      `data scalr_policy_group test {id = ""}`,
-				ExpectError: regexp.MustCompile("expected \"id\" to not be an empty string or whitespace"),
+				ExpectError: regexp.MustCompile("Attribute id must not be empty"),
 				PlanOnly:    true,
 			},
 			{
 				Config:      `data scalr_policy_group test {name = ""}`,
-				ExpectError: regexp.MustCompile("expected \"name\" to not be an empty string or whitespace"),
+				ExpectError: regexp.MustCompile("Attribute name must not be empty"),
 				PlanOnly:    true,
 			},
 			{
@@ -64,6 +64,11 @@ func TestAccPolicyGroupDataSource_basic(t *testing.T) {
 						"",
 					),
 					resource.TestCheckResourceAttrSet("data.scalr_policy_group.test", "opa_version"),
+					resource.TestCheckResourceAttr(
+						"data.scalr_policy_group.test",
+						"evaluate_on",
+						policyGroupEvaluateOnPostPlan,
+					),
 					resource.TestCheckResourceAttr(
 						"data.scalr_policy_group.test",
 						"account_id",
@@ -93,7 +98,8 @@ func TestAccPolicyGroupDataSource_basic(t *testing.T) {
 					}
 				`, defaultAccount),
 				ExpectError: regexp.MustCompile(fmt.Sprintf(
-					"policy group %s/%s not found", defaultAccount, "not-exists",
+					`Policy\s+group\s+with\s+ID\s+'',\s+name\s+'%s'\s+and\s+account_id\s+'%s'\s+not\s+found`,
+					"not-exists", defaultAccount,
 				)),
 				PlanOnly: true,
 			},
