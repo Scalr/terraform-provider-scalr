@@ -25,6 +25,7 @@ resource "scalr_drift_detection" "example" {
   environment_id = "env-xxxxx"
   check_period   = "weekly"
   run_mode       = "plan"
+  time_window    = "00:00-04:00"
   workspace_filters {
     name_patterns = ["prod", "stage-*"]
   }
@@ -42,6 +43,7 @@ resource "scalr_drift_detection" "example" {
 ### Optional
 
 - `run_mode` (String) Run mode for drift detection: `refresh-only` (default) or `plan`.
+- `time_window` (String) Preferred UTC time window within which drift checks are scheduled: `00:00-04:00`, `04:00-08:00`, `08:00-12:00`, `12:00-16:00`, `16:00-20:00` or `20:00-24:00`. If omitted, checks are not bound to a specific window.
 - `workspace_filters` (Block, Optional) Filters for workspaces to be included in drift detection. Only one type of filter can be specified: `name_patterns`, `environment_types` or `tags`. (see [below for nested schema](#nestedblock--workspace_filters))
 
 ### Read-Only

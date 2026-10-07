@@ -70,6 +70,53 @@ func TestDriftDetection_basic(t *testing.T) {
 	})
 }
 
+func TestDriftDetection_timeWindow(t *testing.T) {
+	envName := acctest.RandomWithPrefix("test-env")
+	resourceName := "scalr_drift_detection.test"
+	filters := testWorkspaceFilterConfigPart(&[]string{"*"}, nil, nil)
+
+	resource.Test(t, resource.TestCase{
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testDriftDetectionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testDriftDetectionConfig(envName, "daily", "refresh-only", filters+"\n  time_window = \"01:00-05:00\""),
+				ExpectError: regexp.MustCompile(`Attribute time_window value must be one of`),
+				PlanOnly:    true,
+			},
+			{
+				Config: testDriftDetectionConfig(envName, "daily", "refresh-only", filters),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(resourceName, "time_window"),
+				),
+			},
+			{
+				Config: testDriftDetectionConfig(envName, "daily", "refresh-only", filters+"\n  time_window = \"04:00-08:00\""),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "time_window", "04:00-08:00"),
+				),
+			},
+			{
+				Config: testDriftDetectionConfig(envName, "daily", "refresh-only", filters+"\n  time_window = \"20:00-24:00\""),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "time_window", "20:00-24:00"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testDriftDetectionConfig(envName, "daily", "refresh-only", filters),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckNoResourceAttr(resourceName, "time_window"),
+				),
+			},
+		},
+	})
+}
+
 func TestDriftDetection_import(t *testing.T) {
 	envName := acctest.RandomWithPrefix("test-env")
 	resourceName := "scalr_drift_detection.test"
