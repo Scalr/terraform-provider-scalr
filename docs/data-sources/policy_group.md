@@ -41,6 +41,7 @@ data "scalr_policy_group" "example2" {
 - `common_functions_folder` (String) An absolute path from the repository root to the folder that contains common rego functions.
 - `environments` (List of String) A list of the environments the policy group is linked to, or `["*"]` if enforced in all environments.
 - `error_message` (String) An error details if Scalr failed to process the policy group.
+- `evaluate_on` (String) The stage of the run the policy group is evaluated at: `pre-plan` or `post-plan`.
 - `opa_version` (String) The version of the Open Policy Agent that the policy group is using.
 - `policies` (List of Object) A list of the OPA policies the policy group verifies each run. (see [below for nested schema](#nestedatt--policies))
 - `status` (String) A system status of the policy group.
