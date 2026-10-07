@@ -202,6 +202,38 @@ func TestJsonRawToAttrValue_nestedObject(t *testing.T) {
 	}
 }
 
+func TestOutputsToValues(t *testing.T) {
+	values, nonSensitiveValues, withheld, diags := outputsToValues([]workspaceOutput{
+		{Name: "plain", Value: json.RawMessage(`"value"`)},
+		{Name: "plain_null", Value: json.RawMessage(`null`)},
+		{Name: "secret", Value: json.RawMessage(`"secret"`), Sensitive: true},
+		{Name: "withheld_b", Value: json.RawMessage(`null`), Sensitive: true},
+		{Name: "withheld_a", Value: json.RawMessage(`null`), Sensitive: true},
+	})
+	if diags.HasError() {
+		t.Fatalf("unexpected error: %v", diags)
+	}
+
+	wantValues := map[string]attr.Value{
+		"plain":      types.StringValue("value"),
+		"plain_null": types.StringNull(),
+		"secret":     types.StringValue("secret"),
+	}
+	if !reflect.DeepEqual(values.Attributes(), wantValues) {
+		t.Errorf("expected values %v, got %v", wantValues, values.Attributes())
+	}
+	wantNonSensitive := map[string]attr.Value{
+		"plain":      types.StringValue("value"),
+		"plain_null": types.StringNull(),
+	}
+	if !reflect.DeepEqual(nonSensitiveValues.Attributes(), wantNonSensitive) {
+		t.Errorf("expected nonsensitive_values %v, got %v", wantNonSensitive, nonSensitiveValues.Attributes())
+	}
+	if want := []string{"withheld_a", "withheld_b"}; !reflect.DeepEqual(withheld, want) {
+		t.Errorf("expected withheld %v, got %v", want, withheld)
+	}
+}
+
 func TestAccScalrWorkspaceOutputsDataSource_basic(t *testing.T) {
 	rInt := GetRandomInteger()
 
