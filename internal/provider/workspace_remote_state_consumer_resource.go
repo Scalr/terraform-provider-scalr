@@ -143,8 +143,7 @@ func (r *workspaceRemoteStateConsumerResource) Create(
 		resp.Diagnostics.AddError(
 			"Error adding remote state consumer",
 			fmt.Sprintf(
-				"Failed to add workspace %q as a remote state consumer of workspace %q: %s\n\n"+
-					"Ensure the source workspace has `remote_state_sharing` set to `false`.",
+				"Failed to add workspace %q as a remote state consumer of workspace %q: %s\n",
 				consumerID, workspaceID, err,
 			),
 		)
