@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **New resource:** `scalr_module_test_configuration` to enable and configure tofu tests for a module.
+- **New resource:** `scalr_module_test_provider_configuration` to attach credentials to a module test configuration.
+- `scalr_provider_configuration`: new attribute `is_allowed_in_module_test` and read-only attribute `is_used_in_module_test`.
 - `scalr_wiz_integration`: new resource and data source to manage Wiz integrations.
 - `scalr_workspace`: new attribute `runner_image_version_id` to pin the runner image version for runs on Scalr-managed agent pools ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
 - `data.scalr_workspace`: new attribute `runner_image_version_id` ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
@@ -20,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `data.scalr_workspace`: The `agent_pool_id` attribute is now populated. Unset string attributes (e.g. `working_directory`, `vcs_provider_id`, `hooks.*`) are now `null` instead of an empty string ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
+- `scalr_vcs_provider`: now supports `azure_dev_ops_services` VCS type ([#563](https://github.com/Scalr/terraform-provider-scalr/pull/563)).
 
 ## [3.19.0] - 2026-08-21
 
