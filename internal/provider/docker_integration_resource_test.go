@@ -10,19 +10,26 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
 	"github.com/scalr/go-scalr/v2/scalr/client"
 )
 
 // dockerRegistryTestCreds returns the registry URL, username and password used by Docker
 // integration tests. Scalr validates the connection, so they must point to a real registry.
+// Falls back to ghcr.io with the GitHub token, which accepts any username.
 func dockerRegistryTestCreds(t *testing.T) (string, string, string) {
 	registryURL := os.Getenv("TEST_DOCKER_REGISTRY_URL")
 	username := os.Getenv("TEST_DOCKER_REGISTRY_USERNAME")
 	password := os.Getenv("TEST_DOCKER_REGISTRY_PASSWORD")
+	if registryURL == "" && username == "" && password == "" {
+		registryURL, username, password = "https://ghcr.io", "scalr", githubToken
+	}
 	if registryURL == "" || username == "" || password == "" {
-		t.Skip("Please set TEST_DOCKER_REGISTRY_URL, TEST_DOCKER_REGISTRY_USERNAME and TEST_DOCKER_REGISTRY_PASSWORD to run this test")
+		t.Skip("Please set TEST_DOCKER_REGISTRY_URL, TEST_DOCKER_REGISTRY_USERNAME and TEST_DOCKER_REGISTRY_PASSWORD" +
+			" or githubToken to run this test")
 	}
 	return registryURL, username, password
 }
@@ -99,6 +106,13 @@ func TestAccScalrDockerIntegrationResource_update(t *testing.T) {
 			},
 			{
 				Config: testAccScalrDockerIntegrationConfig(newName, registryURL, username, password, true),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectKnownValue(
+							"scalr_docker_integration.test", tfjsonpath.New("status"), knownvalue.StringExact("active"),
+						),
+					},
+				},
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrDockerIntegrationExists("scalr_docker_integration.test"),
 					resource.TestCheckResourceAttr("scalr_docker_integration.test", "name", newName),

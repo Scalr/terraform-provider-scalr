@@ -58,14 +58,14 @@ resource "scalr_module" "example_oci" {
 ### Optional
 
 - `account_id` (String, Deprecated) The identifier of the account in the format `acc-<RANDOM STRING>`. If it is not specified the module will be registered globally and available across the whole installation. **Deprecated:** Use `namespace_id` instead.
-- `docker_image` (String) The OCI repository path of the module inside the registry configured in `docker_integration_id`, e.g. `scalr/terraform-aws-network`. Conflicts with `vcs_repo`.
+- `docker_image` (String) The OCI repository path of the module inside the registry configured in `docker_integration_id`, e.g. `scalr/terraform-aws-network`. The registry host prefix, e.g. `ghcr.io/`, is optional. Conflicts with `vcs_repo`.
 - `docker_integration_id` (String) The identifier of a Docker registry integration the module is pulled from. Required for OCI-sourced modules.
 - `environment_id` (String, Deprecated) The identifier of an environment in the format `env-<RANDOM STRING>`. If it is not specified the module will be registered at the account level and available across all environments within the account specified in `account_id` attribute. **Deprecated:** Use `namespace_id` instead.
 - `module_provider` (String) Module provider name, e.g `aws`, `azurerm`, `google`, etc. Required for OCI-sourced modules.
 - `name` (String) Name of the module, e.g. `rds`, `compute`, `kubernetes-engine`. Required for OCI-sourced modules.
 - `namespace_id` (String) The identifier of a module namespace in the format `modns-<RANDOM STRING>`. If specified, the module will be registered in this namespace. Conflicts with `environment_id`.
 - `vcs_provider_id` (String) The identifier of a VCS provider in the format `vcs-<RANDOM STRING>`. Required for VCS-sourced modules.
-- `vcs_repo` (Block List) Source configuration of a VCS repository. Conflicts with `docker_image`. (see [below for nested schema](#nestedblock--vcs_repo))
+- `vcs_repo` (Block List) Source configuration of a VCS repository. At most one block is allowed. Conflicts with `docker_image`. (see [below for nested schema](#nestedblock--vcs_repo))
 
 ### Read-Only
 

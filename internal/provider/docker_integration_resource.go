@@ -21,6 +21,7 @@ import (
 	"github.com/scalr/go-scalr/v2/scalr/value"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
+	"github.com/scalr/terraform-provider-scalr/internal/framework/planmodifiers/stringmodifier"
 	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
 )
 
@@ -175,7 +176,7 @@ func (r *dockerIntegrationResource) Schema(_ context.Context, _ resource.SchemaR
 				},
 			},
 			"export_credentials": schema.BoolAttribute{
-				MarkdownDescription: "Whether to injects the credentials into plan and apply runs for direct oci:// module access." +
+				MarkdownDescription: "Whether to inject the credentials into plan and apply runs for direct oci:// module access." +
 					" Default `false`.",
 				Optional: true,
 				Computed: true,
@@ -184,6 +185,14 @@ func (r *dockerIntegrationResource) Schema(_ context.Context, _ resource.SchemaR
 			"status": schema.StringAttribute{
 				MarkdownDescription: "Status of the integration after the latest connection test.",
 				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					// The API re-tests the connection only when the registry URL or credentials change.
+					stringmodifier.UseStateForUnknownUnlessChanged(
+						path.Root("registry_url"),
+						path.Root("username"),
+						path.Root("password"),
+					),
+				},
 			},
 		},
 	}

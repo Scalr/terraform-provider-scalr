@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -34,9 +35,6 @@ func TestAccScalrModule_basic(t *testing.T) {
 					testAccCheckScalrModuleExists("scalr_module.test-account"),
 					resource.TestCheckResourceAttr("scalr_module.test-account", "account_id", defaultAccount),
 					resource.TestCheckResourceAttr("scalr_module.test-account", "vcs_repo.0.identifier", "Scalr/terraform-scalr-revizor"),
-
-					testAccCheckScalrModuleExists("scalr_module.test-global"),
-					resource.TestCheckResourceAttr("scalr_module.test-global", "vcs_repo.0.identifier", "Scalr/terraform-scalr-revizor"),
 				),
 			},
 			{
@@ -48,7 +46,7 @@ func TestAccScalrModule_basic(t *testing.T) {
 				  vcs_provider_id = "vcs-xxxxx"
 				}
 				`,
-				ExpectError: regexp.MustCompile("VcsProvider with ID 'vcs-xxxxx' not found or user unauthorized"),
+				ExpectError: regexp.MustCompile("VcsProvider with ID 'vcs-xxxxx' not found"),
 			},
 			{
 				Config: `
@@ -60,7 +58,7 @@ func TestAccScalrModule_basic(t *testing.T) {
 				  environment_id ="env-test"	
 				}
 				`,
-				ExpectError: regexp.MustCompile("The attribute account_id is required"),
+				ExpectError: regexp.MustCompile("Environment with ID 'env-test' not found"),
 			},
 		},
 	})
@@ -127,6 +125,102 @@ func TestAccScalrModule_UpgradeFromSDK(t *testing.T) {
 			{
 				ProtoV5ProviderFactories: protoV5ProviderFactories(t),
 				Config:                   config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+func TestAccScalrModule_UpgradeFromSDKWithEmptyStrings(t *testing.T) {
+	config := testAccScalrModuleWithVcsRepo(`path = ""
+	tag_prefix = ""`)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testVcsAccGithubTokenPreCheck(t)
+		},
+		CheckDestroy: testAccCheckScalrModuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				ExternalProviders: map[string]resource.ExternalProvider{
+					"scalr": {
+						Source:            "registry.scalr.io/scalr/scalr",
+						VersionConstraint: "3.19.0",
+					},
+				},
+				Config: config,
+				Check:  resource.TestCheckResourceAttrSet("scalr_module.test", "id"),
+			},
+			{
+				ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+				Config:                   config,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+func TestAccScalrModule_emptyTagPrefix(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testVcsAccGithubTokenPreCheck(t)
+		},
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrModuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrModuleWithVcsRepo(`tag_prefix = ""`),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrModuleExists("scalr_module.test"),
+					resource.TestCheckResourceAttr("scalr_module.test", "vcs_repo.0.tag_prefix", ""),
+					resource.TestCheckNoResourceAttr("scalr_module.test", "vcs_repo.0.path"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccScalrModule_ociWithRegistryHost(t *testing.T) {
+	registryURL, username, password := dockerRegistryTestCreds(t)
+	rInd := GetRandomInteger()
+	host := strings.TrimPrefix(normalizeRegistryURL(registryURL), "https://")
+	image := fmt.Sprintf("%s/%s/terraform-null-wait", host, username)
+	config := testAccScalrDockerIntegrationConfig(fmt.Sprintf("test-docker-%d", rInd), registryURL, username, password, false) +
+		fmt.Sprintf(`
+resource scalr_module_namespace test {
+  name = "test-namespace-%d"
+}
+
+resource "scalr_module" "test" {
+  namespace_id          = scalr_module_namespace.test.id
+  docker_integration_id = scalr_docker_integration.test.id
+  docker_image          = "%s"
+  name                  = "wait"
+  module_provider       = "null"
+}`, rInd, image)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrModuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckScalrModuleExists("scalr_module.test"),
+					resource.TestCheckResourceAttr("scalr_module.test", "docker_image", image),
+				),
+			},
+			{
+				Config: config,
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectEmptyPlan(),
@@ -308,6 +402,24 @@ func testAccScalrModule() string {
 `, string(scalr.Github), githubToken)
 }
 
+func testAccScalrModuleWithVcsRepo(vcsRepoAttrs string) string {
+	return fmt.Sprintf(`
+	resource scalr_vcs_provider test {
+	  name       = "test-github-provider-vcs-repo-%d"
+	  vcs_type   = "%s"
+	  token      = "%s"
+	}
+
+	resource "scalr_module" "test" {
+	  vcs_repo {
+		identifier = "Scalr/terraform-scalr-revizor"
+		%s
+	  }
+	  vcs_provider_id = scalr_vcs_provider.test.id
+	}
+`, GetRandomInteger(), string(scalr.Github), githubToken, vcsRepoAttrs)
+}
+
 func testAccScalrModulesOnAllScopes() string {
 	rInd := GetRandomInteger()
 
@@ -320,13 +432,6 @@ func testAccScalrModulesOnAllScopes() string {
 		
 		locals {
 			account_id = "%s"
-		}
-		
-		resource "scalr_module" "test-global" {
-		  vcs_repo {
-			identifier = "Scalr/terraform-scalr-revizor"
-		  }
-		  vcs_provider_id = scalr_vcs_provider.test.id
 		}
 		
 		resource "scalr_module" "test-account" {

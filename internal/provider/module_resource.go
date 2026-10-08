@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"regexp"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
@@ -75,16 +76,56 @@ func moduleVcsRepoAttrTypes() map[string]attr.Type {
 	}
 }
 
-// stringValueOrNull treats an empty string as an absent value.
-func moduleStringOrNull(s string) types.String {
+// moduleStringOrNull treats an empty string as an absent value,
+// unless the prior value is an empty string (configured explicitly, or written by the SDK-based provider).
+func moduleStringOrNull(s string, prior types.String) types.String {
 	if s == "" {
+		if !prior.IsNull() && !prior.IsUnknown() && prior.ValueString() == "" {
+			return prior
+		}
 		return types.StringNull()
 	}
 	return types.StringValue(s)
 }
 
-func moduleResourceModelFromAPI(ctx context.Context, m *schemas.Module) (*moduleResourceModel, diag.Diagnostics) {
+// moduleDockerImage keeps the prior spelling of the docker image when it only differs from the API value
+// by the registry host, which the API strips (e.g. `ghcr.io/org/repo` is stored as `org/repo`).
+func moduleDockerImage(apiImage *string, prior types.String) types.String {
+	if apiImage == nil || prior.IsNull() || prior.IsUnknown() {
+		return types.StringPointerValue(apiImage)
+	}
+
+	priorImage := strings.TrimSpace(prior.ValueString())
+	if priorImage == *apiImage {
+		return prior
+	}
+	if host, name, ok := strings.Cut(priorImage, "/"); ok && name == *apiImage &&
+		(strings.ContainsAny(host, ".:") || host == "localhost") {
+		return prior
+	}
+
+	return types.StringPointerValue(apiImage)
+}
+
+func moduleResourceModelFromAPI(
+	ctx context.Context,
+	m *schemas.Module,
+	prior *moduleResourceModel,
+) (*moduleResourceModel, diag.Diagnostics) {
 	var diags diag.Diagnostics
+
+	priorDockerImage := types.StringNull()
+	priorVcsRepo := moduleVcsRepoModel{Path: types.StringNull(), TagPrefix: types.StringNull()}
+	if prior != nil {
+		priorDockerImage = prior.DockerImage
+		if !prior.VcsRepo.IsNull() && !prior.VcsRepo.IsUnknown() {
+			var vcsRepo []moduleVcsRepoModel
+			diags.Append(prior.VcsRepo.ElementsAs(ctx, &vcsRepo, false)...)
+			if len(vcsRepo) > 0 {
+				priorVcsRepo = vcsRepo[0]
+			}
+		}
+	}
 
 	model := &moduleResourceModel{
 		Id:                  types.StringValue(m.ID),
@@ -95,7 +136,7 @@ func moduleResourceModelFromAPI(ctx context.Context, m *schemas.Module) (*module
 		SourceType:          types.StringValue(string(m.Attributes.SourceType)),
 		VcsRepo:             types.ListNull(types.ObjectType{AttrTypes: moduleVcsRepoAttrTypes()}),
 		VcsProviderID:       types.StringNull(),
-		DockerImage:         types.StringPointerValue(m.Attributes.DockerImage),
+		DockerImage:         moduleDockerImage(m.Attributes.DockerImage, priorDockerImage),
 		DockerIntegrationID: types.StringNull(),
 		AccountID:           types.StringNull(),
 		EnvironmentID:       types.StringNull(),
@@ -105,8 +146,8 @@ func moduleResourceModelFromAPI(ctx context.Context, m *schemas.Module) (*module
 	if m.Attributes.VcsRepo != nil {
 		vcsRepo := []moduleVcsRepoModel{{
 			Identifier: types.StringValue(m.Attributes.VcsRepo.Identifier),
-			Path:       moduleStringOrNull(m.Attributes.VcsRepo.Path),
-			TagPrefix:  moduleStringOrNull(m.Attributes.VcsRepo.TagPrefix),
+			Path:       moduleStringOrNull(m.Attributes.VcsRepo.Path, priorVcsRepo.Path),
+			TagPrefix:  moduleStringOrNull(m.Attributes.VcsRepo.TagPrefix, priorVcsRepo.TagPrefix),
 		}}
 		vcsRepoValue, d := types.ListValueFrom(ctx, types.ObjectType{AttrTypes: moduleVcsRepoAttrTypes()}, vcsRepo)
 		diags.Append(d...)
@@ -130,6 +171,14 @@ func moduleResourceModelFromAPI(ctx context.Context, m *schemas.Module) (*module
 	}
 
 	return model, diags
+}
+
+// moduleSetIfNotEmpty skips empty strings, as the API treats them as configured values.
+func moduleSetIfNotEmpty(v types.String) *value.Value[string] {
+	if v.ValueString() == "" {
+		return value.Unset[string]()
+	}
+	return framework.SetIfKnownString(v)
 }
 
 func (r *moduleResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -214,7 +263,7 @@ func (r *moduleResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			},
 			"docker_image": schema.StringAttribute{
 				MarkdownDescription: "The OCI repository path of the module inside the registry configured in `docker_integration_id`," +
-					" e.g. `scalr/terraform-aws-network`. Conflicts with `vcs_repo`.",
+					" e.g. `scalr/terraform-aws-network`. The registry host prefix, e.g. `ghcr.io/`, is optional. Conflicts with `vcs_repo`.",
 				Optional: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -265,7 +314,7 @@ func (r *moduleResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 		},
 		Blocks: map[string]schema.Block{
 			"vcs_repo": schema.ListNestedBlock{
-				MarkdownDescription: "Source configuration of a VCS repository. Conflicts with `docker_image`.",
+				MarkdownDescription: "Source configuration of a VCS repository. At most one block is allowed. Conflicts with `docker_image`.",
 				Validators: []validator.List{
 					listvalidator.SizeAtMost(1),
 				},
@@ -281,16 +330,48 @@ func (r *moduleResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 						"path": schema.StringAttribute{
 							MarkdownDescription: "The path to the root module folder. It is expected to have the format `<path>/terraform-<provider_name>-<module_name>`, where `<path>` stands for any folder within the repository inclusively a repository root.",
 							Optional:            true,
+							Computed:            true,
+							PlanModifiers: []planmodifier.String{
+								moduleEmptyStringPlanModifier{},
+							},
 						},
 						"tag_prefix": schema.StringAttribute{
 							MarkdownDescription: "Registry ignores tags which do not match specified prefix, e.g. `aws/`.",
 							Optional:            true,
+							Computed:            true,
+							PlanModifiers: []planmodifier.String{
+								moduleEmptyStringPlanModifier{},
+							},
 						},
 					},
 				},
 			},
 		},
 	}
+}
+
+// moduleEmptyStringPlanModifier plans an omitted value as null, or as an empty string if it's empty in state:
+// the SDK-based provider stored omitted values as empty strings, which must not force a replacement.
+type moduleEmptyStringPlanModifier struct{}
+
+func (m moduleEmptyStringPlanModifier) Description(_ context.Context) string {
+	return "Plans an omitted value as null, keeping an empty string from the state."
+}
+
+func (m moduleEmptyStringPlanModifier) MarkdownDescription(ctx context.Context) string {
+	return m.Description(ctx)
+}
+
+func (m moduleEmptyStringPlanModifier) PlanModifyString(_ context.Context, req planmodifier.StringRequest, resp *planmodifier.StringResponse) {
+	if !req.ConfigValue.IsNull() {
+		return
+	}
+
+	if !req.StateValue.IsNull() && !req.StateValue.IsUnknown() && req.StateValue.ValueString() == "" {
+		resp.PlanValue = req.StateValue
+		return
+	}
+	resp.PlanValue = types.StringNull()
 }
 
 func (r *moduleResource) ConfigValidators(_ context.Context) []resource.ConfigValidator {
@@ -370,8 +451,8 @@ func (r *moduleResource) Create(ctx context.Context, req resource.CreateRequest,
 		opts.Attributes.SourceType = value.Set(schemas.ModuleSourceTypeVcs)
 		opts.Attributes.VcsRepo = value.Set(schemas.ModuleVcsRepoRequest{
 			Identifier: value.Set(vcsRepo[0].Identifier.ValueString()),
-			Path:       framework.SetIfKnownString(vcsRepo[0].Path),
-			TagPrefix:  framework.SetIfKnownString(vcsRepo[0].TagPrefix),
+			Path:       moduleSetIfNotEmpty(vcsRepo[0].Path),
+			TagPrefix:  moduleSetIfNotEmpty(vcsRepo[0].TagPrefix),
 		})
 		opts.Relationships.VcsProvider = value.Set(schemas.VcsProvider{ID: plan.VcsProviderID.ValueString()})
 	}
@@ -389,7 +470,7 @@ func (r *moduleResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	result, d := moduleResourceModelFromAPI(ctx, module)
+	result, d := moduleResourceModelFromAPI(ctx, module, &plan)
 	resp.Diagnostics.Append(d...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -415,7 +496,7 @@ func (r *moduleResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	result, d := moduleResourceModelFromAPI(ctx, module)
+	result, d := moduleResourceModelFromAPI(ctx, module, &state)
 	resp.Diagnostics.Append(d...)
 	if resp.Diagnostics.HasError() {
 		return

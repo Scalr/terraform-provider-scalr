@@ -37,7 +37,7 @@ resource "scalr_docker_integration" "example" {
 
 ### Optional
 
-- `export_credentials` (Boolean) Whether to injects the credentials into plan and apply runs for direct oci:// module access. Default `false`.
+- `export_credentials` (Boolean) Whether to inject the credentials into plan and apply runs for direct oci:// module access. Default `false`.
 
 ### Read-Only
 
