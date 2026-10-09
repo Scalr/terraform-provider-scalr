@@ -25,11 +25,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **New resource:** `scalr_docker_integration` to manage Docker (OCI) registry integrations ([#564](https://github.com/Scalr/terraform-provider-scalr/pull/564)).
 - **New data source:** `scalr_docker_integration` ([#564](https://github.com/Scalr/terraform-provider-scalr/pull/564)).
 - `scalr_module`: support OCI-sourced modules with new attributes `docker_image` and `docker_integration_id`; new computed attribute `source_type` ([#564](https://github.com/Scalr/terraform-provider-scalr/pull/564)).
+- **New resource:** `scalr_workspace_remote_state_consumer` ([#560](https://github.com/Scalr/terraform-provider-scalr/pull/560)).
+- `scalr_workspace`: new attribute `remote_state_sharing` ([#560](https://github.com/Scalr/terraform-provider-scalr/pull/560)).
 
 ### Changed
 
 - `data.scalr_workspace`: The `agent_pool_id` attribute is now populated. Unset string attributes (e.g. `working_directory`, `vcs_provider_id`, `hooks.*`) are now `null` instead of an empty string ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
 - `scalr_vcs_provider`: now supports `azure_dev_ops_services` VCS type ([#563](https://github.com/Scalr/terraform-provider-scalr/pull/563)).
+
+### Deprecated
+
+- `scalr_workspace`: `remote_state_consumers` attribute is deprecated. `scalr_workspace_remote_state_consumer` resource should be used instead ([#560](https://github.com/Scalr/terraform-provider-scalr/pull/560)).
 
 ## [3.19.0] - 2026-08-21
 

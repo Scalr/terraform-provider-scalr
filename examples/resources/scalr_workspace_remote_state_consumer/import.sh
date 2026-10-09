@@ -1,0 +1,1 @@
+terraform import scalr_workspace_remote_state_consumer.example ws-xxxxxxxxxx/ws-yyyyyyyyyy

@@ -178,6 +178,7 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 		newWizIntegrationResource,
 		newWorkloadIdentityProviderResource,
 		newWorkspaceResource,
+		newWorkspaceRemoteStateConsumerResource,
 		newWorkspaceVarSetResource,
 		newDatadogIntegrationResource,
 	}
