@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 10
+position: 12
 ---
 ## Resource: scalr_event_bridge_integration
 

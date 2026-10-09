@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 11
+position: 13
 ---
 ## Resource: scalr_federated_environments
 

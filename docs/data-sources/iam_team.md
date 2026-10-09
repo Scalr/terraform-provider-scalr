@@ -7,7 +7,7 @@ parent:
   uri: provider_datasources
 privacy:
   view: public
-position: 10
+position: 14
 ---
 ## Data Source: scalr_iam_team
 

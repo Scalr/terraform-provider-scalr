@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 25
+position: 29
 ---
 ## Resource: scalr_service_account_token
 

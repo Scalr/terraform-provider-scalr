@@ -143,6 +143,14 @@ func (r *workspaceResource) Create(ctx context.Context, req resource.CreateReque
 		)
 	}
 
+	if !plan.RunnerImageVersionID.IsUnknown() && !plan.RunnerImageVersionID.IsNull() {
+		opts.Relationships.RunnerImageVersion = value.Set(
+			schemas.ContainerImageVersion{
+				ID: plan.RunnerImageVersionID.ValueString(),
+			},
+		)
+	}
+
 	if !plan.VCSRepo.IsUnknown() && !plan.VCSRepo.IsNull() {
 		var vcsRepo []vcsRepoModel
 		resp.Diagnostics.Append(plan.VCSRepo.ElementsAs(ctx, &vcsRepo, false)...)
@@ -466,6 +474,16 @@ func (r *workspaceResource) Update(ctx context.Context, req resource.UpdateReque
 			opts.Relationships.AgentPool = value.Null[schemas.AgentPool]()
 		} else {
 			opts.Relationships.AgentPool = value.Set(schemas.AgentPool{ID: plan.AgentPoolID.ValueString()})
+		}
+	}
+
+	if !plan.RunnerImageVersionID.Equal(state.RunnerImageVersionID) {
+		if plan.RunnerImageVersionID.IsNull() {
+			opts.Relationships.RunnerImageVersion = value.Null[schemas.ContainerImageVersion]()
+		} else {
+			opts.Relationships.RunnerImageVersion = value.Set(
+				schemas.ContainerImageVersion{ID: plan.RunnerImageVersionID.ValueString()},
+			)
 		}
 	}
 
