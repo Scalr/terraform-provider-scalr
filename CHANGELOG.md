@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+## [3.20.0] - 2026-10-13
+
+### Added
+
 - **New resource:** `scalr_module_test_configuration` to enable and configure tofu tests for a module.
 - **New resource:** `scalr_module_test_provider_configuration` to attach credentials to a module test configuration.
 - `scalr_provider_configuration`: new attribute `is_allowed_in_module_test` and read-only attribute `is_used_in_module_test`.
@@ -1268,8 +1272,9 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.19.0...HEAD
-[3.19.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.18.0
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.20.0...HEAD
+[3.20.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.20.0
+[3.19.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.19.0
 [3.18.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.18.0
 [3.17.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.17.0
 [3.16.2]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.16.2
