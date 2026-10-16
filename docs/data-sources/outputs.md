@@ -23,8 +23,12 @@ Retrieves the outputs of a Scalr workspace.
 - `environment` (String) The name of the environment the workspace belongs to.
 - `workspace` (String) The name of the workspace.
 
+### Optional
+
+- `include_sensitive` (Boolean) Whether to read the values of sensitive outputs. When `true`, the read fails if any of them cannot be accessed. Defaults to `false`.
+
 ### Read-Only
 
 - `id` (String) The ID of the workspace.
 - `nonsensitive_values` (Dynamic) A map of non-sensitive workspace output values.
-- `values` (Dynamic, Sensitive) A map of all workspace output values. Sensitive outputs whose values cannot be accessed are left out, with a warning.
+- `values` (Dynamic, Sensitive) A map of all workspace output values. Sensitive outputs are included only with `include_sensitive = true`.

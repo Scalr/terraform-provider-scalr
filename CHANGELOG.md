@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `data.scalr_workspace`: new attribute `runner_image_version_id` ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
 - **New data source:** `scalr_container_image` ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
 - **New data source:** `scalr_container_image_version` ([#561](https://github.com/Scalr/terraform-provider-scalr/pull/561)).
+- `data.scalr_outputs`: new attribute `include_sensitive` to read the values of sensitive outputs.
 
 ### Changed
 
@@ -27,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `data.scalr_outputs`: a sensitive output whose value cannot be accessed is left out of `values` with a warning, instead of being set to `null`. A configuration that references it now fails at plan time.
+- `data.scalr_outputs`: sensitive outputs are left out of `values` unless `include_sensitive = true`, instead of being set to `null`. A configuration that references one now fails at plan time.
 
 ## [3.19.0] - 2026-08-21
 

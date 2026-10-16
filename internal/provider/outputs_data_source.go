@@ -38,6 +38,7 @@ type outputsModel struct {
 	ID                 types.String  `tfsdk:"id"`
 	Environment        types.String  `tfsdk:"environment"`
 	Workspace          types.String  `tfsdk:"workspace"`
+	IncludeSensitive   types.Bool    `tfsdk:"include_sensitive"`
 	Values             types.Dynamic `tfsdk:"values"`
 	NonSensitiveValues types.Dynamic `tfsdk:"nonsensitive_values"`
 }
@@ -69,8 +70,12 @@ func (d *workspaceOutputsDataSource) Schema(_ context.Context, _ datasource.Sche
 				MarkdownDescription: "The name of the workspace.",
 				Required:            true,
 			},
+			"include_sensitive": schema.BoolAttribute{
+				MarkdownDescription: "Whether to read the values of sensitive outputs. When `true`, the read fails if any of them cannot be accessed. Defaults to `false`.",
+				Optional:            true,
+			},
 			"values": schema.DynamicAttribute{
-				MarkdownDescription: "A map of all workspace output values. Sensitive outputs whose values cannot be accessed are left out, with a warning.",
+				MarkdownDescription: "A map of all workspace output values. Sensitive outputs are included only with `include_sensitive = true`.",
 				Computed:            true,
 				Sensitive:           true,
 			},
@@ -125,7 +130,10 @@ func (d *workspaceOutputsDataSource) Read(ctx context.Context, req datasource.Re
 	wsID := workspaces[0].ID
 	cfg.ID = types.StringValue(wsID)
 
-	outputsJSON, err := d.ClientV2.Workspace.GetWorkspaceOutputs(ctx, wsID)
+	includeSensitive := cfg.IncludeSensitive.ValueBool()
+	outputsJSON, err := d.ClientV2.Workspace.GetWorkspaceOutputs(
+		ctx, wsID, &workspace.GetWorkspaceOutputsOptions{Sensitive: includeSensitive},
+	)
 	if err != nil {
 		resp.Diagnostics.AddError("Error reading workspace outputs", err.Error())
 		return
@@ -147,15 +155,16 @@ func (d *workspaceOutputsDataSource) Read(ctx context.Context, req datasource.Re
 	cfg.Values = types.DynamicValue(values)
 	cfg.NonSensitiveValues = types.DynamicValue(nonSensitiveValues)
 
-	if len(nullSensitiveNames) > 0 {
-		resp.Diagnostics.AddWarning(
+	if includeSensitive && len(nullSensitiveNames) > 0 {
+		resp.Diagnostics.AddError(
 			"Sensitive outputs not accessible",
 			fmt.Sprintf(
-				"Unable to access the values of sensitive outputs %s of workspace %q. They are left out of `values`.",
+				"Unable to access the values of sensitive outputs %s of workspace %q.",
 				strings.Join(nullSensitiveNames, ", "),
 				wsID,
 			),
 		)
+		return
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &cfg)...)
