@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `data.scalr_outputs`: new attribute `include_sensitive` to read the values of sensitive outputs.
+
+### Fixed
+
+- `data.scalr_outputs`: sensitive outputs are left out of `values` unless `include_sensitive = true`, instead of being set to `null`. A configuration that references one now fails at plan time.
+
 ## [3.20.0] - 2026-10-13
 
 ### Added

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"math/big"
 	"reflect"
+	"sort"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -36,8 +38,15 @@ type outputsModel struct {
 	ID                 types.String  `tfsdk:"id"`
 	Environment        types.String  `tfsdk:"environment"`
 	Workspace          types.String  `tfsdk:"workspace"`
+	IncludeSensitive   types.Bool    `tfsdk:"include_sensitive"`
 	Values             types.Dynamic `tfsdk:"values"`
 	NonSensitiveValues types.Dynamic `tfsdk:"nonsensitive_values"`
+}
+
+type workspaceOutput struct {
+	Name      string          `json:"name"`
+	Value     json.RawMessage `json:"value"`
+	Sensitive bool            `json:"sensitive"`
 }
 
 func (d *workspaceOutputsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -61,8 +70,12 @@ func (d *workspaceOutputsDataSource) Schema(_ context.Context, _ datasource.Sche
 				MarkdownDescription: "The name of the workspace.",
 				Required:            true,
 			},
+			"include_sensitive": schema.BoolAttribute{
+				MarkdownDescription: "Whether to read the values of sensitive outputs. When `true`, the read fails if any of them cannot be accessed. Defaults to `false`.",
+				Optional:            true,
+			},
 			"values": schema.DynamicAttribute{
-				MarkdownDescription: "A map of all workspace output values.",
+				MarkdownDescription: "A map of all workspace output values. Sensitive outputs are included only with `include_sensitive = true`.",
 				Computed:            true,
 				Sensitive:           true,
 			},
@@ -111,39 +124,71 @@ func (d *workspaceOutputsDataSource) Read(ctx context.Context, req datasource.Re
 				cfg.Environment.ValueString(),
 			),
 		)
+		return
 	}
 
 	wsID := workspaces[0].ID
 	cfg.ID = types.StringValue(wsID)
 
-	outputsJSON, err := d.ClientV2.Workspace.GetWorkspaceOutputs(ctx, wsID)
+	includeSensitive := cfg.IncludeSensitive.ValueBool()
+	outputsJSON, err := d.ClientV2.Workspace.GetWorkspaceOutputs(
+		ctx, wsID, &workspace.GetWorkspaceOutputsOptions{Sensitive: includeSensitive},
+	)
 	if err != nil {
 		resp.Diagnostics.AddError("Error reading workspace outputs", err.Error())
 		return
 	}
 
 	var outputsResp struct {
-		Data []struct {
-			Name      string          `json:"name"`
-			Value     json.RawMessage `json:"value"`
-			Sensitive bool            `json:"sensitive"`
-		} `json:"data"`
+		Data []workspaceOutput `json:"data"`
 	}
 	if err := json.Unmarshal([]byte(outputsJSON), &outputsResp); err != nil {
 		resp.Diagnostics.AddError("Error parsing workspace outputs", err.Error())
 		return
 	}
 
+	values, nonSensitiveValues, nullSensitiveNames, diags := outputsToValues(outputsResp.Data)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	cfg.Values = types.DynamicValue(values)
+	cfg.NonSensitiveValues = types.DynamicValue(nonSensitiveValues)
+
+	if includeSensitive && len(nullSensitiveNames) > 0 {
+		resp.Diagnostics.AddError(
+			"Sensitive outputs not accessible",
+			fmt.Sprintf(
+				"Unable to access the values of sensitive outputs %s of workspace %q.",
+				strings.Join(nullSensitiveNames, ", "),
+				wsID,
+			),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &cfg)...)
+}
+
+// outputsToValues builds the `values` and `nonsensitive_values` objects and returns the sorted names
+// of sensitive outputs that came without a value.
+func outputsToValues(outputs []workspaceOutput) (types.Object, types.Object, []string, diag.Diagnostics) {
+	var diags diag.Diagnostics
 	allAttrTypes := make(map[string]attr.Type)
 	allAttrValues := make(map[string]attr.Value)
 	nsAttrTypes := make(map[string]attr.Type)
 	nsAttrValues := make(map[string]attr.Value)
+	var nullSensitiveNames []string
 
-	for _, output := range outputsResp.Data {
-		attrType, attrValue, diags := jsonRawToAttrValue(output.Value)
-		resp.Diagnostics.Append(diags...)
-		if resp.Diagnostics.HasError() {
-			return
+	for _, output := range outputs {
+		attrType, attrValue, d := jsonRawToAttrValue(output.Value)
+		diags.Append(d...)
+		if diags.HasError() {
+			return types.Object{}, types.Object{}, nil, diags
+		}
+		if output.Sensitive && attrValue.IsNull() {
+			nullSensitiveNames = append(nullSensitiveNames, output.Name)
+			continue
 		}
 		allAttrTypes[output.Name] = attrType
 		allAttrValues[output.Name] = attrValue
@@ -152,20 +197,13 @@ func (d *workspaceOutputsDataSource) Read(ctx context.Context, req datasource.Re
 			nsAttrValues[output.Name] = attrValue
 		}
 	}
+	sort.Strings(nullSensitiveNames)
 
-	allObj, diags := types.ObjectValue(allAttrTypes, allAttrValues)
-	resp.Diagnostics.Append(diags...)
-	cfg.Values = types.DynamicValue(allObj)
-
-	nsObj, diags := types.ObjectValue(nsAttrTypes, nsAttrValues)
-	resp.Diagnostics.Append(diags...)
-	cfg.NonSensitiveValues = types.DynamicValue(nsObj)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	resp.Diagnostics.Append(resp.State.Set(ctx, &cfg)...)
+	allObj, d := types.ObjectValue(allAttrTypes, allAttrValues)
+	diags.Append(d...)
+	nsObj, d := types.ObjectValue(nsAttrTypes, nsAttrValues)
+	diags.Append(d...)
+	return allObj, nsObj, nullSensitiveNames, diags
 }
 
 func jsonRawToAttrValue(raw json.RawMessage) (attr.Type, attr.Value, diag.Diagnostics) {
