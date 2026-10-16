@@ -1,0 +1,1 @@
+terraform import scalr_docker_integration.example in-xxxxxxxxxx

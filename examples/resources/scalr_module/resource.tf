@@ -22,3 +22,13 @@ resource "scalr_module" "example_explicit_provider_and_name" {
     path       = "example/terraform-couchbase-capella-infra"
   }
 }
+
+# Module published from an OCI registry.
+resource "scalr_module" "example_oci" {
+  namespace_id          = scalr_module_namespace.shared.id
+  docker_integration_id = scalr_docker_integration.example.id
+
+  module_provider = "aws"
+  name            = "network"
+  docker_image    = "scalr/terraform-aws-network"
+}
