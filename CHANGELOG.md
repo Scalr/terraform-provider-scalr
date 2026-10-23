@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `data.scalr_outputs`: new attribute `include_sensitive` to read the values of sensitive outputs.
+- **New resource:** `scalr_grafana_integration` to send audit logs to Grafana Cloud or a self-hosted Loki ([#570](https://github.com/Scalr/terraform-provider-scalr/pull/570)).
+- **New data source:** `scalr_grafana_integration` ([#570](https://github.com/Scalr/terraform-provider-scalr/pull/570)).
 
 ### Fixed
 
