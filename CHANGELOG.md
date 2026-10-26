@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `data.scalr_outputs`: new attribute `include_sensitive` to read the values of sensitive outputs.
-- `scalr_agent_pool`: new attribute `run_acquisition_timeout`, the time in minutes a run waits for an agent of the pool before it is canceled.
-- `data.scalr_agent_pool`: new attribute `run_acquisition_timeout`.
+- `scalr_agent_pool`: new attribute `run_acquisition_timeout`, the time in minutes a run waits for an agent of the pool before it is canceled ([#571](https://github.com/Scalr/terraform-provider-scalr/pull/571)).
+- `data.scalr_agent_pool`: new attribute `run_acquisition_timeout` ([#571](https://github.com/Scalr/terraform-provider-scalr/pull/571)).
 
 ### Fixed
 
