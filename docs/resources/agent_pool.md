@@ -36,6 +36,7 @@ resource "scalr_agent_pool" "default" {
 - `environment_id` (String, Deprecated) ID of the environment.
 - `environments` (Set of String) The list of the environment identifiers that the agent pool is shared to. Use `["*"]` to share with all environments.
 - `header` (Block Set) Additional headers to set in the agent pool webhook request. (see [below for nested schema](#nestedblock--header))
+- `run_acquisition_timeout` (Number) The time in minutes a run waits for an agent of the pool to pick it up. When it expires, the run is canceled.
 - `vcs_enabled` (Boolean) Indicates whether the VCS support is enabled for agents in the pool.
 
 ### Read-Only
