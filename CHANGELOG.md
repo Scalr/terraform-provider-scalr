@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.21.0] - 2026-10-27
+
 ### Added
 
 - `data.scalr_outputs`: new attribute `include_sensitive` to read the values of sensitive outputs.
@@ -1278,7 +1280,8 @@ Requires Scalr 8.0.1-beta.20200625 at least
 
 - Initial release.
 
-[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.20.0...HEAD
+[Unreleased]: https://github.com/Scalr/terraform-provider-scalr/compare/v3.21.0...HEAD
+[3.21.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.21.0
 [3.20.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.20.0
 [3.19.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.19.0
 [3.18.0]: https://github.com/Scalr/terraform-provider-scalr/releases/tag/v3.18.0
