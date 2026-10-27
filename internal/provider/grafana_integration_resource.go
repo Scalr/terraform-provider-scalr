@@ -165,7 +165,7 @@ func (r *grafanaIntegrationResource) Schema(_ context.Context, _ resource.Schema
 				Sensitive: true,
 				Validators: []validator.String{
 					stringvalidation.StringIsNotWhiteSpace(),
-					stringvalidator.LengthBetween(1, 4096),
+					stringvalidator.LengthBetween(1, 255),
 				},
 			},
 			"tenant_id": schema.StringAttribute{
