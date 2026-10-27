@@ -218,7 +218,7 @@ func (r *grafanaIntegrationResource) ValidateConfig(ctx context.Context, req res
 				"Grafana Cloud requires basic auth.",
 			)
 		}
-		if !cfg.TenantID.IsNull() {
+		if !cfg.TenantID.IsNull() && !cfg.TenantID.IsUnknown() {
 			resp.Diagnostics.AddAttributeError(
 				path.Root("tenant_id"),
 				"Invalid attribute combination",
@@ -255,7 +255,7 @@ func requireGrafanaAttribute(resp *resource.ValidateConfigResponse, name string,
 }
 
 func rejectGrafanaAttribute(resp *resource.ValidateConfigResponse, name string, v types.String, authType string) {
-	if !v.IsNull() {
+	if !v.IsNull() && !v.IsUnknown() {
 		resp.Diagnostics.AddAttributeError(
 			path.Root(name),
 			"Invalid attribute combination",
