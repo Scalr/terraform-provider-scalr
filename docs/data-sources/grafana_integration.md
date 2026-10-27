@@ -40,6 +40,6 @@ data "scalr_grafana_integration" "by_name" {
 - `endpoint` (String) Base OTLP URL.
 - `err_message` (String) Error message reported by Scalr when the integration is in the `failed` status.
 - `kind` (String) Grafana destination: `cloud` or `loki`.
-- `status` (String) Status of the integration: `active`, `disabled`, `failed` or `pending`.
+- `status` (String) Status of the integration: `active`, `disabled` or `failed`.
 - `tenant_id` (String) Loki tenant ID, sent as the `X-Scope-OrgID` header.
 - `username` (String) Basic auth username. On Grafana Cloud, the numeric instance ID.

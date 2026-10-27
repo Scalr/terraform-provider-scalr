@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"net/url"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -26,8 +25,6 @@ import (
 
 // grafanaLogsPath is the OTLP logs path Scalr appends to the configured endpoint.
 const grafanaLogsPath = "/v1/logs"
-
-var grafanaTenantIDRegexp = regexp.MustCompile(`^[^:]*$`)
 
 // Compile-time interface checks
 var (
@@ -101,9 +98,7 @@ func (r *grafanaIntegrationResource) Metadata(_ context.Context, req resource.Me
 func (r *grafanaIntegrationResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Manages the state of Grafana integrations in Scalr." +
-			" The integration sends Scalr audit logs to Grafana Cloud or a self-hosted Loki over OTLP." +
-			" Scalr checks the connection on create and update; when the check is rejected," +
-			" the integration is still saved with the `failed` status.",
+			" The integration sends Scalr audit logs and run events to Grafana Cloud or a self-hosted Loki over OTLP.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -151,34 +146,30 @@ func (r *grafanaIntegrationResource) Schema(_ context.Context, _ resource.Schema
 				},
 			},
 			"username": schema.StringAttribute{
-				MarkdownDescription: "Basic auth username. On Grafana Cloud, the numeric instance ID." +
-					" Required for `basic` auth, not used with other auth types.",
-				Optional: true,
+				MarkdownDescription: "Basic auth username. On Grafana Cloud, the numeric instance ID.",
+				Optional:            true,
 				Validators: []validator.String{
 					stringvalidation.StringIsNotWhiteSpace(),
 				},
 			},
 			"secret": schema.StringAttribute{
-				MarkdownDescription: "Basic auth password or bearer token. Required for `basic` and `bearer` auth." +
-					" Scalr never returns this value, so it is kept in the state as configured.",
-				Optional:  true,
-				Sensitive: true,
+				MarkdownDescription: "Basic auth password or bearer token. On Grafana Cloud, an access policy token.",
+				Optional:            true,
+				Sensitive:           true,
 				Validators: []validator.String{
 					stringvalidation.StringIsNotWhiteSpace(),
 					stringvalidator.LengthBetween(1, 255),
 				},
 			},
 			"tenant_id": schema.StringAttribute{
-				MarkdownDescription: "Loki tenant ID, sent as the `X-Scope-OrgID` header. For a multi-tenant `loki` only." +
-					" Must not contain `:`.",
-				Optional: true,
+				MarkdownDescription: "Loki tenant ID, sent as the `X-Scope-OrgID` header. For a multi-tenant `loki` only.",
+				Optional:            true,
 				Validators: []validator.String{
 					stringvalidation.StringIsNotWhiteSpace(),
-					stringvalidator.RegexMatches(grafanaTenantIDRegexp, "must not contain ':'"),
 				},
 			},
 			"status": schema.StringAttribute{
-				MarkdownDescription: "Status of the integration: `active`, `disabled`, `failed` or `pending`." +
+				MarkdownDescription: "Status of the integration: `active`, `disabled` or `failed`." +
 					" Scalr sets the `failed` status when the connection check is rejected.",
 				Computed: true,
 			},

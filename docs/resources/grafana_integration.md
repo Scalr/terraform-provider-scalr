@@ -11,7 +11,7 @@ position: 14
 ---
 ## Resource: scalr_grafana_integration
 
-Manages the state of Grafana integrations in Scalr. The integration sends Scalr audit logs to Grafana Cloud or a self-hosted Loki over OTLP. Scalr checks the connection on create and update; when the check is rejected, the integration is still saved with the `failed` status.
+Manages the state of Grafana integrations in Scalr. The integration sends Scalr audit logs and run events to Grafana Cloud or a self-hosted Loki over OTLP.
 
 ## Example Usage
 
@@ -49,16 +49,16 @@ resource "scalr_grafana_integration" "loki" {
 
 ### Optional
 
-- `secret` (String, Sensitive) Basic auth password or bearer token. Required for `basic` and `bearer` auth. Scalr never returns this value, so it is kept in the state as configured.
-- `tenant_id` (String) Loki tenant ID, sent as the `X-Scope-OrgID` header. For a multi-tenant `loki` only. Must not contain `:`.
-- `username` (String) Basic auth username. On Grafana Cloud, the numeric instance ID. Required for `basic` auth, not used with other auth types.
+- `secret` (String, Sensitive) Basic auth password or bearer token. On Grafana Cloud, an access policy token.
+- `tenant_id` (String) Loki tenant ID, sent as the `X-Scope-OrgID` header. For a multi-tenant `loki` only.
+- `username` (String) Basic auth username. On Grafana Cloud, the numeric instance ID.
 
 ### Read-Only
 
 - `account_id` (String) ID of the account the integration belongs to.
 - `err_message` (String) Error message reported by Scalr when the integration is in the `failed` status.
 - `id` (String) The ID of this resource.
-- `status` (String) Status of the integration: `active`, `disabled`, `failed` or `pending`. Scalr sets the `failed` status when the connection check is rejected.
+- `status` (String) Status of the integration: `active`, `disabled` or `failed`. Scalr sets the `failed` status when the connection check is rejected.
 
 ## Import
 

@@ -97,7 +97,7 @@ func (d *grafanaIntegrationDataSource) Schema(_ context.Context, _ datasource.Sc
 				Computed:            true,
 			},
 			"status": schema.StringAttribute{
-				MarkdownDescription: "Status of the integration: `active`, `disabled`, `failed` or `pending`.",
+				MarkdownDescription: "Status of the integration: `active`, `disabled` or `failed`.",
 				Computed:            true,
 			},
 			"err_message": schema.StringAttribute{
