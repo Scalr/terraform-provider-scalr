@@ -1,54 +1,51 @@
 name: upstream
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
-      upstream-sha:
-        description: "Upstream commit SHA"
+      fatmouse_ref:
+        description: The fatmouse branch to build the preview environment from
+        type: string
         required: true
-      api-branch:
-        description: "API Branch"
+      caller_job_name:
+        description: The name of the calling job, which GitHub prepends to this workflow's job name
+        type: string
         required: true
-        default: "master"
-      db-branch:
-        description: "Not used, left for backward compatibility"
+    secrets:
+      scalr_token:
+        description: The token of the preview environment's mainiacp account
+        required: true
+      google_cloud_credentials:
+        description: GCP credentials to create the preview environment
+        required: true
+      TEST_AWS_ACCESS_KEY:
         required: false
-        default: "master"
-      py-req:
-        description: "Whether to upgrade python requirements"
+      TEST_AWS_SECRET_KEY:
         required: false
-        default: "no"
-      upstream-base-ref:
-        description: "Upstream base branch (e.g. 'master' or 'release/8.57.0')"
+      TEST_AWS_ROLE_ARN:
         required: false
-      pr-id:
-        description: The number of the pull request
+      TEST_AWS_EXTERNAL_ID:
+        required: false
+      TEST_ARM_CLIENT_ID:
+        required: false
+      TEST_ARM_CLIENT_SECRET:
+        required: false
+      TEST_ARM_TENANT_ID:
+        required: false
+      TEST_ARM_SUBSCRIPTION_ID:
         required: false
 
 jobs:
   acc-tests:
     runs-on: ubuntu-latest
     name: acc-tests
-    concurrency:
-      group: ${{ github.workflow }}-${{ inputs.pr-id }}
-      cancel-in-progress: true
     env:
-      SCALR_TOKEN: ${{ secrets.SCALR_TOKEN }}
-      API_BRANCH: ${{ github.event.inputs.api-branch }}
-      PY_REQ: ${{ github.event.inputs.py-req }}
-      UPSTREAM_ID: ${{ github.run_number }}
-      UPSTREAM_BASE_REF: ${{ github.event.inputs.upstream-base-ref }}
+      SCALR_TOKEN: ${{ secrets.scalr_token }}
     steps:
-      - name: Sudo GitHub Token
-        id: generate_token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
-        with:
-          client-id: ${{ vars.SUDO_GHA_CLIENT_ID }}
-          private-key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
-          owner: ${{ github.repository_owner }}
+      # A called workflow checks out the caller's repository by default
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-      - name: Notify Upstream about Pending
-        run: make notify-upstream org_admin_token=${{steps.generate_token.outputs.token}} upstream_sha=${{ github.event.inputs.upstream-sha }} state=pending run_id=${{ github.run_id }}
+        with:
+          repository: Scalr/terraform-provider-scalr
       - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
           go-version-file: '.go-version'
@@ -57,32 +54,20 @@ jobs:
         with:
           repository: Scalr/fatmouse
           path: fatmouse
-          ref: ${{ env.API_BRANCH }}
-          token: ${{steps.generate_token.outputs.token}}
-      - name: Get Pull Request Labels
-        id: pr-labels
-        if: ${{ inputs.pr-id != '' }}
-        uses: ./fatmouse/.github/actions/pr-labels
-        with:
-          github_token: ${{steps.generate_token.outputs.token}}
-          owner: Scalr
-          repo: fatmouse
-          pr_id: ${{ inputs.pr-id }}
-      - name: Set py-req on PR with Label
-        if: ${{ inputs.pr-id != '' && contains(steps.pr-labels.outputs.labels, ' py-req ') }}
-        run: echo "PY_REQ=yes" >> $GITHUB_ENV
+          ref: ${{ inputs.fatmouse_ref }}
       - uses: ./fatmouse/.github/actions/preview-env
         name: Create preview environment
         id: create-preview-env
+        env:
+          JOB_NAME: ${{ inputs.caller_job_name }} / acc-tests
         with:
-          ref: ${{ env.API_BRANCH }}
-          github_token: ${{ steps.generate_token.outputs.token }}
-          google_cloud_credentials: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          ref: ${{ inputs.fatmouse_ref }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          google_cloud_credentials: ${{ secrets.google_cloud_credentials }}
           run_prefix: e2e-provider-upstream
           prepare_runner: true
           wait_for_env: true
           no_segment: true
-          agent_pool_id: ${{ !contains(steps.pr-labels.outputs.labels, ' e2e:tev2_on_server ') && vars.TACO_APOOL_ID || '' }}
           working_directory: fatmouse
           secrets_bucket: scalr-tacobell-secrets
       - name: Get Scalr Hostname
@@ -104,14 +89,7 @@ jobs:
           TEST_ARM_SUBSCRIPTION_ID: ${{ secrets.TEST_ARM_SUBSCRIPTION_ID }}
         run: make testacc
       - name: Delete Container
-        id: delete
         working-directory: fatmouse
         if: ${{ always() }}
         run: |
-          python -u clickfile.py te rm --no-wait ${{ steps.create-preview-env.outputs.env_name }}
-      - name: Notify Upstream about Success
-        if: ${{ success() }}
-        run: make notify-upstream org_admin_token=${{steps.generate_token.outputs.token}} upstream_sha=${{ github.event.inputs.upstream-sha }} state=success run_id=${{ github.run_id }}
-      - name: Notify Upstream about Failure
-        if: ${{ failure() }}
-        run: make notify-upstream org_admin_token=${{steps.generate_token.outputs.token}} upstream_sha=${{ github.event.inputs.upstream-sha }} state=failure run_id=${{ github.run_id }}
+          tacocli te rm --no-wait ${{ steps.create-preview-env.outputs.env_name }}
