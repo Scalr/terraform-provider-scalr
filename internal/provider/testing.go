@@ -7,17 +7,18 @@ import (
 	"testing"
 
 	"github.com/scalr/go-scalr"
-
 	scalrV2 "github.com/scalr/go-scalr/v2/scalr"
 
 	"github.com/scalr/terraform-provider-scalr/internal/client"
 )
 
-const defaultAccount = "acc-svrcncgh453bi8g"
-const testUser = "user-svrcmmpcrkmit1g" // tf-admin@scalr.com
-const testUserEmail = "tf-admin@scalr.com"
-const readOnlyRole = "role-t67mjtmabulckto" // Reader
-const userRole = "role-t67mjtmauajto7g"     // User
+const (
+	defaultAccount = "acc-svrcncgh453bi8g"
+	testUser       = "user-svrcmmpcrkmit1g" // tf-admin@scalr.com
+	testUserEmail  = "tf-admin@scalr.com"
+	readOnlyRole   = "role-t67mjtmabulckto" // Reader
+	userRole       = "role-t67mjtmauajto7g" // User
+)
 
 func testScalrClient(t *testing.T) *scalr.Client {
 	config := &scalr.Config{

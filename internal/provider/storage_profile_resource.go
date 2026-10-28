@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+
 	"github.com/scalr/go-scalr"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"

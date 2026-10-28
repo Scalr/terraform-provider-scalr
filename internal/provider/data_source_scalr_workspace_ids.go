@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/scalr/go-scalr"
 )
 

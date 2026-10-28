@@ -1,5 +1,4 @@
 TEST?=$$(go list ./... |grep -v 'vendor')
-GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 PLATFORM?=$$(terraform -version -json | jq .platform -r)
 PKG_NAME=scalr
 BUILD_ENV=CGO_ENABLED=0
@@ -48,7 +47,7 @@ vet:
 	fi
 
 fmt:
-	gofmt -w $(GOFMT_FILES)
+	golangci-lint fmt
 
 test-compile:
 	@if [ "$(TEST)" = "./..." ]; then \
@@ -58,12 +57,4 @@ test-compile:
 	fi
 	go test -c $(TEST) $(TESTARGS)
 
-resource:
-	@echo "Skaffolding resource $(name)..."
-	@cd skaff && go run cmd/main.go -type=resource -name=$(name)
-
-datasource:
-	@echo "Skaffolding datasource $(name)..."
-	@cd skaff && go run cmd/main.go -type=data_source -name=$(name)
-
-.PHONY: build test testacc vet fmt test-compile notify-upstream resource datasource
+.PHONY: build test testacc vet fmt test-compile notify-upstream

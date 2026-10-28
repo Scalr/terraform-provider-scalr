@@ -7,18 +7,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
-
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+
 	"github.com/scalr/go-scalr"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
@@ -33,15 +33,13 @@ var (
 	_ resource.ResourceWithImportState      = &checkovIntegrationResource{}
 )
 
-var (
-	checkovVcsRepoElementType = types.ObjectType{
-		AttrTypes: map[string]attr.Type{
-			"identifier": types.StringType,
-			"branch":     types.StringType,
-			"path":       types.StringType,
-		},
-	}
-)
+var checkovVcsRepoElementType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"identifier": types.StringType,
+		"branch":     types.StringType,
+		"path":       types.StringType,
+	},
+}
 
 func newCheckovIntegrationResource() resource.Resource {
 	return &checkovIntegrationResource{}

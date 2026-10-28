@@ -33,6 +33,7 @@ func TestAccScalrAccessPolicyDataSource_basic(t *testing.T) {
 		},
 	})
 }
+
 func testAccScalrAccessPolicyDataSourceConfig() string {
 	return fmt.Sprintf(`
 resource "scalr_environment" "test" {

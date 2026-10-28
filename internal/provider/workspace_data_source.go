@@ -26,16 +26,14 @@ var (
 	_ datasource.DataSourceWithConfigValidators = &workspaceDataSource{}
 )
 
-var (
-	workspaceDataSourceVcsRepoElementType = types.ObjectType{
-		AttrTypes: map[string]attr.Type{
-			"identifier":         types.StringType,
-			"path":               types.StringType,
-			"dry_runs_enabled":   types.BoolType,
-			"ingress_submodules": types.BoolType,
-		},
-	}
-)
+var workspaceDataSourceVcsRepoElementType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"identifier":         types.StringType,
+		"path":               types.StringType,
+		"dry_runs_enabled":   types.BoolType,
+		"ingress_submodules": types.BoolType,
+	},
+}
 
 func newWorkspaceDataSource() datasource.DataSource {
 	return &workspaceDataSource{}

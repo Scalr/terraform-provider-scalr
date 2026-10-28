@@ -2,8 +2,10 @@ package provider
 
 import (
 	"context"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/scalr/go-scalr"
 )
 

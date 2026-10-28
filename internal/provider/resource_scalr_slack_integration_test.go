@@ -8,7 +8,6 @@ import (
 )
 
 func TestAccSlackIntegration_basic(t *testing.T) {
-
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
@@ -116,6 +115,7 @@ resource "scalr_slack_integration" "test" {
   environments = [scalr_environment.test.id]
 }`, defaultAccount)
 }
+
 func testAccScalrSlackIntegrationUpdateConfig() string {
 	return fmt.Sprintf(`
 resource scalr_environment test {
