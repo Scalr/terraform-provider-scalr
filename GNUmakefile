@@ -9,8 +9,6 @@ VERSION=$(if $(VER),$(VER),$(if $(TAG),$(TAG),$(BRANCH)))
 USER_PLUGIN_DIR=${HOME}/.terraform.d/plugins/registry.scalr.io/scalr/scalr/$(VERSION)/$(PLATFORM)
 BIN_NAME := terraform-provider-scalr_$(VERSION)
 ARGS=-ldflags='-X github.com/scalr/terraform-provider-scalr/version.ProviderVersion=$(TAG) -X github.com/scalr/terraform-provider-scalr/version.Branch=$(BRANCH)'
-UPSTREAM_COMMIT_DESCRIPTION="Scalr terraform provider acceptance tests"
-UPSTREAM_COMMIT_TARGET_URL = "https://github.com/Scalr/terraform-provider-scalr/actions/runs/$(run_id)"
 
 default: build
 
@@ -29,14 +27,6 @@ install: build
 
 testacc:
 	TF_ACC=1 go test -race $(TEST) -v $(TESTARGS) -timeout 45m  -covermode atomic -coverprofile=covprofile
-
-notify-upstream:
-	curl -X POST \
-	-H "Accept: application/vnd.github.v3+json" \
-	-H "Authorization: token $(org_admin_token)" \
-	https://api.github.com/repos/Scalr/fatmouse/statuses/$(upstream_sha) \
-	-d '{"context":"downstream/provider", "state":"$(state)", "description": $(UPSTREAM_COMMIT_DESCRIPTION), "target_url": $(UPSTREAM_COMMIT_TARGET_URL)}'
-
 
 vet:
 	@echo "go vet ."
@@ -66,4 +56,4 @@ datasource:
 	@echo "Skaffolding datasource $(name)..."
 	@cd skaff && go run cmd/main.go -type=data_source -name=$(name)
 
-.PHONY: build test testacc vet fmt test-compile notify-upstream resource datasource
+.PHONY: build test testacc vet fmt test-compile resource datasource
