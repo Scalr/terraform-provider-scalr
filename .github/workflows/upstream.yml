@@ -12,9 +12,6 @@ on:
         type: string
         required: true
     secrets:
-      scalr_token:
-        description: The token of the preview environment's mainiacp account
-        required: true
       google_cloud_credentials:
         description: GCP credentials to create the preview environment
         required: true
@@ -39,8 +36,6 @@ jobs:
   acc-tests:
     runs-on: ubuntu-latest
     name: acc-tests
-    env:
-      SCALR_TOKEN: ${{ secrets.scalr_token }}
     steps:
       # A called workflow checks out the caller's repository by default
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -70,6 +65,13 @@ jobs:
           no_segment: true
           working_directory: fatmouse
           secrets_bucket: scalr-tacobell-secrets
+      # The preview environment's admin token comes with the e2e secrets that preview-env downloads
+      - name: Get Scalr Token
+        working-directory: fatmouse
+        run: |
+          SCALR_TOKEN=$(python -c "from tacobell import config; print(config.scalr.global_admin_token)")
+          echo "::add-mask::$SCALR_TOKEN"
+          echo "SCALR_TOKEN=$SCALR_TOKEN" >> $GITHUB_ENV
       - name: Get Scalr Hostname
         run: |
           SCALR_HOST=${{ steps.create-preview-env.outputs.host }}
