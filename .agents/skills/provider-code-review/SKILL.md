@@ -72,8 +72,10 @@ Client and dependencies
   A migration mixed with behaviour changes in one commit is worth a P3 note.
 - `.golangci.yml` depguard exceptions: any added entry is a P2 finding. Removed entries are
   expected when a file moved to v2.
-- `go.mod` pins a go-scalr commit that is merged (or the PR says it is pending), and has no
-  local `replace`.
+- `go.mod` has no local `replace`. A go-scalr pin to an unmerged commit on the ticket's go-scalr
+  branch is the normal flow (the related PRs are merged together), not a finding. Report it
+  only as a P3 note when the pinned commit is not the head of that branch: the provider is
+  tested against an older client than the one that will be merged.
 - `go.mod` changed: CI's "Validate go.mod and go.sum" step covers tidiness; report it only as a
   failing check, not as a finding.
 - API behaviour relied on exists in fatmouse `master` or a same-named fatmouse branch; note it.
@@ -103,7 +105,9 @@ Docs and changelog
 - `MarkdownDescription` on every new attribute, accurate and user-facing.
 - `docs/` regenerated (the PR diff includes the matching page changes); `examples/` updated for
   new resources.
-- Changelog entry present and in the right section when the change is user-visible.
+- Changelog entry present and in the right section when the change is user-visible, under
+  `## [Unreleased]`. A merge from `master` after a release can leave it under the released
+  version.
 
 ## Output
 
@@ -124,7 +128,10 @@ P2: wrong behaviour in a realistic config, perpetual diff, missing test for chan
 wrong user-facing name on a new resource or attribute.
 P3: docs, changelog, file and test naming, minor consistency. `Request changes` when any P1 or P2 remains.
 
-Findings that only restate a style preference are not findings. Whether a resource is split into
+Findings that only restate a style preference are not findings. A server-side validation the
+provider does not repeat at plan time is not a defect: the API still rejects the input. Mention
+it as an optional P3 suggestion only when the check is cheap and stable and the apply-time error
+is confusing. Whether a resource is split into
 `_schemas.go` / `_models.go` / `_migrate.go` is the author's call: not a finding either way,
 except a split mixed into an unrelated fix (P3 note). CI status is reported
 separately unless a failing check proves a defect.

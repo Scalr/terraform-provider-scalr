@@ -94,7 +94,7 @@ Remove this link before pushing:
 go mod edit -dropreplace github.com/scalr/go-scalr/v2 && go mod tidy
 ```
 
-To update the go-scalr v2 version, pin a merged commit:
+To update the go-scalr v2 version, pin a commit (during development, the head of the ticket's go-scalr branch):
 ```sh
 go get github.com/scalr/go-scalr/v2@<commit-sha> && go mod tidy
 ```

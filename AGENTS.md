@@ -161,10 +161,11 @@ minutes and creates real objects.
 4. Iterate locally with `go mod edit -replace github.com/scalr/go-scalr/v2=../go-scalr/v2`.
    Remove the replace (`go mod edit -dropreplace github.com/scalr/go-scalr/v2`) and run
    `go mod tidy` before pushing.
-5. Open the go-scalr PR. Once merged, pin it here:
-   `go get github.com/scalr/go-scalr/v2@<merged-sha> && go mod tidy`. A pseudo-version from the
-   go-scalr branch is fine while both PRs are in review; say so in the PR. Never merge with an
-   unmerged go-scalr commit pinned.
+5. Push the go-scalr branch, open its PR, and pin its head commit here:
+   `go get github.com/scalr/go-scalr/v2@<branch-sha> && go mod tidy`. Pinning an unmerged
+   go-scalr commit is the normal flow: the related PRs are merged together, with merge commits,
+   so the pinned commit lands in go-scalr `master` unchanged. Re-pin after every push to the
+   go-scalr branch.
 
 ## Boundaries
 

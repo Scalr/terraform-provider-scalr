@@ -49,9 +49,10 @@ better in one file. For an example of the split and of state upgraders, see `int
 
 The main steps to follow when adding a resource are:
 - make sure the API is available in the Scalr Go Client v2; if not, regenerate it: with `fatmouse`, `go-scalr` and this repository checked out
-  side by side, run `make generate` in `go-scalr/v2` (it reads `../../fatmouse/taco/openapi/openapi-public.yml`), and merge the result in go-scalr [^1].
+  side by side, run `make generate` in `go-scalr/v2` (it reads `../../fatmouse/taco/openapi/openapi-public.yml`), and open a go-scalr PR from a branch named after the ticket [^1].
   While iterating, `go mod edit -replace github.com/scalr/go-scalr/v2=../go-scalr/v2` lets you build against the local client; drop it before pushing
-- pin `go-scalr` dependency to proper commit: `go get github.com/scalr/go-scalr/v2@<commit-sha> && go mod tidy`
+- pin `go-scalr` dependency to the head commit of that branch: `go get github.com/scalr/go-scalr/v2@<commit-sha> && go mod tidy`.
+  The related go-scalr and provider PRs are merged together, so the pinned commit does not need to be merged first
 - add `internal/provider/<name>_resource.go`, `internal/provider/<name>_data_source.go`, implement schemas and methods.
   `<name>` is the type name without `scalr_`. The legacy `resource_scalr_<name>.go` / `data_source_scalr_<name>.go` names
   are not used for new code, and a migrated resource is renamed to the new scheme

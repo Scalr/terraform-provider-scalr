@@ -36,8 +36,8 @@ client code follows [provider-new-resource § CRUD rules](../provider-new-resour
 1. Check the pinned v2 covers every operation, filter, include and field the resource uses
    (`go doc github.com/scalr/go-scalr/v2/scalr/ops/<name>`, `.../schemas`). v2 is generated
    from the spec, so expect gaps: generator bugs, unsupported spec constructs, a spec newer than
-   the generator. Start with `make generate` in `../go-scalr/v2` and pin the merged commit
-   ([AGENTS.md § Regenerating go-scalr v2](../../../AGENTS.md#regenerating-go-scalr-v2)). If
+   the generator. Start with `make generate` in `../go-scalr/v2` and pin the go-scalr branch
+   commit ([AGENTS.md § Regenerating go-scalr v2](../../../AGENTS.md#regenerating-go-scalr-v2)). If
    that is not possible in this task, stop and tell the developer; the resource stays on v1.
 2. Replace `r.Client` with `r.ClientV2`. Build requests with the tri-state `value` package and
    decide `Unset` vs `Null` per attribute so updates send the same fields v1 sent. v1 often sent
