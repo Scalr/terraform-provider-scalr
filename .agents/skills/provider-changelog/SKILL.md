@@ -16,7 +16,7 @@ contributor rules: [CONTRIBUTING.md § Updating the changelog](../../../CONTRIBU
 
 Record a change when a user can observe it in configuration, plan, apply, import, state, or docs:
 new resource/data source/attribute, changed behaviour or default, new validation, a bug a user can
-hit, deprecation, removal, a new minimum Scalr version.
+hit, deprecation, removal.
 
 Omit: refactors, SDK → Framework migrations with no behaviour change, tests, CI, go-scalr bumps
 with no user effect, docs-only typo fixes. Dependency bumps for security advisories are omitted
@@ -33,7 +33,9 @@ Under `## [Unreleased]`, in this order, only those with entries:
 - `### Fixed`: describe the symptom the user saw.
 - `### Deprecated`: name the replacement.
 - `### Removed`
-- `### Required`: `- scalr-server >= \`X.Y.Z\`` when the provider needs a newer Scalr.
+
+No `### Required` section: Scalr is SaaS only, so there is no minimum server version to state.
+Older releases in `CHANGELOG.md` still have one; leave them as they are.
 
 ## Entry format
 

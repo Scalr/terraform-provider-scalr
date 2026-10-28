@@ -6,7 +6,6 @@
     * [Fixed](#fixed)
     * [Deprecated](#deprecated)
     * [Removed](#removed)
-    * [Required](#required)
   * [Local setup](#local-setup)
   * [Guidelines](#guidelines)
     * [Naming conventions](#naming-conventions)
@@ -88,8 +87,6 @@ The format of the changelog for each release looks like this:
 ...
 ### Removed
 ...
-### Required
-...
 ```
 
 > [!NOTE]
@@ -109,7 +106,7 @@ In this section we need to mention any resources, attributes or other features t
 
 Existing resources, attributes or behaviour which changes in this release. Attribute changes are likely to break compatibility with older provider configs, however we should never break the state. If any attribute changes in this release it needs to include a state migration and a test for it.
 
-Sometimes there will be changes in go-scalr which may affect the minimum required version of Scalr. In such case we can give a quick overview of changes in go-scalr without going too deep into its internals. Example:
+Example:
 
 ```
 - `scalr_workspace`: attribute `id` is now in the `ws-<RANDOM STRING>` format ([#11](https://github.com/Scalr/terraform-provider-scalr/pull/11))
@@ -139,13 +136,7 @@ This section should detail any resources, attributes or features removed from th
 - `scalr_workspace`: drop attribute `organization` in favour of `environment_id` ([#11](https://github.com/Scalr/terraform-provider-scalr/pull/11))
 ```
 
-### <a name="required"></a>Required: server version dependency
-
-If the provider relies on changes introduced in a more recent version of Scalr we should specify its version here. If the provider can be used with an older version of Scalr there is no need to update this version from the previous release.
-
-```
-- scalr-server >= `8.63.0`
-```
+Scalr is SaaS only, so the changelog does not state a minimum Scalr server version. Older releases have a `Required` section; new ones do not.
 
 When in doubt refer to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 

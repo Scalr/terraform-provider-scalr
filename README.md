@@ -7,8 +7,7 @@ The Scalr Terraform provider is used to manage resources within [Scalr](https://
 ### Requirements
 - [Terraform](https://www.terraform.io/downloads.html) >= 0.12.x
 Download the latest provider build for your OS and architecture
-from the [releases page](https://github.com/Scalr/terraform-provider-scalr/releases)
-that is compatible with your Scalr server version (under the "required" section).
+from the [releases page](https://github.com/Scalr/terraform-provider-scalr/releases).
 Extract the archive to get the provider binary.
 
 Follow the instructions on the [official documentation page](https://docs.scalr.io/docs/provider_overview) to learn how to use it.

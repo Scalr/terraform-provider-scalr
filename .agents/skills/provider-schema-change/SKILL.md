@@ -48,8 +48,8 @@ the pinned go-scalr v2 covers the new attribute either way. On a yes, run
 | Deprecate | Yes | `DeprecationMessage` naming the replacement; changelog `### Deprecated` |
 | Remove | No | Only in a major release after deprecation; changelog `### Removed` |
 
-Server-side requirement: if the attribute needs a Scalr release that is not out yet, note the
-fatmouse branch and add `### Required` to the changelog when the minimum server version is known.
+Server-side requirement: if the attribute needs fatmouse work that is not deployed yet, note the
+fatmouse branch or PR; the provider is released only after it is deployed.
 
 ## 3. Implement
 

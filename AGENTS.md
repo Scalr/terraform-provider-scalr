@@ -139,8 +139,8 @@ minutes and creates real objects.
   If either sibling is missing, ask where it is; do not clone it yourself.
 - API missing from go-scalr v2 (usually a new resource whose API landed recently): see
   [Regenerating go-scalr v2](#regenerating-go-scalr-v2).
-- `CHANGELOG.md` `### Required` lists the minimum Scalr server version when the provider needs
-  new server behaviour.
+- Scalr is SaaS only, so the provider does not track a minimum server version. A provider change
+  that needs new server behaviour is released only after that fatmouse change is deployed.
 - Releases: `release/X.Y.Z` branch, a changelog PR into it that turns `[Unreleased]` into
   `[X.Y.Z] - <date>`, then a `vX.Y.Z` tag (GoReleaser, `release.yml`; the tag also publishes
   `docs/` to readme.io). Every push to `release/**` is backported to `master` automatically
@@ -244,7 +244,7 @@ on its own line, followed by a blank line.
   ticket given, take the summary from Jira as is; without one, ask for the key.
 - Body: the template in `.github/PULL_REQUEST_TEMPLATE.md` with honest checkboxes. Add prose
   above it only for what the diff does not show: root cause, a state or BC impact, the fatmouse
-  companion branch/PR, a server version requirement. Under 150 words. No test-run reports.
+  companion branch/PR that must be deployed first. Under 150 words. No test-run reports.
 
 ### Commit messages
 
