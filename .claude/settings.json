@@ -28,12 +28,13 @@
       "Bash(gh pr diff:*)",
       "Bash(gh pr checks:*)",
       "Bash(gh pr list:*)",
-      "Bash(gh run view:*)"
+      "Bash(gh run view:*)",
+      "Bash(make testacc-one *)"
     ],
     "ask": [
-      "Bash(make testacc:*)",
+      "Bash(make testacc)",
       "Bash(make testacc-one:*)",
-      "Bash(TF_ACC=1:*)"
+      "Bash(make testacc *)"
     ],
     "deny": [
       "Read(./.scalr-testenv.env)"
