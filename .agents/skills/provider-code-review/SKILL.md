@@ -24,7 +24,21 @@ description: >-
 1. Read the file list and the ticket/PR intent. Flag scope unrelated to the intent.
 2. Read the whole authored diff, then the surrounding code of every changed resource: schema,
    model mapping, all CRUD methods, tests.
-3. Apply the domain skill for each matched trigger:
+3. Server side, when `../fatmouse` exists and the change touches CRUD, validation or schema of a
+   resource: read the API code before judging update semantics, required fields, validation,
+   immutable attributes and what the API returns. Read it from the same-named fatmouse branch,
+   else `origin/master`, without checking anything out:
+
+   ```bash
+   git -C ../fatmouse fetch -q origin <branch>
+   git -C ../fatmouse grep -il '<resource or api name>' origin/<branch> -- 'taco/app/**/apis/*.py'
+   git -C ../fatmouse show origin/<branch>:<path>
+   ```
+
+   Component tests under `tests/component/taco/app/` show the intended behaviour. Base findings
+   on what the code does, cite the file, and drop a candidate finding the server code disproves.
+   No `../fatmouse`: say so under "Not reviewed".
+4. Apply the domain skill for each matched trigger:
 
    | Trigger | Apply |
    |---|---|
@@ -34,10 +48,10 @@ description: >-
    | Test files | [provider-acceptance-tests](../provider-acceptance-tests/SKILL.md) |
    | `CHANGELOG.md`, or a user-visible change without it | [provider-changelog](../provider-changelog/SKILL.md) |
 
-4. Walk the checklist below, risk first.
-5. Validate each candidate finding against the real code path: name the config, the step
+5. Walk the checklist below, risk first.
+6. Validate each candidate finding against the real code path: name the config, the step
    (plan/apply/read/import/upgrade) and the wrong outcome. Drop what you cannot make concrete.
-6. Report in the format below.
+7. Report in the format below.
 
 ## Checklist
 
@@ -54,8 +68,16 @@ Plan stability
 - No plan modifier used to hide a Read bug.
 
 CRUD
-- Create/Update send every configured value; removing an optional attribute from config has a
-  defined effect (cleared vs kept) that matches the docs.
+- Create sends every configured value; removing an optional attribute from config has a defined
+  effect (cleared vs kept) that matches the docs.
+- Model filled by a function or method that can leave a field holding its plan or state value
+  (an in-place `refresh()`, a field set only inside an `if`): P2. It hides drift and can leave
+  unknown values after Create.
+- Update sends unchanged attributes without a stated reason (a shared request builder for Create
+  and Update, a full payload): P3. Diff-only is the convention. A reason covers only the fields
+  it explains: "the API validates X and Y together" justifies sending X and Y together when
+  either changes, not resending every attribute. Check the claim in fatmouse when it is
+  available.
 - To-many relationships sent in full on update.
 - Read handles not-found by removing from state; Delete ignores not-found.
 - Nil checks on optional API fields and relationships.
@@ -79,6 +101,12 @@ Client and dependencies
 - `go.mod` changed: CI's "Validate go.mod and go.sum" step covers tidiness; report it only as a
   failing check, not as a finding.
 - API behaviour relied on exists in fatmouse `master` or a same-named fatmouse branch; note it.
+
+Conventions
+- A new construct where an established one exists (methods on the model instead of
+  `<name>ResourceModelFromAPI`, a shared request builder, a new helper duplicating
+  `internal/framework`): P3, naming the established construct and a file that uses it. Not a
+  finding when the PR states a reason.
 
 Naming ([CONTRIBUTING.md § Naming conventions](../../../CONTRIBUTING.md#naming-conventions))
 
@@ -106,8 +134,10 @@ Docs and changelog
 - `docs/` regenerated (the PR diff includes the matching page changes); `examples/` updated for
   new resources.
 - Changelog entry present and in the right section when the change is user-visible, under
-  `## [Unreleased]`. A merge from `master` after a release can leave it under the released
-  version.
+  `## [Unreleased]`. Check this in the whole file at the head commit
+  (`git show <head-sha>:CHANGELOG.md | head -40`), not in the diff: the hunk's context shows
+  `### Added` but rarely the version heading above it. A merge from `master` after a release
+  leaves new lines under the released version; that is a P3 finding.
 
 ## Output
 

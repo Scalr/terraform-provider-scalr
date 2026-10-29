@@ -71,4 +71,6 @@ When asked to prepare release `X.Y.Z` (a PR into the `release/X.Y.Z` branch, tit
 ## Before finishing
 
 Check: section, type prefix, one line per type, link, wording describes user effect, nothing from
-the omit list.
+the omit list. After merging `master` into the branch, read the top of `CHANGELOG.md` again: if a
+release was cut meanwhile, the merge leaves your lines under that release; move them back under
+`## [Unreleased]`.

@@ -85,6 +85,10 @@ minutes and creates real objects.
 
 ## Code Conventions
 
+- New code looks like its neighbours: the same constructs (model mapping, request building,
+  helpers, test layout), only its own logic differs. A new construct where an established one
+  exists needs a reason, stated in the PR. The newest file is not automatically the convention;
+  check what most Framework + v2 resources do.
 - Before writing non-trivial code, read one or two recent neighbours of the same kind and match
   them. Most neighbours are legacy; the Framework + v2 references are listed in
   [provider-new-resource § Start from a neighbour](.agents/skills/provider-new-resource/SKILL.md#start-from-a-neighbour).

@@ -22,7 +22,7 @@ grep -rn '"<attr_name>"' internal/provider/ examples/ templates/
   unless there is a reason not to; say which when you skip one.
 - Plural data sources (`scalr_environments`, `scalr_workspaces`, ...) that embed the same fields.
 - Split files, when the resource is split: `<name>_schemas.go`, `<name>_models.go`
-  (`...FromAPI` / `refresh`), `<name>_resource.go` (Create/Update request building),
+  (`...FromAPI`), `<name>_resource.go` (Create/Update request building),
   `<name>_migrate.go`. A first schema version bump on a single-file resource is a reasonable
   point to suggest the split; ask first.
 - SDK v2 resources (`resource_scalr_*.go`): schema map, `Create`/`Update` option structs, `Read`

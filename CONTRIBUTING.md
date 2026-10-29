@@ -38,8 +38,9 @@ When migrating, do it first without behaviour changes, in its own commit, then m
   The `depguard` linter in [.golangci.yml](./.golangci.yml) enforces this. Its list of legacy exceptions may only shrink.
 
 The easiest way to start is to copy the closest recent resource and adapt it, together with its test file. These use the Framework and the v2 client throughout:
-- `internal/provider/datadog_integration_resource.go` and `datadog_integration_data_source.go`: an account-scoped object with a secret attribute
-- `internal/provider/docker_integration_resource.go`, `wiz_integration_resource.go`: similar integrations
+- `internal/provider/docker_integration_resource.go` and `docker_integration_data_source.go`: an object with a secret attribute
+- `internal/provider/iam_team_resource.go`: an account-scoped object with a to-many relationship
+- `internal/provider/wiz_integration_resource.go`: an integration with sets and relationships
 - `internal/provider/workspace_remote_state_consumer_resource.go`: a link between two objects with a composite import ID
 
 A large resource can be split into `<name>_resource.go` (CRUD), `<name>_schemas.go` (current and prior schema versions),

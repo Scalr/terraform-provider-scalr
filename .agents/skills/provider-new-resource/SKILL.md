@@ -44,9 +44,12 @@ add a new file to the depguard exception list to get past the linter.
 
 Many Framework resources and tests still use go-scalr v1; do not copy those. Copy the closest of
 these, which are Framework + v2 throughout, tests included, and adapt it:
-`datadog_integration_resource.go` / `_data_source.go` (account-scoped object with a secret),
-`docker_integration_resource.go`, `wiz_integration_resource.go`, or
-`workspace_remote_state_consumer_resource.go` (link resource with a composite ID). Take the
+`docker_integration_resource.go` / `_data_source.go` (a secret the API does not return, a
+normalised value), `iam_team_resource.go` (account-scoped, `account_id`, to-many relationship),
+`wiz_integration_resource.go` (sets, relationships, diagnostics from the mapping), or
+`workspace_remote_state_consumer_resource.go` (link resource with a composite ID).
+`datadog_integration_*` is also Framework + v2, but its `refresh()` method on the model is the
+exception to the `...FromAPI` convention; do not copy it. Take the
 test file from the same neighbour. Files: `internal/provider/<name>_resource.go`,
 `<name>_data_source.go`, and their `_test.go`, with `<name>` the type name without `scalr_`. A
 large resource may be split into `_schemas.go` / `_models.go` from the start; a small one stays
@@ -94,12 +97,25 @@ changes to existing Framework resources.
 
 ## CRUD rules
 
-- Create/Update: build the request from the plan. Use `value.Set`, `value.SetPtrMaybe`,
-  `framework.SetIfKnown*`. On Update send only what can change; `value.Unset` leaves the server
-  value, `value.Null` clears it. Clearing an optional attribute in config must clear it on the
-  server.
-- After Create/Update, set state from the API response (one `refresh`/`...FromAPI` function shared
-  with Read), not from the plan, except for values the API does not return.
+- Map the API object to state with a free function that returns a new model, shared by Create,
+  Read, Update and, where the shapes match, the data source:
+  `<name>ResourceModelFromAPI(ctx, apiObj, <values the API does not return>, prior *model) (*model, diag.Diagnostics)`;
+  drop `ctx`, `prior` or the diagnostics when not needed (`docker_integration_resource.go`,
+  `wiz_integration_resource.go`). Values the API never returns (secrets) and prior values needed
+  for normalisation or ordering are explicit parameters. No methods on the model that fill it in
+  place: a field such a method skips keeps its plan or state value, which hides drift and leaves
+  unknown values after Create.
+- Create: build the request inline from the plan (`opts := schemas.XRequest{...}`), sending known
+  values (`value.Set`, `value.SetPtrMaybe`, `framework.SetIfKnown*`).
+- Update: build the request inline and send only what changed (`if !plan.X.Equal(state.X)`), the
+  way the tri-state `value` package is designed to be used. `value.Unset` (the zero value) leaves
+  the server value, `value.Null` clears it: an optional attribute removed from config must be
+  cleared on the server. Fields the API validates together are sent together when any of them
+  changes, with a comment saying why (username and password in `docker_integration_resource.go`).
+  A changed to-many relationship is sent as the full set. No shared request builder for Create and
+  Update.
+- After Create/Update, set state from the API response through the `...FromAPI` function, not
+  from the plan, except for values the API does not return.
 - Read: `errors.Is(err, client.ErrNotFound)` → `resp.State.RemoveResource(ctx)` and return.
   Legacy code: `scalr.ErrResourceNotFound` (v1), `d.SetId("")` (SDK).
 - Delete: ignore not-found.
