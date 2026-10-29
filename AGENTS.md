@@ -66,8 +66,8 @@ make install                                 # build and copy into ~/.terraform.
 make test                                    # unit tests; acceptance tests skip without TF_ACC
 make vet
 make fmt                                     # golangci-lint fmt: gofumpt + gci import groups
+pre-commit run --files <changed files>       # all local hooks, golangci-lint at the CI version
 golangci-lint run                            # what CI runs (v2.6.1, config in .golangci.yml)
-pre-commit run --files <changed files>       # all local hooks; `pre-commit install` once per clone
 go generate                                  # terraform fmt examples + tfplugindocs + page order
 go test ./internal/provider -run 'TestResourceScalrVcsProviderStateUpgradeV0' -v   # one unit test
 
@@ -80,7 +80,8 @@ go get github.com/scalr/go-scalr/v2@<commit-sha> && go mod tidy   # pin go-scalr
 
 `go generate` and the pre-commit `terraform fmt` hook need the `terraform` binary on `PATH`.
 `golangci-lint` must be v2 (`go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.6.1`);
-v1 cannot read `.golangci.yml`. Never run the full `make testacc` locally: it takes up to 45
+v1 cannot read `.golangci.yml`. `pre-commit install` once per clone. Never "fix" lint or
+formatting findings in files you did not otherwise change. Never run the full `make testacc` locally: it takes up to 45
 minutes and creates real objects.
 
 ## Code Conventions
@@ -103,8 +104,8 @@ minutes and creates real objects.
     request building.
   - `<name>_schemas.go`: the current schema, frozen prior versions (`<name>ResourceSchemaV<N>`),
     validators and plan modifiers only this schema uses.
-  - `<name>_models.go`: model structs and `<name>ResourceModelFromAPI`, shared with the data
-    source where the shapes match.
+  - `<name>_models.go`: model structs and `<name>ResourceModelFromAPI`, and nested models
+    shared with the data source.
   - `<name>_migrate.go`: state upgraders.
 
   Examples: `workspace_*`, `variable_*`, `storage_profile_*` (models shared with the data source).

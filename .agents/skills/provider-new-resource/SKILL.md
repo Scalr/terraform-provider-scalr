@@ -15,7 +15,11 @@ description: >-
 1. Read the API: the fatmouse OpenAPI spec (`../fatmouse/taco/openapi/openapi-public.yml`) or the
    go-scalr v2 schema `../go-scalr/v2/scalr/schemas/<name>.gen.go` and ops
    `../go-scalr/v2/scalr/ops/<name>/`. Note which attributes are required, read-only, write-only
-   (secrets the API never returns), and which relationships are to-one or to-many.
+   (secrets the API never returns), and which relationships are to-one or to-many. The spec's
+   `description`s are a starting point for `MarkdownDescription`, often too terse. Read the
+   fatmouse service code that uses the object (`taco/app/<area>/service/`) for what users need:
+   what Scalr sends or does with it, and how each attribute is used (`tenant_id` → the
+   `X-Scope-OrgID` header).
 2. Check the client in the pinned version: `go doc github.com/scalr/go-scalr/v2/scalr/ops/<name>`.
    Missing or stale (the usual case for a new API) → first step is `make generate` in
    `../go-scalr/v2`; follow
@@ -94,11 +98,16 @@ changes to existing Framework resources.
   cleared by the server ([CONTRIBUTING.md § to-many](../../../CONTRIBUTING.md#working-with-to-many-relationships)).
 - Data source attributes mirror the resource's names and descriptions; all are `Computed` except
   the lookup keys.
+- Data source Read maps the API object into its own model directly (`docker_integration_data_source.go`,
+  `wiz_integration_data_source.go`). Reuse the resource's `...FromAPI` only when it carries
+  real logic the data source needs (relationships, normalisation, as in
+  `policy_group_data_source.go`), not to copy flat fields from one model into another. Nested
+  models can be shared (`storage_profile_models.go`).
 
 ## CRUD rules
 
 - Map the API object to state with a free function that returns a new model, shared by Create,
-  Read, Update and, where the shapes match, the data source:
+  Read and Update:
   `<name>ResourceModelFromAPI(ctx, apiObj, <values the API does not return>, prior *model) (*model, diag.Diagnostics)`;
   drop `ctx`, `prior` or the diagnostics when not needed (`docker_integration_resource.go`,
   `wiz_integration_resource.go`). Values the API never returns (secrets) and prior values needed
