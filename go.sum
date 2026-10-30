@@ -208,8 +208,8 @@ github.com/rogpeppe/go-internal v1.14.1 h1:UQB4HGPB6osV0SQTLymcB4TgvyWu6ZyliaW0t
 github.com/rogpeppe/go-internal v1.14.1/go.mod h1:MaRKkUm5W0goXpeCfT7UZI6fk/L7L7so1lCWt35ZSgc=
 github.com/scalr/go-scalr v0.0.0-20260930083521-fd40fcb0c809 h1:cYZB4/Tn9iCV15g5RTR+33//E9ax1J0XTWEHeIsPBM4=
 github.com/scalr/go-scalr v0.0.0-20260930083521-fd40fcb0c809/go.mod h1:Om3UIkHGeOcUK72OzjWI1GlS/hFyY8RRLxgbO0ZPsn4=
-github.com/scalr/go-scalr/v2 v2.0.0-rc.4.0.20261016090602-ff3fddd47512 h1:VxqBS7XThQiT6eysBRXTcdIt4XpLs+Vy4S6wNO98T5c=
-github.com/scalr/go-scalr/v2 v2.0.0-rc.4.0.20261016090602-ff3fddd47512/go.mod h1:RV5fYPhUX+iPT1/G9TMJ468KpIrFEUk+UAcmc1yA1Wc=
+github.com/scalr/go-scalr/v2 v2.0.0-rc.4.0.20261030135509-658960585fa8 h1:szNOwxF8Oh5VS6iLEyJEEUdJLhGZ1w2BNW6KEup/AyE=
+github.com/scalr/go-scalr/v2 v2.0.0-rc.4.0.20261030135509-658960585fa8/go.mod h1:kiYb/i4uXJ5h/1shYvwEFEmCLEMEFJJ+phmC6VMccNs=
 github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 h1:n661drycOFuPLCN3Uc8sB6B/s6Z4t2xvBgU1htSHuq8=
 github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3/go.mod h1:A0bzQcvG0E7Rwjx0REVgAGH58e96+X0MeOfepqsbeW4=
 github.com/shopspring/decimal v1.2.0/go.mod h1:DKyhrW/HYNuLGql+MJL6WCR6knT2jwCFRcu2hWCYk4o=
