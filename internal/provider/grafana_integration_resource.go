@@ -58,37 +58,27 @@ type grafanaIntegrationResourceModel struct {
 	AccountID  types.String `tfsdk:"account_id"`
 }
 
-// refresh overwrites the model with the values returned by the API.
-// The secret is never returned, so the value from the plan or state is kept.
-func (m *grafanaIntegrationResourceModel) refresh(gi *schemas.GrafanaIntegration) {
-	m.Id = types.StringValue(gi.ID)
-	m.Name = types.StringValue(gi.Attributes.Name)
-	m.Kind = types.StringValue(string(gi.Attributes.Kind))
-	m.Endpoint = types.StringValue(gi.Attributes.Endpoint)
-	m.AuthType = types.StringValue(string(gi.Attributes.AuthType))
-	m.Username = types.StringPointerValue(gi.Attributes.Username)
-	m.TenantID = types.StringPointerValue(gi.Attributes.TenantId)
-	m.Status = types.StringValue(string(gi.Attributes.Status))
-	m.ErrMessage = types.StringPointerValue(gi.Attributes.ErrMessage)
-	if gi.Relationships.Account != nil {
-		m.AccountID = types.StringValue(gi.Relationships.Account.ID)
+// The API never returns the secret, so it is taken from the plan or state.
+func grafanaIntegrationResourceModelFromAPI(gi *schemas.GrafanaIntegration, secret types.String) *grafanaIntegrationResourceModel {
+	model := &grafanaIntegrationResourceModel{
+		Id:         types.StringValue(gi.ID),
+		Name:       types.StringValue(gi.Attributes.Name),
+		Kind:       types.StringValue(string(gi.Attributes.Kind)),
+		Endpoint:   types.StringValue(gi.Attributes.Endpoint),
+		AuthType:   types.StringValue(string(gi.Attributes.AuthType)),
+		Username:   types.StringPointerValue(gi.Attributes.Username),
+		Secret:     secret,
+		TenantID:   types.StringPointerValue(gi.Attributes.TenantId),
+		Status:     types.StringValue(string(gi.Attributes.Status)),
+		ErrMessage: types.StringPointerValue(gi.Attributes.ErrMessage),
+		AccountID:  types.StringNull(),
 	}
-}
 
-// request builds the API payload from the model. All settings are sent on update too,
-// since the API validates them together.
-func (m *grafanaIntegrationResourceModel) request() *schemas.GrafanaIntegrationRequest {
-	return &schemas.GrafanaIntegrationRequest{
-		Attributes: schemas.GrafanaIntegrationAttributesRequest{
-			Name:     value.Set(m.Name.ValueString()),
-			Kind:     value.Set(schemas.GrafanaIntegrationKind(m.Kind.ValueString())),
-			Endpoint: value.Set(m.Endpoint.ValueString()),
-			AuthType: value.Set(schemas.GrafanaIntegrationAuthType(m.AuthType.ValueString())),
-			Username: value.SetPtr(m.Username.ValueStringPointer()),
-			TenantId: value.SetPtr(m.TenantID.ValueStringPointer()),
-			Secret:   value.SetPtrMaybe(m.Secret.ValueStringPointer()),
-		},
+	if gi.Relationships.Account != nil {
+		model.AccountID = types.StringValue(gi.Relationships.Account.ID)
 	}
+
+	return model
 }
 
 func (r *grafanaIntegrationResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -271,18 +261,30 @@ func (r *grafanaIntegrationResource) Create(ctx context.Context, req resource.Cr
 		return
 	}
 
-	gi, err := r.ClientV2.GrafanaIntegration.CreateGrafanaIntegration(ctx, plan.request())
+	opts := schemas.GrafanaIntegrationRequest{
+		Attributes: schemas.GrafanaIntegrationAttributesRequest{
+			Name:     value.Set(plan.Name.ValueString()),
+			Kind:     value.Set(schemas.GrafanaIntegrationKind(plan.Kind.ValueString())),
+			Endpoint: value.Set(plan.Endpoint.ValueString()),
+			AuthType: value.Set(schemas.GrafanaIntegrationAuthType(plan.AuthType.ValueString())),
+			Username: value.SetPtr(plan.Username.ValueStringPointer()),
+			Secret:   value.SetPtrMaybe(plan.Secret.ValueStringPointer()),
+			TenantId: value.SetPtr(plan.TenantID.ValueStringPointer()),
+		},
+	}
+
+	gi, err := r.ClientV2.GrafanaIntegration.CreateGrafanaIntegration(ctx, &opts)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating Grafana integration", err.Error())
 		return
 	}
 
-	plan.refresh(gi)
-	if plan.ErrMessage.ValueString() != "" {
-		resp.Diagnostics.AddWarning("Grafana integration has failed", plan.ErrMessage.ValueString())
+	result := grafanaIntegrationResourceModelFromAPI(gi, plan.Secret)
+	if result.ErrMessage.ValueString() != "" {
+		resp.Diagnostics.AddWarning("Grafana integration has failed", result.ErrMessage.ValueString())
 	}
 
-	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
 }
 
 func (r *grafanaIntegrationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -302,30 +304,65 @@ func (r *grafanaIntegrationResource) Read(ctx context.Context, req resource.Read
 		return
 	}
 
-	state.refresh(gi)
-
-	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, grafanaIntegrationResourceModelFromAPI(gi, state.Secret))...)
 }
 
 func (r *grafanaIntegrationResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan grafanaIntegrationResourceModel
+	var plan, state grafanaIntegrationResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	gi, err := r.ClientV2.GrafanaIntegration.UpdateGrafanaIntegration(ctx, plan.Id.ValueString(), plan.request())
+	opts := schemas.GrafanaIntegrationRequest{}
+
+	if !plan.Name.Equal(state.Name) {
+		opts.Attributes.Name = value.Set(plan.Name.ValueString())
+	}
+
+	targetChanged := !plan.Kind.Equal(state.Kind) ||
+		!plan.Endpoint.Equal(state.Endpoint) ||
+		!plan.AuthType.Equal(state.AuthType)
+
+	if !plan.Kind.Equal(state.Kind) {
+		opts.Attributes.Kind = value.Set(schemas.GrafanaIntegrationKind(plan.Kind.ValueString()))
+	}
+
+	if !plan.Endpoint.Equal(state.Endpoint) {
+		opts.Attributes.Endpoint = value.Set(plan.Endpoint.ValueString())
+	}
+
+	if !plan.AuthType.Equal(state.AuthType) {
+		opts.Attributes.AuthType = value.Set(schemas.GrafanaIntegrationAuthType(plan.AuthType.ValueString()))
+	}
+
+	if !plan.Username.Equal(state.Username) {
+		opts.Attributes.Username = value.SetPtr(plan.Username.ValueStringPointer())
+	}
+
+	// The API drops the stored secret when the kind, endpoint or auth type changes
+	// and no secret is sent, so send it along with them.
+	if !plan.Secret.Equal(state.Secret) || targetChanged {
+		opts.Attributes.Secret = value.SetPtrMaybe(plan.Secret.ValueStringPointer())
+	}
+
+	if !plan.TenantID.Equal(state.TenantID) {
+		opts.Attributes.TenantId = value.SetPtr(plan.TenantID.ValueStringPointer())
+	}
+
+	gi, err := r.ClientV2.GrafanaIntegration.UpdateGrafanaIntegration(ctx, plan.Id.ValueString(), &opts)
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating Grafana integration", err.Error())
 		return
 	}
 
-	plan.refresh(gi)
-	if plan.ErrMessage.ValueString() != "" {
-		resp.Diagnostics.AddWarning("Grafana integration has failed", plan.ErrMessage.ValueString())
+	result := grafanaIntegrationResourceModelFromAPI(gi, plan.Secret)
+	if result.ErrMessage.ValueString() != "" {
+		resp.Diagnostics.AddWarning("Grafana integration has failed", result.ErrMessage.ValueString())
 	}
 
-	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
 }
 
 func (r *grafanaIntegrationResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

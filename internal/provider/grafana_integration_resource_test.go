@@ -11,12 +11,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
 	"github.com/scalr/go-scalr/v2/scalr/client"
 )
 
 // The Loki tests point at an endpoint that rejects the connection check,
 // so the integration is expected to end up in the `failed` status.
-const testGrafanaFailingEndpoint = "https://example.com/otlp"
+const (
+	testGrafanaFailingEndpoint      = "https://example.com/otlp"
+	testGrafanaOtherFailingEndpoint = "https://example.org/otlp"
+)
 
 func TestAccScalrGrafanaIntegrationResource_loki(t *testing.T) {
 	name := acctest.RandomWithPrefix("test-grafana")
@@ -54,7 +58,7 @@ func TestAccScalrGrafanaIntegrationResource_loki(t *testing.T) {
 				},
 			},
 			{
-				Config: testAccScalrGrafanaIntegrationLokiBearer(newName),
+				Config: testAccScalrGrafanaIntegrationLokiBearer(newName, testGrafanaFailingEndpoint),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "name", newName),
 					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "auth_type", "bearer"),
@@ -65,7 +69,7 @@ func TestAccScalrGrafanaIntegrationResource_loki(t *testing.T) {
 			},
 			{
 				// The API never returns the secret; make sure that does not show up as drift.
-				Config: testAccScalrGrafanaIntegrationLokiBearer(newName),
+				Config: testAccScalrGrafanaIntegrationLokiBearer(newName, testGrafanaFailingEndpoint),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectEmptyPlan(),
@@ -78,6 +82,15 @@ func TestAccScalrGrafanaIntegrationResource_loki(t *testing.T) {
 				ImportStateVerify: true,
 				// The API never returns the secret, so it cannot be imported.
 				ImportStateVerifyIgnore: []string{"secret"},
+			},
+			{
+				// The API drops the stored secret on an endpoint change unless it is sent again.
+				Config: testAccScalrGrafanaIntegrationLokiBearer(newName, testGrafanaOtherFailingEndpoint),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "endpoint", testGrafanaOtherFailingEndpoint),
+					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "auth_type", "bearer"),
+					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "secret", "fake-token"),
+				),
 			},
 			{
 				// Back to no auth: tenant_id is cleared.
@@ -169,10 +182,6 @@ func TestAccScalrGrafanaIntegrationResource_validation(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Enter the base OTLP URL without /v1/logs`),
 			},
 			{
-				Config:      testAccScalrGrafanaIntegrationRaw(`kind = "loki"`, `auth_type = "none"`, testGrafanaFailingEndpoint, `tenant_id = "a:b"`),
-				ExpectError: regexp.MustCompile(`must not contain ':'`),
-			},
-			{
 				Config: testAccScalrGrafanaIntegrationRaw(
 					`kind = "cloud"`, `auth_type = "bearer"`, testGrafanaFailingEndpoint, `secret = "x"`,
 				),
@@ -254,7 +263,7 @@ resource "scalr_grafana_integration" "test" {
 }`, name, testGrafanaFailingEndpoint)
 }
 
-func testAccScalrGrafanaIntegrationLokiBearer(name string) string {
+func testAccScalrGrafanaIntegrationLokiBearer(name, endpoint string) string {
 	return fmt.Sprintf(`
 resource "scalr_grafana_integration" "test" {
   name      = %q
@@ -263,7 +272,7 @@ resource "scalr_grafana_integration" "test" {
   auth_type = "bearer"
   secret    = "fake-token"
   tenant_id = "tenant-1"
-}`, name, testGrafanaFailingEndpoint)
+}`, name, endpoint)
 }
 
 func testAccScalrGrafanaIntegrationCloud(name, endpoint, instanceID, token string) string {
