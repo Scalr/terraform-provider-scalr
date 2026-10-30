@@ -51,6 +51,12 @@ func resourceScalrAgentPool() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
+			"run_acquisition_timeout": {
+				Description: "The time in minutes a run waits for an agent of the pool to pick it up. When it expires, the run is canceled.",
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+			},
 			"api_gateway_url": {
 				Description:      "HTTP(s) destination URL for pool webhook.",
 				Type:             schema.TypeString,
@@ -138,6 +144,10 @@ func resourceScalrAgentPoolCreate(ctx context.Context, d *schema.ResourceData, m
 		options.WebhookEnabled = ptr(true)
 	}
 
+	if v, ok := d.GetOk("run_acquisition_timeout"); ok {
+		options.RunAcquisitionTimeout = ptr(v.(int))
+	}
+
 	if environmentsI, ok := d.GetOk("environments"); ok {
 		environments := environmentsI.(*schema.Set).List()
 		if (len(environments) == 1) && (environments[0].(string) == "*") {
@@ -194,6 +204,7 @@ func resourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, met
 	_ = d.Set("name", agentPool.Name)
 	_ = d.Set("account_id", agentPool.Account.ID)
 	_ = d.Set("vcs_enabled", agentPool.VcsEnabled)
+	_ = d.Set("run_acquisition_timeout", agentPool.RunAcquisitionTimeout)
 
 	if agentPool.Environment != nil {
 		_ = d.Set("environment_id", agentPool.Environment.ID)
@@ -291,6 +302,10 @@ func resourceScalrAgentPoolUpdate(ctx context.Context, d *schema.ResourceData, m
 
 	if d.HasChange("header") {
 		options.WebhookHeaders = parsePoolHeaders(d)
+	}
+
+	if d.HasChange("run_acquisition_timeout") {
+		options.RunAcquisitionTimeout = ptr(d.Get("run_acquisition_timeout").(int))
 	}
 
 	log.Printf("[DEBUG] Update agent pool %s", id)

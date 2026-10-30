@@ -35,6 +35,7 @@ func TestAccScalrAgentPoolDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.scalr_agent_pool.test", "id"),
 					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "name", "ds-agent_pool-test-env"),
 					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "account_id", defaultAccount),
+					resource.TestCheckResourceAttr("data.scalr_agent_pool.test", "run_acquisition_timeout", "90"),
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "api_gateway_url", "https://example.com"),
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.name", "Authorization"),
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.value", "1234567890"),
@@ -97,6 +98,7 @@ resource "scalr_agent_pool" "test" {
   name       = "ds-agent_pool-test-env"
   environments = [scalr_environment.test-new.id]
   api_gateway_url = "https://example.com"
+  run_acquisition_timeout = 90
   header {
   	name = "Authorization"
     value = "1234567890"

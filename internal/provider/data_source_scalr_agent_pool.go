@@ -40,6 +40,12 @@ func dataSourceScalrAgentPool() *schema.Resource {
 				Computed:    true,
 			},
 
+			"run_acquisition_timeout": {
+				Description: "The time in minutes a run waits for an agent of the pool to pick it up. When it expires, the run is canceled.",
+				Type:        schema.TypeInt,
+				Computed:    true,
+			},
+
 			"account_id": {
 				Description: "An identifier of the Scalr account.",
 				Type:        schema.TypeString,
@@ -165,6 +171,7 @@ func dataSourceScalrAgentPoolRead(ctx context.Context, d *schema.ResourceData, m
 		_ = d.Set("environments", environmentIDs)
 	}
 	_ = d.Set("vcs_enabled", agentPool.VcsEnabled)
+	_ = d.Set("run_acquisition_timeout", agentPool.RunAcquisitionTimeout)
 	_ = d.Set("name", agentPool.Name)
 	if agentPool.WebhookEnabled {
 		_ = d.Set("api_gateway_url", agentPool.WebhookUrl)
