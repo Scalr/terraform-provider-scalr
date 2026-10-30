@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+
 	"github.com/scalr/go-scalr"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
@@ -121,7 +122,6 @@ func (r *agentPoolTokenResource) Read(ctx context.Context, req resource.ReadRequ
 
 	for {
 		tokensList, err := r.Client.AgentPoolTokens.List(ctx, state.AgentPoolID.ValueString(), opts)
-
 		if err != nil {
 			if errors.Is(err, scalr.ErrResourceNotFound) {
 				resp.State.RemoveResource(ctx)

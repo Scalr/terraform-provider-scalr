@@ -10,8 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	"github.com/scalr/go-scalr"
 
+	"github.com/scalr/go-scalr"
 	scalrV2 "github.com/scalr/go-scalr/v2/scalr"
 	"github.com/scalr/go-scalr/v2/scalr/ops/provider_configuration_link"
 	"github.com/scalr/go-scalr/v2/scalr/schemas"
@@ -616,8 +616,7 @@ func TestAccScalrWorkspaceResource_SCALRCORE_36088(t *testing.T) {
 	})
 }
 
-func testAccCheckScalrWorkspaceExists(
-	n string, workspace *scalr.Workspace) resource.TestCheckFunc {
+func testAccCheckScalrWorkspaceExists(n string, workspace *scalr.Workspace) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
@@ -642,8 +641,7 @@ func testAccCheckScalrWorkspaceExists(
 	}
 }
 
-func testAccCheckScalrWorkspaceAttributes(
-	workspace *scalr.Workspace) resource.TestCheckFunc {
+func testAccCheckScalrWorkspaceAttributes(workspace *scalr.Workspace) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if workspace.Name != "workspace-test" {
 			return fmt.Errorf("Bad name: %s", workspace.Name)
@@ -665,8 +663,7 @@ func testAccCheckScalrWorkspaceAttributes(
 	}
 }
 
-func testAccCheckScalrWorkspaceMonorepoAttributes(
-	workspace *scalr.Workspace) resource.TestCheckFunc {
+func testAccCheckScalrWorkspaceMonorepoAttributes(workspace *scalr.Workspace) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if workspace.Name != "workspace-monorepo" {
 			return fmt.Errorf("Bad name: %s", workspace.Name)
@@ -680,8 +677,7 @@ func testAccCheckScalrWorkspaceMonorepoAttributes(
 	}
 }
 
-func testAccCheckScalrWorkspaceAttributesUpdated(
-	workspace *scalr.Workspace) resource.TestCheckFunc {
+func testAccCheckScalrWorkspaceAttributesUpdated(workspace *scalr.Workspace) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if workspace.Name != "workspace-updated" {
 			return fmt.Errorf("Bad name: %s", workspace.Name)
@@ -707,8 +703,7 @@ func testAccCheckScalrWorkspaceAttributesUpdated(
 	}
 }
 
-func testAccCheckScalrWorkspaceProviderConfigurations(
-	workspace *scalr.Workspace) resource.TestCheckFunc {
+func testAccCheckScalrWorkspaceProviderConfigurations(workspace *scalr.Workspace) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		scalrClient := createScalrClientV2()
 
@@ -761,8 +756,7 @@ func testAccCheckScalrWorkspaceProviderConfigurations(
 	}
 }
 
-func testAccCheckScalrWorkspaceProviderConfigurationsUpdated(
-	workspace *scalr.Workspace) resource.TestCheckFunc {
+func testAccCheckScalrWorkspaceProviderConfigurationsUpdated(workspace *scalr.Workspace) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		scalrClient := createScalrClientV2()
 
@@ -816,8 +810,7 @@ func testAccCheckScalrWorkspaceProviderConfigurationsUpdated(
 	}
 }
 
-func testAccCheckScalrWorkspaceStateSharing(
-	n string, isShared bool) resource.TestCheckFunc {
+func testAccCheckScalrWorkspaceStateSharing(n string, isShared bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
@@ -1548,7 +1541,7 @@ func getProviderConfigurationWorkspaceLinksWithPcfg(
 		}
 	}
 
-	return
+	return workspaceLinks, err
 }
 
 func testAccScalrWorkspaceForImportByName(rInt int, wsName string) string {

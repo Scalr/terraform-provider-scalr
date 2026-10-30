@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
 	"github.com/scalr/go-scalr"
 )
 
@@ -217,7 +218,6 @@ resource "scalr_vcs_provider" "test" {
 }
 
 func testAccScalrVcsProviderUpdate(token string, vcsType scalr.VcsType) string {
-
 	return fmt.Sprintf(`
 resource "scalr_vcs_provider" "test" {
   name           = "updated-github-vcs-provider"

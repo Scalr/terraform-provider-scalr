@@ -6,11 +6,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
 	"github.com/scalr/go-scalr"
 )
 
 func TestFederatedEnvironmentsResource_basic(t *testing.T) {
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
@@ -31,7 +31,6 @@ func TestFederatedEnvironmentsResource_basic(t *testing.T) {
 }
 
 func TestFederatedEnvironmentsResource_update(t *testing.T) {
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
@@ -62,7 +61,6 @@ func TestFederatedEnvironmentsResource_update(t *testing.T) {
 }
 
 func TestFederatedEnvironmentsResource_shared(t *testing.T) {
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV5ProviderFactories: protoV5ProviderFactories(t),

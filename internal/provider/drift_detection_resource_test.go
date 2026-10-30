@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
 	"github.com/scalr/go-scalr"
 )
 
@@ -190,7 +191,7 @@ func testDriftDetectionSaveID(name string, driftDetectionID *string) resource.Te
 	}
 }
 
-func testDriftDetectionConfig(envName string, checkPeriod string, runMode string, extra string) string {
+func testDriftDetectionConfig(envName, checkPeriod, runMode, extra string) string {
 	return fmt.Sprintf(testDriftDetectionConfigBase, envName, defaultAccount, fmt.Sprintf(`
 resource "scalr_drift_detection" "test" {
   environment_id = scalr_environment.test.id
@@ -213,7 +214,7 @@ resource "scalr_environment" "test" {
 %s
 `
 
-func testWorkspaceFilterConfigPart(patterns *[]string, envTypes *[]string, tags *[]string) string {
+func testWorkspaceFilterConfigPart(patterns, envTypes, tags *[]string) string {
 	arrayStrToStr := func(o []string) string {
 		l := make([]string, len(o))
 		for i, v := range o {

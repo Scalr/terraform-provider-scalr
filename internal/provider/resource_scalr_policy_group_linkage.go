@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/scalr/go-scalr"
 )
 
@@ -137,12 +137,12 @@ func getLinkedResources(ctx context.Context, id string, scalrClient *scalr.Clien
 ) {
 	pgID, envID, err := unpackPolicyGroupLinkageID(id)
 	if err != nil {
-		return
+		return policyGroup, environment, err
 	}
 
 	environment, err = scalrClient.Environments.Read(ctx, envID)
 	if err != nil {
-		return
+		return policyGroup, environment, err
 	}
 
 	for _, pg := range environment.PolicyGroups {
@@ -155,7 +155,7 @@ func getLinkedResources(ctx context.Context, id string, scalrClient *scalr.Clien
 		return nil, nil, scalr.ErrResourceNotFound
 	}
 
-	return
+	return policyGroup, environment, err
 }
 
 func packPolicyGroupLinkageID(pgID, envID string) string {

@@ -21,4 +21,4 @@ resource "scalr_provider_configuration" "elasticstack" {
       description = "Password for Elasticsearch authentication."
     }
   }
-} 
+}

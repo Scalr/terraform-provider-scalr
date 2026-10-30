@@ -8,11 +8,14 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/scalr/go-scalr"
 )
 
-type Scope string
-type Subject string
+type (
+	Scope   string
+	Subject string
+)
 
 const (
 	User           Subject = "user"
@@ -82,7 +85,7 @@ func resourceScalrAccessPolicy() *schema.Resource {
 								if err := Subject(v).IsValid(); err != nil {
 									errs = append(errs, fmt.Errorf("%s must be one of [user, team, service_account], got: %s", key, v))
 								}
-								return
+								return warns, errs
 							},
 						},
 					},
@@ -111,8 +114,9 @@ func resourceScalrAccessPolicy() *schema.Resource {
 								if err := Scope(v).IsValid(); err != nil {
 									errs = append(errs, fmt.Errorf("%s must be one of [workspace, environment, account], got: %s", key, v))
 								}
-								return
-							}},
+								return warns, errs
+							},
+						},
 					},
 				},
 			},
@@ -197,7 +201,6 @@ func resourceScalrAccessPolicyRead(ctx context.Context, d *schema.ResourceData, 
 
 	log.Printf("[DEBUG] Read configuration of access policy: %s", id)
 	ap, err := scalrClient.AccessPolicies.Read(ctx, id)
-
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			log.Printf("[DEBUG] AccessPolicy %s not found", id)

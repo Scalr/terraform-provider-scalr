@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
 	"github.com/scalr/go-scalr"
 )
 
@@ -106,8 +107,7 @@ func TestAccScalrHook_import(t *testing.T) {
 	})
 }
 
-func testAccCheckScalrHookExists(
-	n string, hook *scalr.Hook) resource.TestCheckFunc {
+func testAccCheckScalrHookExists(n string, hook *scalr.Hook) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {

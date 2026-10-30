@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
 	"github.com/scalr/go-scalr"
 )
 
@@ -213,8 +214,7 @@ func testAccCheckScalrEnvironmentExists(n string, environment *scalr.Environment
 	}
 }
 
-func testAccCheckScalrEnvironmentFederation(
-	n string, isFederated bool) resource.TestCheckFunc {
+func testAccCheckScalrEnvironmentFederation(n string, isFederated bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
@@ -256,6 +256,7 @@ func testAccCheckScalrEnvironmentAttributes(environment *scalr.Environment, rInt
 		return nil
 	}
 }
+
 func testAccCheckScalrEnvironmentAttributesUpdate(environment *scalr.Environment, rInt int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if environment.Name != fmt.Sprintf("test-env-%d-patched", rInt) {
@@ -282,6 +283,7 @@ func testAccCheckScalrEnvironmentProviderConfigurations(environment *scalr.Envir
 		return nil
 	}
 }
+
 func testAccCheckScalrEnvironmentProviderConfigurationsUpdate(environment *scalr.Environment) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)

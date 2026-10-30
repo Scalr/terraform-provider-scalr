@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/scalr/go-scalr"
 )
 
@@ -305,7 +306,6 @@ func resourceScalrWebhookRead(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func updateWebhook(ctx context.Context, d *schema.ResourceData, scalrClient *scalr.Client) error {
-
 	options := scalr.WebhookIntegrationUpdateOptions{}
 
 	if d.HasChange("name") {

@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/scalr/go-scalr"
 )
 
@@ -174,7 +175,6 @@ func resourceScalrWorkspaceRunScheduleDelete(ctx context.Context, d *schema.Reso
 
 func resourceScalrWorkspaceRunScheduleImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	err := resourceScalrWorkspaceRunScheduleRead(ctx, d, meta)
-
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving workspace run schedule %s: %v", d.Id(), err)
 	}

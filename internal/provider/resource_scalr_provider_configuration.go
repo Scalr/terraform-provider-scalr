@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/scalr/go-scalr"
 )
 
@@ -677,7 +678,6 @@ func resourceScalrProviderConfigurationCreate(ctx context.Context, d *schema.Res
 	}
 
 	providerConfiguration, err := scalrClient.ProviderConfigurations.Create(ctx, configurationOptions)
-
 	if err != nil {
 		return diag.Errorf(
 			"Error creating provider configuration %s for account %s: %v", name, accountID, err)
@@ -1230,7 +1230,6 @@ func syncArguments(ctx context.Context, providerConfigurationId string, custom m
 		nil,
 	)
 	return err
-
 }
 
 func resourceScalrProviderConfigurationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1263,7 +1262,6 @@ func changeParameters(
 	deleted []string,
 	err error,
 ) {
-
 	done := make(chan struct{})
 	defer close(done)
 
@@ -1299,7 +1297,7 @@ func changeParameters(
 	}
 
 	if tasks == nil {
-		return
+		return created, updated, deleted, err
 	}
 
 	go func() {
@@ -1358,7 +1356,7 @@ func changeParameters(
 		}
 	}
 
-	return
+	return created, updated, deleted, err
 }
 
 // createParameters is used to create parameters for provider configuratio.
@@ -1374,5 +1372,5 @@ func createParameters(
 	created, _, _, err = changeParameters(
 		ctx, client, configurationID, optionsList, nil, nil,
 	)
-	return
+	return created, err
 }

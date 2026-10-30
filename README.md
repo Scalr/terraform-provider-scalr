@@ -7,8 +7,7 @@ The Scalr Terraform provider is used to manage resources within [Scalr](https://
 ### Requirements
 - [Terraform](https://www.terraform.io/downloads.html) >= 0.12.x
 Download the latest provider build for your OS and architecture
-from the [releases page](https://github.com/Scalr/terraform-provider-scalr/releases)
-that is compatible with your Scalr server version (under the "required" section).
+from the [releases page](https://github.com/Scalr/terraform-provider-scalr/releases).
 Extract the archive to get the provider binary.
 
 Follow the instructions on the [official documentation page](https://docs.scalr.io/docs/provider_overview) to learn how to use it.
@@ -82,19 +81,22 @@ For more info refer to the [documentation](https://developer.hashicorp.com/terra
 
 ### Using a local copy of go-scalr
 This provider uses [go-scalr](https://github.com/Scalr/go-scalr) to call the Scalr API.
+New code uses the v2 client (`github.com/scalr/go-scalr/v2`), generated from the Scalr OpenAPI spec;
+the v1 client is frozen. To add a missing API to v2, see [CONTRIBUTING.md](CONTRIBUTING.md#how-to-contribute-to-the-scalr-provider).
 
-For development purposes you can make the provider use your local copy of go-scalr like this:
+For development purposes you can make the provider use your local copy of go-scalr v2
+(with `go-scalr` checked out next to this repository):
 ```sh
-go mod edit -replace github.com/scalr/go-scalr=/Users/<username>/Projects/scalr/go-scalr # this should be your path
+go mod edit -replace github.com/scalr/go-scalr/v2=../go-scalr/v2
 ```
-Remember to remove this link before committing:
+Remove this link before pushing:
 ```sh
-go mod edit -dropreplace github.com/scalr/go-scalr
+go mod edit -dropreplace github.com/scalr/go-scalr/v2 && go mod tidy
 ```
 
-To update the go-scalr version:
+To update the go-scalr v2 version, pin a commit (during development, the head of the ticket's go-scalr branch):
 ```sh
-go get github.com/scalr/go-scalr@master
+go get github.com/scalr/go-scalr/v2@<commit-sha> && go mod tidy
 ```
 
 ### Testing
@@ -103,20 +105,21 @@ go get github.com/scalr/go-scalr@master
 $ make test
 ```
 #### Acceptance tests
-You will need to set up the environment variables for your Scalr installation. For example:
+Acceptance tests create real objects. Run them against a disposable test environment with the fatmouse seed data, never production.
+
+Put the test environment settings into `.scalr-testenv.env` (git-ignored; AI agents use it too):
 ```sh
-export SCALR_HOSTNAME=abcdef.scalr.com
-export SCALR_TOKEN=.....
+cp .scalr-testenv.env.sample .scalr-testenv.env
+chmod 600 .scalr-testenv.env
+# set SCALR_HOSTNAME and SCALR_TOKEN, and optional credentials for tests that need them
 ```
 
-You can run the acceptance tests like this:
+Run selected tests by a name regexp:
 ```sh
-make testacc
+make testacc-one RUN='^TestAccScalrWorkspace_(basic|update)$'
 ```
-If you want to run one or more specific tests you can pass the targets as an environment variable:
-```sh
-TESTARGS="-run TestAccScalrWorkspace_basic TestAccScalrWorkspace_update" make testacc
-```
+
+The full suite (`make testacc`) takes up to 45 minutes and reads `SCALR_HOSTNAME` and `SCALR_TOKEN` from the environment; CI runs it on every PR.
 
 ### CI
 

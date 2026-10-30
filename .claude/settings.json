@@ -1,0 +1,57 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make build:*)",
+      "Bash(make vet:*)",
+      "Bash(make fmt:*)",
+      "Bash(make test:*)",
+      "Bash(go build:*)",
+      "Bash(go vet:*)",
+      "Bash(go test:*)",
+      "Bash(go doc:*)",
+      "Bash(go list:*)",
+      "Bash(go generate:*)",
+      "Bash(go mod tidy:*)",
+      "Bash(gofmt:*)",
+      "Bash(golangci-lint run:*)",
+      "Bash(golangci-lint fmt:*)",
+      "Bash(pre-commit run:*)",
+      "Bash(terraform fmt:*)",
+      "Bash(terraform version:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git merge-base:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh run view:*)",
+      "Bash(make testacc-one *)"
+    ],
+    "ask": [
+      "Bash(make testacc)",
+      "Bash(make testacc-one:*)",
+      "Bash(make testacc *)"
+    ],
+    "deny": [
+      "Read(./.scalr-testenv.env)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/format.sh\"",
+            "statusMessage": "Formatting edited file..."
+          }
+        ]
+      }
+    ]
+  }
+}

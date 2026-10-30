@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+
 	"github.com/scalr/go-scalr"
 )
 
@@ -72,7 +73,7 @@ func waitForModuleVersions(environmentName string) func() {
 		if len(ml.Items) == 0 {
 			log.Fatalf("The test module for environment with name %s was not created: %v", environmentName, err)
 		}
-		var mID = ml.Items[0].ID
+		mID := ml.Items[0].ID
 
 		for i := 0; i < 60; i++ {
 			m, err := scalrClient.Modules.Read(ctx, mID, scalr.ModuleReadOptions{})
