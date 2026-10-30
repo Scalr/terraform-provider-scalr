@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+
 	"github.com/scalr/go-scalr"
 	"github.com/scalr/go-scalr/v2/scalr/schemas"
 	"github.com/scalr/go-scalr/v2/scalr/value"
@@ -264,7 +265,6 @@ func (r *federatedEnvironmentsResource) Update(ctx context.Context, req resource
 }
 
 func (r *federatedEnvironmentsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-
 	var state federatedEnvironmentsResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {

@@ -2,11 +2,97 @@ version: "2"
 
 formatters:
   enable:
-    - gofmt
+    - gofumpt
+    - gci
+  settings:
+    gofumpt:
+      module-path: github.com/scalr/terraform-provider-scalr
+      extra-rules: true
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/scalr/go-scalr)
+        - localmodule
 
 linters:
+  enable:
+    - depguard
   disable:
     - errcheck
+  settings:
+    depguard:
+      rules:
+        # New code uses only the Plugin Framework and go-scalr v2.
+        framework-and-client-v2-only:
+          files:
+            - "$all"
+            # Mux and dual-client plumbing.
+            - "!**/main.go"
+            - "!**/internal/client/client.go"
+            - "!**/internal/client/client_mock.go"
+            - "!**/internal/framework/datasource.go"
+            - "!**/internal/framework/framework.go"
+            - "!**/internal/framework/resource.go"
+            - "!**/internal/provider/provider_sdk.go"
+            - "!**/internal/provider/provider_sdk_test.go"
+            - "!**/internal/provider/provider_test.go"
+            # Legacy SDK v2 resources and data sources, until migrated.
+            - "!**/internal/provider/resource_scalr_*.go"
+            - "!**/internal/provider/data_source_scalr_*.go"
+            # Legacy Framework files still on go-scalr v1. Remove an entry when the file
+            # moves to v2. Never add one.
+            - "!**/internal/provider/agent_pool_token_resource.go"
+            - "!**/internal/provider/agent_pool_token_resource_test.go"
+            - "!**/internal/provider/assume_service_account_policy_data_source.go"
+            - "!**/internal/provider/assume_service_account_policy_resource.go"
+            - "!**/internal/provider/assume_service_account_policy_resource_test.go"
+            - "!**/internal/provider/drift_detection_resource_test.go"
+            - "!**/internal/provider/environment_data_source.go"
+            - "!**/internal/provider/environment_hook_resource.go"
+            - "!**/internal/provider/environment_resource.go"
+            - "!**/internal/provider/environment_resource_test.go"
+            - "!**/internal/provider/environments_data_source.go"
+            - "!**/internal/provider/helpers.go"
+            - "!**/internal/provider/hook_data_source.go"
+            - "!**/internal/provider/hook_resource.go"
+            - "!**/internal/provider/hook_resource_test.go"
+            - "!**/internal/provider/integration_infracost_data_source.go"
+            - "!**/internal/provider/integration_infracost_resource.go"
+            - "!**/internal/provider/integration_infracost_resource_test.go"
+            - "!**/internal/provider/module_namespace_data_source.go"
+            - "!**/internal/provider/module_namespace_resource.go"
+            - "!**/internal/provider/module_namespace_resource_test.go"
+            - "!**/internal/provider/module_resource_test.go"
+            - "!**/internal/provider/module_test_configuration_resource.go"
+            - "!**/internal/provider/module_test_configuration_resource_test.go"
+            - "!**/internal/provider/module_test_provider_configuration_resource.go"
+            - "!**/internal/provider/module_test_provider_configuration_resource_test.go"
+            - "!**/internal/provider/policy_group_data_source_test.go"
+            - "!**/internal/provider/policy_group_resource_test.go"
+            - "!**/internal/provider/provider_configuration_data_source.go"
+            - "!**/internal/provider/scalr_checkov_integration_resource.go"
+            - "!**/internal/provider/scalr_checkov_integration_resource_test.go"
+            - "!**/internal/provider/storage_profile_data_source.go"
+            - "!**/internal/provider/storage_profile_models.go"
+            - "!**/internal/provider/storage_profile_resource.go"
+            - "!**/internal/provider/tag_data_source.go"
+            - "!**/internal/provider/tag_resource_test.go"
+            - "!**/internal/provider/testing.go"
+            - "!**/internal/provider/user.go"
+            - "!**/internal/provider/variable_resource_test.go"
+            - "!**/internal/provider/variable_schemas.go"
+            - "!**/internal/provider/workload_identity_provider_data_source.go"
+            - "!**/internal/provider/workload_identity_provider_resource.go"
+            - "!**/internal/provider/workload_identity_provider_resource_test.go"
+            - "!**/internal/provider/workspace_helpers.go"
+            - "!**/internal/provider/workspace_helpers_test.go"
+            - "!**/internal/provider/workspace_resource_test.go"
+          deny:
+            - pkg: "github.com/hashicorp/terraform-plugin-sdk/v2"
+              desc: "use github.com/hashicorp/terraform-plugin-framework, or terraform-plugin-testing in tests"
+            - pkg: "github.com/scalr/go-scalr$"
+              desc: "use github.com/scalr/go-scalr/v2"
   exclusions:
     rules:
       - linters: [staticcheck]

@@ -1024,7 +1024,7 @@ func getProviderConfigurationWorkspaceLinks(
 		}
 	}
 
-	return
+	return workspaceLinks, err
 }
 
 func getRemoteStateConsumers(
@@ -1037,7 +1037,7 @@ func getRemoteStateConsumers(
 
 		consumers = append(consumers, c.ID)
 	}
-	return
+	return consumers, err
 }
 
 func isSetFullyKnown(s types.Set) bool {

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+
 	"github.com/scalr/go-scalr"
 )
 
@@ -67,7 +68,6 @@ func launchRun(environmentName, workspaceName string) func() {
 				ID: ws.ID,
 			},
 		})
-
 		if err != nil {
 			log.Fatalf("Error creating cv: %v", cv)
 		}
@@ -80,7 +80,6 @@ func launchRun(environmentName, workspaceName string) func() {
 				ID: cv.ID,
 			},
 		})
-
 		if err != nil {
 			log.Fatalf("Error creating run: %v", err)
 		}

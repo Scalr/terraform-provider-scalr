@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 
 	"github.com/scalr/go-scalr"
-
 	scalrV2 "github.com/scalr/go-scalr/v2/scalr"
 )
 

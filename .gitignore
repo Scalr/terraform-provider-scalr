@@ -26,3 +26,9 @@ covprofile
 
 .github/actions/update-network-mirror/node_modules
 .github/actions/upload-provider/node_modules
+
+# Local acceptance test credentials (see .scalr-testenv.env.sample)
+.scalr-testenv.env
+
+# Personal agent settings
+.claude/settings.local.json
