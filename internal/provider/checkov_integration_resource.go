@@ -7,7 +7,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -19,7 +21,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	"github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr/v2/scalr/client"
+	"github.com/scalr/go-scalr/v2/scalr/schemas"
+	"github.com/scalr/go-scalr/v2/scalr/value"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
 	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
@@ -56,6 +60,7 @@ type checkovIntegrationResourceModel struct {
 	Name                  types.String `tfsdk:"name"`
 	Version               types.String `tfsdk:"version"`
 	CliArgs               types.String `tfsdk:"cli_args"`
+	ScanMode              types.String `tfsdk:"scan_mode"`
 	Environments          types.Set    `tfsdk:"environments"`
 	VCSProviderID         types.String `tfsdk:"vcs_provider_id"`
 	VCSRepo               types.List   `tfsdk:"vcs_repo"`
@@ -66,6 +71,116 @@ type checkovVcsRepoModel struct {
 	Identifier types.String `tfsdk:"identifier"`
 	Branch     types.String `tfsdk:"branch"`
 	Path       types.String `tfsdk:"path"`
+}
+
+func checkovIntegrationResourceModelFromAPI(
+	ctx context.Context,
+	ci *schemas.CheckovIntegration,
+	prior *checkovIntegrationResourceModel,
+) (*checkovIntegrationResourceModel, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	model := &checkovIntegrationResourceModel{
+		Id:                    types.StringValue(ci.ID),
+		Name:                  types.StringValue(ci.Attributes.Name),
+		Version:               types.StringValue(ci.Attributes.Version),
+		CliArgs:               types.StringValue(stringOrEmpty(ci.Attributes.CliArgs)),
+		ScanMode:              types.StringValue(string(ci.Attributes.ScanMode)),
+		ExternalChecksEnabled: types.BoolValue(ci.Attributes.ExternalChecksEnabled),
+		VCSProviderID:         types.StringNull(),
+		VCSRepo:               types.ListNull(checkovVcsRepoElementType),
+		Environments:          types.SetNull(types.StringType),
+	}
+
+	if ci.Relationships.VcsProvider != nil {
+		model.VCSProviderID = types.StringValue(ci.Relationships.VcsProvider.ID)
+	}
+
+	if ci.Attributes.VcsRepo != nil {
+		repo := []checkovVcsRepoModel{{
+			Identifier: types.StringValue(ci.Attributes.VcsRepo.Identifier),
+			Branch:     types.StringValue(ci.Attributes.VcsRepo.Branch),
+			Path:       types.StringValue(stringOrEmpty(ci.Attributes.VcsRepo.Path)),
+		}}
+		repoValue, d := types.ListValueFrom(ctx, checkovVcsRepoElementType, repo)
+		diags.Append(d...)
+		model.VCSRepo = repoValue
+	}
+
+	var envs types.Set
+	var d diag.Diagnostics
+	if ci.Attributes.IsShared {
+		envs, d = types.SetValueFrom(ctx, types.StringType, []string{"*"})
+	} else {
+		var priorEnvs *types.Set
+		if prior != nil {
+			priorEnvs = &prior.Environments
+		}
+		envs, d = framework.FlattenRelationshipIDsSet(
+			ctx,
+			ci.Relationships.Environments,
+			func(e *schemas.Environment) string { return e.ID },
+			priorEnvs,
+		)
+	}
+	diags.Append(d...)
+	model.Environments = envs
+
+	return model, diags
+}
+
+// expandCheckovVcsRepo converts the `vcs_repo` block of the plan into the API request options.
+func expandCheckovVcsRepo(ctx context.Context, v types.List) (
+	*schemas.CheckovIntegrationVcsRepoRequest,
+	diag.Diagnostics,
+) {
+	var diags diag.Diagnostics
+
+	if v.IsUnknown() || v.IsNull() {
+		return nil, diags
+	}
+
+	var repos []checkovVcsRepoModel
+	diags.Append(v.ElementsAs(ctx, &repos, false)...)
+	if diags.HasError() || len(repos) == 0 {
+		return nil, diags
+	}
+
+	repo := repos[0]
+	return &schemas.CheckovIntegrationVcsRepoRequest{
+		Identifier: value.Set(repo.Identifier.ValueString()),
+		Path:       value.Set(repo.Path.ValueString()),
+		Branch:     framework.SetIfKnownString(repo.Branch),
+	}, diags
+}
+
+// expandCheckovEnvironments converts the `environments` attribute of the plan into the list of
+// environments to link the integration to. The `["*"]` wildcard is reported back as the
+// `isShared` flag, which makes the integration available in every environment of the account.
+func expandCheckovEnvironments(ctx context.Context, v types.Set) (
+	environments []schemas.Environment,
+	isShared bool,
+	diags diag.Diagnostics,
+) {
+	environments = make([]schemas.Environment, 0)
+
+	if v.IsUnknown() || v.IsNull() {
+		return environments, false, diags
+	}
+
+	envs, d := framework.ExpandRelationshipIDsSet(ctx, v, func(id string) schemas.Environment {
+		return schemas.Environment{ID: id}
+	})
+	diags.Append(d...)
+	if diags.HasError() {
+		return environments, false, diags
+	}
+
+	if len(envs) == 1 && envs[0].ID == "*" {
+		return environments, true, diags
+	}
+
+	return envs, false, diags
 }
 
 func (r *checkovIntegrationResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -104,6 +219,22 @@ func (r *checkovIntegrationResource) Schema(_ context.Context, _ resource.Schema
 				Optional:            true,
 				Computed:            true,
 				Default:             stringdefault.StaticString(""),
+			},
+			"scan_mode": schema.StringAttribute{
+				MarkdownDescription: "What Checkov scans." +
+					" `code` scans the configuration files before the run is planned." +
+					" `plan` scans the plan JSON after the plan phase, so the findings cover the resources" +
+					" the run actually provisions; such a scan is skipped when the plan has no changes." +
+					" Valid values are `code`, `plan`. Default `code`.",
+				Optional: true,
+				Computed: true,
+				Default:  stringdefault.StaticString(string(schemas.CheckovIntegrationScanModeCode)),
+				Validators: []validator.String{
+					stringvalidator.OneOf(
+						string(schemas.CheckovIntegrationScanModeCode),
+						string(schemas.CheckovIntegrationScanModePlan),
+					),
+				},
 			},
 			"environments": schema.SetAttribute{
 				MarkdownDescription: "List of environments this integration is linked to. Use `[\"*\"]` to allow in all environments.",
@@ -182,107 +313,50 @@ func (r *checkovIntegrationResource) Create(ctx context.Context, req resource.Cr
 		return
 	}
 
-	opts := scalr.CheckovIntegrationCreateOptions{
-		Name:                  plan.Name.ValueStringPointer(),
-		IsShared:              ptr(false),
-		ExternalChecksEnabled: plan.ExternalChecksEnabled.ValueBoolPointer(),
-	}
-
-	if !plan.Version.IsNull() {
-		opts.Version = plan.Version.ValueStringPointer()
-	}
-
-	if !plan.CliArgs.IsNull() {
-		opts.CliArgs = plan.CliArgs.ValueStringPointer()
+	opts := schemas.CheckovIntegrationRequest{
+		Attributes: schemas.CheckovIntegrationAttributesRequest{
+			Name:                  value.Set(plan.Name.ValueString()),
+			Version:               framework.SetIfKnownString(plan.Version),
+			CliArgs:               framework.SetIfKnownString(plan.CliArgs),
+			ScanMode:              checkovScanMode(plan.ScanMode),
+			ExternalChecksEnabled: framework.SetIfKnownBool(plan.ExternalChecksEnabled),
+			IsShared:              value.Set(false),
+		},
 	}
 
 	if !plan.VCSProviderID.IsUnknown() && !plan.VCSProviderID.IsNull() {
-		opts.VcsProvider = &scalr.VcsProvider{
-			ID: plan.VCSProviderID.ValueString(),
-		}
+		opts.Relationships.VcsProvider = value.Set(schemas.VcsProvider{ID: plan.VCSProviderID.ValueString()})
 	}
 
-	if !plan.VCSRepo.IsNull() {
-		var vcsRepo []checkovVcsRepoModel
-		resp.Diagnostics.Append(plan.VCSRepo.ElementsAs(ctx, &vcsRepo, false)...)
+	vcsRepo, diags := expandCheckovVcsRepo(ctx, plan.VCSRepo)
+	resp.Diagnostics.Append(diags...)
+	opts.Attributes.VcsRepo = value.SetPtrMaybe(vcsRepo)
 
-		if len(vcsRepo) > 0 {
-			repo := vcsRepo[0]
-
-			opts.VCSRepo = &scalr.CheckovIntegrationVCSRepoOptions{
-				Identifier: repo.Identifier.ValueStringPointer(),
-				Path:       repo.Path.ValueStringPointer(),
-			}
-
-			if !repo.Branch.IsUnknown() && !repo.Branch.IsNull() {
-				opts.VCSRepo.Branch = repo.Branch.ValueStringPointer()
-			}
-		}
-	}
-
-	if !plan.Environments.IsUnknown() && !plan.Environments.IsNull() {
-		var environments []string
-		resp.Diagnostics.Append(plan.Environments.ElementsAs(ctx, &environments, false)...)
-
-		if (len(environments) == 1) && (environments[0] == "*") {
-			opts.IsShared = ptr(true)
-		} else if len(environments) > 0 {
-			envs := make([]*scalr.Environment, len(environments))
-			for i, env := range environments {
-				envs[i] = &scalr.Environment{ID: env}
-			}
-			opts.Environments = envs
-		}
+	envs, isShared, diags := expandCheckovEnvironments(ctx, plan.Environments)
+	resp.Diagnostics.Append(diags...)
+	if isShared {
+		opts.Attributes.IsShared = value.Set(true)
+	} else if len(envs) > 0 {
+		opts.Relationships.Environments = value.Set(envs)
 	}
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	checkovIntegration, err := r.Client.CheckovIntegrations.Create(ctx, opts)
+	ci, err := r.ClientV2.CheckovIntegration.CreateCheckovIntegration(ctx, &opts, nil)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating Checkov integration", err.Error())
 		return
 	}
 
-	plan.Id = types.StringValue(checkovIntegration.ID)
-	plan.Name = types.StringValue(checkovIntegration.Name)
-	plan.Version = types.StringValue(checkovIntegration.Version)
-	plan.CliArgs = types.StringValue(checkovIntegration.CliArgs)
-
-	plan.VCSProviderID = types.StringNull()
-	if checkovIntegration.VcsProvider != nil {
-		plan.VCSProviderID = types.StringValue(checkovIntegration.VcsProvider.ID)
-	}
-
-	plan.VCSRepo = types.ListNull(checkovVcsRepoElementType)
-	if checkovIntegration.VCSRepo != nil {
-		repo := checkovVcsRepoModel{
-			Identifier: types.StringValue(checkovIntegration.VCSRepo.Identifier),
-			Branch:     types.StringValue(checkovIntegration.VCSRepo.Branch),
-			Path:       types.StringValue(checkovIntegration.VCSRepo.Path),
-		}
-
-		repoValue, d := types.ListValueFrom(ctx, checkovVcsRepoElementType, []checkovVcsRepoModel{repo})
-		resp.Diagnostics.Append(d...)
-		plan.VCSRepo = repoValue
-	}
-	envs := make([]string, len(checkovIntegration.Environments))
-	for i, env := range checkovIntegration.Environments {
-		envs[i] = env.ID
-	}
-	if checkovIntegration.IsShared {
-		envs = []string{"*"}
-	}
-	envsValues, d := types.SetValueFrom(ctx, types.StringType, envs)
-	resp.Diagnostics.Append(d...)
-	plan.Environments = envsValues
-
-	// Set state to fully populated data
-	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
+	result, diags := checkovIntegrationResourceModelFromAPI(ctx, ci, &plan)
+	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
 }
 
 func (r *checkovIntegrationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -294,9 +368,9 @@ func (r *checkovIntegrationResource) Read(ctx context.Context, req resource.Read
 	}
 
 	// Get refreshed resource state from API
-	checkovIntegration, err := r.Client.CheckovIntegrations.Read(ctx, state.Id.ValueString())
+	ci, err := r.ClientV2.CheckovIntegration.GetCheckovIntegration(ctx, state.Id.ValueString(), nil)
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
+		if errors.Is(err, client.ErrNotFound) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -304,54 +378,17 @@ func (r *checkovIntegrationResource) Read(ctx context.Context, req resource.Read
 		return
 	}
 
-	// Overwrite attributes with refreshed values
-	state.Name = types.StringValue(checkovIntegration.Name)
-	state.Version = types.StringValue(checkovIntegration.Version)
-	state.CliArgs = types.StringValue(checkovIntegration.CliArgs)
-	state.ExternalChecksEnabled = types.BoolValue(checkovIntegration.ExternalChecksEnabled)
-
-	state.VCSProviderID = types.StringNull()
-	if checkovIntegration.VcsProvider != nil {
-		state.VCSProviderID = types.StringValue(checkovIntegration.VcsProvider.ID)
-	}
-
-	state.VCSRepo = types.ListNull(checkovVcsRepoElementType)
-	if checkovIntegration.VCSRepo != nil {
-		repo := checkovVcsRepoModel{
-			Identifier: types.StringValue(checkovIntegration.VCSRepo.Identifier),
-			Branch:     types.StringValue(checkovIntegration.VCSRepo.Branch),
-			Path:       types.StringValue(checkovIntegration.VCSRepo.Path),
-		}
-
-		repoValue, d := types.ListValueFrom(ctx, checkovVcsRepoElementType, []checkovVcsRepoModel{repo})
-		resp.Diagnostics.Append(d...)
-		state.VCSRepo = repoValue
-	}
-
-	if checkovIntegration.IsShared {
-		envs := []string{"*"}
-		envsValues, d := types.SetValueFrom(ctx, types.StringType, envs)
-		resp.Diagnostics.Append(d...)
-		state.Environments = envsValues
-	} else {
-		envs := make([]string, len(checkovIntegration.Environments))
-		for i, env := range checkovIntegration.Environments {
-			envs[i] = env.ID
-		}
-		envsValues, d := types.SetValueFrom(ctx, types.StringType, envs)
-		resp.Diagnostics.Append(d...)
-		state.Environments = envsValues
-	}
-
-	// Set refreshed state
-	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
+	result, diags := checkovIntegrationResourceModelFromAPI(ctx, ci, &state)
+	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
 }
 
 func (r *checkovIntegrationResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Read plan data
+	// Read plan and state data
 	var plan, state checkovIntegrationResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -359,120 +396,65 @@ func (r *checkovIntegrationResource) Update(ctx context.Context, req resource.Up
 		return
 	}
 
-	opts := scalr.CheckovIntegrationUpdateOptions{}
+	opts := schemas.CheckovIntegrationRequest{}
 
 	if !plan.Name.Equal(state.Name) {
-		opts.Name = plan.Name.ValueStringPointer()
+		opts.Attributes.Name = value.Set(plan.Name.ValueString())
 	}
 
 	if !plan.Version.Equal(state.Version) {
-		opts.Version = plan.Version.ValueStringPointer()
+		opts.Attributes.Version = framework.SetIfKnownString(plan.Version)
 	}
 
 	if !plan.CliArgs.Equal(state.CliArgs) {
-		opts.CliArgs = plan.CliArgs.ValueStringPointer()
+		opts.Attributes.CliArgs = framework.SetIfKnownString(plan.CliArgs)
+	}
+
+	if !plan.ScanMode.Equal(state.ScanMode) {
+		opts.Attributes.ScanMode = checkovScanMode(plan.ScanMode)
 	}
 
 	if !plan.ExternalChecksEnabled.Equal(state.ExternalChecksEnabled) {
-		opts.ExternalChecksEnabled = plan.ExternalChecksEnabled.ValueBoolPointer()
+		opts.Attributes.ExternalChecksEnabled = framework.SetIfKnownBool(plan.ExternalChecksEnabled)
 	}
 
 	if !plan.VCSProviderID.IsNull() {
-		opts.VcsProvider = &scalr.VcsProvider{ID: plan.VCSProviderID.ValueString()}
+		opts.Relationships.VcsProvider = value.Set(schemas.VcsProvider{ID: plan.VCSProviderID.ValueString()})
 	}
 
-	if !plan.VCSRepo.IsNull() {
-		var vcsRepo []checkovVcsRepoModel
-		resp.Diagnostics.Append(plan.VCSRepo.ElementsAs(ctx, &vcsRepo, false)...)
+	vcsRepo, diags := expandCheckovVcsRepo(ctx, plan.VCSRepo)
+	resp.Diagnostics.Append(diags...)
+	opts.Attributes.VcsRepo = value.SetPtrMaybe(vcsRepo)
 
-		if len(vcsRepo) > 0 {
-			repo := vcsRepo[0]
-
-			opts.VCSRepo = &scalr.CheckovIntegrationVCSRepoOptions{
-				Identifier: repo.Identifier.ValueStringPointer(),
-				Path:       repo.Path.ValueStringPointer(),
-			}
-
-			if !repo.Branch.IsUnknown() && !repo.Branch.IsNull() {
-				opts.VCSRepo.Branch = repo.Branch.ValueStringPointer()
-			}
-		}
+	// An integration that is not shared keeps only the environments the request carries, so the
+	// full set goes with every update, whether or not it changed.
+	environments := plan.Environments
+	if plan.Environments.Equal(state.Environments) {
+		environments = state.Environments
 	}
-
-	var environments []string
-	if !plan.Environments.Equal(state.Environments) {
-		resp.Diagnostics.Append(plan.Environments.ElementsAs(ctx, &environments, false)...)
-	} else {
-		resp.Diagnostics.Append(state.Environments.ElementsAs(ctx, &environments, false)...)
-	}
-	if (len(environments) == 1) && (environments[0] == "*") {
-		opts.IsShared = ptr(true)
-		opts.Environments = make([]*scalr.Environment, 0)
-	} else if len(environments) > 0 {
-		envs := make([]*scalr.Environment, len(environments))
-		for i, env := range environments {
-			envs[i] = &scalr.Environment{ID: env}
-		}
-		opts.Environments = envs
-		opts.IsShared = ptr(false)
-	} else {
-		opts.IsShared = ptr(false)
-		opts.Environments = make([]*scalr.Environment, 0)
-	}
+	envs, isShared, diags := expandCheckovEnvironments(ctx, environments)
+	resp.Diagnostics.Append(diags...)
+	opts.Attributes.IsShared = value.Set(isShared)
+	opts.Relationships.Environments = value.Set(envs)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	// Update existing resource
-	checkovIntegration, err := r.Client.CheckovIntegrations.Update(ctx, plan.Id.ValueString(), opts)
+	ci, err := r.ClientV2.CheckovIntegration.UpdateCheckovIntegration(ctx, plan.Id.ValueString(), &opts, nil)
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating Checkov integration", err.Error())
 		return
 	}
 
-	// Overwrite attributes with refreshed values
-	plan.Name = types.StringValue(checkovIntegration.Name)
-	plan.Version = types.StringValue(checkovIntegration.Version)
-	plan.CliArgs = types.StringValue(checkovIntegration.CliArgs)
-	plan.ExternalChecksEnabled = types.BoolValue(checkovIntegration.ExternalChecksEnabled)
-
-	if checkovIntegration.VcsProvider != nil {
-		plan.VCSProviderID = types.StringValue(checkovIntegration.VcsProvider.ID)
-	}
-
-	if checkovIntegration.VCSRepo != nil {
-		repo := checkovVcsRepoModel{
-			Identifier: types.StringValue(checkovIntegration.VCSRepo.Identifier),
-			Branch:     types.StringValue(checkovIntegration.VCSRepo.Branch),
-			Path:       types.StringValue(checkovIntegration.VCSRepo.Path),
-		}
-
-		repoValue, d := types.ListValueFrom(ctx, checkovVcsRepoElementType, []checkovVcsRepoModel{repo})
-		resp.Diagnostics.Append(d...)
-		plan.VCSRepo = repoValue
-	}
-
-	if checkovIntegration.IsShared {
-		envs := []string{"*"}
-		envsValues, d := types.SetValueFrom(ctx, types.StringType, envs)
-		resp.Diagnostics.Append(d...)
-		plan.Environments = envsValues
-	} else {
-		envs := make([]string, len(checkovIntegration.Environments))
-		for i, env := range checkovIntegration.Environments {
-			envs[i] = env.ID
-		}
-		envsValues, d := types.SetValueFrom(ctx, types.StringType, envs)
-		resp.Diagnostics.Append(d...)
-		plan.Environments = envsValues
-	}
-
-	// Set refreshed state
-	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
+	result, diags := checkovIntegrationResourceModelFromAPI(ctx, ci, &plan)
+	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
 }
 
 func (r *checkovIntegrationResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -483,8 +465,8 @@ func (r *checkovIntegrationResource) Delete(ctx context.Context, req resource.De
 		return
 	}
 
-	err := r.Client.CheckovIntegrations.Delete(ctx, state.Id.ValueString())
-	if err != nil && !errors.Is(err, scalr.ErrResourceNotFound) {
+	err := r.ClientV2.CheckovIntegration.DeleteCheckovIntegration(ctx, state.Id.ValueString())
+	if err != nil && !errors.Is(err, client.ErrNotFound) {
 		resp.Diagnostics.AddError("Error deleting Checkov integration", err.Error())
 		return
 	}
@@ -492,4 +474,12 @@ func (r *checkovIntegrationResource) Delete(ctx context.Context, req resource.De
 
 func (r *checkovIntegrationResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+// checkovScanMode converts the `scan_mode` attribute value into the API request value.
+func checkovScanMode(v types.String) *value.Value[schemas.CheckovIntegrationScanMode] {
+	if v.IsUnknown() || v.IsNull() {
+		return value.Unset[schemas.CheckovIntegrationScanMode]()
+	}
+	return value.Set(schemas.CheckovIntegrationScanMode(v.ValueString()))
 }

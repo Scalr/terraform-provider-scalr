@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **New data source:** `scalr_checkov_integration` to look up a Checkov integration by `id` or `name` ([#576](https://github.com/Scalr/terraform-provider-scalr/pull/576)).
+- `scalr_checkov_integration`: new attribute `scan_mode` to scan the plan JSON after the plan phase instead of the configuration files ([#576](https://github.com/Scalr/terraform-provider-scalr/pull/576)).
+
 ## [3.21.0] - 2026-10-27
 
 ### Added
