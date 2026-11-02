@@ -15,14 +15,16 @@ import (
 	"github.com/scalr/go-scalr/v2/scalr/client"
 )
 
-// The Loki tests point at an endpoint that rejects the connection check,
-// so the integration is expected to end up in the `failed` status.
-const (
-	testGrafanaFailingEndpoint      = "https://example.com/otlp"
-	testGrafanaOtherFailingEndpoint = "https://example.org/otlp"
-)
+const testGrafanaEndpoint = "https://example.org/otlp"
 
 func TestAccScalrGrafanaIntegrationResource_loki(t *testing.T) {
+	endpoint := os.Getenv("TEST_GRAFANA_LOKI_ENDPOINT")
+	token := os.Getenv("TEST_GRAFANA_LOKI_TOKEN")
+	if endpoint == "" || token == "" {
+		t.Skip("Please set TEST_GRAFANA_LOKI_ENDPOINT and TEST_GRAFANA_LOKI_TOKEN to run this test")
+	}
+	// A trailing slash is the same Loki, but a changed endpoint for the API.
+	otherEndpoint := endpoint + "/"
 	name := acctest.RandomWithPrefix("test-grafana")
 	newName := acctest.RandomWithPrefix("test-grafana")
 
@@ -32,44 +34,32 @@ func TestAccScalrGrafanaIntegrationResource_loki(t *testing.T) {
 		CheckDestroy:             testAccCheckScalrGrafanaIntegrationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrGrafanaIntegrationLokiNone(name),
+				Config: testAccScalrGrafanaIntegrationLokiBearer(name, endpoint, token),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrGrafanaIntegrationExists("scalr_grafana_integration.test"),
 					resource.TestMatchResourceAttr("scalr_grafana_integration.test", "id", regexp.MustCompile(`^in-`)),
 					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "name", name),
 					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "kind", "loki"),
-					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "endpoint", testGrafanaFailingEndpoint),
-					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "auth_type", "none"),
+					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "endpoint", endpoint),
+					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "auth_type", "bearer"),
 					resource.TestCheckNoResourceAttr("scalr_grafana_integration.test", "username"),
-					resource.TestCheckNoResourceAttr("scalr_grafana_integration.test", "secret"),
-					resource.TestCheckNoResourceAttr("scalr_grafana_integration.test", "tenant_id"),
-					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "status", "failed"),
-					resource.TestCheckResourceAttrSet("scalr_grafana_integration.test", "err_message"),
+					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "secret", token),
+					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "tenant_id", "tenant-1"),
+					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "status", "active"),
+					resource.TestCheckNoResourceAttr("scalr_grafana_integration.test", "err_message"),
 					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "account_id", defaultAccount),
 				),
 			},
 			{
-				// A server-set `failed` status does not cause drift.
-				Config: testAccScalrGrafanaIntegrationLokiNone(name),
-				ConfigPlanChecks: resource.ConfigPlanChecks{
-					PreApply: []plancheck.PlanCheck{
-						plancheck.ExpectEmptyPlan(),
-					},
-				},
-			},
-			{
-				Config: testAccScalrGrafanaIntegrationLokiBearer(newName, testGrafanaFailingEndpoint),
+				Config: testAccScalrGrafanaIntegrationLokiBearer(newName, endpoint, token),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "name", newName),
-					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "auth_type", "bearer"),
-					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "secret", "fake-token"),
-					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "tenant_id", "tenant-1"),
-					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "status", "failed"),
+					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "status", "active"),
 				),
 			},
 			{
 				// The API never returns the secret; make sure that does not show up as drift.
-				Config: testAccScalrGrafanaIntegrationLokiBearer(newName, testGrafanaFailingEndpoint),
+				Config: testAccScalrGrafanaIntegrationLokiBearer(newName, endpoint, token),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectEmptyPlan(),
@@ -85,20 +75,11 @@ func TestAccScalrGrafanaIntegrationResource_loki(t *testing.T) {
 			},
 			{
 				// The API drops the stored secret on an endpoint change unless it is sent again.
-				Config: testAccScalrGrafanaIntegrationLokiBearer(newName, testGrafanaOtherFailingEndpoint),
+				Config: testAccScalrGrafanaIntegrationLokiBearer(newName, otherEndpoint, token),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "endpoint", testGrafanaOtherFailingEndpoint),
+					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "endpoint", otherEndpoint),
 					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "auth_type", "bearer"),
-					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "secret", "fake-token"),
-				),
-			},
-			{
-				// Back to no auth: tenant_id is cleared.
-				Config: testAccScalrGrafanaIntegrationLokiNone(newName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "auth_type", "none"),
-					resource.TestCheckNoResourceAttr("scalr_grafana_integration.test", "secret"),
-					resource.TestCheckNoResourceAttr("scalr_grafana_integration.test", "tenant_id"),
+					resource.TestCheckResourceAttr("scalr_grafana_integration.test", "secret", token),
 				),
 			},
 		},
@@ -106,11 +87,11 @@ func TestAccScalrGrafanaIntegrationResource_loki(t *testing.T) {
 }
 
 func TestAccScalrGrafanaIntegrationResource_cloud(t *testing.T) {
-	endpoint := os.Getenv("GRAFANA_ENDPOINT")
-	instanceID := os.Getenv("GRAFANA_INSTANCE_ID")
-	token := os.Getenv("GRAFANA_TOKEN")
+	endpoint := os.Getenv("TEST_GRAFANA_ENDPOINT")
+	instanceID := os.Getenv("TEST_GRAFANA_INSTANCE_ID")
+	token := os.Getenv("TEST_GRAFANA_TOKEN")
 	if endpoint == "" || instanceID == "" || token == "" {
-		t.Skip("Grafana Cloud test skipped unless GRAFANA_ENDPOINT, GRAFANA_INSTANCE_ID and GRAFANA_TOKEN are set")
+		t.Skip("Please set TEST_GRAFANA_ENDPOINT, TEST_GRAFANA_INSTANCE_ID and TEST_GRAFANA_TOKEN to run this test")
 	}
 
 	name := acctest.RandomWithPrefix("test-grafana")
@@ -166,45 +147,41 @@ func TestAccScalrGrafanaIntegrationResource_validation(t *testing.T) {
 		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccScalrGrafanaIntegrationRaw(`kind = "tempo"`, `auth_type = "none"`, testGrafanaFailingEndpoint, ""),
+				Config:      testAccScalrGrafanaIntegrationRaw(`kind = "tempo"`, `auth_type = "bearer"`, testGrafanaEndpoint, `secret = "x"`),
 				ExpectError: regexp.MustCompile(`Attribute kind value must be one of`),
 			},
 			{
-				Config:      testAccScalrGrafanaIntegrationRaw(`kind = "loki"`, `auth_type = "token"`, testGrafanaFailingEndpoint, ""),
+				Config:      testAccScalrGrafanaIntegrationRaw(`kind = "loki"`, `auth_type = "token"`, testGrafanaEndpoint, ""),
 				ExpectError: regexp.MustCompile(`Attribute auth_type value must be one of`),
 			},
 			{
-				Config:      testAccScalrGrafanaIntegrationRaw(`kind = "loki"`, `auth_type = "none"`, "http://example.com/otlp", ""),
+				Config:      testAccScalrGrafanaIntegrationRaw(`kind = "loki"`, `auth_type = "bearer"`, "http://example.com/otlp", `secret = "x"`),
 				ExpectError: regexp.MustCompile(`URL scheme must be https`),
 			},
 			{
-				Config:      testAccScalrGrafanaIntegrationRaw(`kind = "loki"`, `auth_type = "none"`, "https://example.com/otlp/v1/logs/", ""),
+				Config:      testAccScalrGrafanaIntegrationRaw(`kind = "loki"`, `auth_type = "bearer"`, "https://example.com/otlp/v1/logs/", `secret = "x"`),
 				ExpectError: regexp.MustCompile(`Enter the base OTLP URL without /v1/logs`),
 			},
 			{
 				Config: testAccScalrGrafanaIntegrationRaw(
-					`kind = "cloud"`, `auth_type = "bearer"`, testGrafanaFailingEndpoint, `secret = "x"`,
+					`kind = "cloud"`, `auth_type = "bearer"`, testGrafanaEndpoint, `secret = "x"`,
 				),
 				ExpectError: regexp.MustCompile(`Grafana Cloud requires basic auth`),
 			},
 			{
 				Config: testAccScalrGrafanaIntegrationRaw(
-					`kind = "cloud"`, `auth_type = "basic"`, testGrafanaFailingEndpoint,
+					`kind = "cloud"`, `auth_type = "basic"`, testGrafanaEndpoint,
 					"username = \"1\"\n  secret = \"x\"\n  tenant_id = \"t\"",
 				),
 				ExpectError: regexp.MustCompile(`"tenant_id" is only used with kind "loki"`),
 			},
 			{
-				Config:      testAccScalrGrafanaIntegrationRaw(`kind = "loki"`, `auth_type = "basic"`, testGrafanaFailingEndpoint, `secret = "x"`),
+				Config:      testAccScalrGrafanaIntegrationRaw(`kind = "loki"`, `auth_type = "basic"`, testGrafanaEndpoint, `secret = "x"`),
 				ExpectError: regexp.MustCompile(`"username" is required when "auth_type" is "basic"`),
 			},
 			{
-				Config:      testAccScalrGrafanaIntegrationRaw(`kind = "loki"`, `auth_type = "bearer"`, testGrafanaFailingEndpoint, ""),
+				Config:      testAccScalrGrafanaIntegrationRaw(`kind = "loki"`, `auth_type = "bearer"`, testGrafanaEndpoint, ""),
 				ExpectError: regexp.MustCompile(`"secret" is required when "auth_type" is "bearer"`),
-			},
-			{
-				Config:      testAccScalrGrafanaIntegrationRaw(`kind = "loki"`, `auth_type = "none"`, testGrafanaFailingEndpoint, `secret = "x"`),
-				ExpectError: regexp.MustCompile(`"secret" is not used when "auth_type" is "none"`),
 			},
 		},
 	})
@@ -253,26 +230,16 @@ func testAccCheckScalrGrafanaIntegrationDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccScalrGrafanaIntegrationLokiNone(name string) string {
-	return fmt.Sprintf(`
-resource "scalr_grafana_integration" "test" {
-  name      = %q
-  kind      = "loki"
-  endpoint  = %q
-  auth_type = "none"
-}`, name, testGrafanaFailingEndpoint)
-}
-
-func testAccScalrGrafanaIntegrationLokiBearer(name, endpoint string) string {
+func testAccScalrGrafanaIntegrationLokiBearer(name, endpoint, token string) string {
 	return fmt.Sprintf(`
 resource "scalr_grafana_integration" "test" {
   name      = %q
   kind      = "loki"
   endpoint  = %q
   auth_type = "bearer"
-  secret    = "fake-token"
+  secret    = %q
   tenant_id = "tenant-1"
-}`, name, endpoint)
+}`, name, endpoint, token)
 }
 
 func testAccScalrGrafanaIntegrationCloud(name, endpoint, instanceID, token string) string {
