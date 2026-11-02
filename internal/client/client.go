@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-svchost/disco"
 
 	"github.com/scalr/go-scalr"
-
 	scalrV2 "github.com/scalr/go-scalr/v2/scalr"
 	clientV2 "github.com/scalr/go-scalr/v2/scalr/client"
 

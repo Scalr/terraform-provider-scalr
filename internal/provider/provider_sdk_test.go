@@ -13,9 +13,11 @@ import (
 	"github.com/scalr/terraform-provider-scalr/internal/framework/defaults"
 )
 
-var testAccProviderSDK *schema.Provider
-var errNoInstanceId = fmt.Errorf("No instance ID is set")
-var githubToken = os.Getenv("githubToken")
+var (
+	testAccProviderSDK *schema.Provider
+	errNoInstanceId    = fmt.Errorf("No instance ID is set")
+	githubToken        = os.Getenv("githubToken")
+)
 
 // ctx is used as default context.Context when making API calls.
 var ctx = context.Background()
@@ -31,7 +33,7 @@ func TestProvider(t *testing.T) {
 }
 
 func TestProvider_impl(t *testing.T) {
-	var _ = Provider(testProviderVersion)
+	_ = Provider(testProviderVersion)
 }
 
 func testAccPreCheck(t *testing.T) {

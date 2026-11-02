@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
 	"github.com/scalr/go-scalr"
 )
 
@@ -134,6 +135,7 @@ func TestAccScalrVariable_defaults(t *testing.T) {
 		},
 	)
 }
+
 func TestAccScalrVariable_scopes(t *testing.T) {
 	rInt := GetRandomInteger()
 	variable := &scalr.Variable{}
@@ -311,7 +313,6 @@ func testAccCheckScalrVariableExists(
 ) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		return variableFromState(s, n, v)
-
 	}
 }
 
@@ -686,7 +687,7 @@ func TestAccScalrVariable_switchValueToWriteOnly(t *testing.T) {
 }
 
 // Helper function to check variable value via API
-func testAccCheckScalrVariableValueInAPI(n string, expectedValue string) resource.TestCheckFunc {
+func testAccCheckScalrVariableValueInAPI(n, expectedValue string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		var v scalr.Variable
 		if err := variableFromState(s, n, &v); err != nil {

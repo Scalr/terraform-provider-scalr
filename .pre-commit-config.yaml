@@ -1,0 +1,37 @@
+# Build Go hooks (golangci-lint) with the installed Go, which matches .go-version. A toolchain
+# downloaded by pre-commit may be older than the module's Go and fail type-checking.
+default_language_version:
+  golang: system
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      # Go files are covered by gofumpt; docs/ is generated; dist/ holds compiled actions.
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+        exclude: \.go$|^docs/|^\.github/actions/[^/]+/dist/
+      - id: end-of-file-fixer
+        exclude: \.go$|^docs/|^\.github/actions/[^/]+/dist/
+      - id: check-merge-conflict
+
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v2.6.1 # keep in sync with .github/workflows/default.yml
+    hooks:
+      - id: golangci-lint-config-verify
+      - id: golangci-lint-fmt
+      - id: golangci-lint
+
+  - repo: local
+    hooks:
+      - id: go-mod-tidy
+        name: go mod tidy
+        entry: go mod tidy -diff
+        language: system
+        files: ^go\.(mod|sum)$
+        pass_filenames: false
+      - id: terraform-fmt
+        name: terraform fmt (examples)
+        entry: terraform fmt
+        language: system
+        files: ^examples/.*\.tf$

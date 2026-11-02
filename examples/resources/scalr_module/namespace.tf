@@ -15,4 +15,4 @@ resource "scalr_module" "example_with_namespace" {
   vcs_repo {
     identifier = "org/repo"
   }
-} 
+}

@@ -6,8 +6,8 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/scalr/go-scalr"
 )
 
@@ -96,7 +96,6 @@ func resourceScalrServiceAccountTokenRead(ctx context.Context, d *schema.Resourc
 
 	for {
 		atl, err := scalrClient.ServiceAccountTokens.List(ctx, saID, options)
-
 		if err != nil {
 			if errors.Is(err, scalr.ErrResourceNotFound) {
 				log.Printf("[DEBUG] service account %s not found", saID)

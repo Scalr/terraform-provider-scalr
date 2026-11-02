@@ -42,7 +42,7 @@ func homeDir() (string, error) {
 		// FIXME: homeDir gets called from globalPluginDirs during init, before
 		// the logging is setup.  We should move meta initialization outside of
 		// init, but in the meantime we just need to silence this output.
-		//log.Printf("[DEBUG] Detected home directory from env var: %s", home)
+		// log.Printf("[DEBUG] Detected home directory from env var: %s", home)
 
 		return home, nil
 	}

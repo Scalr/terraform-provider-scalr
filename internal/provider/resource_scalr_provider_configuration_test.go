@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
 	"github.com/scalr/go-scalr"
 
 	"github.com/scalr/terraform-provider-scalr/internal/client"
@@ -237,7 +238,7 @@ func TestAccProviderConfiguration_aws(t *testing.T) {
 func TestAccProviderConfiguration_aws_tags(t *testing.T) {
 	var providerConfiguration scalr.ProviderConfiguration
 	rName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
-	//rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
+	// rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 	accessKeyId, secretAccessKey, _, _ := getAwsTestingCreds(t)
 
 	resource.Test(t, resource.TestCase{
@@ -783,7 +784,7 @@ func testAccCheckProviderConfigurationAwsUpdatedValues(providerConfiguration *sc
 	}
 }
 
-func testAccCheckProviderConfigurationScalrValues(providerConfiguration *scalr.ProviderConfiguration, name string, scalrHostname string) resource.TestCheckFunc {
+func testAccCheckProviderConfigurationScalrValues(providerConfiguration *scalr.ProviderConfiguration, name, scalrHostname string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if providerConfiguration.Name != name {
 			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, providerConfiguration.Name)
@@ -801,7 +802,7 @@ func testAccCheckProviderConfigurationScalrValues(providerConfiguration *scalr.P
 	}
 }
 
-func testAccCheckProviderConfigurationScalrUpdatedValues(providerConfiguration *scalr.ProviderConfiguration, name string, scalrHostname string) resource.TestCheckFunc {
+func testAccCheckProviderConfigurationScalrUpdatedValues(providerConfiguration *scalr.ProviderConfiguration, name, scalrHostname string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if providerConfiguration.Name != name {
 			return fmt.Errorf("bad name, expected \"%s\", got: %#v", name, providerConfiguration.Name)
@@ -895,7 +896,6 @@ func testAccCheckProviderConfigurationExists(n string, providerConfiguration *sc
 		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
 
 		providerConfigurationResource, err := scalrClient.ProviderConfigurations.Read(ctx, rs.Primary.ID)
-
 		if err != nil {
 			return err
 		}
@@ -926,7 +926,8 @@ func testAccCheckProviderConfigurationResourceDestroy(s *terraform.State) error 
 
 	return nil
 }
-func getAzureTestingCreds(t *testing.T) (armClientId string, armClientSecret string, armSubscription string, armTenantId string) {
+
+func getAzureTestingCreds(t *testing.T) (armClientId, armClientSecret, armSubscription, armTenantId string) {
 	armClientId = os.Getenv("TEST_ARM_CLIENT_ID")
 	armClientSecret = os.Getenv("TEST_ARM_CLIENT_SECRET")
 	armSubscription = os.Getenv("TEST_ARM_SUBSCRIPTION_ID")
@@ -937,7 +938,7 @@ func getAzureTestingCreds(t *testing.T) (armClientId string, armClientSecret str
 		len(armTenantId) == 0 {
 		t.Skip("Please set TEST_ARM_CLIENT_ID, TEST_ARM_CLIENT_SECRET, TEST_ARM_SUBSCRIPTION_ID and TEST_ARM_TENANT_ID env variables to run this test.")
 	}
-	return
+	return armClientId, armClientSecret, armSubscription, armTenantId
 }
 
 func getAwsTestingCreds(t *testing.T) (accessKeyId, secretAccessKey, roleArn, externalId string) {
@@ -951,7 +952,7 @@ func getAwsTestingCreds(t *testing.T) (accessKeyId, secretAccessKey, roleArn, ex
 		len(externalId) == 0 {
 		t.Skip("Please set TEST_AWS_ACCESS_KEY, TEST_AWS_SECRET_KEY, TEST_AWS_ROLE_ARN and TEST_AWS_EXTERNAL_ID env variables to run this test.")
 	}
-	return
+	return accessKeyId, secretAccessKey, roleArn, externalId
 }
 
 func getGoogleTestingCreds(t *testing.T) (credentials, project string) {
@@ -961,7 +962,7 @@ func getGoogleTestingCreds(t *testing.T) (credentials, project string) {
 		len(project) == 0 {
 		t.Skip("Please set TEST_GOOGLE_CREDENTIALS, TEST_GOOGLE_PROJECT env variables to run this test.")
 	}
-	return
+	return credentials, project
 }
 
 func testAccScalrProviderConfigurationCustomConfig(name string) string {
@@ -1474,7 +1475,7 @@ func testAccCheckProviderConfigurationTagCount(providerConfiguration *scalr.Prov
 	}
 }
 
-func testAccScalrProviderConfigurationWithTagIds(name string, includeTag1 bool, includeTag3 bool) string {
+func testAccScalrProviderConfigurationWithTagIds(name string, includeTag1, includeTag3 bool) string {
 	tagIds := ""
 	if includeTag1 && includeTag3 {
 		tagIds = "tag_ids = [scalr_tag.tag1.id, scalr_tag.tag3.id]"

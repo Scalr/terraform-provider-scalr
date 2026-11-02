@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
 	"github.com/scalr/go-scalr"
 )
 
@@ -159,7 +160,6 @@ func createPool(t *testing.T) scalr.AgentPool {
 	r, err := scalrClient.AgentPools.Create(ctx, scalr.AgentPoolCreateOptions{
 		Name: ptr(name),
 	})
-
 	if err != nil {
 		t.Fatalf("Unable to create an agent pool: %s", err)
 	}

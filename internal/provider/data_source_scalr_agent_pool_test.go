@@ -69,6 +69,7 @@ func TestAccScalrAgentPoolDataSource_basic(t *testing.T) {
 		},
 	})
 }
+
 func TestAccScalrAgentPoolDataSource_basic_env(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

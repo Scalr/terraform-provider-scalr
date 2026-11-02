@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
 	"github.com/scalr/go-scalr"
 	"github.com/scalr/go-scalr/v2/scalr/client"
 )
@@ -17,7 +18,7 @@ import (
 func TestAccScalrModule_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			//TODO:ape delete skip after SCALRCORE-19891
+			// TODO:ape delete skip after SCALRCORE-19891
 			t.Skip("Working on personal token but not working with github action token.")
 			testVcsAccGithubTokenPreCheck(t)
 		},

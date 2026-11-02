@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
 	"github.com/scalr/go-scalr"
-	"os"
-	"testing"
 )
 
 func TestIntegrationInfracostResource_Create(t *testing.T) {
@@ -100,7 +102,7 @@ resource "scalr_integration_infracost" "test" {
 }`, apiKey)
 }
 
-func testAccScalrIntegrationInfracostConfigUpdate(name string, apiKey string) string {
+func testAccScalrIntegrationInfracostConfigUpdate(name, apiKey string) string {
 	return fmt.Sprintf(`
 resource "scalr_integration_infracost" "test" {
   name         = "%s"

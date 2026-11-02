@@ -59,7 +59,7 @@ func TestAccScalrIntegrationInfracostDataSource_basic(t *testing.T) {
 	})
 }
 
-func testAccScalrIntegrationInfracostDataSourceByIDConfig(name string, apiKey string) string {
+func testAccScalrIntegrationInfracostDataSourceByIDConfig(name, apiKey string) string {
 	return fmt.Sprintf(`
 resource scalr_integration_infracost test {
   name    = "%[1]s"
@@ -71,7 +71,7 @@ data scalr_integration_infracost test {
 }`, name, apiKey)
 }
 
-func testAccScalrIntegrationInfracostDataSourceByNameConfig(name string, apiKey string) string {
+func testAccScalrIntegrationInfracostDataSourceByNameConfig(name, apiKey string) string {
 	return fmt.Sprintf(`
 resource scalr_integration_infracost test {
   name    = "%[1]s"
@@ -83,7 +83,7 @@ data scalr_integration_infracost test {
 }`, name, apiKey)
 }
 
-func testAccScalrIntegrationInfracostDataSourceByIDAndNameConfig(name string, apiKey string) string {
+func testAccScalrIntegrationInfracostDataSourceByIDAndNameConfig(name, apiKey string) string {
 	return fmt.Sprintf(`
 resource scalr_integration_infracost test {
   name    = "%[1]s"

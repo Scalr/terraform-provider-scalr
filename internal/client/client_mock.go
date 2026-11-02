@@ -72,7 +72,7 @@ func (m *MockVariables) List(_ context.Context, _ scalr.VariableListOptions) (*s
 	panic("not implemented")
 }
 
-func (m *MockWorkspaces) Read(_ context.Context, environment string, workspace string) (*scalr.Workspace, error) {
+func (m *MockWorkspaces) Read(_ context.Context, environment, workspace string) (*scalr.Workspace, error) {
 	w := m.workspaceNames[workspaceNamesKey{environment, workspace}]
 	if w == nil {
 		return nil, scalr.ErrResourceNotFound
@@ -92,6 +92,7 @@ func (m *MockWorkspaces) Update(_ context.Context, _ string, _ scalr.WorkspaceUp
 func (m *MockWorkspaces) Delete(_ context.Context, _ string) error {
 	panic("not implemented")
 }
+
 func (m *MockWorkspaces) ReadOutputs(_ context.Context, _ string) ([]*scalr.Output, error) {
 	panic("not implemented")
 }

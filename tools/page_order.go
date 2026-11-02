@@ -64,7 +64,7 @@ func main() {
 			}
 		}
 		if frontMatterFound {
-			err = os.WriteFile(f, []byte(strings.Join(lines, "\n")), 0644)
+			err = os.WriteFile(f, []byte(strings.Join(lines, "\n")), 0o644)
 			if err != nil {
 				log.Fatalln(err)
 			}

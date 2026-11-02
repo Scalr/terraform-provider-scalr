@@ -5,10 +5,10 @@ import (
 	"log"
 	"sort"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/scalr/go-scalr"
 )
 
@@ -18,7 +18,6 @@ func dataSourceScalrWebhook() *schema.Resource {
 		ReadContext: dataSourceScalrWebhookRead,
 
 		Schema: map[string]*schema.Schema{
-
 			"id": {
 				Description:  "The webhook ID, in the format `wh-<RANDOM STRING>`.",
 				Type:         schema.TypeString,

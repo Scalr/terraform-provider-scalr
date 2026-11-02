@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
 	"github.com/scalr/go-scalr/v2/scalr/client"
 	"github.com/scalr/go-scalr/v2/scalr/schemas"
 	"github.com/scalr/go-scalr/v2/scalr/value"

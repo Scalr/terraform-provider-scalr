@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/scalr/go-scalr"
 )
 
@@ -52,7 +53,8 @@ func dataSourceModuleVersions() *schema.Resource {
 					},
 				},
 			},
-		}}
+		},
+	}
 }
 
 func dataSourceModuleVersionsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

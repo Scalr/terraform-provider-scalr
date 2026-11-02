@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+
 	"github.com/scalr/go-scalr"
 )
 
@@ -119,7 +120,7 @@ func waitForPolicyGroupFetch(name string) func() {
 			log.Fatalf("The test policy group on account %s was not created: %v", defaultAccount, err)
 		}
 
-		var pgID = pgl.Items[0].ID
+		pgID := pgl.Items[0].ID
 
 		for i := 0; i < 60; i++ {
 			pg, err := scalrClient.PolicyGroups.Read(ctx, pgID)

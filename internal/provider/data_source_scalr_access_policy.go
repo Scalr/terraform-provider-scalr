@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/scalr/go-scalr"
 )
 
@@ -81,7 +82,6 @@ func dataSourceScalrAccessPolicyRead(ctx context.Context, d *schema.ResourceData
 
 	log.Printf("[DEBUG] Read configuration of access policy: %s", id)
 	ap, err := scalrClient.AccessPolicies.Read(ctx, id)
-
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return diag.Errorf("AccessPolicy '%s' not found", id)

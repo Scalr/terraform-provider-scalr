@@ -160,7 +160,7 @@ func diff[T comparable](old, new []T) (added, removed []T) {
 		}
 	}
 
-	return
+	return added, removed
 }
 
 // setsEqual reports whether two slices contain the same set of elements.

@@ -51,6 +51,12 @@ jobs:
             git diff;
             exit 1;
           fi
+      - name: Validate go.mod and go.sum
+        run: |
+          if ! go mod tidy -diff; then
+            echo "*** go.mod/go.sum are not tidy. Run 'go mod tidy' and commit.";
+            exit 1;
+          fi
 
   unit-tests:
     name: Unit Tests

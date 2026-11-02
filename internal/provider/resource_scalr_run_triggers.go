@@ -6,8 +6,8 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/scalr/go-scalr"
 )
 
@@ -62,7 +62,6 @@ func resourceScalrRunTriggerCreate(ctx context.Context, d *schema.ResourceData, 
 	}
 	d.SetId(runTrigger.ID)
 	return resourceScalrRunTriggerRead(ctx, d, meta)
-
 }
 
 func resourceScalrRunTriggerDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -72,7 +71,6 @@ func resourceScalrRunTriggerDelete(ctx context.Context, d *schema.ResourceData, 
 
 	log.Printf("[DEBUG] Delete run trigger with ID: %s", id)
 	err := scalrClient.RunTriggers.Delete(ctx, id)
-
 	if err != nil {
 		if errors.Is(err, scalr.ErrResourceNotFound) {
 			return nil
