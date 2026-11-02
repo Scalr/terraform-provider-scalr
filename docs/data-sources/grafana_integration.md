@@ -36,7 +36,7 @@ data "scalr_grafana_integration" "by_name" {
 ### Read-Only
 
 - `account_id` (String) ID of the account the integration belongs to.
-- `auth_type` (String) Authentication scheme: `none`, `basic` or `bearer`.
+- `auth_type` (String) Authentication scheme: `basic` or `bearer`.
 - `endpoint` (String) Base OTLP URL.
 - `err_message` (String) Error message reported by Scalr when the integration is in the `failed` status.
 - `kind` (String) Grafana destination: `cloud` or `loki`.

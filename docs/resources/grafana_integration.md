@@ -42,7 +42,7 @@ resource "scalr_grafana_integration" "loki" {
 
 ### Required
 
-- `auth_type` (String) Authentication scheme: `none`, `basic` or `bearer`. Grafana Cloud requires `basic`.
+- `auth_type` (String) Authentication scheme: `basic` or `bearer`. Grafana Cloud requires `basic`.
 - `endpoint` (String) Base OTLP URL, for example `https://otlp-gateway-prod-eu-west-2.grafana.net/otlp`. Must use https and must not end with `/v1/logs`.
 - `kind` (String) Grafana destination: `cloud` for Grafana Cloud or `loki` for a self-hosted Loki.
 - `name` (String) Name of the Grafana integration.
@@ -58,7 +58,7 @@ resource "scalr_grafana_integration" "loki" {
 - `account_id` (String) ID of the account the integration belongs to.
 - `err_message` (String) Error message reported by Scalr when the integration is in the `failed` status.
 - `id` (String) The ID of this resource.
-- `status` (String) Status of the integration: `active`, `disabled` or `failed`. Scalr sets the `failed` status when the connection check is rejected.
+- `status` (String) Status of the integration: `active`, `disabled` or `failed`. Scalr sets the `failed` status when the endpoint rejects the credentials during delivery.
 
 ## Import
 

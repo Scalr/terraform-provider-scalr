@@ -125,11 +125,10 @@ func (r *grafanaIntegrationResource) Schema(_ context.Context, _ resource.Schema
 				},
 			},
 			"auth_type": schema.StringAttribute{
-				MarkdownDescription: "Authentication scheme: `none`, `basic` or `bearer`. Grafana Cloud requires `basic`.",
+				MarkdownDescription: "Authentication scheme: `basic` or `bearer`. Grafana Cloud requires `basic`.",
 				Required:            true,
 				Validators: []validator.String{
 					stringvalidator.OneOf(
-						string(schemas.GrafanaIntegrationAuthTypeNone),
 						string(schemas.GrafanaIntegrationAuthTypeBasic),
 						string(schemas.GrafanaIntegrationAuthTypeBearer),
 					),
@@ -160,7 +159,7 @@ func (r *grafanaIntegrationResource) Schema(_ context.Context, _ resource.Schema
 			},
 			"status": schema.StringAttribute{
 				MarkdownDescription: "Status of the integration: `active`, `disabled` or `failed`." +
-					" Scalr sets the `failed` status when the connection check is rejected.",
+					" Scalr sets the `failed` status when the endpoint rejects the credentials during delivery.",
 				Computed: true,
 			},
 			"err_message": schema.StringAttribute{
@@ -228,9 +227,6 @@ func (r *grafanaIntegrationResource) ValidateConfig(ctx context.Context, req res
 	case schemas.GrafanaIntegrationAuthTypeBearer:
 		rejectGrafanaAttribute(resp, "username", cfg.Username, authType.ValueString())
 		requireGrafanaAttribute(resp, "secret", cfg.Secret, authType.ValueString())
-	case schemas.GrafanaIntegrationAuthTypeNone:
-		rejectGrafanaAttribute(resp, "username", cfg.Username, authType.ValueString())
-		rejectGrafanaAttribute(resp, "secret", cfg.Secret, authType.ValueString())
 	}
 }
 
@@ -280,10 +276,6 @@ func (r *grafanaIntegrationResource) Create(ctx context.Context, req resource.Cr
 	}
 
 	result := grafanaIntegrationResourceModelFromAPI(gi, plan.Secret)
-	if result.ErrMessage.ValueString() != "" {
-		resp.Diagnostics.AddWarning("Grafana integration has failed", result.ErrMessage.ValueString())
-	}
-
 	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
 }
 
@@ -358,10 +350,6 @@ func (r *grafanaIntegrationResource) Update(ctx context.Context, req resource.Up
 	}
 
 	result := grafanaIntegrationResourceModelFromAPI(gi, plan.Secret)
-	if result.ErrMessage.ValueString() != "" {
-		resp.Diagnostics.AddWarning("Grafana integration has failed", result.ErrMessage.ValueString())
-	}
-
 	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
 }
 

@@ -85,7 +85,7 @@ func (d *grafanaIntegrationDataSource) Schema(_ context.Context, _ datasource.Sc
 				Computed:            true,
 			},
 			"auth_type": schema.StringAttribute{
-				MarkdownDescription: "Authentication scheme: `none`, `basic` or `bearer`.",
+				MarkdownDescription: "Authentication scheme: `basic` or `bearer`.",
 				Computed:            true,
 			},
 			"username": schema.StringAttribute{
