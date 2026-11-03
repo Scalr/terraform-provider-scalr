@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **New resource:** `scalr_splunk_integration` to send audit logs and run events to a Splunk HTTP Event Collector.
+- **New data source:** `scalr_splunk_integration`.
+
 ## [3.21.0] - 2026-10-27
 
 ### Added

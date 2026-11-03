@@ -1,0 +1,1 @@
+terraform import scalr_splunk_integration.example in-xxxxxxxxxx
