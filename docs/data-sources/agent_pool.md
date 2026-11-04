@@ -43,6 +43,7 @@ data "scalr_agent_pool" "example2" {
 - `api_gateway_url` (String) HTTP(s) destination URL for pool webhook.
 - `environments` (Set of String) The list of the environment identifiers that the agent pool is shared to, or `["*"]` if shared with all environments.
 - `header` (Set of Object) Additional headers to set in the pool webhook request. (see [below for nested schema](#nestedatt--header))
+- `run_acquisition_timeout` (Number) The time in minutes a run waits for an agent of the pool to pick it up. When it expires, the run is canceled.
 - `workspace_ids` (List of String) The list of IDs of linked workspaces.
 
 <a id="nestedatt--header"></a>
