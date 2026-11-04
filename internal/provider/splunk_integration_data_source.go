@@ -43,8 +43,6 @@ type splunkIntegrationDataSourceModel struct {
 	Name       types.String `tfsdk:"name"`
 	Endpoint   types.String `tfsdk:"endpoint"`
 	Index      types.String `tfsdk:"index"`
-	Source     types.String `tfsdk:"source"`
-	Sourcetype types.String `tfsdk:"sourcetype"`
 	Status     types.String `tfsdk:"status"`
 	ErrMessage types.String `tfsdk:"err_message"`
 	AccountID  types.String `tfsdk:"account_id"`
@@ -76,19 +74,11 @@ func (d *splunkIntegrationDataSource) Schema(_ context.Context, _ datasource.Sch
 				},
 			},
 			"endpoint": schema.StringAttribute{
-				MarkdownDescription: "Base HEC URL.",
+				MarkdownDescription: "Base HTTP Event Collector URL.",
 				Computed:            true,
 			},
 			"index": schema.StringAttribute{
-				MarkdownDescription: "Splunk index for the events.",
-				Computed:            true,
-			},
-			"source": schema.StringAttribute{
-				MarkdownDescription: "Event source. Scalr sends `scalr` when it is not set.",
-				Computed:            true,
-			},
-			"sourcetype": schema.StringAttribute{
-				MarkdownDescription: "Event sourcetype. Scalr sends `_json` when it is not set.",
+				MarkdownDescription: "Splunk index for the events. If not set, events go to the default index of the HEC token.",
 				Computed:            true,
 			},
 			"status": schema.StringAttribute{
@@ -138,9 +128,7 @@ func (d *splunkIntegrationDataSource) Read(ctx context.Context, req datasource.R
 	cfg.Id = types.StringValue(si.ID)
 	cfg.Name = types.StringValue(si.Attributes.Name)
 	cfg.Endpoint = types.StringValue(si.Attributes.Endpoint)
-	cfg.Index = types.StringValue(si.Attributes.Index)
-	cfg.Source = types.StringPointerValue(si.Attributes.Source)
-	cfg.Sourcetype = types.StringPointerValue(si.Attributes.Sourcetype)
+	cfg.Index = types.StringPointerValue(si.Attributes.Index)
 	cfg.Status = types.StringValue(string(si.Attributes.Status))
 	cfg.ErrMessage = types.StringPointerValue(si.Attributes.ErrMessage)
 	if si.Relationships.Account != nil {

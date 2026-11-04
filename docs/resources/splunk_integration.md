@@ -23,14 +23,11 @@ resource "scalr_splunk_integration" "example" {
   index    = "scalr_audit"
 }
 
-# Self-managed Splunk Enterprise with a custom sourcetype
+# Self-managed Splunk Enterprise, events go to the default index of the HEC token
 resource "scalr_splunk_integration" "enterprise" {
-  name       = "splunk-enterprise"
-  endpoint   = "https://splunk.example.com:8088"
-  token      = var.splunk_enterprise_hec_token
-  index      = "scalr_audit"
-  source     = "scalr-prod"
-  sourcetype = "scalr:audit"
+  name     = "splunk-enterprise"
+  endpoint = "https://splunk.example.com:8088"
+  token    = var.splunk_enterprise_hec_token
 }
 ```
 
@@ -39,15 +36,13 @@ resource "scalr_splunk_integration" "enterprise" {
 
 ### Required
 
-- `endpoint` (String) Base HEC URL, for example `https://http-inputs-<stack>.splunkcloud.com` or `https://splunk.example.com:8088`. Must use https and must not include `/services/collector`.
-- `index` (String) Splunk index for the events. The HEC token must be allowed to write to it.
+- `endpoint` (String) Base HTTP Event Collector URL. Must use https and must not include `/services/collector`.
 - `name` (String) Name of the Splunk integration.
 - `token` (String, Sensitive) HEC token. Indexer acknowledgment must be turned off for it.
 
 ### Optional
 
-- `source` (String) Labels where events come from. Use it to filter Scalr events in Splunk searches. Scalr sends `scalr` when it is not set.
-- `sourcetype` (String) Tells Splunk how to parse events. Scalr sends JSON, so keep the default `_json` unless your Splunk admin uses a custom sourcetype. Scalr sends `_json` when it is not set.
+- `index` (String) Splunk index for the events. If not set, events go to the default index of the HEC token.
 
 ### Read-Only
 

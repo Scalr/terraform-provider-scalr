@@ -5,12 +5,9 @@ resource "scalr_splunk_integration" "example" {
   index    = "scalr_audit"
 }
 
-# Self-managed Splunk Enterprise with a custom sourcetype
+# Self-managed Splunk Enterprise, events go to the default index of the HEC token
 resource "scalr_splunk_integration" "enterprise" {
-  name       = "splunk-enterprise"
-  endpoint   = "https://splunk.example.com:8088"
-  token      = var.splunk_enterprise_hec_token
-  index      = "scalr_audit"
-  source     = "scalr-prod"
-  sourcetype = "scalr:audit"
+  name     = "splunk-enterprise"
+  endpoint = "https://splunk.example.com:8088"
+  token    = var.splunk_enterprise_hec_token
 }

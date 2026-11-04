@@ -56,8 +56,6 @@ func TestAccScalrSplunkIntegrationDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.scalr_splunk_integration.by_id", "name", name),
 					resource.TestCheckResourceAttr("data.scalr_splunk_integration.by_id", "endpoint", endpoint),
 					resource.TestCheckResourceAttr("data.scalr_splunk_integration.by_id", "index", index),
-					resource.TestCheckResourceAttr("data.scalr_splunk_integration.by_id", "source", "scalr-test"),
-					resource.TestCheckNoResourceAttr("data.scalr_splunk_integration.by_id", "sourcetype"),
 					resource.TestCheckResourceAttr("data.scalr_splunk_integration.by_id", "status", "active"),
 					resource.TestCheckNoResourceAttr("data.scalr_splunk_integration.by_id", "err_message"),
 					resource.TestCheckResourceAttr("data.scalr_splunk_integration.by_id", "account_id", defaultAccount),
@@ -82,7 +80,6 @@ resource "scalr_splunk_integration" "test" {
   endpoint = %q
   token    = %q
   index    = %q
-  source   = "scalr-test"
 }
 
 data "scalr_splunk_integration" "by_id" {

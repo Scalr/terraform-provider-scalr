@@ -36,9 +36,7 @@ data "scalr_splunk_integration" "by_name" {
 ### Read-Only
 
 - `account_id` (String) ID of the account the integration belongs to.
-- `endpoint` (String) Base HEC URL.
+- `endpoint` (String) Base HTTP Event Collector URL.
 - `err_message` (String) Error message reported by Scalr when the integration is in the `failed` status.
-- `index` (String) Splunk index for the events.
-- `source` (String) Event source. Scalr sends `scalr` when it is not set.
-- `sourcetype` (String) Event sourcetype. Scalr sends `_json` when it is not set.
+- `index` (String) Splunk index for the events. If not set, events go to the default index of the HEC token.
 - `status` (String) Status of the integration: `active`, `disabled` or `failed`.

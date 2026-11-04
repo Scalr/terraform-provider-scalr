@@ -50,8 +50,6 @@ type splunkIntegrationResourceModel struct {
 	Endpoint   types.String `tfsdk:"endpoint"`
 	Token      types.String `tfsdk:"token"`
 	Index      types.String `tfsdk:"index"`
-	Source     types.String `tfsdk:"source"`
-	Sourcetype types.String `tfsdk:"sourcetype"`
 	Status     types.String `tfsdk:"status"`
 	ErrMessage types.String `tfsdk:"err_message"`
 	AccountID  types.String `tfsdk:"account_id"`
@@ -64,9 +62,7 @@ func splunkIntegrationResourceModelFromAPI(si *schemas.SplunkIntegration, token 
 		Name:       types.StringValue(si.Attributes.Name),
 		Endpoint:   types.StringValue(si.Attributes.Endpoint),
 		Token:      token,
-		Index:      types.StringValue(si.Attributes.Index),
-		Source:     types.StringPointerValue(si.Attributes.Source),
-		Sourcetype: types.StringPointerValue(si.Attributes.Sourcetype),
+		Index:      types.StringPointerValue(si.Attributes.Index),
 		Status:     types.StringValue(string(si.Attributes.Status)),
 		ErrMessage: types.StringPointerValue(si.Attributes.ErrMessage),
 		AccountID:  types.StringNull(),
@@ -105,9 +101,8 @@ func (r *splunkIntegrationResource) Schema(_ context.Context, _ resource.SchemaR
 				},
 			},
 			"endpoint": schema.StringAttribute{
-				MarkdownDescription: "Base HEC URL, for example `https://http-inputs-<stack>.splunkcloud.com` or `https://splunk.example.com:8088`." +
-					" Must use https and must not include `/services/collector`.",
-				Required: true,
+				MarkdownDescription: "Base HTTP Event Collector URL. Must use https and must not include `/services/collector`.",
+				Required:            true,
 				Validators: []validator.String{
 					stringvalidation.StringIsValidURL(),
 				},
@@ -122,26 +117,8 @@ func (r *splunkIntegrationResource) Schema(_ context.Context, _ resource.SchemaR
 				},
 			},
 			"index": schema.StringAttribute{
-				MarkdownDescription: "Splunk index for the events. The HEC token must be allowed to write to it.",
-				Required:            true,
-				Validators: []validator.String{
-					stringvalidation.StringIsNotWhiteSpace(),
-					stringvalidator.LengthAtMost(255),
-				},
-			},
-			"source": schema.StringAttribute{
-				MarkdownDescription: "Labels where events come from. Use it to filter Scalr events in Splunk searches." +
-					" Scalr sends `scalr` when it is not set.",
-				Optional: true,
-				Validators: []validator.String{
-					stringvalidation.StringIsNotWhiteSpace(),
-					stringvalidator.LengthAtMost(255),
-				},
-			},
-			"sourcetype": schema.StringAttribute{
-				MarkdownDescription: "Tells Splunk how to parse events. Scalr sends JSON, so keep the default `_json`" +
-					" unless your Splunk admin uses a custom sourcetype. Scalr sends `_json` when it is not set.",
-				Optional: true,
+				MarkdownDescription: "Splunk index for the events. If not set, events go to the default index of the HEC token.",
+				Optional:            true,
 				Validators: []validator.String{
 					stringvalidation.StringIsNotWhiteSpace(),
 					stringvalidator.LengthAtMost(255),
@@ -195,12 +172,10 @@ func (r *splunkIntegrationResource) Create(ctx context.Context, req resource.Cre
 
 	opts := schemas.SplunkIntegrationRequest{
 		Attributes: schemas.SplunkIntegrationAttributesRequest{
-			Name:       value.Set(plan.Name.ValueString()),
-			Endpoint:   value.Set(plan.Endpoint.ValueString()),
-			Token:      value.Set(plan.Token.ValueString()),
-			Index:      value.Set(plan.Index.ValueString()),
-			Source:     value.SetPtr(plan.Source.ValueStringPointer()),
-			Sourcetype: value.SetPtr(plan.Sourcetype.ValueStringPointer()),
+			Name:     value.Set(plan.Name.ValueString()),
+			Endpoint: value.Set(plan.Endpoint.ValueString()),
+			Token:    value.Set(plan.Token.ValueString()),
+			Index:    value.SetPtr(plan.Index.ValueStringPointer()),
 		},
 	}
 
@@ -259,15 +234,7 @@ func (r *splunkIntegrationResource) Update(ctx context.Context, req resource.Upd
 	}
 
 	if !plan.Index.Equal(state.Index) {
-		opts.Attributes.Index = value.Set(plan.Index.ValueString())
-	}
-
-	if !plan.Source.Equal(state.Source) {
-		opts.Attributes.Source = value.SetPtr(plan.Source.ValueStringPointer())
-	}
-
-	if !plan.Sourcetype.Equal(state.Sourcetype) {
-		opts.Attributes.Sourcetype = value.SetPtr(plan.Sourcetype.ValueStringPointer())
+		opts.Attributes.Index = value.SetPtr(plan.Index.ValueStringPointer())
 	}
 
 	si, err := r.ClientV2.SplunkIntegration.UpdateSplunkIntegration(ctx, plan.Id.ValueString(), &opts)

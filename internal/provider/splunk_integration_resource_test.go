@@ -33,7 +33,7 @@ func TestAccScalrSplunkIntegrationResource_basic(t *testing.T) {
 		CheckDestroy:             testAccCheckScalrSplunkIntegrationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrSplunkIntegrationConfig(name, endpoint, token, index, ""),
+				Config: testAccScalrSplunkIntegrationConfig(name, endpoint, token, index),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckScalrSplunkIntegrationExists("scalr_splunk_integration.test"),
 					resource.TestMatchResourceAttr("scalr_splunk_integration.test", "id", regexp.MustCompile(`^in-`)),
@@ -41,8 +41,6 @@ func TestAccScalrSplunkIntegrationResource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_splunk_integration.test", "endpoint", endpoint),
 					resource.TestCheckResourceAttr("scalr_splunk_integration.test", "token", token),
 					resource.TestCheckResourceAttr("scalr_splunk_integration.test", "index", index),
-					resource.TestCheckNoResourceAttr("scalr_splunk_integration.test", "source"),
-					resource.TestCheckNoResourceAttr("scalr_splunk_integration.test", "sourcetype"),
 					resource.TestCheckResourceAttr("scalr_splunk_integration.test", "status", "active"),
 					resource.TestCheckNoResourceAttr("scalr_splunk_integration.test", "err_message"),
 					resource.TestCheckResourceAttr("scalr_splunk_integration.test", "account_id", defaultAccount),
@@ -50,7 +48,7 @@ func TestAccScalrSplunkIntegrationResource_basic(t *testing.T) {
 			},
 			{
 				// The API never returns the token; make sure that does not show up as drift.
-				Config: testAccScalrSplunkIntegrationConfig(name, endpoint, token, index, ""),
+				Config: testAccScalrSplunkIntegrationConfig(name, endpoint, token, index),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectEmptyPlan(),
@@ -58,11 +56,11 @@ func TestAccScalrSplunkIntegrationResource_basic(t *testing.T) {
 				},
 			},
 			{
-				Config: testAccScalrSplunkIntegrationConfig(newName, endpoint, token, index, "source = \"scalr-test\"\n  sourcetype = \"_json\""),
+				// Removing the index clears it, so events go to the default index of the token.
+				Config: testAccScalrSplunkIntegrationConfigWithoutIndex(newName, endpoint, token),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("scalr_splunk_integration.test", "name", newName),
-					resource.TestCheckResourceAttr("scalr_splunk_integration.test", "source", "scalr-test"),
-					resource.TestCheckResourceAttr("scalr_splunk_integration.test", "sourcetype", "_json"),
+					resource.TestCheckNoResourceAttr("scalr_splunk_integration.test", "index"),
 					resource.TestCheckResourceAttr("scalr_splunk_integration.test", "status", "active"),
 				),
 			},
@@ -74,14 +72,12 @@ func TestAccScalrSplunkIntegrationResource_basic(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"token"},
 			},
 			{
-				// Removing source and sourcetype clears them; the API drops the stored token
-				// on an endpoint change unless it is sent again.
-				Config: testAccScalrSplunkIntegrationConfig(newName, otherEndpoint, token, index, ""),
+				// The API drops the stored token on an endpoint change unless it is sent again.
+				Config: testAccScalrSplunkIntegrationConfig(newName, otherEndpoint, token, index),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("scalr_splunk_integration.test", "endpoint", otherEndpoint),
 					resource.TestCheckResourceAttr("scalr_splunk_integration.test", "token", token),
-					resource.TestCheckNoResourceAttr("scalr_splunk_integration.test", "source"),
-					resource.TestCheckNoResourceAttr("scalr_splunk_integration.test", "sourcetype"),
+					resource.TestCheckResourceAttr("scalr_splunk_integration.test", "index", index),
 				),
 			},
 		},
@@ -94,20 +90,16 @@ func TestAccScalrSplunkIntegrationResource_validation(t *testing.T) {
 		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccScalrSplunkIntegrationConfig("test-splunk-invalid", "http://splunk.example.com:8088", "x", "main", ""),
+				Config:      testAccScalrSplunkIntegrationConfig("test-splunk-invalid", "http://splunk.example.com:8088", "x", "main"),
 				ExpectError: regexp.MustCompile(`URL scheme must be https`),
 			},
 			{
-				Config:      testAccScalrSplunkIntegrationConfig("test-splunk-invalid", "https://splunk.example.com:8088/services/collector/event", "x", "main", ""),
+				Config:      testAccScalrSplunkIntegrationConfig("test-splunk-invalid", "https://splunk.example.com:8088/services/collector/event", "x", "main"),
 				ExpectError: regexp.MustCompile(`Enter the base HEC URL without /services/collector`),
 			},
 			{
-				Config:      testAccScalrSplunkIntegrationConfig("test-splunk-invalid", "https://splunk.example.com:8088", "x", " ", ""),
+				Config:      testAccScalrSplunkIntegrationConfig("test-splunk-invalid", "https://splunk.example.com:8088", "x", " "),
 				ExpectError: regexp.MustCompile(`Attribute index must not be empty`),
-			},
-			{
-				Config:      testAccScalrSplunkIntegrationConfig("test-splunk-invalid", "https://splunk.example.com:8088", "x", "main", `sourcetype = ""`),
-				ExpectError: regexp.MustCompile(`Attribute sourcetype must not be empty`),
 			},
 		},
 	})
@@ -156,13 +148,21 @@ func testAccCheckScalrSplunkIntegrationDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccScalrSplunkIntegrationConfig(name, endpoint, token, index, extra string) string {
+func testAccScalrSplunkIntegrationConfig(name, endpoint, token, index string) string {
 	return fmt.Sprintf(`
 resource "scalr_splunk_integration" "test" {
   name     = %q
   endpoint = %q
   token    = %q
   index    = %q
-  %s
-}`, name, endpoint, token, index, extra)
+}`, name, endpoint, token, index)
+}
+
+func testAccScalrSplunkIntegrationConfigWithoutIndex(name, endpoint, token string) string {
+	return fmt.Sprintf(`
+resource "scalr_splunk_integration" "test" {
+  name     = %q
+  endpoint = %q
+  token    = %q
+}`, name, endpoint, token)
 }
