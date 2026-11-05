@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **New resource:** `scalr_grafana_integration` to send audit logs and run events to Grafana Cloud or a self-hosted Loki ([#570](https://github.com/Scalr/terraform-provider-scalr/pull/570)).
+- **New data source:** `scalr_grafana_integration` ([#570](https://github.com/Scalr/terraform-provider-scalr/pull/570)).
+
 ## [3.21.0] - 2026-10-27
 
 ### Added
