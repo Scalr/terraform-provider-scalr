@@ -144,9 +144,23 @@ func policyGroupResourceSchema() *schema.Schema {
 						},
 						"branch": schema.StringAttribute{
 							MarkdownDescription: "The branch of a repository the policy group is associated with." +
-								" If omitted, the repository default branch will be used.",
+								" Every push to this branch updates the policies." +
+								" If omitted, the repository default branch will be used." +
+								" Empty while the policy group is pinned to a `tag`." +
+								" Conflicts with `tag`.",
 							Optional: true,
 							Computed: true,
+						},
+						"tag": schema.StringAttribute{
+							MarkdownDescription: "The Git tag the policy group is pinned to." +
+								" While pinned, the policy group tracks no branch: the policies stay at this tag" +
+								" and pushes to the repository do not change them. Set another tag to promote" +
+								" the policy group, or remove the attribute to go back to tracking a branch." +
+								" Conflicts with `branch`.",
+							Optional: true,
+							Validators: []validator.String{
+								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("branch")),
+							},
 						},
 						"path": schema.StringAttribute{
 							MarkdownDescription: "The subdirectory of the VCS repository where OPA policies are stored." +
@@ -182,6 +196,7 @@ var (
 		AttrTypes: map[string]attr.Type{
 			"identifier": types.StringType,
 			"branch":     types.StringType,
+			"tag":        types.StringType,
 			"path":       types.StringType,
 		},
 	}
@@ -213,6 +228,7 @@ type policyGroupResourceModel struct {
 type policyGroupVcsRepoModel struct {
 	Identifier types.String `tfsdk:"identifier"`
 	Branch     types.String `tfsdk:"branch"`
+	Tag        types.String `tfsdk:"tag"`
 	Path       types.String `tfsdk:"path"`
 }
 
@@ -244,6 +260,7 @@ func expandPolicyGroupVcsRepo(ctx context.Context, v types.List) (
 		Identifier: value.Set(repo.Identifier.ValueString()),
 		Path:       value.Set(repo.Path.ValueString()),
 		Branch:     framework.SetIfKnownString(repo.Branch),
+		Tag:        policyGroupVcsRepoTag(repo.Tag),
 	}
 
 	return opts, diags
@@ -519,6 +536,16 @@ func policyGroupCommonFunctionsFolder(v types.String) *value.Value[string] {
 	return value.Set(v.ValueString())
 }
 
+func policyGroupVcsRepoTag(v types.String) *value.Value[string] {
+	if v.IsUnknown() {
+		return value.Unset[string]()
+	}
+	if v.IsNull() {
+		return value.Null[string]()
+	}
+	return value.Set(v.ValueString())
+}
+
 func policyGroupResourceModelFromAPI(
 	ctx context.Context,
 	pg *schemas.PolicyGroup,
@@ -554,6 +581,7 @@ func policyGroupResourceModelFromAPI(
 	repo := []policyGroupVcsRepoModel{{
 		Identifier: types.StringValue(pg.Attributes.VcsRepo.Identifier),
 		Branch:     types.StringPointerValue(pg.Attributes.VcsRepo.Branch),
+		Tag:        types.StringPointerValue(pg.Attributes.VcsRepo.Tag),
 		Path:       types.StringValue(stringOrEmpty(pg.Attributes.VcsRepo.Path)),
 	}}
 	repoValue, d := types.ListValueFrom(ctx, policyGroupVcsRepoElementType, repo)

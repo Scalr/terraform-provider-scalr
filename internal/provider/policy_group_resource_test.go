@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -19,6 +20,10 @@ const (
 	policyGroupVcsRepoID   = "Scalr/tf-revizor-fixtures"
 	policyGroupVcsRepoPath = "policies/clouds"
 	commonFunctionsFolder  = "policies/instances"
+	// Both tags must exist in policyGroupVcsRepoID.
+	policyGroupRepoTag        = "1.0.0"
+	policyGroupRepoTagUpdated = "1.1.0"
+	policyGroupRepoBranch     = "master"
 )
 
 func TestAccPolicyGroup_basic(t *testing.T) {
@@ -284,6 +289,90 @@ func TestAccPolicyGroup_renamed(t *testing.T) {
 	})
 }
 
+func TestAccPolicyGroup_vcsRepoTagConflictsWithBranch(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+resource "scalr_policy_group" "test" {
+  name            = "test-pg-conflict"
+  vcs_provider_id = "vcs-xxxxxxxxxxxxxxxx"
+  vcs_repo {
+    identifier = "org/repo"
+    branch     = "dev"
+    tag        = "v1.0.0"
+  }
+}`,
+				ExpectError: regexp.MustCompile(`Invalid Attribute Combination`),
+				PlanOnly:    true,
+			},
+		},
+	})
+}
+
+func TestAccPolicyGroup_vcsRepoTag(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			// TODO: delete skip after SCALRCORE-19891
+			t.Skip("Works with personal token but does not work with github action token.")
+			testVcsAccGithubTokenPreCheck(t)
+		},
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckPolicyGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				// Start on a branch, so the next step pins a group whose plan already carries
+				// a branch: the API rejects a request that sends a branch and a tag together.
+				Config: testAccPolicyGroupBranchConfig(rInt, policyGroupRepoBranch),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckPolicyGroupExists("scalr_policy_group.test", &schemas.PolicyGroup{}),
+					resource.TestCheckNoResourceAttr("scalr_policy_group.test", "vcs_repo.0.tag"),
+				),
+			},
+			{
+				Config: testAccPolicyGroupTagConfig(rInt, policyGroupRepoTag),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckPolicyGroupExists("scalr_policy_group.test", &schemas.PolicyGroup{}),
+					resource.TestCheckResourceAttr(
+						"scalr_policy_group.test",
+						"vcs_repo.0.tag",
+						policyGroupRepoTag,
+					),
+					// A pinned group tracks no branch: pushes must not move the policies.
+					resource.TestCheckNoResourceAttr("scalr_policy_group.test", "vcs_repo.0.branch"),
+				),
+			},
+			{
+				Config: testAccPolicyGroupTagConfig(rInt, policyGroupRepoTagUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckPolicyGroupExists("scalr_policy_group.test", &schemas.PolicyGroup{}),
+					resource.TestCheckResourceAttr(
+						"scalr_policy_group.test",
+						"vcs_repo.0.tag",
+						policyGroupRepoTagUpdated,
+					),
+				),
+			},
+			{
+				Config: testAccPolicyGroupBranchConfig(rInt, policyGroupRepoBranch),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckPolicyGroupExists("scalr_policy_group.test", &schemas.PolicyGroup{}),
+					resource.TestCheckNoResourceAttr("scalr_policy_group.test", "vcs_repo.0.tag"),
+					resource.TestCheckResourceAttr(
+						"scalr_policy_group.test",
+						"vcs_repo.0.branch",
+						policyGroupRepoBranch,
+					),
+				),
+			},
+		},
+	})
+}
+
 func TestAccPolicyGroup_import(t *testing.T) {
 	rInt := GetRandomInteger()
 
@@ -486,5 +575,63 @@ resource "scalr_policy_group" "test" {
 		policyGroupVcsRepoID,
 		policyGroupVcsRepoPath,
 		commonFunctionsFolder,
+	)
+}
+
+func testAccPolicyGroupTagConfig(rInt int, tag string) string {
+	return fmt.Sprintf(`
+resource "scalr_vcs_provider" "test" {
+  name     = "test-github-%d"
+  vcs_type = "%s"
+  token    = "%s"
+}
+
+resource "scalr_policy_group" "test" {
+  name            = "test-pg-%[1]d"
+  account_id      = "%[4]s"
+  vcs_provider_id = scalr_vcs_provider.test.id
+  vcs_repo {
+    identifier = "%s"
+    path       = "%s"
+    tag        = "%s"
+  }
+}
+`,
+		rInt,
+		string(scalr.Github),
+		githubToken,
+		defaultAccount,
+		policyGroupVcsRepoID,
+		policyGroupVcsRepoPath,
+		tag,
+	)
+}
+
+func testAccPolicyGroupBranchConfig(rInt int, branch string) string {
+	return fmt.Sprintf(`
+resource "scalr_vcs_provider" "test" {
+  name     = "test-github-%d"
+  vcs_type = "%s"
+  token    = "%s"
+}
+
+resource "scalr_policy_group" "test" {
+  name            = "test-pg-%[1]d"
+  account_id      = "%[4]s"
+  vcs_provider_id = scalr_vcs_provider.test.id
+  vcs_repo {
+    identifier = "%s"
+    path       = "%s"
+    branch     = "%s"
+  }
+}
+`,
+		rInt,
+		string(scalr.Github),
+		githubToken,
+		defaultAccount,
+		policyGroupVcsRepoID,
+		policyGroupVcsRepoPath,
+		branch,
 	)
 }

@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **New resource:** `scalr_grafana_integration` to send audit logs and run events to Grafana Cloud or a self-hosted Loki ([#570](https://github.com/Scalr/terraform-provider-scalr/pull/570)).
 - **New data source:** `scalr_grafana_integration` ([#570](https://github.com/Scalr/terraform-provider-scalr/pull/570)).
+- `scalr_policy_group`: new attribute `vcs_repo.tag` to pin the policies to a Git tag, so pushes to the repository leave them unchanged until another tag is set ([#579](https://github.com/Scalr/terraform-provider-scalr/pull/579)).
+- `data.scalr_policy_group`: new attribute `vcs_repo.tag` ([#579](https://github.com/Scalr/terraform-provider-scalr/pull/579)).
 
 ## [3.21.0] - 2026-10-27
 
