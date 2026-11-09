@@ -37,7 +37,7 @@ func TestAccScalrCheckovIntegrationDataSource_validation(t *testing.T) {
 }
 
 func TestAccScalrCheckovIntegrationDataSource_basic(t *testing.T) {
-	res := testAccScalrCheckovIntegrationConfigScanMode("plan")
+	res := testAccScalrCheckovIntegrationConfigScanMode("plan-json")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -56,7 +56,7 @@ data "scalr_checkov_integration" "test" {
 					),
 					resource.TestCheckResourceAttr("data.scalr_checkov_integration.test", "name", "test-checkov-integration"),
 					resource.TestCheckResourceAttrSet("data.scalr_checkov_integration.test", "version"),
-					resource.TestCheckResourceAttr("data.scalr_checkov_integration.test", "scan_mode", "plan"),
+					resource.TestCheckResourceAttr("data.scalr_checkov_integration.test", "scan_mode", "plan-json"),
 					resource.TestCheckResourceAttr("data.scalr_checkov_integration.test", "external_checks_enabled", "false"),
 					resource.TestCheckResourceAttr("data.scalr_checkov_integration.test", "status", "active"),
 					resource.TestCheckResourceAttr("data.scalr_checkov_integration.test", "environments.#", "1"),
@@ -73,7 +73,7 @@ data "scalr_checkov_integration" "test" {
 						"data.scalr_checkov_integration.test", "id",
 						"scalr_checkov_integration.test", "id",
 					),
-					resource.TestCheckResourceAttr("data.scalr_checkov_integration.test", "scan_mode", "plan"),
+					resource.TestCheckResourceAttr("data.scalr_checkov_integration.test", "scan_mode", "plan-json"),
 				),
 			},
 			{

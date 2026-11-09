@@ -28,7 +28,7 @@ func TestCheckovIntegrationResource_Create(t *testing.T) {
 					resource.TestCheckResourceAttrSet("scalr_checkov_integration.test", "version"),
 					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "external_checks_enabled", "false"),
 					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "cli_args", "--quiet"),
-					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "scan_mode", "code"),
+					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "scan_mode", "configuration-files"),
 					testAccCheckCheckovIntegrationIsShared("scalr_checkov_integration.test", true, &checkovIntegration),
 				),
 			},
@@ -43,9 +43,9 @@ func TestCheckovIntegrationResource_Create_PlanScanMode(t *testing.T) {
 		CheckDestroy:             testAccCheckCheckovIntegrationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccScalrCheckovIntegrationConfigScanMode("plan"),
+				Config: testAccScalrCheckovIntegrationConfigScanMode("plan-json"),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "scan_mode", "plan"),
+					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "scan_mode", "plan-json"),
 				),
 			},
 		},
@@ -59,7 +59,7 @@ func TestCheckovIntegrationResource_Create_InvalidScanMode(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrCheckovIntegrationConfigScanMode("state"),
-				ExpectError: regexp.MustCompile(`Attribute scan_mode value must be one of: \["code" "plan"]`),
+				ExpectError: regexp.MustCompile(`Attribute scan_mode value must be one of: \["configuration-files" "plan-json"]`),
 			},
 		},
 	})
@@ -98,7 +98,7 @@ func TestCheckovIntegrationResource_Update(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "name", "test-checkov-integration"),
 					testAccCheckCheckovIntegrationIsShared("scalr_checkov_integration.test", true, &checkovIntegration),
 					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "cli_args", "--quiet"),
-					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "scan_mode", "code"),
+					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "scan_mode", "configuration-files"),
 				),
 			},
 			{
@@ -107,7 +107,7 @@ func TestCheckovIntegrationResource_Update(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "name", rNewName),
 					testAccCheckCheckovIntegrationIsShared("scalr_checkov_integration.test", false, &checkovIntegration),
 					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "cli_args", "--compact"),
-					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "scan_mode", "plan"),
+					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "scan_mode", "plan-json"),
 				),
 			},
 		},
@@ -167,7 +167,7 @@ resource "scalr_checkov_integration" "test" {
   name         = "%s"
   environments = []
   cli_args     = "--compact"
-  scan_mode    = "plan"
+  scan_mode    = "plan-json"
 }`, name)
 }
 

@@ -85,7 +85,7 @@ func (d *checkovIntegrationDataSource) Schema(_ context.Context, _ datasource.Sc
 				Computed:            true,
 			},
 			"scan_mode": schema.StringAttribute{
-				MarkdownDescription: "What Checkov scans: `code` for the configuration files, `plan` for the plan JSON.",
+				MarkdownDescription: "What Checkov scans: `configuration-files` for the configuration files, `plan-json` for the plan JSON.",
 				Computed:            true,
 			},
 			"external_checks_enabled": schema.BoolAttribute{

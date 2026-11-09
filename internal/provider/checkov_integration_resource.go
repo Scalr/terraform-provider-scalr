@@ -222,17 +222,17 @@ func (r *checkovIntegrationResource) Schema(_ context.Context, _ resource.Schema
 			},
 			"scan_mode": schema.StringAttribute{
 				MarkdownDescription: "What Checkov scans." +
-					" `code` scans the configuration files before the run is planned." +
-					" `plan` scans the plan JSON after the plan phase, so the findings cover the resources" +
+					" `configuration-files` scans the configuration files before the run is planned." +
+					" `plan-json` scans the plan JSON after the plan phase, so the findings cover the resources" +
 					" the run actually provisions; such a scan is skipped when the plan has no changes." +
-					" Valid values are `code`, `plan`. Default `code`.",
+					" Valid values are `configuration-files`, `plan-json`. Default `configuration-files`.",
 				Optional: true,
 				Computed: true,
-				Default:  stringdefault.StaticString(string(schemas.CheckovIntegrationScanModeCode)),
+				Default:  stringdefault.StaticString(string(schemas.CheckovIntegrationScanModeConfigurationFiles)),
 				Validators: []validator.String{
 					stringvalidator.OneOf(
-						string(schemas.CheckovIntegrationScanModeCode),
-						string(schemas.CheckovIntegrationScanModePlan),
+						string(schemas.CheckovIntegrationScanModeConfigurationFiles),
+						string(schemas.CheckovIntegrationScanModePlanJson),
 					),
 				},
 			},

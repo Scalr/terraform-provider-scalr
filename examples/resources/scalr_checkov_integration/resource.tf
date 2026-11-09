@@ -16,5 +16,5 @@ resource "scalr_checkov_integration" "example3" {
   name         = "my-checkov-integration-3"
   environments = []
   cli_args     = "--compact"
-  scan_mode    = "plan"
+  scan_mode    = "plan-json"
 }

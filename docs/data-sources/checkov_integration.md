@@ -38,7 +38,7 @@ data "scalr_checkov_integration" "example2" {
 - `cli_args` (String) CLI parameters to be passed to checkov command.
 - `environments` (Set of String) List of environments this integration is linked to, or `["*"]` if shared with all environments.
 - `external_checks_enabled` (Boolean) Indicates whether external checks are enabled.
-- `scan_mode` (String) What Checkov scans: `code` for the configuration files, `plan` for the plan JSON.
+- `scan_mode` (String) What Checkov scans: `configuration-files` for the configuration files, `plan-json` for the plan JSON.
 - `status` (String) Status of the integration.
 - `vcs_provider_id` (String) ID of the VCS provider the external checks are stored in, in the format `vcs-<RANDOM STRING>`.
 - `vcs_repo` (List of Object) Settings for the Checkov integration's VCS repository. (see [below for nested schema](#nestedatt--vcs_repo))
