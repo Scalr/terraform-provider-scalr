@@ -1,0 +1,1 @@
+terraform import scalr_grafana_integration.example in-xxxxxxxxxx
