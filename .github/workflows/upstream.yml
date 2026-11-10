@@ -70,6 +70,8 @@ jobs:
           no_segment: true
           working_directory: fatmouse
           secrets_bucket: scalr-tacobell-secrets
+          # The tests only use the API, and Vite builds the UI in seconds instead of minutes
+          frontend_bundler: vite
       - name: Get Scalr Hostname
         run: |
           SCALR_HOST=${{ steps.create-preview-env.outputs.host }}
