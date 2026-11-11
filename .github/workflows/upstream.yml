@@ -70,6 +70,8 @@ jobs:
           no_segment: true
           working_directory: fatmouse
           secrets_bucket: scalr-tacobell-secrets
+          # The tests only use the API, and Vite builds the UI in seconds instead of minutes
+          frontend_bundler: vite
       - name: Get Scalr Hostname
         run: |
           SCALR_HOST=${{ steps.create-preview-env.outputs.host }}
@@ -88,6 +90,18 @@ jobs:
           TEST_ARM_TENANT_ID: ${{ secrets.TEST_ARM_TENANT_ID }}
           TEST_ARM_SUBSCRIPTION_ID: ${{ secrets.TEST_ARM_SUBSCRIPTION_ID }}
         run: make testacc
+      - name: Report Rerun Tests
+        if: ${{ always() }}
+        run: |
+          if [ -s rerun-report.txt ]; then
+            echo "::warning title=Rerun tests::$(wc -l < rerun-report.txt) test(s) failed and were rerun, see the job summary"
+            {
+              echo "### Tests rerun after a failure"
+              echo '```'
+              cat rerun-report.txt
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Delete Container
         working-directory: fatmouse
         if: ${{ always() }}
