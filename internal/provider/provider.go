@@ -189,6 +189,7 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		newAssumeServiceAccountPolicyDataSource,
+		newCheckovIntegrationDataSource,
 		newContainerImageDataSource,
 		newContainerImageVersionDataSource,
 		newDockerIntegrationDataSource,
