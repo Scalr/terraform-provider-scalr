@@ -32,6 +32,7 @@ func TestAccScalrAgentPool_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.name", "Authorization"),
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.value", "1234567890"),
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.sensitive", "false"),
+					resource.TestCheckResourceAttr("scalr_agent_pool.test", "run_acquisition_timeout", "60"),
 				),
 			},
 		},
@@ -66,6 +67,7 @@ func TestAccScalrAgentPool_update(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.name", "Authorization"),
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.value", "1234567890new"),
 					resource.TestCheckResourceAttr("scalr_agent_pool.test", "header.0.sensitive", "true"),
+					resource.TestCheckResourceAttr("scalr_agent_pool.test", "run_acquisition_timeout", "4320"),
 				),
 			},
 		},
@@ -144,6 +146,7 @@ func testAccScalrAgentPoolBasic(rInt int) string {
 resource "scalr_agent_pool" "test" {
   name           = "agent_pool-test-%d"
   api_gateway_url = "https://example.com"
+  run_acquisition_timeout = 60
   header {
   	name = "Authorization"
     value = "1234567890"
@@ -156,6 +159,7 @@ func testAccScalrAgentPoolUpdate() string {
 resource "scalr_agent_pool" "test" {
   name           = "agent_pool-updated"
   api_gateway_url = "https://example.com/new"
+  run_acquisition_timeout = 4320
   header {
   	name = "Authorization"
     value = "1234567890new"

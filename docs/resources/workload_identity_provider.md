@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 39
+position: 41
 ---
 ## Resource: scalr_workload_identity_provider
 

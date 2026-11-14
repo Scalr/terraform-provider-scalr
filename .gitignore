@@ -23,6 +23,7 @@ terraform-provider-scalr_*
 gha-creds-*.json
 
 covprofile
+rerun-report.txt
 
 .github/actions/update-network-mirror/node_modules
 .github/actions/upload-provider/node_modules

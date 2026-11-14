@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **New resource:** `scalr_grafana_integration` to send audit logs and run events to Grafana Cloud or a self-hosted Loki ([#570](https://github.com/Scalr/terraform-provider-scalr/pull/570)).
+- **New data source:** `scalr_grafana_integration` ([#570](https://github.com/Scalr/terraform-provider-scalr/pull/570)).
+- **New resource:** `scalr_splunk_integration` to send audit logs and run events to a Splunk HTTP Event Collector ([#578](https://github.com/Scalr/terraform-provider-scalr/pull/578)).
+- **New data source:** `scalr_splunk_integration` ([#578](https://github.com/Scalr/terraform-provider-scalr/pull/578)).
 - **New data source:** `scalr_checkov_integration` to look up a Checkov integration by `id` or `name` ([#576](https://github.com/Scalr/terraform-provider-scalr/pull/576)).
 - `scalr_checkov_integration`: new attribute `scan_mode` to scan the plan JSON after the plan phase instead of the configuration files ([#576](https://github.com/Scalr/terraform-provider-scalr/pull/576)).
 
@@ -17,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `data.scalr_outputs`: new attribute `include_sensitive` to read the values of sensitive outputs.
+- `scalr_agent_pool`: new attribute `run_acquisition_timeout`, the time in minutes a run waits for an agent of the pool before it is canceled ([#571](https://github.com/Scalr/terraform-provider-scalr/pull/571)).
+- `data.scalr_agent_pool`: new attribute `run_acquisition_timeout` ([#571](https://github.com/Scalr/terraform-provider-scalr/pull/571)).
 
 ### Fixed
 

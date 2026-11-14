@@ -165,6 +165,7 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 		newHookResource,
 		newIamTeamResource,
 		newIntegrationInfracostResource,
+		newGrafanaIntegrationResource,
 		newModuleNamespaceResource,
 		newPolicyGroupResource,
 		newModuleTestConfigurationResource,
@@ -181,6 +182,7 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 		newWorkspaceRemoteStateConsumerResource,
 		newWorkspaceVarSetResource,
 		newDatadogIntegrationResource,
+		newSplunkIntegrationResource,
 	}
 }
 
@@ -196,6 +198,7 @@ func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataS
 		newHookDataSource,
 		newIamTeamDataSource,
 		newIntegrationInfracostDataSource,
+		newGrafanaIntegrationDataSource,
 		newModuleNamespaceDataSource,
 		newOutputsDataSource,
 		newPolicyGroupDataSource,
@@ -208,5 +211,6 @@ func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataS
 		newWorkloadIdentityProviderDataSource,
 		newWorkspaceDataSource,
 		newDatadogIntegrationDataSource,
+		newSplunkIntegrationDataSource,
 	}
 }
