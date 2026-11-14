@@ -7,7 +7,7 @@ parent:
   uri: provider_datasources
 privacy:
   view: public
-position: 4
+position: 5
 ---
 ## Data Source: scalr_container_image
 

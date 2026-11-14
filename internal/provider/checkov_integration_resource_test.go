@@ -1,8 +1,6 @@
 package provider
 
 import (
-	"context"
-	"errors"
 	"fmt"
 	"regexp"
 	"testing"
@@ -11,11 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
-	"github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr/v2/scalr/schemas"
 )
 
 func TestCheckovIntegrationResource_Create(t *testing.T) {
-	var checkovIntegration scalr.CheckovIntegration
+	var checkovIntegration schemas.CheckovIntegration
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -30,8 +28,38 @@ func TestCheckovIntegrationResource_Create(t *testing.T) {
 					resource.TestCheckResourceAttrSet("scalr_checkov_integration.test", "version"),
 					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "external_checks_enabled", "false"),
 					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "cli_args", "--quiet"),
+					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "scan_mode", "configuration-files"),
 					testAccCheckCheckovIntegrationIsShared("scalr_checkov_integration.test", true, &checkovIntegration),
 				),
+			},
+		},
+	})
+}
+
+func TestCheckovIntegrationResource_Create_PlanScanMode(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCheckovIntegrationDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrCheckovIntegrationConfigScanMode("plan-json"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "scan_mode", "plan-json"),
+				),
+			},
+		},
+	})
+}
+
+func TestCheckovIntegrationResource_Create_InvalidScanMode(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccScalrCheckovIntegrationConfigScanMode("state"),
+				ExpectError: regexp.MustCompile(`Attribute scan_mode value must be one of: \["configuration-files"\s+"plan-json"]`),
 			},
 		},
 	})
@@ -57,7 +85,7 @@ func TestCheckovIntegrationResource_Create_MissedVcsAttr(t *testing.T) {
 func TestCheckovIntegrationResource_Update(t *testing.T) {
 	rNewName := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 
-	var checkovIntegration scalr.CheckovIntegration
+	var checkovIntegration schemas.CheckovIntegration
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -70,6 +98,7 @@ func TestCheckovIntegrationResource_Update(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "name", "test-checkov-integration"),
 					testAccCheckCheckovIntegrationIsShared("scalr_checkov_integration.test", true, &checkovIntegration),
 					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "cli_args", "--quiet"),
+					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "scan_mode", "configuration-files"),
 				),
 			},
 			{
@@ -78,6 +107,38 @@ func TestCheckovIntegrationResource_Update(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "name", rNewName),
 					testAccCheckCheckovIntegrationIsShared("scalr_checkov_integration.test", false, &checkovIntegration),
 					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "cli_args", "--compact"),
+					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "scan_mode", "plan-json"),
+				),
+			},
+		},
+	})
+}
+
+func TestCheckovIntegrationResource_RemoveExternalChecks(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testVcsAccGithubTokenPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCheckovIntegrationDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrCheckovIntegrationConfigExternalChecks(rInt, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "external_checks_enabled", "true"),
+					resource.TestCheckResourceAttrPair(
+						"scalr_checkov_integration.test", "vcs_provider_id",
+						"scalr_vcs_provider.test", "id",
+					),
+					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "vcs_repo.#", "1"),
+				),
+			},
+			{
+				Config: testAccScalrCheckovIntegrationConfigExternalChecks(rInt, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "external_checks_enabled", "false"),
+					resource.TestCheckNoResourceAttr("scalr_checkov_integration.test", "vcs_provider_id"),
+					resource.TestCheckNoResourceAttr("scalr_checkov_integration.test", "vcs_repo.#"),
 				),
 			},
 		},
@@ -111,6 +172,15 @@ resource "scalr_checkov_integration" "test" {
 }`
 }
 
+func testAccScalrCheckovIntegrationConfigScanMode(scanMode string) string {
+	return fmt.Sprintf(`
+resource "scalr_checkov_integration" "test" {
+  name         = "test-checkov-integration"
+  environments = ["*"]
+  scan_mode    = "%s"
+}`, scanMode)
+}
+
 func testAccScalrCheckovIntegrationConfigMissedVcsProvider() string {
 	return `
 resource "scalr_checkov_integration" "test" {
@@ -128,48 +198,70 @@ resource "scalr_checkov_integration" "test" {
   name         = "%s"
   environments = []
   cli_args     = "--compact"
+  scan_mode    = "plan-json"
 }`, name)
 }
 
 func testAccCheckCheckovIntegrationDestroy(s *terraform.State) error {
-	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
+	scalrClient := createScalrClientV2()
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_checkov_integration" {
 			continue
 		}
 
-		_, err := scalrClient.CheckovIntegrations.Read(context.Background(), rs.Primary.ID)
+		_, err := scalrClient.CheckovIntegration.GetCheckovIntegration(ctx, rs.Primary.ID, nil)
 		if err == nil {
 			return fmt.Errorf("Checkov integration (%s) still exists", rs.Primary.ID)
-		}
-
-		if !errors.Is(err, scalr.ErrResourceNotFound) {
-			return err
 		}
 	}
 
 	return nil
 }
 
-func testAccCheckCheckovIntegrationIsShared(resourceName string, expectedIsShared bool, CheckovIntegration *scalr.CheckovIntegration) resource.TestCheckFunc {
+func testAccCheckCheckovIntegrationIsShared(resourceName string, expectedIsShared bool, checkovIntegration *schemas.CheckovIntegration) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
 			return fmt.Errorf("Not found: %s", resourceName)
 		}
 
-		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
-		readKey, err := scalrClient.CheckovIntegrations.Read(context.Background(), rs.Primary.ID)
+		scalrClient := createScalrClientV2()
+		ci, err := scalrClient.CheckovIntegration.GetCheckovIntegration(ctx, rs.Primary.ID, nil)
 		if err != nil {
-			return fmt.Errorf("Error reading Infracost Integration: %s", err)
+			return fmt.Errorf("Error reading Checkov integration: %s", err)
 		}
 
-		*CheckovIntegration = *readKey
+		*checkovIntegration = *ci
 
-		if readKey.IsShared != expectedIsShared {
-			return fmt.Errorf("Expected IsShared to be %t, but got %t", expectedIsShared, readKey.IsShared)
+		if ci.Attributes.IsShared != expectedIsShared {
+			return fmt.Errorf("Expected IsShared to be %t, but got %t", expectedIsShared, ci.Attributes.IsShared)
 		}
 		return nil
 	}
+}
+
+func testAccScalrCheckovIntegrationConfigExternalChecks(rInt int, enabled bool) string {
+	externalChecks := ""
+	if enabled {
+		externalChecks = `
+  external_checks_enabled = true
+  vcs_provider_id         = scalr_vcs_provider.test.id
+  vcs_repo {
+    identifier = "Scalr/terraform-scalr-revizor"
+    branch     = "master"
+  }`
+	}
+	return fmt.Sprintf(`
+resource "scalr_vcs_provider" "test" {
+  name       = "vcs-checkov-%[1]d"
+  vcs_type   = "github"
+  token      = "%[2]s"
+  account_id = "%[3]s"
+}
+
+resource "scalr_checkov_integration" "test" {
+  name         = "test-checkov-integration-%[1]d"
+  environments = []%[4]s
+}`, rInt, githubToken, defaultAccount, externalChecks)
 }

@@ -7,7 +7,7 @@ parent:
   uri: provider_datasources
 privacy:
   view: public
-position: 39
+position: 40
 ---
 ## Data Source: scalr_workspace_ids
 

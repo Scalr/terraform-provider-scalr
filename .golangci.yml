@@ -71,8 +71,6 @@ linters:
             - "!**/internal/provider/policy_group_data_source_test.go"
             - "!**/internal/provider/policy_group_resource_test.go"
             - "!**/internal/provider/provider_configuration_data_source.go"
-            - "!**/internal/provider/scalr_checkov_integration_resource.go"
-            - "!**/internal/provider/scalr_checkov_integration_resource_test.go"
             - "!**/internal/provider/storage_profile_data_source.go"
             - "!**/internal/provider/storage_profile_models.go"
             - "!**/internal/provider/storage_profile_resource.go"
