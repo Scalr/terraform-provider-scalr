@@ -418,13 +418,20 @@ func (r *checkovIntegrationResource) Update(ctx context.Context, req resource.Up
 		opts.Attributes.ExternalChecksEnabled = framework.SetIfKnownBool(plan.ExternalChecksEnabled)
 	}
 
-	if !plan.VCSProviderID.IsNull() {
+	// An omitted field keeps its stored value, so a removed VCS provider or repository is sent as null.
+	if plan.VCSProviderID.IsNull() {
+		opts.Relationships.VcsProvider = value.Null[schemas.VcsProvider]()
+	} else {
 		opts.Relationships.VcsProvider = value.Set(schemas.VcsProvider{ID: plan.VCSProviderID.ValueString()})
 	}
 
 	vcsRepo, diags := expandCheckovVcsRepo(ctx, plan.VCSRepo)
 	resp.Diagnostics.Append(diags...)
-	opts.Attributes.VcsRepo = value.SetPtrMaybe(vcsRepo)
+	if plan.VCSRepo.IsNull() {
+		opts.Attributes.VcsRepo = value.Null[schemas.CheckovIntegrationVcsRepoRequest]()
+	} else {
+		opts.Attributes.VcsRepo = value.SetPtrMaybe(vcsRepo)
+	}
 
 	// An integration that is not shared keeps only the environments the request carries, so the
 	// full set goes with every update, whether or not it changed.

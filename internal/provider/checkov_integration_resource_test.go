@@ -59,7 +59,7 @@ func TestCheckovIntegrationResource_Create_InvalidScanMode(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccScalrCheckovIntegrationConfigScanMode("state"),
-				ExpectError: regexp.MustCompile(`Attribute scan_mode value must be one of: \["configuration-files" "plan-json"]`),
+				ExpectError: regexp.MustCompile(`Attribute scan_mode value must be one of: \["configuration-files"\s+"plan-json"]`),
 			},
 		},
 	})
@@ -108,6 +108,37 @@ func TestCheckovIntegrationResource_Update(t *testing.T) {
 					testAccCheckCheckovIntegrationIsShared("scalr_checkov_integration.test", false, &checkovIntegration),
 					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "cli_args", "--compact"),
 					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "scan_mode", "plan-json"),
+				),
+			},
+		},
+	})
+}
+
+func TestCheckovIntegrationResource_RemoveExternalChecks(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testVcsAccGithubTokenPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCheckovIntegrationDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrCheckovIntegrationConfigExternalChecks(rInt, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "external_checks_enabled", "true"),
+					resource.TestCheckResourceAttrPair(
+						"scalr_checkov_integration.test", "vcs_provider_id",
+						"scalr_vcs_provider.test", "id",
+					),
+					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "vcs_repo.#", "1"),
+				),
+			},
+			{
+				Config: testAccScalrCheckovIntegrationConfigExternalChecks(rInt, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("scalr_checkov_integration.test", "external_checks_enabled", "false"),
+					resource.TestCheckNoResourceAttr("scalr_checkov_integration.test", "vcs_provider_id"),
+					resource.TestCheckNoResourceAttr("scalr_checkov_integration.test", "vcs_repo.#"),
 				),
 			},
 		},
@@ -208,4 +239,29 @@ func testAccCheckCheckovIntegrationIsShared(resourceName string, expectedIsShare
 		}
 		return nil
 	}
+}
+
+func testAccScalrCheckovIntegrationConfigExternalChecks(rInt int, enabled bool) string {
+	externalChecks := ""
+	if enabled {
+		externalChecks = `
+  external_checks_enabled = true
+  vcs_provider_id         = scalr_vcs_provider.test.id
+  vcs_repo {
+    identifier = "Scalr/terraform-scalr-revizor"
+    branch     = "master"
+  }`
+	}
+	return fmt.Sprintf(`
+resource "scalr_vcs_provider" "test" {
+  name       = "vcs-checkov-%[1]d"
+  vcs_type   = "github"
+  token      = "%[2]s"
+  account_id = "%[3]s"
+}
+
+resource "scalr_checkov_integration" "test" {
+  name         = "test-checkov-integration-%[1]d"
+  environments = []%[4]s
+}`, rInt, githubToken, defaultAccount, externalChecks)
 }
