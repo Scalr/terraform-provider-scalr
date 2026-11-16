@@ -34,6 +34,7 @@ resource "scalr_checkov_integration" "example3" {
   name         = "my-checkov-integration-3"
   environments = []
   cli_args     = "--compact"
+  scan_mode    = "plan-json"
 }
 ```
 
@@ -49,6 +50,7 @@ resource "scalr_checkov_integration" "example3" {
 - `cli_args` (String) CLI parameters to be passed to checkov command.
 - `environments` (Set of String) List of environments this integration is linked to. Use `["*"]` to allow in all environments.
 - `external_checks_enabled` (Boolean) Indicates whether external checks should be enabled. Default `false`.
+- `scan_mode` (String) What Checkov scans. `configuration-files` scans the configuration files before the run is planned. `plan-json` scans the plan JSON after the plan phase, so the findings cover the resources the run actually provisions; such a scan is skipped when the plan has no changes. Valid values are `configuration-files`, `plan-json`. Default `configuration-files`.
 - `vcs_provider_id` (String) ID of VCS provider in the format `vcs-<RANDOM STRING>`. Required if `external_checks_enabled` is `true`.
 - `vcs_repo` (Block List) Settings for the Checkov integration's VCS repository. Required if `external_checks_enabled` is `true`. (see [below for nested schema](#nestedblock--vcs_repo))
 - `version` (String) Version of the Checkov integration to use.

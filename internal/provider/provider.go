@@ -182,12 +182,14 @@ func (p *scalrProvider) Resources(_ context.Context) []func() resource.Resource 
 		newWorkspaceRemoteStateConsumerResource,
 		newWorkspaceVarSetResource,
 		newDatadogIntegrationResource,
+		newSplunkIntegrationResource,
 	}
 }
 
 func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		newAssumeServiceAccountPolicyDataSource,
+		newCheckovIntegrationDataSource,
 		newContainerImageDataSource,
 		newContainerImageVersionDataSource,
 		newDockerIntegrationDataSource,
@@ -209,5 +211,6 @@ func (p *scalrProvider) DataSources(_ context.Context) []func() datasource.DataS
 		newWorkloadIdentityProviderDataSource,
 		newWorkspaceDataSource,
 		newDatadogIntegrationDataSource,
+		newSplunkIntegrationDataSource,
 	}
 }

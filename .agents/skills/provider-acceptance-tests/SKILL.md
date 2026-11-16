@@ -17,6 +17,10 @@ description: >-
   fatmouse branch with the same name as this branch (fallback `master`), then runs
   `make testacc` (all acceptance tests, `-race`, 45 min) with `SCALR_HOSTNAME`/`SCALR_TOKEN` and
   cloud credentials (`TEST_AWS_*`, `TEST_ARM_*`, ...) from secrets.
+- `make testacc` runs through gotestsum and reruns a failed root test up to twice, to absorb
+  connection drops when the preview environment switches pods. A test must be safe to rerun
+  (random names, no state left from the failed attempt). Rerun tests are listed in the job
+  summary; a test that shows up there often is flaky and needs a fix, not more reruns.
 - A fatmouse `master` change can break provider tests on any branch that has no same-named
   fatmouse branch.
 - Tests rely on that environment's seed data: `defaultAccount` (`acc-svrcncgh453bi8g`),
@@ -125,3 +129,5 @@ and destroys real objects and adds minutes to CI.
 3. 422/403 from the API → check whether the test needs an API change from a fatmouse branch that
    does not exist under the same name, or seed data that changed.
 4. Flaky only in CI → name collisions or account-wide limits shared with parallel runs.
+   Network errors to the preview host (`connection reset by peer`, `Client.Timeout exceeded`)
+   are pod switches; the rerun normally absorbs them.

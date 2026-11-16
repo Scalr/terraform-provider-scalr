@@ -8,6 +8,8 @@ VERSION=$(if $(VER),$(VER),$(if $(TAG),$(TAG),$(BRANCH)))
 USER_PLUGIN_DIR=${HOME}/.terraform.d/plugins/registry.scalr.io/scalr/scalr/$(VERSION)/$(PLATFORM)
 BIN_NAME := terraform-provider-scalr_$(VERSION)
 ARGS=-ldflags='-X github.com/scalr/terraform-provider-scalr/version.ProviderVersion=$(TAG) -X github.com/scalr/terraform-provider-scalr/version.Branch=$(BRANCH)'
+GOTESTSUM=go run gotest.tools/gotestsum@v1.13.0
+RERUN_REPORT=rerun-report.txt
 
 default: build
 
@@ -25,7 +27,10 @@ install: build
 	mkdir -p $(USER_PLUGIN_DIR); cp $(BIN_NAME) $(USER_PLUGIN_DIR)
 
 testacc:
-	TF_ACC=1 go test -race $(TEST) -v $(TESTARGS) -timeout 45m  -covermode atomic -coverprofile=covprofile
+	TF_ACC=1 $(GOTESTSUM) --format standard-verbose \
+		--rerun-fails=2 --rerun-fails-run-root-test --rerun-fails-abort-on-data-race \
+		--rerun-fails-report=$(RERUN_REPORT) --packages="$(TEST)" \
+		-- -race $(TESTARGS) -timeout 45m
 
 # Run selected acceptance tests against the test environment in .scalr-testenv.env:
 #   make testacc-one RUN='^TestAccScalrTag_basic$$'
