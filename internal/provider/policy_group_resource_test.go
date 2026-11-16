@@ -312,6 +312,28 @@ resource "scalr_policy_group" "test" {
 	})
 }
 
+func TestAccPolicyGroup_vcsRepoTagEmpty(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+resource "scalr_policy_group" "test" {
+  name            = "test-pg-empty-tag"
+  vcs_provider_id = "vcs-xxxxxxxxxxxxxxxx"
+  vcs_repo {
+    identifier = "org/repo"
+    tag        = ""
+  }
+}`,
+				ExpectError: regexp.MustCompile(`Invalid Attribute Value`),
+				PlanOnly:    true,
+			},
+		},
+	})
+}
+
 func TestAccPolicyGroup_vcsRepoTag(t *testing.T) {
 	rInt := GetRandomInteger()
 

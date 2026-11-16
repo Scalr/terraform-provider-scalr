@@ -160,6 +160,7 @@ func policyGroupResourceSchema() *schema.Schema {
 							Optional: true,
 							Validators: []validator.String{
 								stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("branch")),
+								stringvalidation.StringIsNotWhiteSpace(),
 							},
 						},
 						"path": schema.StringAttribute{
