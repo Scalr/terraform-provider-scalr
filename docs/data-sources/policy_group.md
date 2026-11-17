@@ -66,3 +66,4 @@ Read-Only:
 - `branch` (String)
 - `identifier` (String)
 - `path` (String)
+- `tag` (String)

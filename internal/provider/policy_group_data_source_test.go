@@ -87,6 +87,7 @@ func TestAccPolicyGroupDataSource_basic(t *testing.T) {
 						policyGroupVcsRepoPath,
 					),
 					resource.TestCheckResourceAttrSet("data.scalr_policy_group.test", "vcs_repo.0.branch"),
+					resource.TestCheckNoResourceAttr("data.scalr_policy_group.test", "vcs_repo.0.tag"),
 					resource.TestCheckResourceAttrSet("data.scalr_policy_group.test", "policies.#"),
 					resource.TestCheckResourceAttrSet("data.scalr_policy_group.test", "environments.#"),
 				),
@@ -103,6 +104,45 @@ func TestAccPolicyGroupDataSource_basic(t *testing.T) {
 					"not-exists", defaultAccount,
 				)),
 				PlanOnly: true,
+			},
+		},
+	})
+}
+
+func TestAccPolicyGroupDataSource_vcsRepoTag(t *testing.T) {
+	rInt := GetRandomInteger()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			// TODO: delete skip after SCALRCORE-19891
+			t.Skip("Works with personal token but does not work with github action token.")
+			testVcsAccGithubTokenPreCheck(t)
+		},
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPolicyGroupTagConfig(rInt, policyGroupRepoTag),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("scalr_policy_group.test", "id"),
+				),
+			},
+			{
+				PreConfig: waitForPolicyGroupFetch(fmt.Sprintf("test-pg-%d", rInt)),
+				Config:    testAccPolicyGroupTagDataSourceConfig(rInt, policyGroupRepoTag),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"data.scalr_policy_group.test",
+						"status",
+						string(scalr.PolicyGroupStatusActive),
+					),
+					resource.TestCheckResourceAttr(
+						"data.scalr_policy_group.test",
+						"vcs_repo.0.tag",
+						policyGroupRepoTag,
+					),
+					// A pinned group tracks no branch, so the data source reports none.
+					resource.TestCheckNoResourceAttr("data.scalr_policy_group.test", "vcs_repo.0.branch"),
+				),
 			},
 		},
 	})
@@ -169,4 +209,16 @@ data "scalr_policy_group" "test" {
   account_id = "%s"
 }
 `, testAccPolicyGroupConfig(rInt), defaultAccount)
+}
+
+func testAccPolicyGroupTagDataSourceConfig(rInt int, tag string) string {
+	return fmt.Sprintf(`
+%s
+
+data "scalr_policy_group" "test" {
+  id         = scalr_policy_group.test.id
+  name       = scalr_policy_group.test.name
+  account_id = "%s"
+}
+`, testAccPolicyGroupTagConfig(rInt, tag), defaultAccount)
 }

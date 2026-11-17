@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **New data source:** `scalr_splunk_integration` ([#578](https://github.com/Scalr/terraform-provider-scalr/pull/578)).
 - **New data source:** `scalr_checkov_integration` to look up a Checkov integration by `id` or `name` ([#576](https://github.com/Scalr/terraform-provider-scalr/pull/576)).
 - `scalr_checkov_integration`: new attribute `scan_mode` to scan the plan JSON after the plan phase instead of the configuration files ([#576](https://github.com/Scalr/terraform-provider-scalr/pull/576)).
+- `scalr_policy_group`: new attribute `vcs_repo.tag` to pin the policies to a Git tag, so pushes to the repository leave them unchanged until another tag is set ([#579](https://github.com/Scalr/terraform-provider-scalr/pull/579)).
+- `data.scalr_policy_group`: new attribute `vcs_repo.tag` ([#579](https://github.com/Scalr/terraform-provider-scalr/pull/579)).
 
 ## [3.21.0] - 2026-10-27
 
