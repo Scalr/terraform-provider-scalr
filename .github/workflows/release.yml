@@ -9,6 +9,32 @@ env:
   RDME_VERSION: 0.0.5
 
 jobs:
+  release-ready:
+    name: Release Ready
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify About Provider Release Approval
+        uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
+        with:
+          webhook: ${{ secrets.SLACK_RELEASE_SYNC_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": "<@UJ5RZQNQK> The Provider Release Approval Required. Version: ${{ github.ref_name }}",
+              "attachments": [
+                {
+                  "color": "1a53ff",
+                  "fields": [
+                    {
+                      "title": "Job URL",
+                      "value": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                      "short": false
+                    }
+                  ]
+                }
+              ]
+            }
+
   build:
     name: Build Provider
     runs-on: ubuntu-latest
