@@ -31,7 +31,7 @@ resource "scalr_module_namespace" "example" {
 
 ### Optional
 
-- `environments` (Set of String) Set of environment IDs associated with the module namespace.
+- `environments` (Set of String) Set of environment IDs associated with the module namespace. Omit the attribute to leave the links unmanaged here, for example when they are managed by [`scalr_module_namespace_environment`](module_namespace_environment) resources. Set it to `[]` to remove all links.
 - `is_shared` (Boolean) Whether the module namespace is shared.
 - `owners` (Set of String) Set of team IDs that own the module namespace.
 
