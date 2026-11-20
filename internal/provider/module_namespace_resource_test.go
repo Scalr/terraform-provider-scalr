@@ -7,14 +7,15 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
-	"github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr/v2/scalr/schemas"
 )
 
 func TestAccScalrModuleNamespace_basic(t *testing.T) {
 	namespaceName := acctest.RandomWithPrefix("test-namespace")
-	namespace := &scalr.ModuleNamespace{}
+	namespace := &schemas.ModuleNamespace{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -56,7 +57,7 @@ func TestAccScalrModuleNamespace_import(t *testing.T) {
 func TestAccScalrModuleNamespace_update(t *testing.T) {
 	namespaceName := acctest.RandomWithPrefix("test-namespace")
 	namespaceNameUpdated := acctest.RandomWithPrefix("test-namespace-updated")
-	namespace := &scalr.ModuleNamespace{}
+	namespace := &schemas.ModuleNamespace{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -85,7 +86,7 @@ func TestAccScalrModuleNamespace_update(t *testing.T) {
 
 func TestAccScalrModuleNamespace_emptyCollections(t *testing.T) {
 	namespaceName := acctest.RandomWithPrefix("test-namespace")
-	namespace := &scalr.ModuleNamespace{}
+	namespace := &schemas.ModuleNamespace{}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -99,6 +100,44 @@ func TestAccScalrModuleNamespace_emptyCollections(t *testing.T) {
 					resource.TestCheckResourceAttr("scalr_module_namespace.test", "name", namespaceName),
 					resource.TestCheckResourceAttr("scalr_module_namespace.test", "environments.#", "0"),
 					resource.TestCheckResourceAttr("scalr_module_namespace.test", "owners.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccScalrModuleNamespace_environmentsUnmanaged(t *testing.T) {
+	namespaceName := acctest.RandomWithPrefix("test-namespace")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrModuleNamespaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrModuleNamespaceWithEnvironment(namespaceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("scalr_module_namespace.test", "environments.#", "1"),
+				),
+			},
+			{
+				// Dropping the attribute means the links are no longer managed here,
+				// so the namespace keeps them and the plan is empty.
+				Config: testAccScalrModuleNamespaceWithEnvironmentUnmanaged(namespaceName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("scalr_module_namespace.test", "environments.#", "1"),
+				),
+			},
+			{
+				// An explicit empty set still removes every link.
+				Config: testAccScalrModuleNamespaceWithEnvironmentEmptied(namespaceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("scalr_module_namespace.test", "environments.#", "0"),
 				),
 			},
 		},
@@ -142,6 +181,44 @@ resource "scalr_module_namespace" "test" {
 }`, name)
 }
 
+func testAccScalrModuleNamespaceWithEnvironment(name string) string {
+	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name       = "%[1]s-env"
+  account_id = "%[2]s"
+}
+
+resource "scalr_module_namespace" "test" {
+  name         = "%[1]s"
+  environments = [scalr_environment.test.id]
+}`, name, defaultAccount)
+}
+
+func testAccScalrModuleNamespaceWithEnvironmentUnmanaged(name string) string {
+	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name       = "%[1]s-env"
+  account_id = "%[2]s"
+}
+
+resource "scalr_module_namespace" "test" {
+  name = "%[1]s"
+}`, name, defaultAccount)
+}
+
+func testAccScalrModuleNamespaceWithEnvironmentEmptied(name string) string {
+	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name       = "%[1]s-env"
+  account_id = "%[2]s"
+}
+
+resource "scalr_module_namespace" "test" {
+  name         = "%[1]s"
+  environments = []
+}`, name, defaultAccount)
+}
+
 func testAccScalrModuleNamespaceInvalidName() string {
 	return `
 resource "scalr_module_namespace" "test" {
@@ -149,9 +226,9 @@ resource "scalr_module_namespace" "test" {
 }`
 }
 
-func testAccCheckScalrModuleNamespaceExists(resId string, namespace *scalr.ModuleNamespace) resource.TestCheckFunc {
+func testAccCheckScalrModuleNamespaceExists(resId string, namespace *schemas.ModuleNamespace) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
+		scalrClient := createScalrClientV2()
 
 		rs, ok := s.RootModule().Resources[resId]
 		if !ok {
@@ -162,7 +239,7 @@ func testAccCheckScalrModuleNamespaceExists(resId string, namespace *scalr.Modul
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		n, err := scalrClient.ModuleNamespaces.Read(ctx, rs.Primary.ID)
+		n, err := scalrClient.ModuleNamespace.GetModuleNamespace(ctx, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -174,7 +251,7 @@ func testAccCheckScalrModuleNamespaceExists(resId string, namespace *scalr.Modul
 }
 
 func testAccCheckScalrModuleNamespaceDestroy(s *terraform.State) error {
-	scalrClient := testAccProviderSDK.Meta().(*scalr.Client)
+	scalrClient := createScalrClientV2()
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "scalr_module_namespace" {
@@ -185,7 +262,7 @@ func testAccCheckScalrModuleNamespaceDestroy(s *terraform.State) error {
 			return fmt.Errorf("No instance ID is set")
 		}
 
-		_, err := scalrClient.ModuleNamespaces.Read(ctx, rs.Primary.ID)
+		_, err := scalrClient.ModuleNamespace.GetModuleNamespace(ctx, rs.Primary.ID)
 		if err == nil {
 			return fmt.Errorf("Module Namespace %s still exists", rs.Primary.ID)
 		}

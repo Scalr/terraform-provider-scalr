@@ -7,7 +7,7 @@ parent:
   uri: provider_resources
 privacy:
   view: public
-position: 45
+position: 46
 ---
 ## Resource: scalr_workspace_var_set
 

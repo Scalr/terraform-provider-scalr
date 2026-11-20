@@ -14,7 +14,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	"github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr/v2/scalr/client"
+	"github.com/scalr/go-scalr/v2/scalr/schemas"
+	"github.com/scalr/go-scalr/v2/scalr/value"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
 	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
@@ -41,6 +43,46 @@ type moduleNamespaceResourceModel struct {
 	IsShared     types.Bool   `tfsdk:"is_shared"`
 	Environments types.Set    `tfsdk:"environments"`
 	Owners       types.Set    `tfsdk:"owners"`
+}
+
+func moduleNamespaceResourceModelFromAPI(
+	ctx context.Context,
+	namespace *schemas.ModuleNamespace,
+	prior *moduleNamespaceResourceModel,
+) (*moduleNamespaceResourceModel, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	model := &moduleNamespaceResourceModel{
+		ID:       types.StringValue(namespace.ID),
+		Name:     types.StringValue(namespace.Attributes.Name),
+		IsShared: types.BoolValue(namespace.Attributes.IsShared),
+	}
+
+	var priorEnvironments, priorOwners *types.Set
+	if prior != nil {
+		priorEnvironments = &prior.Environments
+		priorOwners = &prior.Owners
+	}
+
+	environments, d := framework.FlattenRelationshipIDsSet(
+		ctx,
+		namespace.Relationships.Environments,
+		func(e *schemas.Environment) string { return e.ID },
+		priorEnvironments,
+	)
+	diags.Append(d...)
+	model.Environments = environments
+
+	owners, d := framework.FlattenRelationshipIDsSet(
+		ctx,
+		namespace.Relationships.Owners,
+		func(t *schemas.Team) string { return t.ID },
+		priorOwners,
+	)
+	diags.Append(d...)
+	model.Owners = owners
+
+	return model, diags
 }
 
 func (r *moduleNamespaceResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -77,10 +119,14 @@ func (r *moduleNamespaceResource) Schema(_ context.Context, _ resource.SchemaReq
 				Default:             booldefault.StaticBool(false),
 			},
 			"environments": schema.SetAttribute{
-				ElementType:         types.StringType,
-				Optional:            true,
-				MarkdownDescription: "Set of environment IDs associated with the module namespace.",
-				Validators:          []validator.Set{moduleNamespaceEnvironmentsValidator{}},
+				ElementType: types.StringType,
+				Optional:    true,
+				Computed:    true,
+				MarkdownDescription: "Set of environment IDs associated with the module namespace." +
+					" Omit the attribute to leave the links unmanaged here, for example when they are" +
+					" managed by [`scalr_module_namespace_environment`](module_namespace_environment)" +
+					" resources. Set it to `[]` to remove all links.",
+				Validators: []validator.Set{moduleNamespaceEnvironmentsValidator{}},
 			},
 			"owners": schema.SetAttribute{
 				ElementType:         types.StringType,
@@ -103,75 +149,50 @@ func (r *moduleNamespaceResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	var environments []string
-	resp.Diagnostics.Append(plan.Environments.ElementsAs(ctx, &environments, false)...)
+	opts := schemas.ModuleNamespaceRequest{
+		Attributes: schemas.ModuleNamespaceAttributesRequest{
+			Name:     value.Set(plan.Name.ValueString()),
+			IsShared: framework.SetIfKnownBool(plan.IsShared),
+		},
+	}
+
+	if !plan.Environments.IsUnknown() && !plan.Environments.IsNull() {
+		environments, diags := framework.ExpandRelationshipIDsSet(
+			ctx, plan.Environments, func(id string) schemas.Environment {
+				return schemas.Environment{ID: id}
+			},
+		)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		opts.Relationships.Environments = value.Set(environments)
+	}
+
+	owners, diags := framework.ExpandRelationshipIDsSet(
+		ctx, plan.Owners, func(id string) schemas.Team {
+			return schemas.Team{ID: id}
+		},
+	)
+	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	opts.Relationships.Owners = value.Set(owners)
 
-	var owners []string
-	resp.Diagnostics.Append(plan.Owners.ElementsAs(ctx, &owners, false)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Convert environment IDs to Environment objects
-	var environmentObjects []*scalr.Environment
-	for _, envID := range environments {
-		environmentObjects = append(environmentObjects, &scalr.Environment{ID: envID})
-	}
-
-	// Convert owner IDs to Team objects
-	var ownerObjects []*scalr.Team
-	for _, ownerID := range owners {
-		ownerObjects = append(ownerObjects, &scalr.Team{ID: ownerID})
-	}
-
-	opts := scalr.ModuleNamespaceCreateOptions{
-		Name:         plan.Name.ValueStringPointer(),
-		IsShared:     plan.IsShared.ValueBoolPointer(),
-		Environments: environmentObjects,
-		Owners:       ownerObjects,
-	}
-
-	namespace, err := r.Client.ModuleNamespaces.Create(ctx, opts)
+	namespace, err := r.ClientV2.ModuleNamespace.CreateModuleNamespace(ctx, &opts)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating module namespace", err.Error())
 		return
 	}
 
-	plan.ID = types.StringValue(namespace.ID)
-	plan.Name = types.StringValue(namespace.Name)
-	plan.IsShared = types.BoolValue(namespace.IsShared)
-
-	environmentsSet, diags := framework.FlattenRelationshipIDsSet(
-		ctx,
-		namespace.Environments,
-		func(e *scalr.Environment) string { return e.ID },
-		&plan.Environments,
-	)
+	result, diags := moduleNamespaceResourceModelFromAPI(ctx, namespace, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	plan.Environments = environmentsSet
 
-	ownersSet, diags := framework.FlattenRelationshipIDsSet(
-		ctx,
-		namespace.Owners,
-		func(t *scalr.Team) string { return t.ID },
-		&plan.Owners,
-	)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-	plan.Owners = ownersSet
-
-	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
 }
 
 func (r *moduleNamespaceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -181,9 +202,9 @@ func (r *moduleNamespaceResource) Read(ctx context.Context, req resource.ReadReq
 		return
 	}
 
-	namespace, err := r.Client.ModuleNamespaces.Read(ctx, state.ID.ValueString())
+	namespace, err := r.ClientV2.ModuleNamespace.GetModuleNamespace(ctx, state.ID.ValueString())
 	if err != nil {
-		if errors.Is(err, scalr.ErrResourceNotFound) {
+		if errors.Is(err, client.ErrNotFound) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -191,121 +212,68 @@ func (r *moduleNamespaceResource) Read(ctx context.Context, req resource.ReadReq
 		return
 	}
 
-	state.Name = types.StringValue(namespace.Name)
-	state.IsShared = types.BoolValue(namespace.IsShared)
-
-	environmentsSet, diags := framework.FlattenRelationshipIDsSet(
-		ctx,
-		namespace.Environments,
-		func(e *scalr.Environment) string {
-			return e.ID
-		},
-		&state.Environments,
-	)
+	result, diags := moduleNamespaceResourceModelFromAPI(ctx, namespace, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state.Environments = environmentsSet
 
-	ownersSet, diags := framework.FlattenRelationshipIDsSet(
-		ctx,
-		namespace.Owners,
-		func(t *scalr.Team) string {
-			return t.ID
-		},
-		&state.Owners,
-	)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-	state.Owners = ownersSet
-
-	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
 }
 
 func (r *moduleNamespaceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan moduleNamespaceResourceModel
+	var plan, state moduleNamespaceResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	var environments []string
-	resp.Diagnostics.Append(plan.Environments.ElementsAs(ctx, &environments, false)...)
+	opts := schemas.ModuleNamespaceRequest{
+		Attributes: schemas.ModuleNamespaceAttributesRequest{
+			IsShared: framework.SetIfKnownBool(plan.IsShared),
+		},
+	}
+
+	// An unchanged set is not sent, so links made elsewhere survive an update.
+	if !plan.Environments.Equal(state.Environments) &&
+		!plan.Environments.IsUnknown() && !plan.Environments.IsNull() {
+		environments, diags := framework.ExpandRelationshipIDsSet(
+			ctx, plan.Environments, func(id string) schemas.Environment {
+				return schemas.Environment{ID: id}
+			},
+		)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		opts.Relationships.Environments = value.Set(environments)
+	}
+
+	owners, diags := framework.ExpandRelationshipIDsSet(
+		ctx, plan.Owners, func(id string) schemas.Team {
+			return schemas.Team{ID: id}
+		},
+	)
+	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	opts.Relationships.Owners = value.Set(owners)
 
-	var owners []string
-	resp.Diagnostics.Append(plan.Owners.ElementsAs(ctx, &owners, false)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Convert environment IDs to Environment objects
-	var environmentObjects []*scalr.Environment
-	for _, envID := range environments {
-		environmentObjects = append(environmentObjects, &scalr.Environment{ID: envID})
-	}
-
-	// Convert owner IDs to Team objects
-	var ownerObjects []*scalr.Team
-	for _, ownerID := range owners {
-		ownerObjects = append(ownerObjects, &scalr.Team{ID: ownerID})
-	}
-
-	opts := scalr.ModuleNamespaceUpdateOptions{
-		IsShared:     plan.IsShared.ValueBoolPointer(),
-		Environments: environmentObjects,
-		Owners:       ownerObjects,
-	}
-
-	namespace, err := r.Client.ModuleNamespaces.Update(ctx, plan.ID.ValueString(), opts)
+	namespace, err := r.ClientV2.ModuleNamespace.UpdateModuleNamespace(ctx, plan.ID.ValueString(), &opts)
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating module namespace", err.Error())
 		return
 	}
 
-	plan.Name = types.StringValue(namespace.Name)
-	plan.IsShared = types.BoolValue(namespace.IsShared)
-
-	environmentsSet, diags := framework.FlattenRelationshipIDsSet(
-		ctx,
-		namespace.Environments,
-		func(e *scalr.Environment) string {
-			return e.ID
-		},
-		&plan.Environments,
-	)
+	result, diags := moduleNamespaceResourceModelFromAPI(ctx, namespace, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	plan.Environments = environmentsSet
 
-	ownersSet, diags := framework.FlattenRelationshipIDsSet(
-		ctx,
-		namespace.Owners,
-		func(t *scalr.Team) string {
-			return t.ID
-		},
-		&plan.Owners,
-	)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-	plan.Owners = ownersSet
-
-	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	resp.Diagnostics.Append(resp.State.Set(ctx, result)...)
 }
 
 func (r *moduleNamespaceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -315,8 +283,8 @@ func (r *moduleNamespaceResource) Delete(ctx context.Context, req resource.Delet
 		return
 	}
 
-	err := r.Client.ModuleNamespaces.Delete(ctx, state.ID.ValueString())
-	if err != nil && !errors.Is(err, scalr.ErrResourceNotFound) {
+	err := r.ClientV2.ModuleNamespace.DeleteModuleNamespace(ctx, state.ID.ValueString())
+	if err != nil && !errors.Is(err, client.ErrNotFound) {
 		resp.Diagnostics.AddError("Error deleting module namespace", err.Error())
 		return
 	}
