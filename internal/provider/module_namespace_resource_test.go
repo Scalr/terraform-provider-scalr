@@ -144,6 +144,33 @@ func TestAccScalrModuleNamespace_environmentsUnmanaged(t *testing.T) {
 	})
 }
 
+func TestAccScalrModuleNamespace_sharedDropsEnvironments(t *testing.T) {
+	namespaceName := acctest.RandomWithPrefix("test-namespace")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: protoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckScalrModuleNamespaceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccScalrModuleNamespaceWithEnvironment(namespaceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("scalr_module_namespace.test", "environments.#", "1"),
+				),
+			},
+			{
+				// A shared namespace can't keep links, so turning sharing on removes
+				// them even when the configuration no longer lists them.
+				Config: testAccScalrModuleNamespaceSharedWithEnvironment(namespaceName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("scalr_module_namespace.test", "is_shared", "true"),
+					resource.TestCheckResourceAttr("scalr_module_namespace.test", "environments.#", "0"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccScalrModuleNamespace_invalidName(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -216,6 +243,19 @@ resource "scalr_environment" "test" {
 resource "scalr_module_namespace" "test" {
   name         = "%[1]s"
   environments = []
+}`, name, defaultAccount)
+}
+
+func testAccScalrModuleNamespaceSharedWithEnvironment(name string) string {
+	return fmt.Sprintf(`
+resource "scalr_environment" "test" {
+  name       = "%[1]s-env"
+  account_id = "%[2]s"
+}
+
+resource "scalr_module_namespace" "test" {
+  name      = "%[1]s"
+  is_shared = true
 }`, name, defaultAccount)
 }
 

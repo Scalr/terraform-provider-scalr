@@ -27,6 +27,7 @@ var (
 	_ resource.ResourceWithConfigure        = &moduleNamespaceResource{}
 	_ resource.ResourceWithConfigValidators = &moduleNamespaceResource{}
 	_ resource.ResourceWithImportState      = &moduleNamespaceResource{}
+	_ resource.ResourceWithModifyPlan       = &moduleNamespaceResource{}
 )
 
 func newModuleNamespaceResource() resource.Resource {
@@ -119,13 +120,12 @@ func (r *moduleNamespaceResource) Schema(_ context.Context, _ resource.SchemaReq
 				Default:             booldefault.StaticBool(false),
 			},
 			"environments": schema.SetAttribute{
-				ElementType: types.StringType,
-				Optional:    true,
-				Computed:    true,
-				MarkdownDescription: "Set of environment IDs associated with the module namespace." +
-					" Omit the attribute to leave the links unmanaged here, for example when they are" +
-					" managed by [`scalr_module_namespace_environment`](module_namespace_environment)" +
-					" resources. Set it to `[]` to remove all links.",
+				ElementType:         types.StringType,
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "Set of environment IDs associated with the module namespace.",
+				DeprecationMessage: "Setting this attribute is deprecated." +
+					" Use the `scalr_module_namespace_environment` resource instead.",
 				Validators: []validator.Set{moduleNamespaceEnvironmentsValidator{}},
 			},
 			"owners": schema.SetAttribute{
@@ -250,16 +250,18 @@ func (r *moduleNamespaceResource) Update(ctx context.Context, req resource.Updat
 		opts.Relationships.Environments = value.Set(environments)
 	}
 
-	owners, diags := framework.ExpandRelationshipIDsSet(
-		ctx, plan.Owners, func(id string) schemas.Team {
-			return schemas.Team{ID: id}
-		},
-	)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
+	if !plan.Owners.Equal(state.Owners) {
+		owners, diags := framework.ExpandRelationshipIDsSet(
+			ctx, plan.Owners, func(id string) schemas.Team {
+				return schemas.Team{ID: id}
+			},
+		)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		opts.Relationships.Owners = value.Set(owners)
 	}
-	opts.Relationships.Owners = value.Set(owners)
 
 	namespace, err := r.ClientV2.ModuleNamespace.UpdateModuleNamespace(ctx, plan.ID.ValueString(), &opts)
 	if err != nil {
@@ -288,6 +290,37 @@ func (r *moduleNamespaceResource) Delete(ctx context.Context, req resource.Delet
 		resp.Diagnostics.AddError("Error deleting module namespace", err.Error())
 		return
 	}
+}
+
+// ModifyPlan clears the planned environment links when the namespace becomes shared.
+func (r *moduleNamespaceResource) ModifyPlan(
+	ctx context.Context,
+	req resource.ModifyPlanRequest,
+	resp *resource.ModifyPlanResponse,
+) {
+	if req.State.Raw.IsNull() || req.Plan.Raw.IsNull() {
+		// Create or destroy, nothing to adjust.
+		return
+	}
+
+	var config, plan, state moduleNamespaceResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if !config.Environments.IsNull() || state.IsShared.ValueBool() || !plan.IsShared.ValueBool() {
+		return
+	}
+	if plan.Environments.IsUnknown() || len(plan.Environments.Elements()) == 0 {
+		return
+	}
+
+	resp.Diagnostics.Append(resp.Plan.SetAttribute(
+		ctx, path.Root("environments"), types.SetValueMust(types.StringType, nil),
+	)...)
 }
 
 func (r *moduleNamespaceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
