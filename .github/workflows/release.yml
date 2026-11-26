@@ -98,3 +98,46 @@ jobs:
                 run_post_relese: 'true'
               }
             })
+
+  # Scalr/actions is private, so the release thread is posted through a release-management workflow
+  notify:
+    name: Notify the Release Thread
+    needs: [ build, docs-publish, e2e-tests ]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sudo GitHub Token
+        id: generate_token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.SUDO_GHA_CLIENT_ID }}
+          private-key: ${{secrets.SUDO_GHA_APP_PRIVATE_KEY}}
+          owner: ${{ github.repository_owner }}
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          TAG: ${{ github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          RESULTS: ${{ toJSON(needs) }}
+        with:
+          github-token: ${{steps.generate_token.outputs.token}}
+          script: |
+            const { TAG: tag, RUN_URL: runUrl } = process.env
+            const failed = Object.entries(JSON.parse(process.env.RESULTS))
+              .filter(([, job]) => job.result !== 'success')
+              .map(([name]) => name)
+            const inputs = { project: 'provider', version: tag }
+            if (failed.length) {
+              // A rejected approval fails the build job too
+              inputs.text = `<@UJ5RZQNQK> :x: The release build of \`${tag}\` has Failed or was rejected: ${failed.join(', ')}. <${runUrl}|GitHub run>`
+              inputs.broadcast = 'true'
+            } else {
+              inputs.text = `:package: \`${tag}\` is published to the Terraform Registry, the docs are updated and the prod E2E check is started. <${runUrl}|GitHub run>`
+              inputs.status = `:package: \`${tag}\` published, prod E2E running`
+            }
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'Scalr',
+              repo: 'release-management',
+              workflow_id: 'release-thread.yaml',
+              ref: 'main',
+              inputs,
+            })

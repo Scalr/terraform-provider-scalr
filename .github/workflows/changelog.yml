@@ -1,0 +1,28 @@
+name: Changelog
+
+on:
+  pull_request:
+    branches:
+      - master
+      - release/**
+    paths:
+      - CHANGELOG.md
+
+permissions:
+  contents: read
+
+jobs:
+  unreleased-only:
+    name: Entries Go to Unreleased
+    # Backports carry the release commit that stamps the released section
+    if: ${{ !startsWith(github.head_ref, 'backport/') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check Changed Lines
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: python3 .github/scripts/check_changelog.py "$BASE_SHA"
