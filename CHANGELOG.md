@@ -21,8 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `scalr_module_namespace`: omitting `environments` now leaves the environment links unmanaged instead of removing them.  ([#587](https://github.com/Scalr/terraform-provider-scalr/pull/587)).
-- `scalr_module_namespace`: turning `is_shared` on now removes the environment links, which the API requires, instead of failing ([#587](https://github.com/Scalr/terraform-provider-scalr/pull/587)).
+- `scalr_module_namespace`: omitting `environments` now leaves the environment links unmanaged instead of removing them ([#587](https://github.com/Scalr/terraform-provider-scalr/pull/587)).
 
 ### Deprecated
 
