@@ -1,0 +1,1 @@
+terraform import scalr_module_namespace_environment.example modns-xxxxxxxxxx/env-xxxxxxxxxx

@@ -31,7 +31,7 @@ resource "scalr_module_namespace" "example" {
 
 ### Optional
 
-- `environments` (Set of String) Set of environment IDs associated with the module namespace.
+- `environments` (Set of String, Deprecated) Set of environment IDs associated with the module namespace.
 - `is_shared` (Boolean) Whether the module namespace is shared.
 - `owners` (Set of String) Set of team IDs that own the module namespace.
 

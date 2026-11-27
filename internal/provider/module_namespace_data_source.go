@@ -9,7 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	"github.com/scalr/go-scalr"
+	"github.com/scalr/go-scalr/v2/scalr/ops/module_namespace"
+	"github.com/scalr/go-scalr/v2/scalr/schemas"
 
 	"github.com/scalr/terraform-provider-scalr/internal/framework"
 	"github.com/scalr/terraform-provider-scalr/internal/framework/validation/stringvalidation"
@@ -97,21 +98,17 @@ func (r *moduleNamespaceDataSource) Read(ctx context.Context, req datasource.Rea
 		return
 	}
 
-	filter := scalr.ModuleNamespaceFilter{
-		Name: cfg.Name.ValueString(),
+	options := module_namespace.ListModuleNamespacesOptions{
+		Filter: map[string]string{"name": cfg.Name.ValueString()},
 	}
 
-	options := scalr.ModuleNamespacesListOptions{
-		Filter: &filter,
-	}
-
-	namespaces, err := r.Client.ModuleNamespaces.List(ctx, options)
+	namespaces, err := r.ClientV2.ModuleNamespace.ListModuleNamespaces(ctx, &options)
 	if err != nil {
 		resp.Diagnostics.AddError("Error retrieving module namespaces", err.Error())
 		return
 	}
 
-	if len(namespaces.Items) > 1 {
+	if len(namespaces) > 1 {
 		resp.Diagnostics.AddError(
 			"Error retrieving module namespace",
 			"Your query returned more than one result. Please try a more specific search criteria.",
@@ -119,7 +116,7 @@ func (r *moduleNamespaceDataSource) Read(ctx context.Context, req datasource.Rea
 		return
 	}
 
-	if len(namespaces.Items) == 0 {
+	if len(namespaces) == 0 {
 		resp.Diagnostics.AddError(
 			"Error retrieving module namespace",
 			fmt.Sprintf("Could not find module namespace with name '%s'.",
@@ -127,59 +124,47 @@ func (r *moduleNamespaceDataSource) Read(ctx context.Context, req datasource.Rea
 		)
 		return
 	}
-	namespace := namespaces.Items[0]
+	namespace := namespaces[0]
 
 	cfg.ID = types.StringValue(namespace.ID)
-	cfg.Name = types.StringValue(namespace.Name)
-	cfg.IsShared = types.BoolValue(namespace.IsShared)
+	cfg.Name = types.StringValue(namespace.Attributes.Name)
+	cfg.IsShared = types.BoolValue(namespace.Attributes.IsShared)
 
-	// Set environments
-	if len(namespace.Environments) > 0 {
-		environmentIDs := make([]string, len(namespace.Environments))
-		for i, env := range namespace.Environments {
-			environmentIDs[i] = env.ID
-		}
-		environmentsSet, diags := types.SetValueFrom(ctx, types.StringType, environmentIDs)
-		resp.Diagnostics.Append(diags...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
-		cfg.Environments = environmentsSet
-	} else {
-		cfg.Environments = types.SetNull(types.StringType)
+	environments, diags := framework.FlattenRelationshipIDsSet(
+		ctx,
+		namespace.Relationships.Environments,
+		func(e *schemas.Environment) string { return e.ID },
+		&cfg.Environments,
+	)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
+	cfg.Environments = environments
 
-	// Set modules
-	if len(namespace.Modules) > 0 {
-		moduleIDs := make([]string, len(namespace.Modules))
-		for i, module := range namespace.Modules {
-			moduleIDs[i] = module.ID
-		}
-		modulesSet, diags := types.SetValueFrom(ctx, types.StringType, moduleIDs)
-		resp.Diagnostics.Append(diags...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
-		cfg.Modules = modulesSet
-	} else {
-		cfg.Modules = types.SetNull(types.StringType)
+	modules, diags := framework.FlattenRelationshipIDsSet(
+		ctx,
+		namespace.Relationships.Modules,
+		func(m *schemas.Module) string { return m.ID },
+		&cfg.Modules,
+	)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
+	cfg.Modules = modules
 
-	// Set owners
-	if len(namespace.Owners) > 0 {
-		ownerIDs := make([]string, len(namespace.Owners))
-		for i, owner := range namespace.Owners {
-			ownerIDs[i] = owner.ID
-		}
-		ownersSet, diags := types.SetValueFrom(ctx, types.StringType, ownerIDs)
-		resp.Diagnostics.Append(diags...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
-		cfg.Owners = ownersSet
-	} else {
-		cfg.Owners = types.SetNull(types.StringType)
+	owners, diags := framework.FlattenRelationshipIDsSet(
+		ctx,
+		namespace.Relationships.Owners,
+		func(t *schemas.Team) string { return t.ID },
+		&cfg.Owners,
+	)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
+	cfg.Owners = owners
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &cfg)...)
 }
